@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "research-kb"
+version = "1.0.0"
+description = "Research Knowledge Base - Personal RAG system for textbooks, papers, and code"
+authors = ["Brandon Behring <$USER@example.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+pytest-cov = "^4.1.0"
+black = "^24.0.0"
+ruff = "^0.1.0"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# Poetry workspace configuration
+# Packages are managed independently in packages/* subdirectories
+# Install all packages: poetry install
+# Install with specific groups: poetry install --with dev

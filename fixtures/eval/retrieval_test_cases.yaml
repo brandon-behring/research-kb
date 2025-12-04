@@ -1,0 +1,116 @@
+# Retrieval Test Cases for research-kb
+# Master Plan Reference: Lines 596-601, 1382-1383
+#
+# Each test case specifies:
+# - query: The search query
+# - expected_source: Source identifier that should appear in results
+# - expected_in_top_k: Result should be in top K results
+# - expected_page_range: Optional page range for verification
+# - tags: Categories for filtering
+
+test_cases:
+  # Core causal inference concepts (backdoor criterion test)
+  - query: "backdoor criterion"
+    expected_source_pattern: "causality.*models|reasoning|inference"
+    expected_in_top_k: 5
+    expected_page_range: [75, 375]
+    tags: [core, pearl, causal_inference]
+    notes: "Master Plan Line 597: backdoor criterion → Pearl's Causality book"
+
+  # Cross-fitting test (DML paper)
+  - query: "cross-fitting"
+    expected_source_pattern: "double.*debiased|machine learning.*treatment"
+    expected_in_top_k: 5
+    tags: [core, dml, causal_inference]
+    notes: "Master Plan Line 598: cross-fitting → Chernozhukov 2018"
+
+  # Instrumental variables (should return both textbook and paper)
+  - query: "instrumental variables"
+    expected_source_pattern: "mostly harmless|instrumental|econometrics"
+    expected_in_top_k: 5
+    expect_mixed_sources: true
+    tags: [core, iv, econometrics]
+    notes: "Master Plan Line 610: IV should return mixed sources"
+
+  # Potential outcomes framework
+  - query: "potential outcomes"
+    expected_source_pattern: "causal|treatment|counterfactual"
+    expected_in_top_k: 5
+    tags: [core, causal_inference]
+
+  # Propensity score matching
+  - query: "propensity score matching"
+    expected_source_pattern: "matching|propensity"
+    expected_in_top_k: 5
+    tags: [core, matching]
+
+  # LATE / Local Average Treatment Effect
+  - query: "local average treatment effect"
+    expected_source_pattern: "mostly harmless|econometrics|nobel|treatment"
+    expected_in_top_k: 5
+    tags: [core, iv]
+
+  # Causal DAGs
+  - query: "directed acyclic graph causal"
+    expected_source_pattern: "causality"
+    expected_in_top_k: 5
+    tags: [core, graphs]
+
+  # Double machine learning
+  - query: "double machine learning"
+    expected_source_pattern: "double.*debiased|machine learning.*treatment"
+    expected_in_top_k: 3
+    tags: [core, dml, ml]
+
+  # Heterogeneous treatment effects
+  - query: "heterogeneous treatment effects"
+    expected_source_pattern: "heterogeneous|recursive partitioning|treatment"
+    expected_in_top_k: 5
+    tags: [hte, ml]
+
+  # Selection bias
+  - query: "selection bias observational"
+    expected_source_pattern: "mostly harmless|econometrics|causal"
+    expected_in_top_k: 5
+    tags: [bias, causal_inference]
+
+  # ===== Phase 1 Cleanup: 4 Concept-Gap Tests =====
+  # NOTE: RDD and sensitivity papers skipped (not on arXiv)
+
+  # Synthetic control methods
+  - query: "synthetic control experimental design"
+    expected_source_pattern: "synthetic control.*experimental"
+    expected_in_top_k: 5
+    tags: [core, synthetic_control]
+    notes: "Phase 1 cleanup: Abadie/Zhao 2021 (arXiv:2108.02196)"
+
+  # Causal forests
+  - query: "causal forest random forests heterogeneous"
+    expected_source_pattern: "heterogeneous treatment effects.*random forests"
+    expected_in_top_k: 5
+    tags: [core, causal_forest, ml]
+    notes: "Phase 1 cleanup: Wager/Athey 2018"
+
+  # Causal mediation analysis
+  - query: "causal mediation identification inference"
+    expected_source_pattern: "identification.*inference.*mediation|mediation effects"
+    expected_in_top_k: 5
+    tags: [core, mediation]
+    notes: "Phase 1 cleanup: Imai et al. 2010 (arXiv:1011.1079)"
+
+  # Staggered difference-in-differences
+  - query: "staggered difference in differences multiple time periods"
+    expected_source_pattern: "difference.*differences.*multiple|time periods"
+    expected_in_top_k: 5
+    tags: [core, staggered_did]
+    notes: "Phase 1 cleanup: Callaway/Sant'Anna 2021"
+
+# Metrics targets (Master Plan Lines 1382-1383)
+metrics:
+  precision_at_5:
+    target: 0.90
+    description: "90% of top-5 results should be relevant"
+
+  recall:
+    target: 0.95
+    description: "95% of relevant documents should be retrieved"

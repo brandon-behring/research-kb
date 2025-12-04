@@ -1,0 +1,71 @@
+name: PR Checks (Fast)
+
+on: [pull_request]
+
+jobs:
+  fast-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: ankane/pgvector:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: research_kb_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e packages/cli
+          pip install -e packages/storage
+          pip install -e packages/pdf-tools
+          pip install -e packages/contracts
+          pip install -e packages/common
+          pip install pytest pytest-asyncio
+
+      - name: Run unit tests (no services required)
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: research_kb_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        run: |
+          pytest packages/ -v \
+            -m "not slow and not requires_ollama and not requires_embedding" \
+            --tb=short
+
+      - name: Run CLI tests (mocked services)
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: research_kb_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        run: |
+          pytest packages/cli/tests/ -v \
+            -m "not requires_embedding" \
+            --tb=short
+
+      - name: Run script structure tests
+        run: |
+          pytest tests/scripts/ -v \
+            -m "not slow and not requires_ollama and not requires_embedding and not integration" \
+            --tb=short

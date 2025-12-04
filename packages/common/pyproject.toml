@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "research-kb-common"
+version = "1.0.0"
+description = "Common utilities for research-kb system (logging, retry, instrumentation)"
+authors = ["Brandon Behring <$USER@example.com>"]
+packages = [{include = "research_kb_common", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+research-kb-contracts = {path = "../contracts", develop = true}
+opentelemetry-api = "^1.27.0"
+opentelemetry-sdk = "^1.27.0"
+tenacity = "^9.0.0"  # Retry/backoff patterns
+structlog = "^24.0.0"  # Structured logging
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "research-kb-pdf"
+version = "1.0.0"
+description = "PDF extraction and chunking for research-kb system"
+authors = ["Brandon Behring <$USER@example.com>"]
+packages = [{include = "research_kb_pdf", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+research-kb-contracts = {path = "../contracts", develop = true}
+research-kb-common = {path = "../common", develop = true}
+research-kb-storage = {path = "../storage", develop = true}
+
+pymupdf = "^1.23.0"              # PDF text extraction
+requests = "^2.31.0"              # GROBID HTTP client
+lxml = "^5.0.0"                   # TEI-XML parsing
+sentence-transformers = "^2.2.0"  # BGE embeddings (includes transformers tokenizer)
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100

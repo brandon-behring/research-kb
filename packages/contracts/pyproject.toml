@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "research-kb-contracts"
+version = "1.0.0"
+description = "Pure Pydantic schemas for research-kb system"
+authors = ["Brandon Behring <$USER@example.com>"]
+packages = [{include = "research_kb_contracts", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^2.5.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Testing/Linting
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-specific - Large corpus PDFs (source separately)
+fixtures/papers/
+fixtures/textbooks/
+fixtures/golden/
+# Keep fixtures/samples/ for CI test data
+# Keep fixtures/concepts/ and fixtures/eval/ for validation configs
+.extraction_checkpoint.json
+*.log
+.env
+*.sql                   # Database dumps
+
+# Keep these directories tracked
+!.github/
+!.claude/

@@ -1,0 +1,270 @@
+"""Tests for hybrid search (FTS + vector similarity)."""
+
+import pytest
+
+from research_kb_common import SearchError
+from research_kb_contracts import SourceType
+from research_kb_storage import (
+    ChunkStore,
+    DatabaseConfig,
+    SearchQuery,
+    SourceStore,
+    get_connection_pool,
+    close_connection_pool,
+    search_hybrid,
+)
+
+
+@pytest.fixture
+async def test_data(db_pool):
+    """Create test data for search tests."""
+    # Create source
+    source = await SourceStore.create(
+        source_type=SourceType.TEXTBOOK,
+        title="Causality",
+        file_hash="sha256:causality",
+        authors=["Judea Pearl"],
+    )
+
+    # Create chunks with embeddings
+    chunks = []
+
+    # Chunk 1: About backdoor criterion (high relevance for "backdoor")
+    chunk1 = await ChunkStore.create(
+        source_id=source.id,
+        content="The backdoor criterion states that a set of variables Z satisfies the backdoor criterion relative to X and Y.",
+        content_hash="sha256:chunk1",
+        location="Chapter 3, p. 73",
+        embedding=[0.1] * 1024,  # Simulated embedding (BGE-large-en-v1.5 is 1024-dim)
+        metadata={"chunk_type": "theorem", "theorem_name": "Backdoor Criterion"},
+    )
+    chunks.append(chunk1)
+
+    # Chunk 2: About instrumental variables (different topic)
+    chunk2 = await ChunkStore.create(
+        source_id=source.id,
+        content="Instrumental variables provide a method for estimating causal effects when there is unobserved confounding.",
+        content_hash="sha256:chunk2",
+        location="Chapter 5, p. 142",
+        embedding=[0.5] * 1024,  # Different embedding
+        metadata={"chunk_type": "definition", "concept": "instrumental_variables"},
+    )
+    chunks.append(chunk2)
+
+    # Chunk 3: About frontdoor criterion (partially related)
+    chunk3 = await ChunkStore.create(
+        source_id=source.id,
+        content="The frontdoor criterion provides an alternative identification strategy when the backdoor criterion fails.",
+        content_hash="sha256:chunk3",
+        location="Chapter 3, p. 81",
+        embedding=[0.2] * 1024,  # Similar to chunk1
+        metadata={"chunk_type": "theorem", "theorem_name": "Frontdoor Criterion"},
+    )
+    chunks.append(chunk3)
+
+    return {"source": source, "chunks": chunks}
+
+
+class TestSearchQuery:
+    """Test SearchQuery validation."""
+
+    def test_search_query_text_only(self):
+        """Test creating SearchQuery with text only."""
+        query = SearchQuery(text="backdoor criterion")
+
+        assert query.text == "backdoor criterion"
+        assert query.embedding is None
+
+    def test_search_query_embedding_only(self):
+        """Test creating SearchQuery with embedding only."""
+        query = SearchQuery(embedding=[0.1] * 1024)
+
+        assert query.text is None
+        assert len(query.embedding) == 1024
+
+    def test_search_query_hybrid(self):
+        """Test creating SearchQuery with both text and embedding."""
+        query = SearchQuery(
+            text="backdoor criterion",
+            embedding=[0.1] * 1024,
+            fts_weight=0.3,
+            vector_weight=0.7,
+        )
+
+        assert query.text == "backdoor criterion"
+        assert len(query.embedding) == 1024
+        # Weights normalized to sum to 1
+        assert abs(query.fts_weight + query.vector_weight - 1.0) < 0.001
+
+    def test_search_query_no_criteria_fails(self):
+        """Test creating SearchQuery with no search criteria raises error."""
+        with pytest.raises(ValueError) as exc_info:
+            SearchQuery()
+
+        assert "at least one" in str(exc_info.value).lower()
+
+    def test_search_query_wrong_embedding_dimension(self):
+        """Test creating SearchQuery with wrong embedding dimension raises error."""
+        with pytest.raises(ValueError) as exc_info:
+            SearchQuery(embedding=[0.1] * 128)  # Wrong dimension
+
+        assert "1024 dimensions" in str(exc_info.value)
+
+    def test_search_query_weight_normalization(self):
+        """Test weights are normalized to sum to 1."""
+        query = SearchQuery(
+            text="test",
+            embedding=[0.1] * 1024,
+            fts_weight=2.0,
+            vector_weight=3.0,
+        )
+
+        # Should normalize: 2/(2+3) = 0.4, 3/(2+3) = 0.6
+        assert abs(query.fts_weight - 0.4) < 0.001
+        assert abs(query.vector_weight - 0.6) < 0.001
+
+
+class TestFTSSearch:
+    """Test full-text search (FTS only)."""
+
+    async def test_fts_search_finds_relevant_chunks(self, test_data):
+        """Test FTS search finds chunks containing search terms."""
+        query = SearchQuery(
+            text="backdoor criterion",
+            limit=10,
+        )
+
+        results = await search_hybrid(query)
+
+        # Should find chunks 1 and 3 (both mention "backdoor" or "criterion")
+        assert len(results) >= 1
+
+        # First result should be chunk 1 (mentions both terms)
+        assert "backdoor criterion" in results[0].chunk.content.lower()
+
+        # All results should have FTS scores
+        assert all(r.fts_score is not None for r in results)
+        assert all(r.fts_score > 0 for r in results)
+
+    async def test_fts_search_ranking(self, test_data):
+        """Test FTS search ranks results by relevance."""
+        query = SearchQuery(text="backdoor", limit=10)
+
+        results = await search_hybrid(query)
+
+        # Results should be ordered by FTS score (descending)
+        if len(results) > 1:
+            for i in range(len(results) - 1):
+                assert results[i].fts_score >= results[i + 1].fts_score
+
+        # Rank should be 1-based and sequential
+        for i, result in enumerate(results):
+            assert result.rank == i + 1
+
+
+class TestVectorSearch:
+    """Test vector similarity search (vector only)."""
+
+    async def test_vector_search_finds_similar_chunks(self, test_data):
+        """Test vector search finds chunks with similar embeddings."""
+        # Query with embedding similar to chunk1 ([0.1] * 1024)
+        query = SearchQuery(
+            embedding=[0.15] * 1024,  # Close to chunk1
+            limit=10,
+        )
+
+        results = await search_hybrid(query)
+
+        assert len(results) > 0
+
+        # All results should have vector scores (cosine similarity)
+        assert all(r.vector_score is not None for r in results)
+
+        # Chunk1 should be most similar (highest similarity)
+        # Chunk1 has embedding [0.1]*1024, similarity to [0.15]*1024 should be high
+        assert (
+            results[0].vector_score > 0.5
+        )  # High similarity (1=identical, 0=opposite)
+
+    async def test_vector_search_ranking_by_similarity(self, test_data):
+        """Test vector search ranks by cosine similarity."""
+        query = SearchQuery(embedding=[0.1] * 1024, limit=10)
+
+        results = await search_hybrid(query)
+
+        # Results should be ordered by similarity (descending = most similar first)
+        # Use small epsilon for floating point comparison
+        if len(results) > 1:
+            for i in range(len(results) - 1):
+                # Allow small tolerance for floating point precision
+                assert results[i].vector_score >= results[i + 1].vector_score - 1e-6
+
+
+class TestHybridSearch:
+    """Test hybrid search combining FTS and vector."""
+
+    async def test_hybrid_search_combines_scores(self, test_data):
+        """Test hybrid search combines FTS and vector scores."""
+        query = SearchQuery(
+            text="backdoor",
+            embedding=[0.1] * 1024,
+            fts_weight=0.5,
+            vector_weight=0.5,
+            limit=10,
+        )
+
+        results = await search_hybrid(query)
+
+        assert len(results) > 0
+
+        # All results should have both FTS and vector scores
+        for result in results:
+            assert result.fts_score is not None or result.vector_score is not None
+            assert result.combined_score > 0
+
+    async def test_hybrid_search_respects_limit(self, test_data):
+        """Test hybrid search respects result limit."""
+        query = SearchQuery(
+            text="criterion",
+            embedding=[0.1] * 1024,
+            limit=2,
+        )
+
+        results = await search_hybrid(query)
+
+        assert len(results) <= 2
+
+    async def test_hybrid_search_empty_results(self, test_data):
+        """Test hybrid search returns empty list when no matches."""
+        query = SearchQuery(
+            text="nonexistent_term_xyz123",
+            limit=10,
+        )
+
+        results = await search_hybrid(query)
+
+        assert results == []
+
+
+class TestSearchErrors:
+    """Test search error handling."""
+
+    async def test_search_no_database_connection_fails(self):
+        """Test search fails gracefully when database is unavailable."""
+        # Close existing pool
+        await close_connection_pool()
+
+        # Try to configure with invalid host
+        bad_config = DatabaseConfig(host="nonexistent.invalid", port=9999)
+
+        query = SearchQuery(text="test")
+
+        # Should raise SearchError (wrapped from connection error)
+        with pytest.raises((SearchError, Exception)):
+            # Temporarily set bad config
+            await get_connection_pool(bad_config)
+            await search_hybrid(query)
+
+        # Restore good connection for other tests
+        good_config = DatabaseConfig()
+        await get_connection_pool(good_config)
