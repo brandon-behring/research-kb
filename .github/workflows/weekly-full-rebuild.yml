@@ -69,11 +69,41 @@ jobs:
 
       - name: Start embedding server
         run: |
+          # Start server in background (model download ~1.3GB may take time)
+          echo "Starting embedding server (model will download on first run)..."
           python -m research_kb_pdf.embed_server &
-          sleep 10
-          # Verify server started
-          timeout 15 bash -c 'until curl --unix-socket /tmp/research_kb_embed.sock http://localhost/health 2>/dev/null; do sleep 1; done' || \
-            (echo "ERROR: Embedding server failed to start" && exit 1)
+          SERVER_PID=$!
+
+          # Wait for server to be ready (JSON protocol over Unix socket)
+          echo "Waiting for embedding server to be ready..."
+          for i in {1..60}; do
+            if [ -S /tmp/research_kb_embed.sock ]; then
+              # Send ping request via Python (server uses JSON, not HTTP)
+              RESPONSE=$(python3 -c "
+          import socket, json
+          try:
+              s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+              s.connect('/tmp/research_kb_embed.sock')
+              s.sendall(json.dumps({'action': 'ping'}).encode())
+              s.shutdown(socket.SHUT_WR)
+              data = s.recv(4096)
+              s.close()
+              resp = json.loads(data)
+              print(resp.get('status', 'error'))
+          except Exception as e:
+              print(f'error: {e}')
+          " 2>/dev/null)
+              if [ "$RESPONSE" = "ok" ]; then
+                echo "✅ Embedding server ready (attempt $i)"
+                exit 0
+              fi
+            fi
+            echo "Waiting... (attempt $i/60)"
+            sleep 5
+          done
+
+          echo "ERROR: Embedding server failed to start after 5 minutes"
+          exit 1
 
       - name: Set up Ollama (optional, for concept extraction)
         continue-on-error: true

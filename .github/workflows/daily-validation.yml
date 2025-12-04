@@ -62,10 +62,28 @@ jobs:
       - name: Start embedding server
         run: |
           python -m research_kb_pdf.embed_server &
-          sleep 5
-          # Verify server started
-          timeout 10 bash -c 'until curl --unix-socket /tmp/research_kb_embed.sock http://localhost/health 2>/dev/null; do sleep 1; done' || \
-            echo "Warning: Embedding server health check failed, continuing anyway"
+          # Wait for server (JSON protocol over Unix socket, not HTTP)
+          for i in {1..30}; do
+            if [ -S /tmp/research_kb_embed.sock ]; then
+              RESPONSE=$(python3 -c "
+          import socket, json
+          try:
+              s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+              s.connect('/tmp/research_kb_embed.sock')
+              s.sendall(json.dumps({'action': 'ping'}).encode())
+              s.shutdown(socket.SHUT_WR)
+              data = s.recv(4096)
+              s.close()
+              print(json.loads(data).get('status', 'error'))
+          except: print('error')
+          " 2>/dev/null)
+              if [ "$RESPONSE" = "ok" ]; then
+                echo "✅ Embedding server ready"
+                break
+              fi
+            fi
+            sleep 2
+          done || echo "Warning: Embedding server health check inconclusive, continuing"
 
       - name: Run basic retrieval validation
         if: steps.db-cache.outputs.cache-hit == 'true'
