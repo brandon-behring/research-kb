@@ -444,6 +444,257 @@ CFA_TEXTBOOKS = [
     },
 ]
 
+# CFA Level II Curriculum Materials (2025) - 14 items
+CFA_L2_TEXTBOOKS = [
+    # Volumes 1-10
+    {
+        "file": "fixtures/textbooks/cfa_l2_v1_2025.pdf",
+        "title": "CFA Program Level II - Volume 1: Quantitative Methods",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 1,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v2_2025.pdf",
+        "title": "CFA Program Level II - Volume 2: Economics",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 2,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v3_2025.pdf",
+        "title": "CFA Program Level II - Volume 3: Financial Statement Analysis",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 3,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v4_2025.pdf",
+        "title": "CFA Program Level II - Volume 4: Corporate Finance",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 4,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v5_2025.pdf",
+        "title": "CFA Program Level II - Volume 5: Equity Investments",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 5,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v6_2025.pdf",
+        "title": "CFA Program Level II - Volume 6: Fixed Income",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 6,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v7_2025.pdf",
+        "title": "CFA Program Level II - Volume 7: Derivatives",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 7,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v8_2025.pdf",
+        "title": "CFA Program Level II - Volume 8: Alternative Investments",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 8,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v9_2025.pdf",
+        "title": "CFA Program Level II - Volume 9: Portfolio Management",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 9,
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_v10_2025.pdf",
+        "title": "CFA Program Level II - Volume 10: Ethics and Professional Standards",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "volume": 10,
+            "edition": "2025",
+        },
+    },
+    # L2 Glossary
+    {
+        "file": "fixtures/textbooks/cfa_l2_glossary_2025.pdf",
+        "title": "CFA Program Level II - Glossary",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "content_type": "glossary",
+            "edition": "2025",
+        },
+    },
+    # L2 Prerequisite Readings
+    {
+        "file": "fixtures/textbooks/cfa_l2_prereq_economics_2025.pdf",
+        "title": "CFA Program Level II - Prerequisite Reading: Economics",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "content_type": "prerequisite",
+            "subject": "Economics",
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_prereq_quant_2025.pdf",
+        "title": "CFA Program Level II - Prerequisite Reading: Quantitative Methods",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "content_type": "prerequisite",
+            "subject": "Quantitative Methods",
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_prereq_glossary_2025.pdf",
+        "title": "CFA Program Level II - Prerequisite Reading Glossary",
+        "authors": ["CFA Institute"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "CFA Institute",
+            "domain": "investment analysis",
+            "level": "L2",
+            "content_type": "glossary",
+            "edition": "2025",
+        },
+    },
+]
+
+# CFA Level III Schweser Supplementary Materials (2024-2025)
+CFA_L3_SCHWESER = [
+    {
+        "file": "fixtures/textbooks/cfa_l3_schweser_pm_2025.pdf",
+        "title": "Schweser Notes CFA Level III - Portfolio Management",
+        "authors": ["Kaplan Schweser"],
+        "year": 2025,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Kaplan Schweser",
+            "domain": "portfolio management",
+            "level": "L3",
+            "content_type": "study notes",
+            "edition": "2025",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l3_schweser_quicksheet_2024.pdf",
+        "title": "Schweser Quicksheet CFA Level III",
+        "authors": ["Kaplan Schweser"],
+        "year": 2024,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Kaplan Schweser",
+            "domain": "portfolio management",
+            "level": "L3",
+            "content_type": "quick reference",
+            "edition": "2024",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/cfa_l2_schweser_combined_2024.pdf",
+        "title": "Schweser Study Books CFA Level II",
+        "authors": ["Kaplan Schweser"],
+        "year": 2024,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Kaplan Schweser",
+            "domain": "investment analysis",
+            "level": "L2",
+            "content_type": "study notes",
+            "edition": "2024",
+        },
+    },
+]
+
 # Papers - focused on causal inference methods
 PAPERS = [
     {
@@ -1141,8 +1392,8 @@ async def ingest_pdf(
 
 async def main():
     """Ingest all textbooks and papers, report results."""
-    all_docs = TEXTBOOKS + TRAIN_CHAPTERS + CFA_TEXTBOOKS + PAPERS
-    total_textbooks = len(TEXTBOOKS) + len(TRAIN_CHAPTERS) + len(CFA_TEXTBOOKS)
+    all_docs = TEXTBOOKS + TRAIN_CHAPTERS + CFA_TEXTBOOKS + CFA_L2_TEXTBOOKS + CFA_L3_SCHWESER + PAPERS
+    total_textbooks = len(TEXTBOOKS) + len(TRAIN_CHAPTERS) + len(CFA_TEXTBOOKS) + len(CFA_L2_TEXTBOOKS) + len(CFA_L3_SCHWESER)
     logger.info("starting_corpus_ingestion", textbooks=total_textbooks, papers=len(PAPERS))
 
     # Initialize database connection pool
@@ -1210,7 +1461,7 @@ async def main():
     paper_chunks = sum(r["chunks"] for r in paper_success)
     total_chunks = textbook_chunks + paper_chunks
 
-    total_textbooks = len(TEXTBOOKS) + len(TRAIN_CHAPTERS) + len(CFA_TEXTBOOKS)
+    total_textbooks = len(TEXTBOOKS) + len(TRAIN_CHAPTERS) + len(CFA_TEXTBOOKS) + len(CFA_L2_TEXTBOOKS) + len(CFA_L3_SCHWESER)
     print(f"\nTEXTBOOKS: {len(textbook_success)}/{total_textbooks}")
     for r in textbook_success:
         print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
