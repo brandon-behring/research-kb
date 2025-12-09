@@ -38,11 +38,11 @@ A causal inference knowledge base for research context retrieval.
 
 **Key Metrics** (as of 2025-12-09):
 - Sources: 138 (textbooks + papers + CFA materials)
-- Chunks: 32,727 (100% with embeddings)
+- Chunks: 34,907 (100% with embeddings)
 - Concepts: 17,819
 - Relationships: 18,542
-- Tests: 502 functions across 32 files
-- 2-hop graph query: 2.11ms (target: <100ms) ✅
+- Tests: 590 functions across 40 files
+- 2-hop graph query: <1ms (target: <100ms) ✅
 
 **Phase 3 Progress**:
 - ✅ Query expansion with synonym map
