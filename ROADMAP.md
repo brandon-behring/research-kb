@@ -18,12 +18,12 @@ A causal inference knowledge base for research context retrieval.
 - Hybrid retrieval (vector + FTS + graph signals)
 - Performance: 2.11ms for 2-hop queries (target: <100ms)
 
-## Phase 3: Enhanced Retrieval (Weeks 5-6) 📋 READY TO START
+## Phase 3: Enhanced Retrieval (Weeks 5-6) 🔄 IN PROGRESS (75%)
 
-- Query expansion with concept synonyms
-- Cross-encoder re-ranking
-- Multi-hop reasoning chains
-- Citation graph integration
+- ✅ Query expansion with concept synonyms (synonym_map.json)
+- ✅ Cross-encoder re-ranking (BGE reranker)
+- 📋 Multi-hop reasoning chains (planned)
+- 📋 Citation graph integration (requires citation extraction first)
 
 ## Phase 4: Production (Weeks 7-8) 📋 PLANNED
 
@@ -34,14 +34,20 @@ A causal inference knowledge base for research context retrieval.
 
 ---
 
-**Current Status**: Phase 2 complete. Ready for Phase 3.
+**Current Status**: Phase 3 in progress (75% complete).
 
-**Key Metrics** (auto-generated, see `docs/status/CURRENT_STATUS.md`):
-- Sources: 137 (65 textbooks + 72 papers)
-- Chunks: 33,973 (100% with embeddings)
-- Concepts: 19,458 (91.6% with embeddings)
-- Relationships: 20,423
+**Key Metrics** (as of 2025-12-09):
+- Sources: 138 (textbooks + papers + CFA materials)
+- Chunks: 32,727 (100% with embeddings)
+- Concepts: 17,819
+- Relationships: 18,542
 - Tests: 502 functions across 32 files
 - 2-hop graph query: 2.11ms (target: <100ms) ✅
+
+**Phase 3 Progress**:
+- ✅ Query expansion with synonym map
+- ✅ Cross-encoder reranking (BGE model)
+- 📋 Multi-hop reasoning (planned)
+- 📋 Citation graph (requires citation extraction)
 
 **Documentation Note**: Run `python scripts/generate_status.py` to update status docs from database.

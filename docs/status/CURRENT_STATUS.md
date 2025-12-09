@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-08 21:59:33
+**Auto-generated**: 2025-12-08 22:41:54
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,8 +9,8 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 3 |
-| chunks | 138 |
+| sources | 10 |
+| chunks | 0 |
 | concepts | 0 |
 | concept_relationships | 0 |
 | chunk_concepts | 0 |
@@ -22,7 +22,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 0 | 138 | 0.0% |
+| Chunks | 0 | 0 | 0.0% |
 | Concepts | 0 | 0 | 0.0% |
 
 ---
@@ -31,7 +31,7 @@
 
 | Type | Count |
 |------|------:|
-| paper | 3 |
+| textbook | 10 |
 
 ---
 
@@ -58,7 +58,7 @@ Based on database population:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 3 sources, 138 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 10 sources, 0 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 0 concepts, 0 relationships |
 | Phase 3: Enhanced Retrieval | 📋 Ready to start | No blockers |
 | Phase 4: Production | 📋 Planned | Pending Phase 3 |
