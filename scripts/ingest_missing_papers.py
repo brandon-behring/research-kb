@@ -77,6 +77,74 @@ def parse_filename_for_metadata(filename: str) -> dict:
     }
 
 
+def load_s2_sidecar(pdf_path: Path) -> dict | None:
+    """Load S2 metadata sidecar if it exists.
+
+    The S2 acquisition pipeline saves rich metadata as a JSON sidecar
+    alongside each PDF: {filename}.s2.json
+
+    Args:
+        pdf_path: Path to the PDF file
+
+    Returns:
+        Sidecar data dict if found, None otherwise
+    """
+    import json
+
+    sidecar_path = pdf_path.with_suffix(".s2.json")
+    if not sidecar_path.exists():
+        return None
+
+    try:
+        with open(sidecar_path) as f:
+            data = json.load(f)
+        logger.info("loaded_s2_sidecar", path=sidecar_path.name)
+        return data
+    except (json.JSONDecodeError, IOError) as e:
+        logger.warning("sidecar_load_failed", path=sidecar_path.name, error=str(e))
+        return None
+
+
+def get_metadata_for_pdf(pdf_path: Path) -> tuple[str, list[str], int | None, dict]:
+    """Get metadata for a PDF, preferring S2 sidecar over filename parsing.
+
+    Returns:
+        Tuple of (title, authors, year, extra_metadata)
+    """
+    # Try S2 sidecar first (rich metadata from Semantic Scholar)
+    sidecar = load_s2_sidecar(pdf_path)
+
+    if sidecar:
+        # Extract core fields
+        title = sidecar.get("title") or pdf_path.stem.replace("_", " ").title()
+        authors = sidecar.get("authors") or []
+        year = sidecar.get("year")
+
+        # Build extra metadata for sources.metadata JSONB
+        extra_metadata = {
+            "s2_paper_id": sidecar.get("s2_paper_id"),
+            "s2_corpus_id": sidecar.get("s2_corpus_id"),
+            "doi": sidecar.get("doi"),
+            "arxiv_id": sidecar.get("arxiv_id"),
+            "citation_count": sidecar.get("citation_count"),
+            "influential_citation_count": sidecar.get("influential_citation_count"),
+            "is_open_access": sidecar.get("is_open_access"),
+            "fields_of_study": sidecar.get("fields_of_study"),
+            "venue": sidecar.get("venue"),
+            "abstract": sidecar.get("abstract"),
+            "s2_acquired_at": sidecar.get("acquired_at"),
+            "metadata_source": "s2_sidecar",
+        }
+        # Remove None values
+        extra_metadata = {k: v for k, v in extra_metadata.items() if v is not None}
+
+        return title, authors, year, extra_metadata
+
+    # Fall back to filename parsing
+    meta = parse_filename_for_metadata(pdf_path.name)
+    return meta["title"], meta["authors"], meta["year"], {"metadata_source": "filename"}
+
+
 async def ingest_pdf(
     pdf_path: str,
     title: str,
@@ -203,21 +271,29 @@ async def main():
     for i, pdf_path in enumerate(to_ingest):
         print(f"\n[{i+1}/{len(to_ingest)}] Processing: {pdf_path.name}")
 
-        # Parse metadata from filename
-        meta = parse_filename_for_metadata(pdf_path.name)
+        # Get metadata (prefers S2 sidecar, falls back to filename parsing)
+        title, authors, year, extra_metadata = get_metadata_for_pdf(pdf_path)
+        extra_metadata["auto_ingested"] = True
+
+        # Log metadata source
+        source = extra_metadata.get("metadata_source", "unknown")
+        if source == "s2_sidecar":
+            print(f"  📄 Using S2 metadata: {title[:50]}...")
+        else:
+            print(f"  📝 Using filename metadata: {title[:50]}...")
 
         try:
             source_id, num_chunks, num_headings = await ingest_pdf(
                 pdf_path=str(pdf_path),
-                title=meta["title"],
-                authors=meta["authors"],
-                year=meta["year"],
-                metadata={"auto_ingested": True},
+                title=title,
+                authors=authors,
+                year=year,
+                metadata=extra_metadata,
             )
 
             results["success"].append({
                 "file": pdf_path.name,
-                "title": meta["title"],
+                "title": title,
                 "chunks": num_chunks,
             })
 

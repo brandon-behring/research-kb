@@ -18,6 +18,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # Auto-initialize schema on first start
       - ./packages/storage/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      # Create test database for pytest (NEVER run tests against production!)
+      - ./packages/storage/init_test_db.sh:/docker-entrypoint-initdb.d/02_init_test_db.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d research_kb"]
       interval: 10s

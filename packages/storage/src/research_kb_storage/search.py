@@ -41,6 +41,8 @@ class SearchQuery:
         graph_weight: Weight for graph score (default: 0.0, disabled)
         use_graph: Enable graph-boosted search (default: False)
         max_hops: Maximum hops for graph traversal (default: 2)
+        citation_weight: Weight for citation authority score (default: 0.0, Phase 3)
+        use_citations: Enable citation authority boosting (default: False)
     """
 
     text: Optional[str] = None
@@ -55,6 +57,10 @@ class SearchQuery:
     use_graph: bool = False  # Explicit opt-in flag
     max_hops: int = 2  # For compute_graph_score()
 
+    # Citation authority boosting (Phase 3)
+    citation_weight: float = 0.0  # Default 0.0 for backwards compatibility
+    use_citations: bool = False  # Explicit opt-in flag
+
     def __post_init__(self):
         """Validate search query."""
         if self.text is None and self.embedding is None:
@@ -66,23 +72,27 @@ class SearchQuery:
             )
 
         # Normalize weights to sum to 1
+        # Determine active weights based on flags
+        active_weights = [
+            ("fts", self.fts_weight),
+            ("vector", self.vector_weight),
+        ]
         if self.use_graph:
-            # Three-way normalization (FTS + vector + graph)
-            total = self.fts_weight + self.vector_weight + self.graph_weight
-            if total > 0:
-                self.fts_weight = self.fts_weight / total
-                self.vector_weight = self.vector_weight / total
-                self.graph_weight = self.graph_weight / total
-            else:
-                raise ValueError("At least one weight must be positive")
-        else:
-            # Two-way normalization (FTS + vector only, backwards compatible)
-            total = self.fts_weight + self.vector_weight
-            if total > 0:
-                self.fts_weight = self.fts_weight / total
-                self.vector_weight = self.vector_weight / total
-            else:
-                raise ValueError("At least one weight must be positive")
+            active_weights.append(("graph", self.graph_weight))
+        if self.use_citations:
+            active_weights.append(("citation", self.citation_weight))
+
+        total = sum(w for _, w in active_weights)
+        if total <= 0:
+            raise ValueError("At least one weight must be positive")
+
+        # Normalize
+        self.fts_weight = self.fts_weight / total
+        self.vector_weight = self.vector_weight / total
+        if self.use_graph:
+            self.graph_weight = self.graph_weight / total
+        if self.use_citations:
+            self.citation_weight = self.citation_weight / total
 
 
 async def search_hybrid(query: SearchQuery) -> list[SearchResult]:
@@ -153,25 +163,26 @@ async def search_hybrid(query: SearchQuery) -> list[SearchResult]:
 
 
 async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
-    """Execute hybrid search v2 with graph boosting.
+    """Execute hybrid search v2 with graph boosting and citation authority.
 
-    Enhanced search combining FTS + vector + graph signals for improved relevance.
+    Enhanced search combining FTS + vector + graph + citation signals for improved relevance.
 
     Strategy:
     1. Extract concepts from query text
     2. Execute base FTS + vector search (fetch 2x limit for re-ranking)
     3. Fetch chunk-concept links for all results (batch operation)
     4. Compute graph scores using concept relationships
-    5. Re-rank with 3-way combination: fts_weight*FTS + vector_weight*vector + graph_weight*graph
+    5. Fetch citation authority for each result's source (batch operation)
+    6. Re-rank with 4-way combination: fts + vector + graph + citation
 
     Args:
-        query: Search query with use_graph=True and graph_weight > 0
+        query: Search query with use_graph=True and/or use_citations=True
 
     Returns:
-        List of SearchResults ranked by combined FTS + vector + graph score
+        List of SearchResults ranked by combined FTS + vector + graph + citation score
 
     Raises:
-        ValueError: If use_graph=False (must explicitly opt-in)
+        ValueError: If neither use_graph nor use_citations is True
         SearchError: If search fails
 
     Example:
@@ -179,15 +190,17 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
         ...     text="instrumental variables",
         ...     embedding=[0.1] * 1024,
         ...     fts_weight=0.2,
-        ...     vector_weight=0.5,
-        ...     graph_weight=0.3,
+        ...     vector_weight=0.4,
+        ...     graph_weight=0.2,
+        ...     citation_weight=0.2,
         ...     use_graph=True,
+        ...     use_citations=True,
         ...     max_hops=2,
         ...     limit=10
         ... ))
     """
-    if not query.use_graph:
-        raise ValueError("search_hybrid_v2 requires use_graph=True (explicit opt-in)")
+    if not query.use_graph and not query.use_citations:
+        raise ValueError("search_hybrid_v2 requires use_graph=True and/or use_citations=True")
 
     pool = await get_connection_pool()
 
@@ -246,48 +259,97 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             else:
                 raise SearchError("No search criteria provided")
 
-        # Step 3: Fetch chunk-concept links (batch operation)
+        # Step 3: Fetch chunk-concept links (batch operation) - only if graph enabled
         chunk_ids = [result.chunk.id for result in base_results]
-        chunk_concepts = await ChunkConceptStore.get_concept_ids_for_chunks(chunk_ids)
+        chunk_concepts = {}
+        if query.use_graph:
+            chunk_concepts = await ChunkConceptStore.get_concept_ids_for_chunks(chunk_ids)
 
         # Step 4: Compute graph scores for each result
-        for result in base_results:
-            chunk_concept_ids = chunk_concepts.get(result.chunk.id, [])
+        if query.use_graph:
+            for result in base_results:
+                chunk_concept_ids = chunk_concepts.get(result.chunk.id, [])
 
-            if query_concept_ids and chunk_concept_ids:
-                # Compute graph score using shortest paths
-                graph_score = await compute_graph_score(
-                    query_concept_ids,
-                    chunk_concept_ids,
-                    max_hops=query.max_hops,
+                if query_concept_ids and chunk_concept_ids:
+                    # Compute graph score using shortest paths
+                    graph_score = await compute_graph_score(
+                        query_concept_ids,
+                        chunk_concept_ids,
+                        max_hops=query.max_hops,
+                    )
+                else:
+                    # No concepts extracted - graph score = 0
+                    graph_score = 0.0
+
+                # Store graph score in result
+                result.graph_score = graph_score
+
+        # Step 4b: Fetch citation authority for each source (batch operation)
+        source_authorities = {}
+        if query.use_citations:
+            source_ids = list({result.source.id for result in base_results})
+            async with pool.acquire() as conn:
+                rows = await conn.fetch(
+                    """
+                    SELECT id, citation_authority
+                    FROM sources
+                    WHERE id = ANY($1)
+                    """,
+                    source_ids,
                 )
-            else:
-                # No concepts extracted - graph score = 0
-                graph_score = 0.0
+                source_authorities = {
+                    row["id"]: row["citation_authority"] or 0.0 for row in rows
+                }
 
-            # Store graph score in result
-            result.graph_score = graph_score
+            # Store citation score in each result
+            for result in base_results:
+                result.citation_score = source_authorities.get(result.source.id, 0.0)
 
-        # Step 4b: Renormalize weights if graph contributed nothing
-        # This prevents penalizing FTS/vector when no concepts match
-        has_graph_contribution = any(
+        # Step 4c: Renormalize weights if signals contributed nothing
+        # This prevents penalizing FTS/vector when no concepts/citations match
+        has_graph_contribution = query.use_graph and any(
             r.graph_score and r.graph_score > 0 for r in base_results
         )
+        has_citation_contribution = query.use_citations and any(
+            r.citation_score and r.citation_score > 0 for r in base_results
+        )
 
-        if not has_graph_contribution and query.graph_weight > 0:
-            # Renormalize to FTS+vector only (avoid wasting graph weight allocation)
-            fts_vector_sum = query.fts_weight + query.vector_weight
-            if fts_vector_sum > 0:
-                logger.debug(
-                    "graph_weight_renormalized",
-                    original_graph_weight=query.graph_weight,
-                    reason="no_graph_contribution",
-                )
-                query.fts_weight = query.fts_weight / fts_vector_sum
-                query.vector_weight = query.vector_weight / fts_vector_sum
-                query.graph_weight = 0.0
+        # Collect contributing weights
+        contributing_weights = [
+            ("fts", query.fts_weight),
+            ("vector", query.vector_weight),
+        ]
+        if has_graph_contribution:
+            contributing_weights.append(("graph", query.graph_weight))
+        else:
+            query.graph_weight = 0.0
 
-        # Step 5: Re-rank with 3-way scoring
+        if has_citation_contribution:
+            contributing_weights.append(("citation", query.citation_weight))
+        else:
+            query.citation_weight = 0.0
+
+        # Renormalize to contributing signals only
+        total_weight = sum(w for _, w in contributing_weights)
+        if total_weight > 0:
+            query.fts_weight = query.fts_weight / total_weight
+            query.vector_weight = query.vector_weight / total_weight
+            if has_graph_contribution:
+                query.graph_weight = query.graph_weight / total_weight
+            if has_citation_contribution:
+                query.citation_weight = query.citation_weight / total_weight
+
+        logger.debug(
+            "weights_after_renormalization",
+            fts=query.fts_weight,
+            vector=query.vector_weight,
+            graph=query.graph_weight,
+            citation=query.citation_weight,
+            has_graph=has_graph_contribution,
+            has_citation=has_citation_contribution,
+        )
+
+        # Step 5: Re-rank with 4-way scoring
         for result in base_results:
             # Get individual scores (already normalized by base search)
             fts_score_norm = result.fts_score if result.fts_score is not None else 0.0
@@ -297,16 +359,21 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             graph_score_norm = (
                 result.graph_score if result.graph_score is not None else 0.0
             )
+            citation_score_norm = (
+                result.citation_score if result.citation_score is not None else 0.0
+            )
 
             # Normalize FTS score (already 0-1 from ts_rank, just need to handle None)
             # Vector score already 0-1 similarity
             # Graph score already 0-1
+            # Citation authority already 0-1 (PageRank normalized)
 
-            # Compute combined score with 3-way weighting
+            # Compute combined score with 4-way weighting
             result.combined_score = (
                 query.fts_weight * fts_score_norm
                 + query.vector_weight * vector_score_norm
                 + query.graph_weight * graph_score_norm
+                + query.citation_weight * citation_score_norm
             )
 
         # Sort by combined score and apply final limit
@@ -318,10 +385,11 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             result.rank = rank
 
         logger.info(
-            "graph_search_completed",
+            "enhanced_search_completed",
             result_count=len(final_results),
             query_concepts=len(query_concept_ids),
             graph_weight=query.graph_weight,
+            citation_weight=query.citation_weight,
         )
 
         return final_results

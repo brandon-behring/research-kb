@@ -208,12 +208,18 @@ class SearchResult(BaseModel):
         le=1.0,
         description="Graph-based relevance score (0-1, higher=better)",
     )
+    citation_score: Optional[float] = Field(
+        None,
+        ge=0.0,
+        le=1.0,
+        description="Citation authority score (PageRank-style, 0-1, higher=more authoritative)",
+    )
     rerank_score: Optional[float] = Field(
         None,
         description="Cross-encoder reranking score (Phase 3, higher=better)",
     )
     combined_score: float = Field(
-        ..., description="Weighted combination of FTS + vector + graph scores"
+        ..., description="Weighted combination of FTS + vector + graph + citation scores"
     )
 
     # Ranking

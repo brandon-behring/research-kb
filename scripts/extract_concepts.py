@@ -35,6 +35,7 @@ Usage:
 import argparse
 import asyncio
 import json
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -138,9 +139,10 @@ class ExtractionPipeline:
         model: Optional[str] = None,
         confidence_threshold: float = 0.7,
         batch_size: int = 10,
-        checkpoint_interval: int = 50,
+        checkpoint_interval: int = 10,  # Reduced from 50 to minimize data loss on crash
         dry_run: bool = False,
         sync_neo4j: bool = True,
+        skip_backup: bool = False,
     ):
         self.backend = backend
         self.model = model  # None means use backend's default
@@ -149,6 +151,8 @@ class ExtractionPipeline:
         self.checkpoint_interval = checkpoint_interval
         self.dry_run = dry_run
         self.sync_neo4j = sync_neo4j
+        self.skip_backup = skip_backup
+        self.backup_path: Optional[str] = None
 
         self.llm_client: Optional[LLMClient] = None
         self.extractor: Optional[ConceptExtractor] = None
@@ -193,6 +197,31 @@ class ExtractionPipeline:
             backend=self.backend,
             extraction_method=self.llm_client.extraction_method,
         )
+
+        # Create pre-extraction backup (HARD REQUIREMENT)
+        if self.skip_backup:
+            logger.warning("backup_skipped", message="--skip-backup used. Data loss risk!")
+            print("\n⚠️  WARNING: Pre-extraction backup skipped. Use at your own risk!\n")
+        elif not self.dry_run:
+            print("\n📦 Creating pre-extraction backup (required for data protection)...")
+            backup_script = Path(__file__).parent / "backup_db.sh"
+            try:
+                result = subprocess.run(
+                    [str(backup_script), "--pre-extraction"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                self.backup_path = result.stdout.strip().split("\n")[-1]  # Last line has file path
+                logger.info("pre_extraction_backup_created", backup_path=self.backup_path)
+                print(f"✅ Backup created: {self.backup_path}\n")
+            except subprocess.CalledProcessError as e:
+                logger.error("backup_failed", error=e.stderr)
+                raise RuntimeError(
+                    f"Pre-extraction backup failed. Cannot proceed without backup.\n"
+                    f"Error: {e.stderr}\n"
+                    f"Use --skip-backup to bypass (NOT recommended)"
+                )
 
         # Initialize extractor and deduplicator
         self.deduplicator = Deduplicator()
@@ -525,6 +554,11 @@ async def main():
     parser.add_argument("--resume", action="store_true", help="Resume from checkpoint")
     parser.add_argument("--clear-checkpoint", action="store_true", help="Clear checkpoint and start fresh")
     parser.add_argument("--no-neo4j", action="store_true", help="Disable Neo4j sync")
+    parser.add_argument(
+        "--skip-backup",
+        action="store_true",
+        help="Skip pre-extraction backup (NOT recommended - risk of data loss)"
+    )
 
     args = parser.parse_args()
 
@@ -546,6 +580,7 @@ async def main():
         batch_size=args.batch_size,
         dry_run=args.dry_run,
         sync_neo4j=not args.no_neo4j,
+        skip_backup=args.skip_backup,
     )
 
     try:

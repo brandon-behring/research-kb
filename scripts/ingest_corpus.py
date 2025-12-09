@@ -1568,9 +1568,18 @@ async def ingest_pdf(
 
 async def main():
     """Ingest all textbooks and papers, report results."""
-    # Phase 1 Expansion: Only ingest TIER1 + TIER2 books (others already in DB)
-    all_docs = TIER1_BOOKS + TIER2_BOOKS
-    total_textbooks = len(TIER1_BOOKS) + len(TIER2_BOOKS)
+    # Full corpus ingestion - all textbooks and papers
+    all_textbooks = (
+        TEXTBOOKS
+        + TRAIN_CHAPTERS
+        + CFA_TEXTBOOKS
+        + CFA_L2_TEXTBOOKS
+        + CFA_L3_SCHWESER
+        + TIER1_BOOKS
+        + TIER2_BOOKS
+    )
+    all_docs = all_textbooks + PAPERS
+    total_textbooks = len(all_textbooks)
     logger.info("starting_corpus_ingestion", textbooks=total_textbooks, papers=len(PAPERS))
 
     # Initialize database connection pool
@@ -1638,8 +1647,8 @@ async def main():
     paper_chunks = sum(r["chunks"] for r in paper_success)
     total_chunks = textbook_chunks + paper_chunks
 
-    # Phase 1 Expansion: Only counting TIER1 + TIER2 books
-    total_textbooks = len(TIER1_BOOKS) + len(TIER2_BOOKS)
+    # Full corpus summary
+    total_textbooks = len(all_textbooks)
     print(f"\nTEXTBOOKS: {len(textbook_success)}/{total_textbooks}")
     for r in textbook_success:
         print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
