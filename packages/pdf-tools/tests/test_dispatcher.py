@@ -444,10 +444,11 @@ class TestPDFDispatcher:
         assert entries[0].retry_count == 0
 
     @pytest.mark.asyncio
+    @patch("research_kb_pdf.dispatcher.CitationStore")
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
     async def test_retry_from_dlq_success(
-        self, mock_source_store, mock_chunk_store, tmp_path
+        self, mock_source_store, mock_chunk_store, mock_citation_store, tmp_path
     ):
         """Test successful retry from DLQ."""
         if not TEST_PDF.exists():
@@ -483,6 +484,7 @@ class TestPDFDispatcher:
 
         mock_source_store.create = AsyncMock(return_value=created_source)
         mock_chunk_store.batch_create = AsyncMock(return_value=[])
+        mock_citation_store.batch_create = AsyncMock(return_value=[])
 
         # Retry (with skip_embedding since we're testing)
         # Note: retry_from_dlq doesn't expose skip_embedding, but ingest_pdf is called
