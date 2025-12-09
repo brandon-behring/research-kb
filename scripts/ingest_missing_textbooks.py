@@ -40,6 +40,28 @@ def compute_file_hash(file_path: str) -> str:
     return sha256_hash.hexdigest()
 
 
+def load_sidecar_metadata(pdf_path: Path) -> dict | None:
+    """Load metadata from JSON sidecar if it exists."""
+    json_path = pdf_path.with_suffix(".json")
+    if json_path.exists():
+        import json
+        try:
+            with open(json_path) as f:
+                data = json.load(f)
+            # Clean up title from sidecar (remove underscores)
+            title = data.get("title", "").replace("_", " ").strip()
+            return {
+                "title": title,
+                "authors": data.get("authors", []),
+                "year": data.get("year"),
+                "source_db": data.get("source_db"),
+                "domain": data.get("domain"),
+            }
+        except Exception:
+            return None
+    return None
+
+
 def parse_filename_for_metadata(filename: str) -> dict:
     """Extract metadata from textbook filename patterns."""
     name = filename.replace(".pdf", "")
@@ -217,8 +239,10 @@ async def main():
     for i, pdf_path in enumerate(to_ingest):
         print(f"\n[{i+1}/{len(to_ingest)}] Processing: {pdf_path.name}")
 
-        # Parse metadata from filename
-        meta = parse_filename_for_metadata(pdf_path.name)
+        # Try sidecar metadata first, fall back to filename parsing
+        meta = load_sidecar_metadata(pdf_path)
+        if not meta or not meta.get("title"):
+            meta = parse_filename_for_metadata(pdf_path.name)
 
         try:
             source_id, num_chunks, num_headings = await ingest_textbook(

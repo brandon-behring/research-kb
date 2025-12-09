@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-09 16:54:38
+**Auto-generated**: 2025-12-09 18:43:58
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,11 +9,11 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 185 |
-| chunks | 50,238 |
-| concepts | 17,819 |
-| concept_relationships | 18,542 |
-| chunk_concepts | 32,176 |
+| sources | 258 |
+| chunks | 66,174 |
+| concepts | 18,992 |
+| concept_relationships | 19,438 |
+| chunk_concepts | 34,160 |
 | citations | 5,044 |
 
 ---
@@ -22,8 +22,8 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 50,238 | 50,238 | 100.0% |
-| Concepts | 17,819 | 17,819 | 100.0% |
+| Chunks | 66,174 | 66,174 | 100.0% |
+| Concepts | 17,819 | 18,992 | 93.8% |
 
 ---
 
@@ -31,7 +31,7 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 93 |
+| textbook | 166 |
 | paper | 92 |
 
 ---
@@ -40,11 +40,11 @@
 
 | Type | Count |
 |------|------:|
-| definition | 7,669 |
-| method | 6,469 |
-| problem | 2,100 |
-| assumption | 1,250 |
-| theorem | 331 |
+| definition | 8,080 |
+| method | 6,959 |
+| problem | 2,220 |
+| assumption | 1,345 |
+| theorem | 388 |
 
 ---
 
@@ -52,13 +52,13 @@
 
 | Type | Count |
 |------|------:|
-| USES | 5,695 |
-| REQUIRES | 3,750 |
-| ADDRESSES | 3,384 |
-| SPECIALIZES | 2,960 |
-| ALTERNATIVE_TO | 2,004 |
-| GENERALIZES | 585 |
-| EXTENDS | 164 |
+| USES | 5,997 |
+| REQUIRES | 3,940 |
+| ADDRESSES | 3,501 |
+| SPECIALIZES | 3,095 |
+| ALTERNATIVE_TO | 2,079 |
+| GENERALIZES | 645 |
+| EXTENDS | 181 |
 
 ---
 
@@ -69,8 +69,8 @@ Based on database population:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 185 sources, 50,238 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 17,819 concepts, 18,542 relationships |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 258 sources, 66,174 chunks |
+| Phase 2: Knowledge Graph | ✅ Complete | 18,992 concepts, 19,438 relationships |
 | Phase 3: Enhanced Retrieval | 📋 Ready to start | No blockers |
 | Phase 4: Production | 📋 Planned | Pending Phase 3 |
 
