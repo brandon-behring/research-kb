@@ -164,9 +164,35 @@ Single model: BGE-large-en-v1.5 (1024 dimensions). All vector columns are `vecto
 2. **Daily Validation** (3 min): Quality checks with cached DB
 3. **Weekly Full Rebuild** (60 min): Complete from-scratch validation
 
+## Data Protection
+
+### Safe Docker Operations
+
+**CRITICAL**: Use the safe docker wrapper to prevent accidental data loss:
+
+```bash
+# Recommended: Add alias to ~/.bashrc or ~/.zshrc
+alias dc='./scripts/docker-safe.sh'
+
+# Usage (intercepts dangerous operations)
+dc down -v    # Warns, shows data counts, requires 'DELETE' confirmation
+dc up -d      # Works normally
+```
+
+### Backups
+
+- **Automatic**: Created before every extraction run (unless `--skip-backup`)
+- **Manual**: `./scripts/backup_db.sh`
+- **Location**: `backups/` directory (last 5 kept)
+
+### Recovery
+
+See [`docs/RECOVERY.md`](docs/RECOVERY.md) for detailed recovery procedures.
+
 ## Gotchas
 
 - GROBID takes ~60s to start (healthcheck has 60s start_period)
 - Graph search gracefully falls back to FTS+vector if concepts not extracted
 - Table name is `concept_relationships` (not `relationships`)
 - CLI adds packages to `sys.path` for development mode imports
+- **NEVER use `docker compose down -v`** without the safe wrapper — it deletes all data
