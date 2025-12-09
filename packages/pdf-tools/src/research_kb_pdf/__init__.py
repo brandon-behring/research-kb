@@ -59,6 +59,16 @@ from research_kb_pdf.bibtex_generator import (
     escape_bibtex,
 )
 
+from research_kb_pdf.reranker import (
+    CrossEncoderReranker,
+    RerankResult,
+)
+
+from research_kb_pdf.rerank_client import (
+    RerankClient,
+    rerank_texts,
+)
+
 __all__ = [
     # Extraction
     "ExtractedDocument",
@@ -95,4 +105,9 @@ __all__ = [
     "generate_bibliography",
     "generate_bibtex_key",
     "escape_bibtex",
+    # Reranking (Phase 3)
+    "CrossEncoderReranker",
+    "RerankResult",
+    "RerankClient",
+    "rerank_texts",
 ]
