@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation Entry Point
+
+**Start here**: [`docs/INDEX.md`](docs/INDEX.md) - Navigation hub with current status, phase overview, and links to all documentation.
+
 ## Project Overview
 
 Research Knowledge Base: A semantic search system for causal inference literature with graph-boosted retrieval. Combines full-text search, vector similarity (BGE-large-en-v1.5, 1024 dimensions), and knowledge graph signals.

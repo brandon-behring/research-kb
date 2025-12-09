@@ -335,7 +335,8 @@ class TestQueryCommand:
             "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
         ):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                mock_run.return_value = mock_search_results
+                # run_query returns (results, expanded_query) tuple
+                mock_run.return_value = (mock_search_results, None)
 
                 result = cli_runner.invoke(
                     app, ["query", "instrumental variables", "--format", "markdown"]
@@ -353,7 +354,8 @@ class TestQueryCommand:
             "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
         ):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                mock_run.return_value = mock_search_results
+                # run_query returns (results, expanded_query) tuple
+                mock_run.return_value = (mock_search_results, None)
 
                 result = cli_runner.invoke(
                     app, ["query", "test query", "--format", "json"]
@@ -370,7 +372,8 @@ class TestQueryCommand:
             "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
         ):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                mock_run.return_value = mock_search_results
+                # run_query returns (results, expanded_query) tuple
+                mock_run.return_value = (mock_search_results, None)
 
                 result = cli_runner.invoke(app, ["query", "test", "--format", "agent"])
 
@@ -384,7 +387,8 @@ class TestQueryCommand:
             "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
         ):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                mock_run.return_value = mock_search_results[:3]
+                # run_query returns (results, expanded_query) tuple
+                mock_run.return_value = (mock_search_results[:3], None)
 
                 result = cli_runner.invoke(app, ["query", "test", "--limit", "3"])
 
@@ -409,7 +413,8 @@ class TestQueryCommand:
             "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
         ):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                mock_run.return_value = mock_search_results
+                # run_query returns (results, expanded_query) tuple
+                mock_run.return_value = (mock_search_results, None)
 
                 result = cli_runner.invoke(
                     app, ["query", "test", "--context-type", "building"]
@@ -425,7 +430,8 @@ class TestQueryCommand:
             "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
         ):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                mock_run.return_value = mock_search_results
+                # run_query returns (results, expanded_query) tuple
+                mock_run.return_value = (mock_search_results, None)
 
                 result = cli_runner.invoke(
                     app, ["query", "test", "--source-type", "paper"]

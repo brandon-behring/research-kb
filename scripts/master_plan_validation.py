@@ -244,25 +244,26 @@ async def run_all_tests():
     print("="*70)
 
     passed = sum(1 for v in results.values() if v is True)
-    partial = sum(1 for v in results.values() if v is False)
+    failed = sum(1 for v in results.values() if v is False)
     skipped = sum(1 for v in results.values() if v is None)
     total = len(results) - skipped
 
     print(f"Passed:  {passed}/{total}")
-    print(f"Partial: {partial}/{total}")
+    print(f"Failed:  {failed}/{total}")
     print(f"Skipped: {skipped}/{len(results)}")
 
-    if passed >= 3:
+    # Fail if ANY test explicitly failed (v is False)
+    if failed > 0:
+        print(f"\n❌ MASTER PLAN REQUIREMENTS: NOT SATISFIED")
+        print(f"{failed} test(s) failed. Fix failures before proceeding.")
+        return False
+    elif passed >= 3:
         print("\n✅ MASTER PLAN REQUIREMENTS: SATISFIED")
         print("Knowledge graph operational with core features validated.")
         return True
-    elif passed + partial >= 3:
-        print("\n⚠️  MASTER PLAN REQUIREMENTS: PARTIALLY SATISFIED")
-        print("Core features present but need more extraction coverage.")
-        return True
     else:
-        print("\n❌ MASTER PLAN REQUIREMENTS: NOT SATISFIED")
-        print("Need more concepts and relationships extracted.")
+        print("\n⚠️  MASTER PLAN REQUIREMENTS: PARTIALLY SATISFIED")
+        print(f"Only {passed}/3 required tests passed. Need more extraction coverage.")
         return False
 
 

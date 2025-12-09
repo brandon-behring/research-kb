@@ -41,6 +41,8 @@ from research_kb_storage import (
     get_neighborhood,
     search_hybrid,
     search_hybrid_v2,
+    search_with_rerank,
+    search_with_expansion,
 )
 
 from research_kb_cli.formatters import (
@@ -105,8 +107,12 @@ async def run_query(
     source_filter: Optional[str],
     use_graph: bool = True,
     graph_weight: float = 0.2,
-) -> list:
-    """Execute the search query with graph-boosted search.
+    use_rerank: bool = True,
+    use_expand: bool = True,
+    use_llm_expand: bool = False,
+    verbose: bool = False,
+) -> tuple:
+    """Execute the search query with graph-boosted search, expansion, and reranking.
 
     Args:
         query_text: The query string
@@ -115,9 +121,13 @@ async def run_query(
         source_filter: Optional source type filter
         use_graph: Enable graph-boosted search (default: True)
         graph_weight: Graph score weight (default: 0.2)
+        use_rerank: Enable cross-encoder reranking (default: True)
+        use_expand: Enable query expansion (default: True)
+        use_llm_expand: Enable LLM-based expansion (default: False)
+        verbose: Show expansion details (default: False)
 
     Returns:
-        List of SearchResult objects
+        Tuple of (SearchResult list, ExpandedQuery or None)
     """
     # Initialize database connection
     config = DatabaseConfig()
@@ -170,9 +180,6 @@ async def run_query(
             limit=limit,
             source_filter=source_filter,
         )
-
-        # Execute graph-boosted search
-        results = await search_hybrid_v2(search_query)
     else:
         # Build standard search query
         search_query = SearchQuery(
@@ -184,10 +191,25 @@ async def run_query(
             source_filter=source_filter,
         )
 
-        # Execute standard search
+    # Execute search with expansion if enabled
+    expanded_query = None
+    if use_expand or use_llm_expand:
+        results, expanded_query = await search_with_expansion(
+            search_query,
+            use_synonyms=use_expand,
+            use_graph_expansion=use_expand and use_graph,
+            use_llm_expansion=use_llm_expand,
+            use_rerank=use_rerank,
+            rerank_top_k=limit,
+        )
+    elif use_rerank:
+        results = await search_with_rerank(search_query, rerank_top_k=limit)
+    elif use_graph:
+        results = await search_hybrid_v2(search_query)
+    else:
         results = await search_hybrid(search_query)
 
-    return results
+    return results, expanded_query
 
 
 @app.command()
@@ -228,13 +250,38 @@ def query(
         "--graph-weight",
         help="Graph score weight (0.0-1.0)",
     ),
+    use_rerank: bool = typer.Option(
+        True,
+        "--rerank/--no-rerank",
+        "-r/-R",
+        help="Enable/disable cross-encoder reranking (default: enabled)",
+    ),
+    use_expand: bool = typer.Option(
+        True,
+        "--expand/--no-expand",
+        "-e/-E",
+        help="Enable/disable query expansion with synonyms and graph (default: enabled)",
+    ),
+    use_llm_expand: bool = typer.Option(
+        False,
+        "--llm-expand",
+        help="Enable LLM-based query expansion via Ollama (slower, optional)",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show query expansion details",
+    ),
 ):
-    """Search the research knowledge base with graph-boosted search.
+    """Search the research knowledge base with graph-boosted search and reranking.
 
-    Graph-boosted search is enabled by default, combining:
+    Graph-boosted search, query expansion, and cross-encoder reranking are enabled by default:
     - Full-text search (keyword matching)
     - Vector similarity (semantic matching)
     - Knowledge graph signals (concept relationships)
+    - Query expansion (synonyms + graph neighbors, improves recall)
+    - Cross-encoder reranking (Phase 3, improves precision)
 
     Examples:
 
@@ -243,14 +290,39 @@ def query(
         research-kb query "instrumental variables" --graph-weight 0.3
 
         research-kb query "cross-fitting" --no-graph  # Fallback to FTS+vector only
+
+        research-kb query "IV" --no-rerank  # Skip cross-encoder reranking
+
+        research-kb query "IV" --expand --verbose  # Show expansion details
+
+        research-kb query "IV" --llm-expand  # Use LLM for semantic expansion
     """
     try:
         # Run async query
-        results = asyncio.run(
+        results, expanded_query = asyncio.run(
             run_query(
-                query_text, limit, context_type, source_type, use_graph, graph_weight
+                query_text,
+                limit,
+                context_type,
+                source_type,
+                use_graph,
+                graph_weight,
+                use_rerank,
+                use_expand,
+                use_llm_expand,
+                verbose,
             )
         )
+
+        # Show expansion details if verbose
+        if verbose and expanded_query and expanded_query.expanded_terms:
+            typer.echo("Query Expansion:")
+            typer.echo(f"  Original: {expanded_query.original}")
+            typer.echo(f"  Expanded terms: {', '.join(expanded_query.expanded_terms)}")
+            if expanded_query.expansion_sources:
+                for source, terms in expanded_query.expansion_sources.items():
+                    typer.echo(f"    {source}: {', '.join(terms)}")
+            typer.echo()
 
         # Format output
         if format == OutputFormat.markdown:

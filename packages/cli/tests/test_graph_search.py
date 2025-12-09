@@ -21,7 +21,8 @@ class TestGraphBoostedSearch:
         ):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
                 with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                    mock_run.return_value = mock_search_results
+                    # run_query returns (results, expanded_query) tuple
+                    mock_run.return_value = (mock_search_results, None)
 
                     # No --use-graph flag needed - it's the default
                     result = cli_runner.invoke(app, ["query", "instrumental variables"])
@@ -36,7 +37,8 @@ class TestGraphBoostedSearch:
             "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
         ):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                mock_run.return_value = mock_search_results
+                # run_query returns (results, expanded_query) tuple
+                mock_run.return_value = (mock_search_results, None)
 
                 # Explicitly disable graph
                 result = cli_runner.invoke(app, ["query", "test query", "--no-graph"])
@@ -56,7 +58,8 @@ class TestGraphBoostedSearch:
         ):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
                 with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                    mock_run.return_value = mock_search_results
+                    # run_query returns (results, expanded_query) tuple
+                    mock_run.return_value = (mock_search_results, None)
 
                     result = cli_runner.invoke(app, ["query", "test query"])
 
@@ -77,7 +80,8 @@ class TestGraphBoostedSearch:
         ):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
                 with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                    mock_run.return_value = mock_search_results
+                    # run_query returns (results, expanded_query) tuple
+                    mock_run.return_value = (mock_search_results, None)
 
                     result = cli_runner.invoke(
                         app, ["query", "test", "--graph-weight", "0.5"]
@@ -97,7 +101,8 @@ class TestGraphBoostedSearch:
         ):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
                 with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                    mock_run.return_value = mock_search_results
+                    # run_query returns (results, expanded_query) tuple
+                    mock_run.return_value = (mock_search_results, None)
 
                     result = cli_runner.invoke(
                         app,
@@ -133,7 +138,8 @@ class TestGraphSearchIntegration:
         ):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
                 with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                    mock_run.return_value = mock_search_results
+                    # run_query returns (results, expanded_query) tuple
+                    mock_run.return_value = (mock_search_results, None)
 
                     result = cli_runner.invoke(
                         app, ["query", "test", "--format", "markdown"]
@@ -153,7 +159,8 @@ class TestGraphSearchIntegration:
         ):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
                 with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                    mock_run.return_value = mock_search_results
+                    # run_query returns (results, expanded_query) tuple
+                    mock_run.return_value = (mock_search_results, None)
 
                     result = cli_runner.invoke(
                         app, ["query", "test", "--format", "json"]

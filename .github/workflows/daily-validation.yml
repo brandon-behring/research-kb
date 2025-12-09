@@ -54,15 +54,18 @@ jobs:
         id: db-cache
         with:
           path: db_dump.sql
-          key: weekly-db-${{ github.run_number }}
+          key: weekly-db-latest
           restore-keys: |
             weekly-db-
 
       - name: Load database from cache
-        if: steps.db-cache.outputs.cache-hit == 'true'
         env:
           PGPASSWORD: postgres
         run: |
+          if [ "${{ steps.db-cache.outputs.cache-hit }}" != "true" ]; then
+            echo "ERROR: Weekly database cache not found. Run weekly workflow first."
+            exit 1
+          fi
           psql -h localhost -U postgres -d research_kb < db_dump.sql
 
       - name: Start embedding server
@@ -92,7 +95,6 @@ jobs:
           done || echo "Warning: Embedding server health check inconclusive, continuing"
 
       - name: Run basic retrieval validation
-        if: steps.db-cache.outputs.cache-hit == 'true'
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
@@ -102,13 +104,13 @@ jobs:
         run: |
           # Run validate_known_answers.py if it exists
           if [ -f scripts/validate_known_answers.py ]; then
-            python scripts/validate_known_answers.py || echo "Validation completed with warnings"
+            python scripts/validate_known_answers.py || \
+              (echo "ERROR: Known answers validation failed" && exit 1)
           else
-            echo "validate_known_answers.py not found, skipping"
+            echo "WARNING: validate_known_answers.py not found, skipping"
           fi
 
       - name: Test graph search functionality
-        if: steps.db-cache.outputs.cache-hit == 'true'
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
@@ -117,7 +119,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
         run: |
           pytest packages/cli/tests/test_graph_search.py -v --tb=short || \
-            echo "Graph search tests completed with warnings"
+            (echo "ERROR: Graph search tests failed" && exit 1)
 
       - name: Report status
         if: always()

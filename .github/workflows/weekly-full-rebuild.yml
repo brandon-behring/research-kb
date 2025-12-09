@@ -154,11 +154,10 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         timeout-minutes: 5
-        continue-on-error: true
         run: |
           if [ -f scripts/eval_retrieval.py ]; then
             python scripts/eval_retrieval.py || \
-              echo "WARNING: Retrieval validation completed with warnings"
+              (echo "ERROR: Retrieval validation failed" && exit 1)
           fi
 
       - name: "Extract concepts (limit 1000 chunks)"
@@ -169,12 +168,11 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         timeout-minutes: 20
-        continue-on-error: true
         run: |
           if [ -f scripts/extract_concepts.py ]; then
             # Run with limit to avoid timeout
             timeout 18m python scripts/extract_concepts.py --limit 1000 || \
-              echo "WARNING: Concept extraction timed out or failed"
+              (echo "ERROR: Concept extraction timed out or failed" && exit 1)
           fi
 
       - name: "Validate concept extraction quality"
@@ -185,11 +183,10 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         timeout-minutes: 5
-        continue-on-error: true
         run: |
           if [ -f scripts/validate_seed_concepts.py ]; then
             python scripts/validate_seed_concepts.py --output json || \
-              echo "WARNING: Seed concept validation completed with warnings"
+              (echo "ERROR: Seed concept validation failed" && exit 1)
           fi
 
       - name: "Validate knowledge graph"
@@ -200,11 +197,10 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         timeout-minutes: 3
-        continue-on-error: true
         run: |
           if [ -f scripts/master_plan_validation.py ]; then
             python scripts/master_plan_validation.py || \
-              echo "WARNING: Graph validation completed with warnings"
+              (echo "ERROR: Knowledge graph validation failed" && exit 1)
           fi
 
       - name: Run all script tests
@@ -241,7 +237,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: db_dump.sql
-          key: weekly-db-${{ github.run_number }}
+          key: weekly-db-latest
 
       - name: Generate audit report
         if: always()

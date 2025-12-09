@@ -4,6 +4,8 @@ Provides:
 - Shortest path finding between concepts
 - N-hop neighborhood traversal
 - Graph connectivity queries
+- Relationship-weighted scoring (Phase 3)
+- Human-readable path explanations (Phase 3)
 
 Uses PostgreSQL recursive CTEs for graph operations.
 Master Plan Reference: Lines 616-673 (Phase 2 knowledge graph)
@@ -20,6 +22,38 @@ from research_kb_storage.concept_store import _row_to_concept
 from research_kb_storage.relationship_store import _row_to_relationship
 
 logger = get_logger(__name__)
+
+
+# Relationship weights for graph scoring (Phase 3)
+# Higher weight = stronger signal for relevance
+# Based on causal inference domain semantics:
+# - REQUIRES: Strong dependency (method requires assumption)
+# - EXTENDS: Strong extension (method extends another)
+# - USES: Medium strength (method uses technique)
+# - ADDRESSES: Medium strength (method addresses problem)
+# - SPECIALIZES/GENERALIZES: Moderate (taxonomic relationship)
+# - ALTERNATIVE_TO: Weak (suggests related but different approaches)
+RELATIONSHIP_WEIGHTS: dict[RelationshipType, float] = {
+    RelationshipType.REQUIRES: 1.0,
+    RelationshipType.EXTENDS: 0.9,
+    RelationshipType.USES: 0.8,
+    RelationshipType.ADDRESSES: 0.7,
+    RelationshipType.SPECIALIZES: 0.6,
+    RelationshipType.GENERALIZES: 0.6,
+    RelationshipType.ALTERNATIVE_TO: 0.5,
+}
+
+
+def get_relationship_weight(rel_type: RelationshipType) -> float:
+    """Get scoring weight for a relationship type.
+
+    Args:
+        rel_type: The relationship type
+
+    Returns:
+        Weight value (0.5-1.0)
+    """
+    return RELATIONSHIP_WEIGHTS.get(rel_type, 0.5)
 
 
 async def find_shortest_path(
@@ -397,3 +431,177 @@ async def compute_graph_score(
         logger.error("graph_score_failed", error=str(e))
         # Return 0.0 on error (fail gracefully)
         return 0.0
+
+
+def explain_path(
+    path: list[tuple[Concept, Optional[ConceptRelationship]]],
+) -> str:
+    """Generate human-readable explanation of a concept path.
+
+    Converts a path of (Concept, Relationship) tuples into a readable string
+    showing the chain of reasoning.
+
+    Args:
+        path: List of (Concept, Optional[Relationship]) tuples from find_shortest_path
+
+    Returns:
+        Human-readable path explanation string
+
+    Example:
+        >>> path = await find_shortest_path(dml_id, sample_splitting_id)
+        >>> print(explain_path(path))
+        'double machine learning → (requires) → cross-fitting → (requires) → sample splitting'
+    """
+    if not path:
+        return "No path"
+
+    parts = []
+    for i, (concept, relationship) in enumerate(path):
+        # Get concept name (prefer canonical_name)
+        name = concept.canonical_name or concept.name
+
+        if i == 0:
+            # First concept (no incoming relationship)
+            parts.append(name)
+        else:
+            # Add relationship arrow and concept
+            if relationship:
+                rel_name = relationship.relationship_type.value.lower()
+                parts.append(f"→ ({rel_name}) → {name}")
+            else:
+                parts.append(f"→ {name}")
+
+    return " ".join(parts)
+
+
+async def compute_weighted_graph_score(
+    query_concept_ids: list[UUID],
+    chunk_concept_ids: list[UUID],
+    max_hops: int = 2,
+) -> tuple[float, list[str]]:
+    """Compute weighted graph score with path explanations.
+
+    Enhanced version of compute_graph_score that:
+    1. Uses relationship type weights (REQUIRES > USES > ADDRESSES)
+    2. Returns human-readable explanations of scoring paths
+
+    Algorithm:
+    1. For each query→chunk concept pair, find shortest path
+    2. Score = product of relationship weights along path / (path_length + 1)
+    3. Collect explanations for top contributing paths
+
+    Args:
+        query_concept_ids: Concepts from query
+        chunk_concept_ids: Concepts in candidate chunk
+        max_hops: Maximum path length to consider
+
+    Returns:
+        Tuple of (normalized_score, list_of_explanations)
+        - score: 0.0 (no connection) to 1.0 (all directly connected with strong relations)
+        - explanations: List of path explanation strings for top contributing paths
+
+    Example:
+        >>> score, explanations = await compute_weighted_graph_score(
+        ...     [iv_concept_id],
+        ...     [endogeneity_id, unconfoundedness_id]
+        ... )
+        >>> print(f"Score: {score:.2f}")
+        >>> for exp in explanations:
+        ...     print(f"  - {exp}")
+    """
+    if not query_concept_ids or not chunk_concept_ids:
+        return 0.0, []
+
+    total_score = 0.0
+    max_pairs = len(query_concept_ids) * len(chunk_concept_ids)
+    path_scores: list[tuple[float, str]] = []
+
+    try:
+        for q_id in query_concept_ids:
+            for c_id in chunk_concept_ids:
+                # Get full path (not just length) for weighted scoring
+                path = await find_shortest_path(q_id, c_id, max_hops)
+
+                if path:
+                    path_len = len(path) - 1  # Number of edges
+
+                    # Compute weighted score based on relationship types
+                    if path_len == 0:
+                        # Same concept (direct match)
+                        path_weight = 1.0
+                    else:
+                        # Product of relationship weights along path
+                        path_weight = 1.0
+                        for concept, rel in path:
+                            if rel:
+                                path_weight *= get_relationship_weight(rel.relationship_type)
+
+                    # Score contribution: weight / (path_length + 1)
+                    score_contribution = path_weight / (path_len + 1)
+                    total_score += score_contribution
+
+                    # Generate explanation
+                    explanation = explain_path(path)
+                    path_scores.append((score_contribution, explanation))
+
+        # Normalize score
+        normalized_score = min(total_score / max_pairs, 1.0) if max_pairs > 0 else 0.0
+
+        # Get top explanations (sorted by score contribution)
+        path_scores.sort(key=lambda x: x[0], reverse=True)
+        top_explanations = [exp for _, exp in path_scores[:3]]  # Top 3 paths
+
+        return normalized_score, top_explanations
+
+    except Exception as e:
+        logger.error("weighted_graph_score_failed", error=str(e))
+        return 0.0, []
+
+
+async def get_path_with_explanation(
+    start_name: str,
+    end_name: str,
+    max_hops: int = 5,
+) -> tuple[Optional[list[tuple[Concept, Optional[ConceptRelationship]]]], str]:
+    """Find path between concepts by name and return with explanation.
+
+    Convenience function that:
+    1. Looks up concepts by canonical name
+    2. Finds shortest path
+    3. Returns path with human-readable explanation
+
+    Args:
+        start_name: Starting concept canonical name (case-insensitive)
+        end_name: Target concept canonical name (case-insensitive)
+        max_hops: Maximum path length
+
+    Returns:
+        Tuple of (path, explanation)
+        - path: List of (Concept, Relationship) tuples or None if not found
+        - explanation: Human-readable path string
+
+    Example:
+        >>> path, explanation = await get_path_with_explanation("dml", "k-fold cross-validation")
+        >>> print(explanation)
+        'double machine learning → (requires) → cross-fitting → (requires) → k-fold cross-validation'
+    """
+    from research_kb_storage.concept_store import ConceptStore
+
+    # Look up start concept
+    start_concept = await ConceptStore.get_by_canonical_name(start_name.lower())
+    if not start_concept:
+        return None, f"Start concept not found: {start_name}"
+
+    # Look up end concept
+    end_concept = await ConceptStore.get_by_canonical_name(end_name.lower())
+    if not end_concept:
+        return None, f"End concept not found: {end_name}"
+
+    # Find path
+    path = await find_shortest_path(start_concept.id, end_concept.id, max_hops)
+
+    if not path:
+        return None, f"No path found between '{start_name}' and '{end_name}' within {max_hops} hops"
+
+    explanation = explain_path(path)
+    return path, explanation

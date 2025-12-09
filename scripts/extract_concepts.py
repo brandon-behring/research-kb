@@ -3,15 +3,21 @@
 
 This script:
 1. Loads chunks from the database (with optional filtering)
-2. Extracts concepts using Ollama LLM
+2. Extracts concepts using LLM (Ollama or Anthropic)
 3. Deduplicates concepts by canonical name
 4. Stores concepts, relationships, and chunk-concept links
 5. Syncs to Neo4j for graph queries
 6. Reports extraction statistics
 
 Usage:
-    # Process all chunks
+    # Process all chunks with Ollama (local)
     python scripts/extract_concepts.py
+
+    # Use Anthropic Haiku (fast iteration)
+    python scripts/extract_concepts.py --backend anthropic --model haiku
+
+    # Use Anthropic Opus (production quality)
+    python scripts/extract_concepts.py --backend anthropic --model opus
 
     # Process specific source
     python scripts/extract_concepts.py --source-id <uuid>
@@ -49,7 +55,9 @@ from research_kb_extraction import (
     ConceptExtractor,
     Deduplicator,
     GraphSyncService,
+    LLMClient,
     OllamaClient,
+    get_llm_client,
 )
 from research_kb_storage import (
     ChunkConceptStore,
@@ -126,21 +134,23 @@ class ExtractionPipeline:
 
     def __init__(
         self,
-        ollama_model: str = "llama3.1:8b",
+        backend: str = "ollama",
+        model: Optional[str] = None,
         confidence_threshold: float = 0.7,
         batch_size: int = 10,
         checkpoint_interval: int = 50,
         dry_run: bool = False,
         sync_neo4j: bool = True,
     ):
-        self.ollama_model = ollama_model
+        self.backend = backend
+        self.model = model  # None means use backend's default
         self.confidence_threshold = confidence_threshold
         self.batch_size = batch_size
         self.checkpoint_interval = checkpoint_interval
         self.dry_run = dry_run
         self.sync_neo4j = sync_neo4j
 
-        self.ollama_client: Optional[OllamaClient] = None
+        self.llm_client: Optional[LLMClient] = None
         self.extractor: Optional[ConceptExtractor] = None
         self.deduplicator: Optional[Deduplicator] = None
         self.graph_sync: Optional[GraphSyncService] = None
@@ -156,25 +166,38 @@ class ExtractionPipeline:
         # Initialize database pool
         await get_connection_pool()
 
-        # Initialize Ollama client
-        self.ollama_client = OllamaClient(
-            model=self.ollama_model,
+        # Initialize LLM client using factory
+        self.llm_client = get_llm_client(
+            backend=self.backend,
+            model=self.model,
             temperature=0.1,
         )
 
-        # Check Ollama availability
-        if not await self.ollama_client.is_available():
-            raise RuntimeError("Ollama server not available. Start with: ollama serve")
+        # Check availability
+        if not await self.llm_client.is_available():
+            if self.backend == "ollama":
+                raise RuntimeError("Ollama server not available. Start with: ollama serve")
+            elif self.backend == "anthropic":
+                raise RuntimeError("Anthropic API not available. Check ANTHROPIC_API_KEY.")
+            else:
+                raise RuntimeError(f"Backend {self.backend} not available.")
 
-        if not await self.ollama_client.is_model_loaded():
-            raise RuntimeError(f"Model {self.ollama_model} not loaded. Pull with: ollama pull {self.ollama_model}")
+        # For Ollama, check if model is loaded
+        if self.backend == "ollama" and hasattr(self.llm_client, "is_model_loaded"):
+            if not await self.llm_client.is_model_loaded():
+                model_name = self.model or "llama3.1:8b"
+                raise RuntimeError(f"Model {model_name} not loaded. Pull with: ollama pull {model_name}")
 
-        logger.info("ollama_connected", model=self.ollama_model)
+        logger.info(
+            "llm_client_connected",
+            backend=self.backend,
+            extraction_method=self.llm_client.extraction_method,
+        )
 
         # Initialize extractor and deduplicator
         self.deduplicator = Deduplicator()
         self.extractor = ConceptExtractor(
-            ollama_client=self.ollama_client,
+            ollama_client=self.llm_client,  # Still called ollama_client internally
             deduplicator=self.deduplicator,
             confidence_threshold=self.confidence_threshold,
         )
@@ -324,7 +347,7 @@ class ExtractionPipeline:
                         concept_type=ConceptType(extracted.concept_type),
                         aliases=extracted.aliases,
                         definition=extracted.definition,
-                        extraction_method=f"ollama:{self.ollama_model}",
+                        extraction_method=self.llm_client.extraction_method,
                         confidence_score=extracted.confidence,
                     )
                     self._concept_cache[canonical] = concept.id
@@ -483,7 +506,19 @@ async def main():
     parser = argparse.ArgumentParser(description="Extract concepts from ingested chunks")
     parser.add_argument("--source-id", type=str, help="Process only chunks from this source")
     parser.add_argument("--limit", type=int, help="Limit number of chunks to process")
-    parser.add_argument("--model", type=str, default="llama3.1:8b", help="Ollama model to use")
+    parser.add_argument(
+        "--backend",
+        type=str,
+        default="ollama",
+        choices=["ollama", "anthropic"],
+        help="LLM backend (ollama for local, anthropic for API)"
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help="Model name (e.g., llama3.1:8b for ollama, haiku/sonnet/opus for anthropic)"
+    )
     parser.add_argument("--confidence", type=float, default=0.7, help="Minimum confidence threshold")
     parser.add_argument("--batch-size", type=int, default=10, help="Batch size for processing")
     parser.add_argument("--dry-run", action="store_true", help="Run without storing results")
@@ -505,7 +540,8 @@ async def main():
 
     # Create and run pipeline
     pipeline = ExtractionPipeline(
-        ollama_model=args.model,
+        backend=args.backend,
+        model=args.model,
         confidence_threshold=args.confidence,
         batch_size=args.batch_size,
         dry_run=args.dry_run,

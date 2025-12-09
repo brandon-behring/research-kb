@@ -30,7 +30,7 @@ services:
   # GROBID - PDF structure extraction for academic papers
   # ===========================================================================
   grobid:
-    image: lfoppiano/grobid:0.7.3
+    image: grobid/grobid:0.8.2-full
     container_name: research-kb-grobid
     ports:
       - "8070:8070"

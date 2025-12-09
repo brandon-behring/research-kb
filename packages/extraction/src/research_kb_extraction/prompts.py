@@ -28,28 +28,36 @@ TEXT CHUNK:
 {chunk}
 ---
 
-CONCEPT TYPES:
-- method: Statistical/econometric methods (e.g., IV, DiD, matching, regression)
-- assumption: Required conditions for validity (e.g., parallel trends, unconfoundedness)
-- problem: Issues methods address (e.g., endogeneity, selection bias, confounding)
-- definition: Formal definitions of terms
-- theorem: Formal mathematical results
+CONCEPT TYPES (USE ONLY THESE):
+You MUST use ONLY one of these exact values for concept_type:
+1. method: Statistical/econometric methods (e.g., IV, DiD, matching, regression)
+2. assumption: Required conditions for validity (e.g., parallel trends, unconfoundedness)
+3. problem: Issues methods address (e.g., endogeneity, selection bias, confounding)
+4. definition: Formal definitions of terms
+5. theorem: Formal mathematical results
 
-RELATIONSHIP TYPES:
-- REQUIRES: Method requires an assumption to be valid
-- USES: Method uses another technique/concept
-- ADDRESSES: Method solves or mitigates a problem
-- GENERALIZES: Concept is broader than another (parent)
-- SPECIALIZES: Concept is narrower than another (child)
-- ALTERNATIVE_TO: Concepts are competing approaches
-- EXTENDS: Concept builds upon another
+CRITICAL: Do NOT use ANY other concept_type values like "concept", "parameter", "technique", "framework", etc.
+Only use: method, assumption, problem, definition, theorem
+
+RELATIONSHIP TYPES (USE ONLY THESE):
+You MUST use ONLY one of these exact values for relationship_type:
+1. REQUIRES: Method requires an assumption to be valid
+2. USES: Method uses another technique/concept
+3. ADDRESSES: Method solves or mitigates a problem
+4. GENERALIZES: Concept is broader than another (parent)
+5. SPECIALIZES: Concept is narrower than another (child)
+6. ALTERNATIVE_TO: Concepts are competing approaches
+7. EXTENDS: Concept builds upon another
+
+CRITICAL: Do NOT use ANY other relationship_type values like "OUTPUTS", "CONTRIBUTES_TO", "DETERMINES", "SPECIFIES", "DRIVES", etc.
+Only use: REQUIRES, USES, ADDRESSES, GENERALIZES, SPECIALIZES, ALTERNATIVE_TO, EXTENDS
 
 OUTPUT FORMAT (JSON):
 {{
   "concepts": [
     {{
       "name": "concept name as in text",
-      "concept_type": "method|assumption|problem|definition|theorem",
+      "concept_type": "method",
       "definition": "brief definition if provided, null otherwise",
       "aliases": ["alternative names", "abbreviations"],
       "confidence": 0.0-1.0
@@ -59,7 +67,7 @@ OUTPUT FORMAT (JSON):
     {{
       "source_concept": "concept name",
       "target_concept": "concept name",
-      "relationship_type": "REQUIRES|USES|ADDRESSES|GENERALIZES|SPECIALIZES|ALTERNATIVE_TO|EXTENDS",
+      "relationship_type": "REQUIRES",
       "evidence": "quote from text supporting this relationship",
       "confidence": 0.0-1.0
     }}
@@ -72,6 +80,8 @@ GUIDELINES:
 - Include aliases like abbreviations (IV, DiD, DML) when mentioned
 - Relationships should be supported by evidence in the text
 - If no concepts or relationships are found, return empty arrays
+- ALWAYS verify your concept_type values are one of: method, assumption, problem, definition, theorem
+- ALWAYS verify your relationship_type values are one of: REQUIRES, USES, ADDRESSES, GENERALIZES, SPECIALIZES, ALTERNATIVE_TO, EXTENDS
 
 Return ONLY valid JSON, no additional text."""
 
@@ -89,12 +99,16 @@ Focus on:
 - Theorem statements
 - Key terms being defined
 
+IMPORTANT CONSTRAINTS:
+- concept_type MUST be one of: definition, assumption, theorem (use ONLY these)
+- Do NOT use values like "concept", "parameter", "framework", etc.
+
 OUTPUT FORMAT (JSON):
 {{
   "concepts": [
     {{
       "name": "term being defined",
-      "concept_type": "definition|assumption|theorem",
+      "concept_type": "definition",
       "definition": "the formal definition text",
       "aliases": [],
       "confidence": 0.9
@@ -118,6 +132,10 @@ Focus on:
 - How methods relate to each other (generalizations, alternatives, extensions)
 - What problems methods address
 
+IMPORTANT CONSTRAINTS:
+- relationship_type MUST be one of: REQUIRES, USES, ADDRESSES, GENERALIZES, SPECIALIZES, ALTERNATIVE_TO, EXTENDS
+- Do NOT use values like "OUTPUTS", "CONTRIBUTES_TO", "DETERMINES", "SPECIFIES", "DRIVES", etc.
+
 OUTPUT FORMAT (JSON):
 {{
   "concepts": [],
@@ -125,7 +143,7 @@ OUTPUT FORMAT (JSON):
     {{
       "source_concept": "method name",
       "target_concept": "related concept",
-      "relationship_type": "REQUIRES|USES|ADDRESSES|GENERALIZES|SPECIALIZES|ALTERNATIVE_TO|EXTENDS",
+      "relationship_type": "REQUIRES",
       "evidence": "supporting quote",
       "confidence": 0.8
     }}

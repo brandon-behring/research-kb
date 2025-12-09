@@ -43,3 +43,5 @@ fixtures/golden/
 # Keep these directories tracked
 !.github/
 !.claude/
+backups/
+.dlq/

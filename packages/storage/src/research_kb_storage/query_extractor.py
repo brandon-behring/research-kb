@@ -5,10 +5,10 @@ for graph-boosted search. It reuses the ConceptExtractor but operates in a
 lightweight mode optimized for short query strings.
 """
 
+import re
 from uuid import UUID
 
 from research_kb_common import get_logger
-from research_kb_storage.concept_store import ConceptStore
 
 logger = get_logger(__name__)
 
@@ -52,59 +52,88 @@ async def extract_query_concepts(
         # Normalize query text
         query_lower = query_text.lower().strip()
 
-        # Get all concepts from database
-        # TODO: Optimize with LIKE query or trigram similarity in future
-        concepts = await ConceptStore.list_all(limit=1000)
+        # Search database directly for matching concepts
+        # Uses SQL for efficiency instead of loading all concepts
+        from research_kb_storage.connection import get_connection_pool
 
+        pool = await get_connection_pool()
         matched_concept_ids = []
 
-        for concept in concepts:
-            # Check canonical name match
-            if concept.canonical_name in query_lower:
-                matched_concept_ids.append(concept.id)
-                logger.debug(
-                    "query_concept_matched",
-                    concept_id=concept.id,
-                    concept_name=concept.name,
-                    match_type="canonical_name",
+        async with pool.acquire() as conn:
+            # Strategy: Search for concepts where canonical_name appears in query
+            # For efficiency, we search by extracting query words and matching
+            query_words = re.findall(r'\b\w+\b', query_lower)
+
+            # Build search patterns from query words
+            # For multi-word queries, also search for the full phrase
+            search_patterns = []
+
+            # Full phrase (longest first for priority)
+            search_patterns.append(query_lower)
+
+            # Bigrams (pairs of adjacent words)
+            for i in range(len(query_words) - 1):
+                bigram = f"{query_words[i]} {query_words[i+1]}"
+                search_patterns.append(bigram)
+
+            # Individual words (for short concept names like "IV")
+            for word in query_words:
+                if len(word) >= 2:  # Skip single-char words
+                    search_patterns.append(word)
+
+            # Search for exact matches on canonical_name
+            for pattern in search_patterns:
+                if len(matched_concept_ids) >= max_concepts:
+                    break
+
+                # Query for concepts matching this pattern
+                rows = await conn.fetch(
+                    """
+                    SELECT id, name, canonical_name
+                    FROM concepts
+                    WHERE canonical_name != ''
+                      AND LOWER(canonical_name) = $1
+                    LIMIT $2
+                    """,
+                    pattern,
+                    max_concepts - len(matched_concept_ids),
                 )
-                continue
 
-            # Check alias matches
-            for alias in concept.aliases:
-                alias_lower = alias.lower()
-                # Require word boundaries for short aliases to avoid false positives
-                if len(alias) <= 3:
-                    # Short alias - require word boundaries
-                    import re
-
-                    pattern = rf"\b{re.escape(alias_lower)}\b"
-                    if re.search(pattern, query_lower):
-                        matched_concept_ids.append(concept.id)
+                for row in rows:
+                    if row["id"] not in matched_concept_ids:
+                        matched_concept_ids.append(row["id"])
                         logger.debug(
                             "query_concept_matched",
-                            concept_id=concept.id,
-                            concept_name=concept.name,
-                            match_type="alias",
-                            alias=alias,
+                            concept_id=row["id"],
+                            concept_name=row["name"],
+                            match_type="canonical_name",
                         )
-                        break
-                else:
-                    # Long alias - simple substring match
-                    if alias_lower in query_lower:
-                        matched_concept_ids.append(concept.id)
+
+            # Also search for substring matches (longer names only)
+            if len(matched_concept_ids) < max_concepts:
+                rows = await conn.fetch(
+                    """
+                    SELECT id, name, canonical_name
+                    FROM concepts
+                    WHERE canonical_name != ''
+                      AND LENGTH(canonical_name) > 3
+                      AND POSITION(LOWER(canonical_name) IN $1) > 0
+                    ORDER BY LENGTH(canonical_name) DESC
+                    LIMIT $2
+                    """,
+                    query_lower,
+                    max_concepts - len(matched_concept_ids),
+                )
+
+                for row in rows:
+                    if row["id"] not in matched_concept_ids:
+                        matched_concept_ids.append(row["id"])
                         logger.debug(
                             "query_concept_matched",
-                            concept_id=concept.id,
-                            concept_name=concept.name,
-                            match_type="alias",
-                            alias=alias,
+                            concept_id=row["id"],
+                            concept_name=row["name"],
+                            match_type="canonical_name_substring",
                         )
-                        break
-
-            # Stop if we've reached max_concepts
-            if len(matched_concept_ids) >= max_concepts:
-                break
 
         logger.info(
             "query_concepts_extracted",

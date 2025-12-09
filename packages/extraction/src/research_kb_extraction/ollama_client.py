@@ -10,6 +10,7 @@ from typing import Any, Optional
 import httpx
 from research_kb_common import get_logger
 
+from research_kb_extraction.base_client import LLMClient
 from research_kb_extraction.models import ChunkExtraction
 from research_kb_extraction.prompts import SYSTEM_PROMPT, format_extraction_prompt
 
@@ -22,7 +23,7 @@ class OllamaError(Exception):
     pass
 
 
-class OllamaClient:
+class OllamaClient(LLMClient):
     """Client for Ollama LLM with structured JSON output.
 
     Uses Ollama's native JSON mode for reliable structured extraction.
@@ -254,3 +255,8 @@ class OllamaClient:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Async context manager exit."""
         await self.close()
+
+    @property
+    def extraction_method(self) -> str:
+        """Return extraction method identifier for database metadata."""
+        return f"ollama:{self.model}"

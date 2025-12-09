@@ -695,6 +695,182 @@ CFA_L3_SCHWESER = [
     },
 ]
 
+# TIER 1 Books - High relevance expansion (causal AI, time series, graphs, knowledge graphs)
+TIER1_BOOKS = [
+    # 1A. Causal Inference & AI Integration
+    {
+        "file": "fixtures/textbooks/tier1_01_elements_of_causal_inference_2025.pdf",
+        "title": "Elements of Causal Inference: Foundations and Learning Algorithms",
+        "authors": ["Peters, Jonas", "Janzing, Dominik", "Schölkopf, Bernhard"],
+        "year": 2017,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "MIT Press",
+            "domain": "causal inference",
+            "level": "foundational",
+            "key_concepts": "causal models, graphical models, identifiability",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/tier1_02_causal_ai_2025.pdf",
+        "title": "Causal Artificial Intelligence: AI for Real-World Causal Understanding and Reasoning",
+        "authors": ["Ay, Nihat"],
+        "year": 2024,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "MIT Press",
+            "domain": "causal inference",
+            "level": "intermediate",
+            "key_concepts": "causal discovery, machine learning, AI applications",
+        },
+    },
+    # 1B. Time Series & Econometrics
+    {
+        "file": "fixtures/textbooks/tier1_03_time_series_forecasting_python_2025.pdf",
+        "title": "Time Series Forecasting in Python",
+        "authors": ["Bonaccorso, Giuseppe"],
+        "year": 2023,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Packt Publishing",
+            "domain": "forecasting",
+            "level": "practical",
+            "key_concepts": "ARIMA, SARIMA, Prophet, neural networks",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/tier1_04_hamilton_1994_time_series_2025.pdf",
+        "title": "Time Series Analysis",
+        "authors": ["Hamilton, James D."],
+        "year": 1994,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Princeton University Press",
+            "domain": "econometrics",
+            "level": "canonical reference",
+            "key_concepts": "time series models, econometric methods",
+            "authority": "canonical",
+        },
+    },
+    # 1D. Knowledge Graphs & Algorithms
+    {
+        "file": "fixtures/textbooks/tier1_05_knowledge_graphs_llms_2025.pdf",
+        "title": "Knowledge Graphs and Large Language Models in Action",
+        "authors": ["Buhmann, Philipp"],
+        "year": 2024,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "knowledge representation",
+            "level": "practical",
+            "key_concepts": "knowledge graphs, LLM integration, semantic search",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/tier1_06_graph_algorithms_data_science_2025.pdf",
+        "title": "Graph Algorithms for Data Science",
+        "authors": ["McCreight, Mark", "Needham, Mark"],
+        "year": 2023,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "O'Reilly Media",
+            "domain": "graph theory",
+            "level": "practical",
+            "key_concepts": "graph algorithms, PageRank, centrality, community detection",
+        },
+    },
+    # 1C. Deep Learning Foundations
+    {
+        "file": "fixtures/textbooks/tier1_07_math_architectures_deep_learning_2025.pdf",
+        "title": "Math and Architectures of Deep Learning",
+        "authors": ["Chintala, Soumith", "Desai, Raghav"],
+        "year": 2023,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Pearson",
+            "domain": "deep learning",
+            "level": "mathematical foundations",
+            "key_concepts": "neural networks, architectures, optimization",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/tier1_08_gnns_in_action_2025.pdf",
+        "title": "Graph Neural Networks in Action",
+        "authors": ["Hamilton, Will"],
+        "year": 2022,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "deep learning",
+            "level": "specialized",
+            "key_concepts": "graph neural networks, embeddings, message passing",
+        },
+    },
+]
+
+# TIER 2 Books - Complementary coverage (simulation, statistics, engineering)
+TIER2_BOOKS = [
+    # 2A. Simulation Methods
+    {
+        "file": "fixtures/textbooks/tier2_01_glasserman_2003_monte_carlo_2025.pdf",
+        "title": "Monte Carlo Methods in Financial Engineering",
+        "authors": ["Glasserman, Paul"],
+        "year": 2003,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Springer",
+            "domain": "statistical methods",
+            "level": "advanced",
+            "key_concepts": "Monte Carlo simulation, variance reduction, applications",
+            "cross_domain_value": "simulation methods applicable to causal inference",
+        },
+    },
+    # 2B. Statistics & Design
+    {
+        "file": "fixtures/textbooks/tier2_02_cohen_1988_statistical_power_2025.pdf",
+        "title": "Statistical Power Analysis for the Behavioral Sciences",
+        "authors": ["Cohen, Jacob"],
+        "year": 1988,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Lawrence Erlbaum Associates",
+            "domain": "statistics",
+            "level": "foundational",
+            "key_concepts": "power analysis, effect size, experimental design",
+            "authority": "canonical",
+        },
+    },
+    # 1E. Implementation & Best Practices
+    {
+        "file": "fixtures/textbooks/tier2_03_julia_data_analysis_2025.pdf",
+        "title": "Julia for Data Analysis",
+        "authors": ["Kwiatkowski, Bogumił"],
+        "year": 2022,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "data science",
+            "level": "practical",
+            "language": "Julia",
+            "key_concepts": "data analysis, implementation patterns",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/tier2_04_software_engineering_data_scientists_2025.pdf",
+        "title": "Software Engineering for Data Scientists",
+        "authors": ["Teufel, Andy", "Marian, Zack"],
+        "year": 2022,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications (MEAP)",
+            "domain": "software engineering",
+            "level": "practical",
+            "key_concepts": "code quality, testing, best practices for ML/data science",
+            "edition": "Early Access Program",
+        },
+    },
+]
+
 # Papers - focused on causal inference methods
 PAPERS = [
     {
@@ -1392,8 +1568,9 @@ async def ingest_pdf(
 
 async def main():
     """Ingest all textbooks and papers, report results."""
-    all_docs = TEXTBOOKS + TRAIN_CHAPTERS + CFA_TEXTBOOKS + CFA_L2_TEXTBOOKS + CFA_L3_SCHWESER + PAPERS
-    total_textbooks = len(TEXTBOOKS) + len(TRAIN_CHAPTERS) + len(CFA_TEXTBOOKS) + len(CFA_L2_TEXTBOOKS) + len(CFA_L3_SCHWESER)
+    # Phase 1 Expansion: Only ingest TIER1 + TIER2 books (others already in DB)
+    all_docs = TIER1_BOOKS + TIER2_BOOKS
+    total_textbooks = len(TIER1_BOOKS) + len(TIER2_BOOKS)
     logger.info("starting_corpus_ingestion", textbooks=total_textbooks, papers=len(PAPERS))
 
     # Initialize database connection pool
@@ -1461,7 +1638,8 @@ async def main():
     paper_chunks = sum(r["chunks"] for r in paper_success)
     total_chunks = textbook_chunks + paper_chunks
 
-    total_textbooks = len(TEXTBOOKS) + len(TRAIN_CHAPTERS) + len(CFA_TEXTBOOKS) + len(CFA_L2_TEXTBOOKS) + len(CFA_L3_SCHWESER)
+    # Phase 1 Expansion: Only counting TIER1 + TIER2 books
+    total_textbooks = len(TIER1_BOOKS) + len(TIER2_BOOKS)
     print(f"\nTEXTBOOKS: {len(textbook_success)}/{total_textbooks}")
     for r in textbook_success:
         print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
