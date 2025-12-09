@@ -87,6 +87,9 @@ def extract_pdf(pdf_path: str | Path) -> ExtractedDocument:
         page = doc[page_num]
         text = page.get_text()
 
+        # Remove null bytes that cause PostgreSQL UTF-8 encoding errors
+        text = text.replace("\x00", "")
+
         # Strip excessive whitespace but preserve paragraph breaks
         text = "\n".join(line.strip() for line in text.split("\n") if line.strip())
 
@@ -199,6 +202,8 @@ def detect_headings(pdf_path: str | Path) -> list[Heading]:
             for line in block.get("lines", []):
                 for span in line.get("spans", []):
                     text = span.get("text", "").strip()
+                    # Remove null bytes that cause PostgreSQL UTF-8 encoding errors
+                    text = text.replace("\x00", "")
                     font_size = span.get("size", 0.0)
 
                     if text and font_size > 0:

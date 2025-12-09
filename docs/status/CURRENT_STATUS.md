@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-08 22:41:54
+**Auto-generated**: 2025-12-09 08:16:13
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,11 +9,11 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 10 |
-| chunks | 0 |
-| concepts | 0 |
-| concept_relationships | 0 |
-| chunk_concepts | 0 |
+| sources | 138 |
+| chunks | 34,907 |
+| concepts | 17,819 |
+| concept_relationships | 18,542 |
+| chunk_concepts | 32,258 |
 | citations | 0 |
 
 ---
@@ -22,8 +22,8 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 0 | 0 | 0.0% |
-| Concepts | 0 | 0 | 0.0% |
+| Chunks | 34,907 | 34,907 | 100.0% |
+| Concepts | 17,819 | 17,819 | 100.0% |
 
 ---
 
@@ -31,7 +31,8 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 10 |
+| paper | 72 |
+| textbook | 66 |
 
 ---
 
@@ -39,7 +40,11 @@
 
 | Type | Count |
 |------|------:|
-
+| definition | 7,669 |
+| method | 6,469 |
+| problem | 2,100 |
+| assumption | 1,250 |
+| theorem | 331 |
 
 ---
 
@@ -47,7 +52,13 @@
 
 | Type | Count |
 |------|------:|
-
+| USES | 5,695 |
+| REQUIRES | 3,750 |
+| ADDRESSES | 3,384 |
+| SPECIALIZES | 2,960 |
+| ALTERNATIVE_TO | 2,004 |
+| GENERALIZES | 585 |
+| EXTENDS | 164 |
 
 ---
 
@@ -58,8 +69,8 @@ Based on database population:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 10 sources, 0 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 0 concepts, 0 relationships |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 138 sources, 34,907 chunks |
+| Phase 2: Knowledge Graph | ✅ Complete | 17,819 concepts, 18,542 relationships |
 | Phase 3: Enhanced Retrieval | 📋 Ready to start | No blockers |
 | Phase 4: Production | 📋 Planned | Pending Phase 3 |
 
