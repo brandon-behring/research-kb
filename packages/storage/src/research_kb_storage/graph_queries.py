@@ -11,9 +11,11 @@ Uses PostgreSQL recursive CTEs for graph operations.
 Master Plan Reference: Lines 616-673 (Phase 2 knowledge graph)
 """
 
+import json
 from typing import Optional
 from uuid import UUID
 
+from pgvector.asyncpg import register_vector
 from research_kb_common import StorageError, get_logger
 from research_kb_contracts import Concept, ConceptRelationship, RelationshipType
 
@@ -79,6 +81,11 @@ async def find_shortest_path(
 
     try:
         async with pool.acquire() as conn:
+            await register_vector(conn)  # Required for embedding column
+            await conn.set_type_codec(
+                "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+            )
+
             # Recursive CTE for breadth-first search
             rows = await conn.fetch(
                 """
@@ -298,6 +305,11 @@ async def get_neighborhood(
 
     try:
         async with pool.acquire() as conn:
+            await register_vector(conn)  # Required for embedding column
+            await conn.set_type_codec(
+                "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+            )
+
             # Get center concept
             center_row = await conn.fetchrow(
                 "SELECT * FROM concepts WHERE id = $1", concept_id

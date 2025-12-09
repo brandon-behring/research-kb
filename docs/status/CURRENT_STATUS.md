@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-09 15:14:39
+**Auto-generated**: 2025-12-09 16:43:41
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,11 +9,11 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 136 |
-| chunks | 46,263 |
-| concepts | 54 |
-| concept_relationships | 19 |
-| chunk_concepts | 61 |
+| sources | 160 |
+| chunks | 50,238 |
+| concepts | 17,819 |
+| concept_relationships | 18,542 |
+| chunk_concepts | 32,176 |
 | citations | 5,044 |
 
 ---
@@ -22,8 +22,8 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 46,263 | 46,263 | 100.0% |
-| Concepts | 0 | 54 | 0.0% |
+| Chunks | 50,238 | 50,238 | 100.0% |
+| Concepts | 17,819 | 17,819 | 100.0% |
 
 ---
 
@@ -31,8 +31,8 @@
 
 | Type | Count |
 |------|------:|
-| paper | 72 |
-| textbook | 64 |
+| paper | 92 |
+| textbook | 68 |
 
 ---
 
@@ -40,11 +40,11 @@
 
 | Type | Count |
 |------|------:|
-| method | 24 |
-| theorem | 13 |
-| problem | 11 |
-| assumption | 3 |
-| definition | 3 |
+| definition | 7,669 |
+| method | 6,469 |
+| problem | 2,100 |
+| assumption | 1,250 |
+| theorem | 331 |
 
 ---
 
@@ -52,11 +52,13 @@
 
 | Type | Count |
 |------|------:|
-| USES | 5 |
-| ADDRESSES | 5 |
-| REQUIRES | 4 |
-| EXTENDS | 3 |
-| GENERALIZES | 2 |
+| USES | 5,695 |
+| REQUIRES | 3,750 |
+| ADDRESSES | 3,384 |
+| SPECIALIZES | 2,960 |
+| ALTERNATIVE_TO | 2,004 |
+| GENERALIZES | 585 |
+| EXTENDS | 164 |
 
 ---
 
@@ -67,8 +69,8 @@ Based on database population:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 136 sources, 46,263 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 54 concepts, 19 relationships |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 160 sources, 50,238 chunks |
+| Phase 2: Knowledge Graph | ✅ Complete | 17,819 concepts, 18,542 relationships |
 | Phase 3: Enhanced Retrieval | 📋 Ready to start | No blockers |
 | Phase 4: Production | 📋 Planned | Pending Phase 3 |
 
