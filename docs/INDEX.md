@@ -2,7 +2,7 @@
 
 ## Current Status
 
-- **Phase**: Phase 3 complete ✅, Phase 4 (Visualization) ready to start
+- **Phase**: Phase 3 ✅ Complete, Phase 4 (Production) ready to start
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
 
 ---
@@ -13,7 +13,7 @@
 |--------------|----------|
 | Understand the architecture | [System Design](SYSTEM_DESIGN.md) |
 | See current status | [Current Status](status/CURRENT_STATUS.md) |
-| Work on Phase 3 | [Phase 3 Plan](phases/phase3/ENHANCED_RETRIEVAL.md) |
+| Work on Phase 4 | [Phase 4 Plan](phases/phase4/PRODUCTION.md) |
 | Run the CLI | [CLAUDE.md](../CLAUDE.md#cli-usage) |
 | Set up locally | [Local Development](guides/LOCAL_DEVELOPMENT.md) |
 | Update status docs | `python scripts/generate_status.py` |
@@ -27,7 +27,7 @@
 | 1. Foundation | ✅ Complete | PostgreSQL, contracts, storage | [→](phases/phase1/FOUNDATION.md) |
 | 1.5 PDF Ingestion | ✅ Complete | Dispatcher, citations, embeddings | [→](phases/phase1.5/PDF_INGESTION.md) |
 | 2. Knowledge Graph | ✅ Complete | Concept extraction, graph queries | [→](phases/phase2/KNOWLEDGE_GRAPH.md) |
-| 3. Enhanced Retrieval | 📋 Ready | Re-ranking, query expansion | [→](phases/phase3/ENHANCED_RETRIEVAL.md) |
+| 3. Enhanced Retrieval | ✅ Complete | Re-ranking, query expansion | [→](phases/phase3/ENHANCED_RETRIEVAL.md) |
 | 4. Production | 📋 Planned | FastAPI, auth, deployment | [→](phases/phase4/PRODUCTION.md) |
 
 ---
@@ -69,14 +69,7 @@ docs/
 
 See [CURRENT_STATUS.md](status/CURRENT_STATUS.md) for live metrics (auto-generated from database).
 
-| Metric | Value |
-|--------|-------|
-| Sources | 137 (65 textbooks + 72 papers) |
-| Chunks | 33,973 (100% with embeddings) |
-| Concepts | 19,458 |
-| Relationships | 20,423 |
-| Tests | 502 functions |
-| 2-hop graph query | 2.11ms (target: <100ms) ✅ |
+Run `python scripts/generate_status.py` to refresh metrics.
 
 ---
 
