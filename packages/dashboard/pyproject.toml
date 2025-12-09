@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "research-kb-dashboard"
+version = "0.1.0"
+description = "Streamlit visualization dashboard for research-kb"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.29.0",
+    "pyvis>=0.3.2",
+    "plotly>=5.18.0",
+    "networkx>=3.2",
+    "pandas>=2.0.0",
+    "research-kb-storage",
+    "research-kb-contracts",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -5,19 +5,13 @@ Provides:
 - Mock Ollama client for concept extraction
 - Test PDF fixture paths
 - Embedding server mocks
+
+IMPORTANT: Tests use `research_kb_test` database to protect production data.
+The TRUNCATE operations will REFUSE to run against `research_kb`.
 """
 
+import os
 from pathlib import Path
-
-
-def pytest_addoption(parser):
-    """Add custom command line options."""
-    parser.addoption(
-        "--run-neo4j",
-        action="store_true",
-        default=False,
-        help="Run tests that require Neo4j server",
-    )
 from typing import AsyncGenerator
 from unittest.mock import AsyncMock, MagicMock
 
@@ -38,6 +32,36 @@ from research_kb_contracts import (
 from research_kb_extraction import ChunkExtraction
 
 
+# Test database name - NEVER use production database for tests
+TEST_DATABASE_NAME = os.environ.get("TEST_DATABASE_NAME", "research_kb_test")
+PRODUCTION_DATABASE_NAME = "research_kb"
+
+
+class ProductionDatabaseError(Exception):
+    """Raised when test attempts to modify production database."""
+    pass
+
+
+def _verify_not_production(database_name: str) -> None:
+    """Safety check: refuse to run destructive operations on production DB."""
+    if database_name == PRODUCTION_DATABASE_NAME:
+        raise ProductionDatabaseError(
+            f"REFUSING to run test fixture against production database '{PRODUCTION_DATABASE_NAME}'!\n"
+            f"Tests must use '{TEST_DATABASE_NAME}' or another test database.\n"
+            f"Set TEST_DATABASE_NAME environment variable to override."
+        )
+
+
+def pytest_addoption(parser):
+    """Add custom command line options."""
+    parser.addoption(
+        "--run-neo4j",
+        action="store_true",
+        default=False,
+        help="Run tests that require Neo4j server",
+    )
+
+
 @pytest_asyncio.fixture(scope="function")
 async def test_db() -> AsyncGenerator:
     """Provide clean test database for each test.
@@ -47,27 +71,35 @@ async def test_db() -> AsyncGenerator:
     - Cleans the database before the test
     - Yields the pool to the test
     - Cleans up after the test completes
+    - REFUSES to connect to production database
 
     Usage:
         async def test_my_feature(test_db):
             # test_db is the connection pool
             result = await MyStore.create(...)
     """
+    # Safety check BEFORE connecting
+    _verify_not_production(TEST_DATABASE_NAME)
+
     # Reset global pool state
     await close_connection_pool()
 
-    # Create new pool with test database
+    # Create new pool with TEST database
     config = DatabaseConfig(
         host="localhost",
         port=5432,
-        database="research_kb",
+        database=TEST_DATABASE_NAME,
         user="postgres",
         password="postgres",
     )
     pool = await get_connection_pool(config)
 
-    # Clean database before test
+    # Double-check we're not on production
     async with pool.acquire() as conn:
+        current_db = await conn.fetchval("SELECT current_database()")
+        _verify_not_production(current_db)
+
+        # Clean database before test
         await conn.execute("TRUNCATE TABLE sources CASCADE")
 
     yield pool

@@ -18,36 +18,37 @@ A causal inference knowledge base for research context retrieval.
 - Hybrid retrieval (vector + FTS + graph signals)
 - Performance: 2.11ms for 2-hop queries (target: <100ms)
 
-## Phase 3: Enhanced Retrieval (Weeks 5-6) 🔄 IN PROGRESS (75%)
+## Phase 3: Enhanced Retrieval (Weeks 5-6) ✅ COMPLETE
 
 - ✅ Query expansion with concept synonyms (synonym_map.json)
 - ✅ Cross-encoder re-ranking (BGE reranker)
-- 📋 Multi-hop reasoning chains (planned)
-- 📋 Citation graph integration (requires citation extraction first)
+- ✅ Citation graph integration (5,044 citations, 275 internal edges)
+- ✅ 4-way hybrid search (FTS + vector + graph + citation)
 
-## Phase 4: Production (Weeks 7-8) 📋 PLANNED
+## Phase 4: Visualization & MCP (Weeks 7-8) 📋 PLANNED
 
-- FastAPI REST API
-- Authentication & rate limiting
-- Observability (OpenTelemetry, structured logging)
-- Deployment automation
+- Streamlit + PyVis dashboard
+- Citation network visualization
+- Concept graph explorer with N-hop neighborhoods
+- Multi-hop path finder between concepts
+- MCP server for Claude Code integration
 
 ---
 
-**Current Status**: Phase 3 in progress (75% complete).
+**Current Status**: Phase 3 complete. Phase 4 (Visualization) ready to start.
 
 **Key Metrics** (as of 2025-12-09):
-- Sources: 138 (textbooks + papers + CFA materials)
-- Chunks: 34,907 (100% with embeddings)
-- Concepts: 17,819
-- Relationships: 18,542
-- Tests: 590 functions across 40 files
-- 2-hop graph query: <1ms (target: <100ms) ✅
+- Sources: 136 (65 textbooks + 71 papers)
+- Chunks: 46,263 (100% with embeddings)
+- Citations: 5,044 (275 internal edges)
+- Concepts: rebuilding (extraction in progress)
+- Tests: 502 functions
+- 2-hop graph query: 2.11ms (target: <100ms) ✅
 
-**Phase 3 Progress**:
+**Phase 3 Deliverables**:
 - ✅ Query expansion with synonym map
 - ✅ Cross-encoder reranking (BGE model)
-- 📋 Multi-hop reasoning (planned)
-- 📋 Citation graph (requires citation extraction)
+- ✅ Citation graph with PageRank authority scores
+- ✅ 4-way hybrid retrieval
 
 **Documentation Note**: Run `python scripts/generate_status.py` to update status docs from database.

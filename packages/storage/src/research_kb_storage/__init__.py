@@ -54,6 +54,16 @@ from research_kb_storage.query_expander import (
     QueryExpander,
     expand_query,
 )
+from research_kb_storage.citation_graph import (
+    build_citation_graph,
+    compute_pagerank_authority,
+    get_citing_sources,
+    get_cited_sources,
+    get_citation_stats,
+    get_corpus_citation_summary,
+    get_most_cited_sources,
+    match_citation_to_source,
+)
 
 __version__ = "1.0.0"
 
@@ -94,4 +104,13 @@ __all__ = [
     "ExpandedQuery",
     "QueryExpander",
     "expand_query",
+    # Citation Graph (Phase 3)
+    "build_citation_graph",
+    "compute_pagerank_authority",
+    "get_citing_sources",
+    "get_cited_sources",
+    "get_citation_stats",
+    "get_corpus_citation_summary",
+    "get_most_cited_sources",
+    "match_citation_to_source",
 ]
