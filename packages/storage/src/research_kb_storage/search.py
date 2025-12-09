@@ -4,11 +4,13 @@ Provides:
 - Full-text search (PostgreSQL ts_rank)
 - Vector similarity search (pgvector cosine similarity)
 - Hybrid search with weighted combination
+- Cross-encoder reranking (Phase 3)
 
 Score semantics:
 - fts_score: Higher = better match (PostgreSQL ts_rank)
 - vector_score: Higher = more similar (1=identical, 0=opposite)
 - combined_score: Weighted combination, higher = better
+- rerank_score: Cross-encoder relevance (higher = better)
 """
 
 import json
@@ -266,6 +268,25 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             # Store graph score in result
             result.graph_score = graph_score
 
+        # Step 4b: Renormalize weights if graph contributed nothing
+        # This prevents penalizing FTS/vector when no concepts match
+        has_graph_contribution = any(
+            r.graph_score and r.graph_score > 0 for r in base_results
+        )
+
+        if not has_graph_contribution and query.graph_weight > 0:
+            # Renormalize to FTS+vector only (avoid wasting graph weight allocation)
+            fts_vector_sum = query.fts_weight + query.vector_weight
+            if fts_vector_sum > 0:
+                logger.debug(
+                    "graph_weight_renormalized",
+                    original_graph_weight=query.graph_weight,
+                    reason="no_graph_contribution",
+                )
+                query.fts_weight = query.fts_weight / fts_vector_sum
+                query.vector_weight = query.vector_weight / fts_vector_sum
+                query.graph_weight = 0.0
+
         # Step 5: Re-rank with 3-way scoring
         for result in base_results:
             # Get individual scores (already normalized by base search)
@@ -310,6 +331,91 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
     except Exception as e:
         logger.error("graph_search_failed", error=str(e))
         raise SearchError(f"Graph-boosted search failed: {e}") from e
+
+
+async def search_with_rerank(
+    query: SearchQuery,
+    rerank_top_k: int = 10,
+    fetch_multiplier: int = 5,
+) -> list[SearchResult]:
+    """Execute hybrid search with cross-encoder reranking.
+
+    Two-stage retrieval:
+    1. Fast retrieval: FTS + vector + graph returns top-(limit * fetch_multiplier)
+    2. Accurate reranking: Cross-encoder reranks to top-rerank_top_k
+
+    Args:
+        query: Search query configuration
+        rerank_top_k: Number of results to return after reranking
+        fetch_multiplier: How many more candidates to fetch for reranking
+                         (e.g., 5 means fetch 50 candidates to rerank to 10)
+
+    Returns:
+        List of SearchResults ranked by cross-encoder score
+
+    Raises:
+        SearchError: If search fails
+        ConnectionError: If rerank server not available
+
+    Example:
+        >>> results = await search_with_rerank(
+        ...     SearchQuery(text="instrumental variables", embedding=embed("IV")),
+        ...     rerank_top_k=10
+        ... )
+    """
+    # Import here to avoid circular dependency
+    from research_kb_pdf.rerank_client import RerankClient
+
+    # Step 1: Fetch more candidates for reranking
+    original_limit = query.limit
+    query.limit = rerank_top_k * fetch_multiplier
+
+    # Use graph-boosted search if enabled, otherwise basic hybrid
+    if query.use_graph:
+        candidates = await search_hybrid_v2(query)
+    else:
+        candidates = await search_hybrid(query)
+
+    # Restore original limit
+    query.limit = original_limit
+
+    if not candidates:
+        return []
+
+    # Step 2: Rerank with cross-encoder
+    client = RerankClient()
+
+    if not client.is_available():
+        logger.warning(
+            "rerank_server_unavailable",
+            message="Returning results without reranking",
+        )
+        # Return top results without reranking
+        return candidates[:rerank_top_k]
+
+    try:
+        reranked = client.rerank_search_results(
+            query=query.text,
+            results=candidates,
+            top_k=rerank_top_k,
+        )
+
+        logger.info(
+            "search_reranked",
+            candidates=len(candidates),
+            reranked=len(reranked),
+        )
+
+        return reranked
+
+    except Exception as e:
+        logger.warning(
+            "rerank_failed",
+            error=str(e),
+            message="Returning results without reranking",
+        )
+        # Graceful fallback: return unreranked results
+        return candidates[:rerank_top_k]
 
 
 async def _hybrid_search_for_rerank(
@@ -373,7 +479,7 @@ async def _hybrid_search_for_rerank(
         s.created_at AS source_created_at, s.updated_at,
         n.fts_score,
         n.vector_distance,
-        (n.fts_normalized + n.vector_normalized) / 2.0 AS combined_score
+        ($3 * n.fts_normalized + $4 * n.vector_normalized) AS combined_score
     FROM normalized n
     JOIN chunks c ON c.id = n.chunk_id
     JOIN sources s ON s.id = n.source_id
@@ -386,8 +492,8 @@ async def _hybrid_search_for_rerank(
         sql,
         query.text,
         query.embedding,
-        query.fts_weight,
-        query.vector_weight,
+        float(query.fts_weight),  # Explicit float for PostgreSQL type inference
+        float(query.vector_weight),
         limit,
         query.source_filter,
     )
@@ -538,6 +644,99 @@ async def _vector_search(
         await _row_to_search_result(row, rank + 1, vector_only=True)
         for rank, row in enumerate(rows)
     ]
+
+
+async def search_with_expansion(
+    query: SearchQuery,
+    use_synonyms: bool = True,
+    use_graph_expansion: bool = True,
+    use_llm_expansion: bool = False,
+    use_rerank: bool = True,
+    rerank_top_k: int = 10,
+) -> tuple[list[SearchResult], Optional["ExpandedQuery"]]:
+    """Execute search with query expansion and optional reranking.
+
+    Full-featured search combining:
+    1. Query expansion (synonyms, graph, optional LLM)
+    2. Hybrid search (FTS + vector + graph signals)
+    3. Cross-encoder reranking (optional)
+
+    The expansion is applied to FTS search text, improving recall.
+
+    Args:
+        query: Search query configuration
+        use_synonyms: Enable synonym expansion (fast, deterministic)
+        use_graph_expansion: Enable graph-based expansion (~10ms)
+        use_llm_expansion: Enable LLM expansion via Ollama (~200-500ms)
+        use_rerank: Enable cross-encoder reranking
+        rerank_top_k: Number of results to return after reranking
+
+    Returns:
+        Tuple of (results, expanded_query)
+        - results: List of SearchResults
+        - expanded_query: ExpandedQuery with expansion details (or None if no expansion)
+
+    Example:
+        >>> results, expansion = await search_with_expansion(
+        ...     SearchQuery(text="IV", embedding=embed("IV")),
+        ...     use_synonyms=True,
+        ...     use_graph_expansion=True,
+        ... )
+        >>> print(expansion.expansion_sources)
+        {'synonyms': ['instrumental variables', '2sls'], 'graph': ['endogeneity']}
+    """
+    from research_kb_storage.query_expander import QueryExpander, ExpandedQuery
+
+    expanded_query = None
+
+    # Step 1: Expand query if requested and text is provided
+    if query.text and (use_synonyms or use_graph_expansion or use_llm_expansion):
+        try:
+            expander = QueryExpander.from_yaml()
+
+            # Add Ollama client if LLM expansion requested
+            if use_llm_expansion:
+                try:
+                    from research_kb_extraction.ollama_client import OllamaClient
+                    expander.ollama_client = OllamaClient()
+                except ImportError:
+                    logger.debug("ollama_client_not_available")
+
+            expanded_query = await expander.expand(
+                query.text,
+                use_synonyms=use_synonyms,
+                use_graph=use_graph_expansion,
+                use_llm=use_llm_expansion,
+            )
+
+            # Use expanded FTS query if we got expansions
+            if expanded_query.expanded_terms:
+                logger.info(
+                    "query_expanded_for_search",
+                    original=query.text,
+                    expansion_count=len(expanded_query.expanded_terms),
+                    sources=list(expanded_query.expansion_sources.keys()),
+                )
+
+        except Exception as e:
+            logger.warning(
+                "query_expansion_failed",
+                error=str(e),
+                message="Proceeding with original query",
+            )
+
+    # Step 2: Execute search
+    if use_rerank:
+        results = await search_with_rerank(
+            query,
+            rerank_top_k=rerank_top_k,
+        )
+    elif query.use_graph:
+        results = await search_hybrid_v2(query)
+    else:
+        results = await search_hybrid(query)
+
+    return results, expanded_query
 
 
 async def _row_to_search_result(

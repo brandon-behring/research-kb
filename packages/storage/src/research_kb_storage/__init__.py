@@ -30,7 +30,7 @@ from research_kb_storage.connection import (
     get_connection_pool,
 )
 from research_kb_storage.relationship_store import RelationshipStore
-from research_kb_storage.search import SearchQuery, search_hybrid, search_hybrid_v2
+from research_kb_storage.search import SearchQuery, search_hybrid, search_hybrid_v2, search_with_rerank, search_with_expansion
 from research_kb_storage.query_extractor import (
     extract_query_concepts,
     extract_query_concepts_by_similarity,
@@ -40,9 +40,19 @@ from research_kb_storage.method_store import MethodStore
 from research_kb_storage.assumption_store import AssumptionStore
 from research_kb_storage.graph_queries import (
     compute_graph_score,
+    compute_weighted_graph_score,
+    explain_path,
     find_shortest_path,
     find_shortest_path_length,
     get_neighborhood,
+    get_path_with_explanation,
+    get_relationship_weight,
+    RELATIONSHIP_WEIGHTS,
+)
+from research_kb_storage.query_expander import (
+    ExpandedQuery,
+    QueryExpander,
+    expand_query,
 )
 
 __version__ = "1.0.0"
@@ -66,11 +76,22 @@ __all__ = [
     "SearchQuery",
     "search_hybrid",
     "search_hybrid_v2",
+    "search_with_rerank",
+    "search_with_expansion",
     "extract_query_concepts",
     "extract_query_concepts_by_similarity",
-    # Graph Queries (Phase 2 Step 7)
+    # Graph Queries (Phase 2 Step 7 + Phase 3 enhancements)
     "find_shortest_path",
     "find_shortest_path_length",
     "get_neighborhood",
     "compute_graph_score",
+    "compute_weighted_graph_score",
+    "explain_path",
+    "get_path_with_explanation",
+    "get_relationship_weight",
+    "RELATIONSHIP_WEIGHTS",
+    # Query Expansion (Phase 3)
+    "ExpandedQuery",
+    "QueryExpander",
+    "expand_query",
 ]

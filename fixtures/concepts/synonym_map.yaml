@@ -1,0 +1,372 @@
+# Domain-specific synonym map for causal inference research
+# Used by QueryExpander for deterministic query expansion
+#
+# Format: key -> [synonyms]
+# Keys should be lowercase, common abbreviations or short forms
+# Synonyms include full names, alternative spellings, related terms
+
+# =============================================================================
+# IDENTIFICATION STRATEGIES
+# =============================================================================
+
+iv:
+  - instrumental variables
+  - instrumental variable
+  - 2sls
+  - two-stage least squares
+  - two stage least squares
+  - tsls
+
+did:
+  - difference-in-differences
+  - difference in differences
+  - diff-in-diff
+  - diff in diff
+  - differences-in-differences
+
+rdd:
+  - regression discontinuity
+  - regression discontinuity design
+  - sharp regression discontinuity
+  - fuzzy regression discontinuity
+  - rd design
+
+scm:
+  - synthetic control
+  - synthetic control method
+  - synthetic controls
+  - abadie synthetic control
+
+psm:
+  - propensity score matching
+  - propensity score
+  - propensity scores
+  - ps matching
+
+iptw:
+  - inverse probability weighting
+  - inverse probability of treatment weighting
+  - ipw
+  - treatment weighting
+
+# =============================================================================
+# TREATMENT EFFECTS
+# =============================================================================
+
+ate:
+  - average treatment effect
+  - average causal effect
+  - treatment effect
+
+att:
+  - average treatment effect on treated
+  - treatment effect on treated
+  - effect on treated
+
+atu:
+  - average treatment effect on untreated
+  - treatment effect on untreated
+  - effect on untreated
+
+cate:
+  - conditional average treatment effect
+  - conditional treatment effect
+  - heterogeneous treatment effect
+  - hte
+
+late:
+  - local average treatment effect
+  - complier average causal effect
+  - cace
+
+itt:
+  - intention to treat
+  - intent to treat
+  - intention-to-treat
+
+# =============================================================================
+# MACHINE LEARNING CAUSAL METHODS
+# =============================================================================
+
+dml:
+  - double machine learning
+  - doubly robust machine learning
+  - debiased machine learning
+  - debiased ml
+  - orthogonal ml
+
+causal forest:
+  - causal forests
+  - generalized random forest
+  - grf
+  - honest causal forest
+
+meta-learners:
+  - metalearners
+  - meta learners
+  - s-learner
+  - t-learner
+  - x-learner
+  - r-learner
+
+# =============================================================================
+# CORE CONCEPTS
+# =============================================================================
+
+confounding:
+  - confounder
+  - confounders
+  - confounding variable
+  - confounding bias
+  - omitted variable bias
+
+endogeneity:
+  - endogenous
+  - endogenous variable
+  - endogenous regressor
+  - simultaneity
+
+selection bias:
+  - sample selection
+  - sample selection bias
+  - self-selection
+  - self selection bias
+
+parallel trends:
+  - parallel trend
+  - parallel trends assumption
+  - common trends
+  - common trends assumption
+
+exchangeability:
+  - conditional exchangeability
+  - ignorability
+  - unconfoundedness
+  - conditional independence assumption
+  - cia
+
+sutva:
+  - stable unit treatment value assumption
+  - no interference
+  - no spillover
+
+positivity:
+  - overlap
+  - common support
+  - positivity assumption
+  - overlap assumption
+
+# =============================================================================
+# GRAPHICAL MODELS
+# =============================================================================
+
+dag:
+  - directed acyclic graph
+  - causal diagram
+  - causal graph
+  - structural causal model
+
+backdoor:
+  - backdoor criterion
+  - backdoor path
+  - backdoor adjustment
+  - back-door
+
+frontdoor:
+  - frontdoor criterion
+  - front-door criterion
+  - front door adjustment
+
+d-separation:
+  - d separation
+  - dseparation
+  - conditional independence
+
+collider:
+  - collider bias
+  - collider variable
+  - conditioning on collider
+
+mediator:
+  - mediation
+  - mediating variable
+  - intermediate variable
+  - causal mediation
+
+# =============================================================================
+# ESTIMATORS AND METHODS
+# =============================================================================
+
+ols:
+  - ordinary least squares
+  - linear regression
+  - least squares
+
+gmm:
+  - generalized method of moments
+  - method of moments
+
+mle:
+  - maximum likelihood
+  - maximum likelihood estimation
+  - ml estimation
+
+doubly robust:
+  - dr estimator
+  - augmented ipw
+  - aipw
+  - double robustness
+
+# =============================================================================
+# SENSITIVITY ANALYSIS
+# =============================================================================
+
+sensitivity analysis:
+  - robustness check
+  - sensitivity check
+  - robustness analysis
+
+bounds:
+  - partial identification
+  - identified set
+  - manski bounds
+
+rosenbaum bounds:
+  - rosenbaum sensitivity
+  - gamma sensitivity
+
+# =============================================================================
+# PANEL AND TIME SERIES
+# =============================================================================
+
+fixed effects:
+  - fe
+  - entity fixed effects
+  - individual fixed effects
+  - unit fixed effects
+
+random effects:
+  - re
+  - random effects model
+
+twfe:
+  - two-way fixed effects
+  - two way fixed effects
+  - entity and time fixed effects
+
+event study:
+  - event studies
+  - event study design
+
+staggered did:
+  - staggered adoption
+  - staggered difference-in-differences
+  - staggered treatment
+
+# =============================================================================
+# EXTERNAL VALIDITY
+# =============================================================================
+
+external validity:
+  - generalizability
+  - transportability
+  - extrapolation
+
+internal validity:
+  - causal identification
+  - identification
+
+# =============================================================================
+# STATISTICS AND INFERENCE
+# =============================================================================
+
+standard error:
+  - se
+  - standard errors
+  - robust standard error
+  - clustered standard error
+
+confidence interval:
+  - ci
+  - confidence intervals
+  - credible interval
+
+p-value:
+  - p value
+  - pvalue
+  - significance level
+
+heteroskedasticity:
+  - heteroscedasticity
+  - heteroskedastic
+  - non-constant variance
+
+# =============================================================================
+# SOFTWARE AND PACKAGES
+# =============================================================================
+
+econml:
+  - econ ml
+  - microsoft econml
+
+doubleml:
+  - double ml package
+  - doubleml package
+
+causalml:
+  - causal ml
+  - uber causalml
+
+pywhy:
+  - py why
+  - dowhy
+  - causal discovery
+
+# =============================================================================
+# AUTHORS AND FRAMEWORKS
+# =============================================================================
+
+rubin:
+  - rubin causal model
+  - potential outcomes
+  - neyman-rubin
+
+pearl:
+  - pearl causality
+  - do-calculus
+  - structural causal model
+
+imbens:
+  - imbens angrist
+  - angrist imbens
+
+# =============================================================================
+# ADDITIONAL TERMS
+# =============================================================================
+
+matching:
+  - matched pairs
+  - covariate matching
+  - exact matching
+  - nearest neighbor matching
+
+weighting:
+  - weights
+  - weighted estimation
+  - importance weighting
+
+balancing:
+  - covariate balance
+  - balance check
+  - standardized difference
+
+placebo:
+  - placebo test
+  - falsification test
+  - placebo check
+
+pretrend:
+  - pre-trend
+  - pretrends
+  - pre-trends
+  - pre-treatment trend
