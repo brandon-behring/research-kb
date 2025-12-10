@@ -51,36 +51,6 @@ services:
       - research-kb-network
 
   # ===========================================================================
-  # Neo4j (optional) - Graph database for concept relationships
-  # ===========================================================================
-  neo4j:
-    image: neo4j:5.15-community
-    container_name: research-kb-neo4j
-    environment:
-      NEO4J_AUTH: neo4j/research_kb_dev
-      NEO4J_PLUGINS: '["apoc"]'
-      NEO4J_dbms_security_procedures_unrestricted: apoc.*
-      # Performance tuning
-      NEO4J_server_memory_heap_initial__size: 512m
-      NEO4J_server_memory_heap_max__size: 1G
-    ports:
-      - "7474:7474"  # HTTP (browser)
-      - "7687:7687"  # Bolt protocol
-    volumes:
-      - neo4j_data:/data
-      - neo4j_logs:/logs
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:7474 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    networks:
-      - research-kb-network
-    profiles:
-      - graph  # Only start with: docker-compose --profile graph up
-
-  # ===========================================================================
   # Research-KB API - FastAPI REST service
   # ===========================================================================
   api:
@@ -134,10 +104,6 @@ volumes:
     driver: local
   pgadmin_data:
     driver: local
-  neo4j_data:
-    driver: local
-  neo4j_logs:
-    driver: local
 
 networks:
   research-kb-network:
@@ -153,14 +119,11 @@ networks:
 # Start with pgAdmin (optional):
 #   docker-compose --profile dev up -d
 #
-# Start with Neo4j (optional):
-#   docker-compose --profile graph up -d
-#
 # Start with API service:
 #   docker-compose --profile api up -d
 #
 # Start with all optional services:
-#   docker-compose --profile dev --profile graph --profile api up -d
+#   docker-compose --profile dev --profile api up -d
 #
 # Stop services:
 #   docker-compose down
@@ -171,7 +134,6 @@ networks:
 # View logs:
 #   docker-compose logs -f postgres
 #   docker-compose logs -f grobid
-#   docker-compose logs -f neo4j
 #
 # Connect to PostgreSQL:
 #   psql -h localhost -p 5432 -U postgres -d research_kb
@@ -184,11 +146,6 @@ networks:
 #   http://localhost:5050
 #   Email: admin@research-kb.local
 #   Password: admin
-#
-# Access Neo4j Browser (if started with --profile graph):
-#   http://localhost:7474
-#   Username: neo4j
-#   Password: research_kb_dev
 #
 # Access API (if started with --profile api):
 #   http://localhost:8000/docs  (Swagger UI)

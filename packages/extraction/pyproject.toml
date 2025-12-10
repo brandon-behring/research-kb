@@ -9,7 +9,6 @@ dependencies = [
     "pydantic>=2.0",
     "research-kb-contracts",
     "research-kb-common",
-    "neo4j>=5.15",
 ]
 
 [project.optional-dependencies]
