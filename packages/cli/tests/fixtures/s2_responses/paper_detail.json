@@ -1,0 +1,36 @@
+{
+  "paperId": "649def34f8be52c8b66281af98ae884c09aef38b",
+  "corpusId": 14457330,
+  "externalIds": {
+    "DOI": "10.1214/17-AOS1609",
+    "ArXiv": "1608.00060",
+    "DBLP": "journals/aos/ChernozhukovCDDHJKNS18"
+  },
+  "title": "Double/debiased machine learning for treatment and structural parameters",
+  "abstract": "We revisit the classic problem of estimation of a low-dimensional parameter in the presence of high-dimensional nuisance parameters. We show that methods such as the Lasso lead to biased estimates, and we develop a general theory of approximately sparse regression that allows for selection mistakes.",
+  "venue": "The Annals of Statistics",
+  "year": 2018,
+  "publicationDate": "2018-04-01",
+  "authors": [
+    {"authorId": "26331346", "name": "Victor Chernozhukov", "affiliations": ["MIT"]},
+    {"authorId": "2149494", "name": "Denis Chetverikov", "affiliations": ["UCLA"]},
+    {"authorId": "2149495", "name": "Mert Demirer"},
+    {"authorId": "2149496", "name": "Esther Duflo", "affiliations": ["MIT"]},
+    {"authorId": "2149497", "name": "Christian Hansen", "affiliations": ["University of Chicago"]}
+  ],
+  "referenceCount": 78,
+  "citationCount": 1542,
+  "influentialCitationCount": 234,
+  "isOpenAccess": true,
+  "openAccessPdf": {
+    "url": "https://arxiv.org/pdf/1608.00060.pdf",
+    "status": "GREEN"
+  },
+  "s2FieldsOfStudy": [
+    {"category": "Economics", "source": "s2-fos-model"},
+    {"category": "Computer Science", "source": "s2-fos-model"},
+    {"category": "Mathematics", "source": "external"}
+  ],
+  "publicationTypes": ["JournalArticle"],
+  "url": "https://www.semanticscholar.org/paper/649def34f8be52c8b66281af98ae884c09aef38b"
+}
