@@ -81,6 +81,33 @@ services:
       - graph  # Only start with: docker-compose --profile graph up
 
   # ===========================================================================
+  # Research-KB API - FastAPI REST service
+  # ===========================================================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: research-kb-api
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/research_kb
+      GROBID_URL: http://grobid:8070
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - research-kb-network
+    profiles:
+      - api  # Only start with: docker-compose --profile api up
+
+  # ===========================================================================
   # pgAdmin (optional) - Database GUI for development
   # ===========================================================================
   pgadmin:
@@ -129,8 +156,11 @@ networks:
 # Start with Neo4j (optional):
 #   docker-compose --profile graph up -d
 #
+# Start with API service:
+#   docker-compose --profile api up -d
+#
 # Start with all optional services:
-#   docker-compose --profile dev --profile graph up -d
+#   docker-compose --profile dev --profile graph --profile api up -d
 #
 # Stop services:
 #   docker-compose down
@@ -159,5 +189,10 @@ networks:
 #   http://localhost:7474
 #   Username: neo4j
 #   Password: research_kb_dev
+#
+# Access API (if started with --profile api):
+#   http://localhost:8000/docs  (Swagger UI)
+#   http://localhost:8000/redoc (ReDoc)
+#   http://localhost:8000/health
 #
 # ===========================================================================

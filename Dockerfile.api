@@ -1,0 +1,42 @@
+# Research-KB API Dockerfile
+# Build: docker build -f Dockerfile.api -t research-kb-api .
+# Run: docker run -p 8000:8000 research-kb-api
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package definitions
+COPY packages/contracts/pyproject.toml packages/contracts/
+COPY packages/contracts/src packages/contracts/src
+COPY packages/common/pyproject.toml packages/common/
+COPY packages/common/src packages/common/src
+COPY packages/storage/pyproject.toml packages/storage/
+COPY packages/storage/src packages/storage/src
+COPY packages/pdf-tools/pyproject.toml packages/pdf-tools/
+COPY packages/pdf-tools/src packages/pdf-tools/src
+COPY packages/api/pyproject.toml packages/api/
+COPY packages/api/src packages/api/src
+
+# Install packages
+RUN pip install --no-cache-dir -e packages/contracts -e packages/common -e packages/storage -e packages/pdf-tools -e packages/api
+
+# Set environment
+ENV PYTHONPATH=/app
+ENV HOST=0.0.0.0
+ENV PORT=8000
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run API
+CMD ["uvicorn", "research_kb_api.main:app", "--host", "0.0.0.0", "--port", "8000"]

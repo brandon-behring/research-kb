@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-09 18:43:58
+**Auto-generated**: 2025-12-09 19:57:43
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -10,10 +10,10 @@
 | Table | Count |
 |-------|------:|
 | sources | 258 |
-| chunks | 66,174 |
-| concepts | 18,992 |
-| concept_relationships | 19,438 |
-| chunk_concepts | 34,160 |
+| chunks | 78,685 |
+| concepts | 20,137 |
+| concept_relationships | 20,701 |
+| chunk_concepts | 36,866 |
 | citations | 5,044 |
 
 ---
@@ -22,8 +22,8 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 66,174 | 66,174 | 100.0% |
-| Concepts | 17,819 | 18,992 | 93.8% |
+| Chunks | 78,685 | 78,685 | 100.0% |
+| Concepts | 17,819 | 20,137 | 88.5% |
 
 ---
 
@@ -40,11 +40,11 @@
 
 | Type | Count |
 |------|------:|
-| definition | 8,080 |
-| method | 6,959 |
-| problem | 2,220 |
-| assumption | 1,345 |
-| theorem | 388 |
+| definition | 8,488 |
+| method | 7,595 |
+| problem | 2,276 |
+| assumption | 1,389 |
+| theorem | 389 |
 
 ---
 
@@ -52,13 +52,13 @@
 
 | Type | Count |
 |------|------:|
-| USES | 5,997 |
-| REQUIRES | 3,940 |
-| ADDRESSES | 3,501 |
-| SPECIALIZES | 3,095 |
-| ALTERNATIVE_TO | 2,079 |
-| GENERALIZES | 645 |
-| EXTENDS | 181 |
+| USES | 6,731 |
+| REQUIRES | 4,078 |
+| ADDRESSES | 3,605 |
+| SPECIALIZES | 3,252 |
+| ALTERNATIVE_TO | 2,158 |
+| GENERALIZES | 690 |
+| EXTENDS | 187 |
 
 ---
 
@@ -69,8 +69,8 @@ Based on database population:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 258 sources, 66,174 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 18,992 concepts, 19,438 relationships |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 258 sources, 78,685 chunks |
+| Phase 2: Knowledge Graph | ✅ Complete | 20,137 concepts, 20,701 relationships |
 | Phase 3: Enhanced Retrieval | 📋 Ready to start | No blockers |
 | Phase 4: Production | 📋 Planned | Pending Phase 3 |
 
