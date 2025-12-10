@@ -9,6 +9,7 @@ This package provides:
 - Custom error types
 """
 
+from research_kb_common.config import Settings, get_settings
 from research_kb_common.errors import (
     ChunkExtractionError,
     EmbeddingError,
@@ -27,6 +28,9 @@ from research_kb_common.retry import retry_on_exception, with_exponential_backof
 __version__ = "1.0.0"
 
 __all__ = [
+    # Config
+    "Settings",
+    "get_settings",
     # Logging
     "configure_logging",
     "get_logger",

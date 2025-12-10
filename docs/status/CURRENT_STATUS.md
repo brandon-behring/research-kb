@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-09 20:03:20
+**Auto-generated**: 2025-12-09 20:14:44
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -10,10 +10,10 @@
 | Table | Count |
 |-------|------:|
 | sources | 258 |
-| chunks | 79,712 |
-| concepts | 20,216 |
-| concept_relationships | 20,753 |
-| chunk_concepts | 37,073 |
+| chunks | 81,963 |
+| concepts | 20,434 |
+| concept_relationships | 20,943 |
+| chunk_concepts | 37,560 |
 | citations | 5,044 |
 
 ---
@@ -22,8 +22,8 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 79,712 | 79,712 | 100.0% |
-| Concepts | 17,819 | 20,216 | 88.1% |
+| Chunks | 81,963 | 81,963 | 100.0% |
+| Concepts | 17,819 | 20,434 | 87.2% |
 
 ---
 
@@ -40,10 +40,10 @@
 
 | Type | Count |
 |------|------:|
-| definition | 8,509 |
-| method | 7,645 |
-| problem | 2,283 |
-| assumption | 1,390 |
+| definition | 8,546 |
+| method | 7,817 |
+| problem | 2,291 |
+| assumption | 1,391 |
 | theorem | 389 |
 
 ---
@@ -52,13 +52,13 @@
 
 | Type | Count |
 |------|------:|
-| USES | 6,762 |
-| REQUIRES | 4,083 |
-| ADDRESSES | 3,614 |
-| SPECIALIZES | 3,255 |
-| ALTERNATIVE_TO | 2,161 |
-| GENERALIZES | 691 |
-| EXTENDS | 187 |
+| USES | 6,877 |
+| REQUIRES | 4,090 |
+| ADDRESSES | 3,627 |
+| SPECIALIZES | 3,286 |
+| ALTERNATIVE_TO | 2,176 |
+| GENERALIZES | 697 |
+| EXTENDS | 190 |
 
 ---
 
@@ -69,8 +69,8 @@ Based on database population:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 258 sources, 79,712 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 20,216 concepts, 20,753 relationships |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 258 sources, 81,963 chunks |
+| Phase 2: Knowledge Graph | ✅ Complete | 20,434 concepts, 20,943 relationships |
 | Phase 3: Enhanced Retrieval | 📋 Ready to start | No blockers |
 | Phase 4: Production | 📋 Planned | Pending Phase 3 |
 
