@@ -25,24 +25,24 @@ A causal inference knowledge base for research context retrieval.
 - ✅ Citation graph integration (5,044 citations, 275 internal edges)
 - ✅ 4-way hybrid search (FTS + vector + graph + citation)
 
-## Phase 4: Visualization & MCP (Weeks 7-8) 📋 PLANNED
+## Phase 4: API & Dashboard (Weeks 7-8) ✅ COMPLETE
 
-- Streamlit + PyVis dashboard
-- Citation network visualization
-- Concept graph explorer with N-hop neighborhoods
-- Multi-hop path finder between concepts
-- MCP server for Claude Code integration
+- ✅ FastAPI REST API with health checks and metrics
+- ✅ Streamlit + PyVis dashboard
+- ✅ Citation network visualization
+- ✅ Concept graph explorer with N-hop neighborhoods
+- MCP server for Claude Code integration (future)
 
 ---
 
-**Current Status**: Phase 3 complete. Phase 4 (Visualization) ready to start.
+**Current Status**: Phase 4 complete. All core features implemented.
 
-**Key Metrics** (as of 2025-12-09):
-- Sources: 136 (65 textbooks + 71 papers)
-- Chunks: 46,263 (100% with embeddings)
+**Key Metrics** (as of 2025-12-10):
+- Sources: 258 (166 textbooks + 92 papers, including 98 migrated books)
+- Chunks: 131,848 (100% with embeddings)
 - Citations: 5,044 (275 internal edges)
-- Concepts: rebuilding (extraction in progress)
-- Tests: 502 functions
+- Concepts: 41,439 (37,447 relationships)
+- Tests: 666 functions
 - 2-hop graph query: 2.11ms (target: <100ms) ✅
 
 **Phase 3 Deliverables**:

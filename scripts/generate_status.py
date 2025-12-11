@@ -23,6 +23,49 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 import asyncpg
 
 
+def get_phase_status(stats: dict) -> dict:
+    """Derive Phase status from actual state using hybrid approach.
+
+    - Phase 1-2: Data-based (tables populated)
+    - Phase 3: File existence (features implemented)
+    - Phase 4: Package existence (api/dashboard)
+    """
+    repo_root = Path(__file__).parent.parent
+
+    # Phase 1: Foundation - data exists
+    phase1_complete = stats.get("sources", 0) > 0 and stats.get("chunks", 0) > 0
+
+    # Phase 1.5: PDF Ingestion - substantial data
+    phase15_complete = phase1_complete and stats.get("chunks", 0) > 1000
+
+    # Phase 2: Knowledge Graph - concepts extracted
+    phase2_complete = stats.get("concepts", 0) > 0 and stats.get("relationships", 0) > 0
+
+    # Phase 3: Enhanced Retrieval - feature files exist
+    phase3_features = [
+        repo_root / "fixtures" / "concepts" / "synonym_map.yaml",
+        repo_root / "packages" / "pdf-tools" / "src" / "research_kb_pdf" / "rerank_client.py",
+        repo_root / "packages" / "storage" / "src" / "research_kb_storage" / "query_expander.py",
+        repo_root / "packages" / "storage" / "src" / "research_kb_storage" / "citation_graph.py",
+    ]
+    phase3_complete = all(f.exists() for f in phase3_features)
+
+    # Phase 4: API & Dashboard - packages exist
+    phase4_packages = [
+        repo_root / "packages" / "api" / "src" / "research_kb_api" / "main.py",
+        repo_root / "packages" / "dashboard" / "src" / "research_kb_dashboard" / "app.py",
+    ]
+    phase4_complete = all(p.exists() for p in phase4_packages)
+
+    return {
+        "phase1": ("✅ Complete", "PostgreSQL + pgvector operational") if phase1_complete else ("📋 Pending", "Setup required"),
+        "phase15": ("✅ Complete", f"{stats.get('sources', 0):,} sources, {stats.get('chunks', 0):,} chunks") if phase15_complete else ("📋 Pending", "Ingestion required"),
+        "phase2": ("✅ Complete", f"{stats.get('concepts', 0):,} concepts, {stats.get('relationships', 0):,} relationships") if phase2_complete else ("📋 Pending", "Concept extraction required"),
+        "phase3": ("✅ Complete", "Query expansion, reranking, citation graph") if phase3_complete else ("📋 Ready to start", "No blockers"),
+        "phase4": ("✅ Complete", "FastAPI + Streamlit dashboard") if phase4_complete else ("📋 Planned", "Pending Phase 3" if not phase3_complete else "Ready to start"),
+    }
+
+
 async def get_db_stats() -> dict:
     """Query actual database state."""
     pool = await asyncpg.create_pool(
@@ -94,6 +137,9 @@ async def get_db_stats() -> dict:
 def generate_status_md(stats: dict) -> str:
     """Generate markdown status document from stats."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Get dynamic Phase status
+    phase_status = get_phase_status(stats)
 
     # Calculate percentages
     chunk_embed_pct = (
@@ -180,15 +226,15 @@ def generate_status_md(stats: dict) -> str:
 
 ## Phase Status
 
-Based on database population:
+Based on database population and feature detection:
 
 | Phase | Status | Evidence |
 |-------|--------|----------|
-| Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | {stats['sources']:,} sources, {stats['chunks']:,} chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | {stats['concepts']:,} concepts, {stats['relationships']:,} relationships |
-| Phase 3: Enhanced Retrieval | 📋 Ready to start | No blockers |
-| Phase 4: Production | 📋 Planned | Pending Phase 3 |
+| Phase 1: Foundation | {phase_status['phase1'][0]} | {phase_status['phase1'][1]} |
+| Phase 1.5: PDF Ingestion | {phase_status['phase15'][0]} | {phase_status['phase15'][1]} |
+| Phase 2: Knowledge Graph | {phase_status['phase2'][0]} | {phase_status['phase2'][1]} |
+| Phase 3: Enhanced Retrieval | {phase_status['phase3'][0]} | {phase_status['phase3'][1]} |
+| Phase 4: API & Dashboard | {phase_status['phase4'][0]} | {phase_status['phase4'][1]} |
 
 ---
 

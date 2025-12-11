@@ -57,9 +57,12 @@ common (logging, retry, instrumentation)
     ├─→ storage (PostgreSQL + pgvector)
     │     ├─→ cli
     │     ├─→ pdf-tools
-    │     └─→ extraction
+    │     ├─→ extraction
+    │     ├─→ api
+    │     └─→ dashboard
     ├─→ pdf-tools
-    └─→ extraction
+    ├─→ extraction
+    └─→ s2-client
 ```
 
 | Package | Purpose |
@@ -70,6 +73,9 @@ common (logging, retry, instrumentation)
 | **pdf-tools** | PDF extraction (PyMuPDF, GROBID) + embeddings |
 | **cli** | Typer-based interface, thin wrapper |
 | **extraction** | Concept extraction via Ollama LLM |
+| **api** | FastAPI REST endpoints with health checks and metrics |
+| **dashboard** | Streamlit visualization for search and graph exploration |
+| **s2-client** | Semantic Scholar API client with rate limiting and caching |
 
 ---
 
