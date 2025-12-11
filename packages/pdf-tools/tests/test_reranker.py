@@ -8,7 +8,6 @@ import pytest
 from research_kb_pdf.reranker import (
     CrossEncoderReranker,
     RerankResult,
-    DEFAULT_MODEL,
     FALLBACK_MODEL,
 )
 

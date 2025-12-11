@@ -14,7 +14,7 @@ from typing import Optional
 from uuid import UUID
 
 from research_kb_common import get_logger
-from research_kb_contracts import Citation, Source, SourceType
+from research_kb_contracts import Citation, SourceType
 
 from research_kb_storage.connection import get_connection_pool
 

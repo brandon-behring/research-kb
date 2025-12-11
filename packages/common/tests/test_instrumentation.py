@@ -1,7 +1,6 @@
 """Tests for OpenTelemetry instrumentation helpers."""
 
 import pytest
-from unittest.mock import patch, MagicMock
 
 from research_kb_common.instrumentation import (
     init_telemetry,

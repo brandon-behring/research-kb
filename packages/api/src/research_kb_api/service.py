@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from research_kb_common import get_logger
-from research_kb_contracts import SearchResult, Source, Concept, ConceptRelationship
+from research_kb_contracts import Source, Concept, ConceptRelationship
 from research_kb_pdf import EmbeddingClient
 from research_kb_storage import (
     ConceptStore,
@@ -29,12 +29,10 @@ from research_kb_storage import (
     get_neighborhood,
     get_citing_sources,
     get_cited_sources,
-    get_most_cited_sources,
-    get_corpus_citation_summary,
 )
 
 if TYPE_CHECKING:
-    from asyncpg import Pool
+    pass
 
 logger = get_logger(__name__)
 

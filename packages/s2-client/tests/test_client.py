@@ -3,7 +3,6 @@
 Uses respx to mock httpx requests for deterministic testing.
 """
 
-import json
 from pathlib import Path
 
 import pytest

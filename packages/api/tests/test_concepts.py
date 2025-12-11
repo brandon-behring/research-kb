@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import AsyncMock
 from uuid import uuid4
 from datetime import datetime
 
-from research_kb_contracts import Concept, ConceptRelationship, ConceptType, RelationshipType
+from research_kb_contracts import Concept, ConceptType, RelationshipType
 
 
 def make_concept(name: str = "instrumental variables") -> Concept:

@@ -9,8 +9,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-import respx
-from httpx import Response
 from typer.testing import CliRunner
 
 # Fixture loading
@@ -318,7 +316,6 @@ class TestEnrichErrorHandling:
 
     def test_missing_s2_client_import(self, cli_runner):
         """Graceful handling when s2-client not installed."""
-        from research_kb_cli.enrich import app
 
         with patch.dict("sys.modules", {"s2_client": None}):
             # This would only trigger if we actually hit the import

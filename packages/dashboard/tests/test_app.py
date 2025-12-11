@@ -9,7 +9,6 @@ Note: Full integration testing of Streamlit apps requires the AppTest framework
 or manual testing with `streamlit run`.
 """
 
-import pytest
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch

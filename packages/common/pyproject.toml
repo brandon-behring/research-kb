@@ -12,6 +12,7 @@ opentelemetry-api = "^1.27.0"
 opentelemetry-sdk = "^1.27.0"
 tenacity = "^9.0.0"  # Retry/backoff patterns
 structlog = "^24.0.0"  # Structured logging
+pydantic-settings = "^2.0.0"  # Environment-based configuration
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

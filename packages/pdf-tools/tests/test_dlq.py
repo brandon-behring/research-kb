@@ -1,9 +1,7 @@
 """Tests for Dead Letter Queue (DLQ) module."""
 
 import json
-import pytest
 from pathlib import Path
-from datetime import datetime
 
 from research_kb_pdf.dlq import DLQEntry, DeadLetterQueue
 

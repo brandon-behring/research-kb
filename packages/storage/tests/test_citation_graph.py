@@ -4,14 +4,12 @@ Phase 3: Tests for citation graph building, PageRank computation, and citation q
 """
 
 import pytest
-from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 from research_kb_contracts import SourceType
 from research_kb_storage import SourceStore, CitationStore
 from research_kb_storage.citation_graph import (
     match_citation_to_source,
-    build_citation_graph,
     compute_pagerank_authority,
     get_citing_sources,
     get_cited_sources,

@@ -4,7 +4,6 @@ Provides reusable components for rendering interactive network graphs
 in Streamlit with PyVis.
 """
 
-import streamlit as st
 from pyvis.network import Network
 import streamlit.components.v1 as components
 from pathlib import Path

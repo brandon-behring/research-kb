@@ -25,8 +25,7 @@ Usage:
 
 import time
 from contextlib import contextmanager
-from functools import wraps
-from typing import Callable, Generator
+from typing import Generator
 
 from prometheus_client import (
     CONTENT_TYPE_LATEST,

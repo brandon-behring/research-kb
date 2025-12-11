@@ -127,7 +127,7 @@ def enrich_citations(
         sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "storage" / "src"))
         sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "common" / "src"))
 
-        from research_kb_storage import DatabaseConfig, get_connection_pool, SourceStore
+        from research_kb_storage import DatabaseConfig, get_connection_pool
 
         config = DatabaseConfig()
         pool = await get_connection_pool(config)

@@ -143,6 +143,7 @@ class ExtractionPipeline:
         dry_run: bool = False,
         sync_neo4j: bool = True,
         skip_backup: bool = False,
+        concurrency: int = 1,
     ):
         self.backend = backend
         self.model = model  # None means use backend's default
@@ -152,7 +153,11 @@ class ExtractionPipeline:
         self.dry_run = dry_run
         self.sync_neo4j = sync_neo4j
         self.skip_backup = skip_backup
+        self.concurrency = max(1, concurrency)
         self.backup_path: Optional[str] = None
+
+        # Semaphore to limit concurrent LLM requests
+        self._semaphore: Optional[asyncio.Semaphore] = None
 
         self.llm_client: Optional[LLMClient] = None
         self.extractor: Optional[ConceptExtractor] = None
@@ -165,8 +170,18 @@ class ExtractionPipeline:
         # Concept name -> UUID cache
         self._concept_cache: dict[str, UUID] = {}
 
+        # Lock for database writes (ensure thread safety)
+        self._db_lock: Optional[asyncio.Lock] = None
+
     async def initialize(self) -> None:
         """Initialize clients and load existing concepts."""
+        # Initialize concurrency controls
+        self._semaphore = asyncio.Semaphore(self.concurrency)
+        self._db_lock = asyncio.Lock()
+
+        if self.concurrency > 1:
+            logger.info("parallel_mode_enabled", concurrency=self.concurrency)
+
         # Initialize database pool
         await get_connection_pool()
 
@@ -314,19 +329,64 @@ class ExtractionPipeline:
         limit: Optional[int] = None,
         resume: bool = False,
     ) -> list[Chunk]:
-        """Get chunks that need processing."""
-        # Get all chunks
-        if source_id:
-            chunks = await ChunkStore.list_by_source(source_id, limit=limit or 10000)
-        else:
-            chunks = await ChunkStore.list_all(limit=limit or 10000)
+        """Get chunks that need processing.
 
-        # Filter out already processed if resuming
+        When resume=True, queries chunks that have NO concept links in the database,
+        which is more efficient than loading all chunks and filtering in Python.
+        """
+        batch_limit = limit or 10000
+
         if resume:
+            # Query unprocessed chunks directly from database (much more efficient)
+            pool = await get_connection_pool()
+            async with pool.acquire() as conn:
+                # Get chunks that have no concept links yet
+                rows = await conn.fetch(
+                    """
+                    SELECT c.id, c.source_id, c.content, c.content_hash,
+                           c.location, c.page_start, c.page_end,
+                           c.embedding, c.metadata, c.created_at
+                    FROM chunks c
+                    LEFT JOIN chunk_concepts cc ON c.id = cc.chunk_id
+                    WHERE cc.chunk_id IS NULL
+                    ORDER BY c.created_at
+                    LIMIT $1
+                    """,
+                    batch_limit,
+                )
+
+            # Convert to Chunk objects
+            chunks = []
+            for row in rows:
+                chunks.append(Chunk(
+                    id=row["id"],
+                    source_id=row["source_id"],
+                    content=row["content"],
+                    content_hash=row["content_hash"],
+                    location=row["location"],
+                    page_start=row["page_start"],
+                    page_end=row["page_end"],
+                    embedding=list(row["embedding"]) if row["embedding"] is not None else None,
+                    metadata=row["metadata"] or {},
+                    created_at=row["created_at"],
+                ))
+
+            # Also load checkpoint IDs for tracking (but don't use for filtering)
             checkpoint_ids = self.load_checkpoint()
-            chunks = [c for c in chunks if c.id not in checkpoint_ids]
             self.processed_chunk_ids = checkpoint_ids
-            logger.info("resume_from_checkpoint", skipped=len(checkpoint_ids), remaining=len(chunks))
+
+            logger.info(
+                "resume_from_database",
+                unprocessed_chunks=len(chunks),
+                checkpoint_size=len(checkpoint_ids),
+            )
+            return chunks
+
+        # Non-resume mode: get all chunks up to limit
+        if source_id:
+            chunks = await ChunkStore.list_by_source(source_id, limit=batch_limit)
+        else:
+            chunks = await ChunkStore.list_all(limit=batch_limit)
 
         return chunks
 
@@ -463,13 +523,60 @@ class ExtractionPipeline:
 
         return (new_concepts, relationships_stored, links_created)
 
+    async def _process_chunk_with_semaphore(
+        self,
+        chunk: Chunk,
+    ) -> tuple[Chunk, Optional[ChunkExtraction]]:
+        """Process a single chunk with semaphore for rate limiting.
+
+        Returns:
+            Tuple of (chunk, extraction) - extraction may be None on failure
+        """
+        async with self._semaphore:
+            extraction = await self.process_chunk(chunk)
+            return (chunk, extraction)
+
+    async def _store_result(
+        self,
+        chunk: Chunk,
+        extraction: Optional[ChunkExtraction],
+    ) -> None:
+        """Store extraction result with proper locking for DB writes."""
+        if len(chunk.content) < 100:
+            self.stats.chunks_skipped += 1
+            return
+
+        if extraction is None:
+            self.stats.chunks_failed += 1
+            return
+
+        # Lock for database writes to prevent race conditions
+        async with self._db_lock:
+            # Update stats
+            self.stats.chunks_processed += 1
+            self.stats.concepts_extracted += extraction.concept_count
+            self.stats.relationships_extracted += extraction.relationship_count
+
+            # Store results
+            new_concepts, rels_stored, links = await self.store_extraction(chunk, extraction)
+            self.stats.concepts_new += new_concepts
+            self.stats.concepts_merged += extraction.concept_count - new_concepts
+            self.stats.relationships_stored += rels_stored
+            self.stats.chunk_links_created += links
+
+            # Track processed chunks
+            self.processed_chunk_ids.add(chunk.id)
+
     async def run(
         self,
         source_id: Optional[UUID] = None,
         limit: Optional[int] = None,
         resume: bool = False,
     ) -> ExtractionStats:
-        """Run the extraction pipeline."""
+        """Run the extraction pipeline.
+
+        With concurrency > 1, processes chunks in parallel batches.
+        """
         await self.initialize()
 
         try:
@@ -480,42 +587,54 @@ class ExtractionPipeline:
                 logger.info("no_chunks_to_process")
                 return self.stats
 
-            logger.info("extraction_started", total_chunks=total, dry_run=self.dry_run)
+            logger.info(
+                "extraction_started",
+                total_chunks=total,
+                dry_run=self.dry_run,
+                concurrency=self.concurrency,
+            )
 
-            for i, chunk in enumerate(chunks):
-                # Progress logging
-                if (i + 1) % 10 == 0 or i == 0:
-                    print(f"\rProcessing chunk {i + 1}/{total} ({100 * (i + 1) / total:.1f}%)...", end="", flush=True)
+            # Filter out short chunks upfront
+            valid_chunks = [c for c in chunks if len(c.content) >= 100]
+            skipped = len(chunks) - len(valid_chunks)
+            self.stats.chunks_skipped = skipped
 
-                # Skip very short chunks
-                if len(chunk.content) < 100:
-                    self.stats.chunks_skipped += 1
-                    continue
+            if self.concurrency == 1:
+                # Sequential processing (original behavior)
+                for i, chunk in enumerate(valid_chunks):
+                    if (i + 1) % 10 == 0 or i == 0:
+                        print(f"\rProcessing chunk {i + 1}/{len(valid_chunks)} ({100 * (i + 1) / len(valid_chunks):.1f}%)...", end="", flush=True)
 
-                # Extract concepts
-                extraction = await self.process_chunk(chunk)
+                    extraction = await self.process_chunk(chunk)
+                    await self._store_result(chunk, extraction)
 
-                if extraction is None:
-                    self.stats.chunks_failed += 1
-                    continue
+                    if (i + 1) % self.checkpoint_interval == 0:
+                        self.save_checkpoint()
+            else:
+                # Parallel processing in batches
+                batch_size = self.concurrency * 2  # Process batches of 2x concurrency
+                processed = 0
 
-                # Update stats
-                self.stats.chunks_processed += 1
-                self.stats.concepts_extracted += extraction.concept_count
-                self.stats.relationships_extracted += extraction.relationship_count
+                for batch_start in range(0, len(valid_chunks), batch_size):
+                    batch = valid_chunks[batch_start:batch_start + batch_size]
 
-                # Store results
-                new_concepts, rels_stored, links = await self.store_extraction(chunk, extraction)
-                self.stats.concepts_new += new_concepts
-                self.stats.concepts_merged += extraction.concept_count - new_concepts
-                self.stats.relationships_stored += rels_stored
-                self.stats.chunk_links_created += links
+                    # Process batch concurrently
+                    tasks = [self._process_chunk_with_semaphore(chunk) for chunk in batch]
+                    results = await asyncio.gather(*tasks, return_exceptions=True)
 
-                # Track processed chunks
-                self.processed_chunk_ids.add(chunk.id)
+                    # Store results sequentially (DB writes need ordering)
+                    for result in results:
+                        if isinstance(result, Exception):
+                            logger.error("batch_chunk_failed", error=str(result))
+                            self.stats.chunks_failed += 1
+                        else:
+                            chunk, extraction = result
+                            await self._store_result(chunk, extraction)
 
-                # Checkpoint periodically
-                if (i + 1) % self.checkpoint_interval == 0:
+                    processed += len(batch)
+                    print(f"\rProcessing: {processed}/{len(valid_chunks)} ({100 * processed / len(valid_chunks):.1f}%) [concurrency={self.concurrency}]...", end="", flush=True)
+
+                    # Checkpoint after each batch
                     self.save_checkpoint()
 
             print()  # New line after progress
@@ -550,6 +669,12 @@ async def main():
     )
     parser.add_argument("--confidence", type=float, default=0.7, help="Minimum confidence threshold")
     parser.add_argument("--batch-size", type=int, default=10, help="Batch size for processing")
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=1,
+        help="Number of concurrent LLM requests (default: 1, max recommended: 20 for Haiku)"
+    )
     parser.add_argument("--dry-run", action="store_true", help="Run without storing results")
     parser.add_argument("--resume", action="store_true", help="Resume from checkpoint")
     parser.add_argument("--clear-checkpoint", action="store_true", help="Clear checkpoint and start fresh")
@@ -578,6 +703,7 @@ async def main():
         model=args.model,
         confidence_threshold=args.confidence,
         batch_size=args.batch_size,
+        concurrency=args.concurrency,
         dry_run=args.dry_run,
         sync_neo4j=not args.no_neo4j,
         skip_backup=args.skip_backup,
