@@ -219,7 +219,8 @@ class RerankClient:
 
         # Extract content from results
         if content_extractor is None:
-            content_extractor = lambda r: r.chunk.content
+            def content_extractor(r):
+                return r.chunk.content
 
         documents = [content_extractor(r) for r in results]
 

@@ -285,6 +285,63 @@ class SourceStore:
             raise StorageError(f"Failed to delete source: {e}") from e
 
     @staticmethod
+    async def list_all(
+        limit: int = 100,
+        offset: int = 0,
+        source_type: Optional[SourceType] = None,
+    ) -> list[Source]:
+        """List all sources with optional filtering and pagination.
+
+        Args:
+            limit: Maximum number of results (default: 100)
+            offset: Number of results to skip (default: 0)
+            source_type: Optional filter by source type
+
+        Returns:
+            List of sources
+
+        Example:
+            >>> sources = await SourceStore.list_all(limit=50)
+            >>> papers = await SourceStore.list_all(source_type=SourceType.PAPER)
+        """
+        pool = await get_connection_pool()
+
+        try:
+            async with pool.acquire() as conn:
+                await conn.set_type_codec(
+                    "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+                )
+
+                if source_type:
+                    rows = await conn.fetch(
+                        """
+                        SELECT * FROM sources
+                        WHERE source_type = $1
+                        ORDER BY created_at DESC
+                        LIMIT $2 OFFSET $3
+                        """,
+                        source_type.value,
+                        limit,
+                        offset,
+                    )
+                else:
+                    rows = await conn.fetch(
+                        """
+                        SELECT * FROM sources
+                        ORDER BY created_at DESC
+                        LIMIT $1 OFFSET $2
+                        """,
+                        limit,
+                        offset,
+                    )
+
+                return [_row_to_source(row) for row in rows]
+
+        except Exception as e:
+            logger.error("source_list_all_failed", error=str(e))
+            raise StorageError(f"Failed to list sources: {e}") from e
+
+    @staticmethod
     async def list_by_type(
         source_type: SourceType,
         limit: int = 100,

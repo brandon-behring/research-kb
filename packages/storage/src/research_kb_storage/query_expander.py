@@ -15,11 +15,14 @@ Master Plan Reference: Phase 3 Enhanced Retrieval
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import yaml
 
 from research_kb_common import get_logger
+
+if TYPE_CHECKING:
+    from research_kb_extraction.ollama_client import OllamaClient
 
 logger = get_logger(__name__)
 
@@ -203,7 +206,6 @@ class QueryExpander:
         try:
             from research_kb_storage.query_extractor import extract_query_concepts
             from research_kb_storage.graph_queries import get_neighborhood
-            from research_kb_storage.concept_store import ConceptStore
 
             # Extract concepts from query
             concept_ids = await extract_query_concepts(query, max_concepts=3)

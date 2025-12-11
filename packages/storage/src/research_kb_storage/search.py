@@ -15,7 +15,7 @@ Score semantics:
 
 import json
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import asyncpg
 from pgvector.asyncpg import register_vector
@@ -23,6 +23,9 @@ from research_kb_common import SearchError, get_logger
 from research_kb_contracts import Chunk, SearchResult, Source
 
 from research_kb_storage.connection import get_connection_pool
+
+if TYPE_CHECKING:
+    from research_kb_storage.query_expander import ExpandedQuery
 
 logger = get_logger(__name__)
 
@@ -753,7 +756,7 @@ async def search_with_expansion(
         >>> print(expansion.expansion_sources)
         {'synonyms': ['instrumental variables', '2sls'], 'graph': ['endogeneity']}
     """
-    from research_kb_storage.query_expander import QueryExpander, ExpandedQuery
+    from research_kb_storage.query_expander import QueryExpander
 
     expanded_query = None
 

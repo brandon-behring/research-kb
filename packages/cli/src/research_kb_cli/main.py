@@ -89,8 +89,8 @@ app = typer.Typer(
 )
 
 # Add discover subcommand (for Semantic Scholar integration)
-from research_kb_cli.discover import app as discover_app
-from research_kb_cli.enrich import app as enrich_app
+from research_kb_cli.discover import app as discover_app  # noqa: E402
+from research_kb_cli.enrich import app as enrich_app  # noqa: E402
 
 app.add_typer(discover_app, name="discover")
 app.add_typer(enrich_app, name="enrich")
@@ -928,7 +928,7 @@ def citations(
     """
 
     async def get_source_citations():
-        from research_kb_storage import SourceStore, CitationStore
+        from research_kb_storage import SourceStore
 
         config = DatabaseConfig()
         await get_connection_pool(config)

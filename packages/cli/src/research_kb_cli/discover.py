@@ -9,7 +9,6 @@ filter by criteria, and optionally acquire open-access PDFs.
 
 import asyncio
 from enum import Enum
-from pathlib import Path
 from typing import Optional
 
 import typer
@@ -179,7 +178,7 @@ def search(
         research-kb discover search "RAG retrieval augmented" --limit 50 --format json
     """
     try:
-        from s2_client import S2Client, SearchFilters, PaperAcquisition, load_existing_identifiers
+        from s2_client import S2Client, PaperAcquisition, load_existing_identifiers  # noqa: F401
     except ImportError:
         typer.echo("Error: s2-client package not installed.", err=True)
         typer.echo("Run: pip install -e packages/s2-client", err=True)
@@ -311,7 +310,7 @@ def discover_topics(
         research-kb discover topics --format markdown > new_papers.md
     """
     try:
-        from s2_client import S2Client, TopicDiscovery, SearchFilters, DiscoveryTopic
+        from s2_client import S2Client, TopicDiscovery, SearchFilters
     except ImportError:
         typer.echo("Error: s2-client package not installed.", err=True)
         typer.echo("Run: pip install -e packages/s2-client", err=True)
