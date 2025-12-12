@@ -60,7 +60,7 @@ def get_llm_client(
         from research_kb_extraction.anthropic_client import AnthropicClient
 
         return AnthropicClient(
-            model=model or "haiku",
+            model=model or "haiku-3.5",  # haiku-3.5 follows tool schema better than haiku
             **kwargs,
         )
     elif backend == "ollama":

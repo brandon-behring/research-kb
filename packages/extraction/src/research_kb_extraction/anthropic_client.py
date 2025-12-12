@@ -20,6 +20,86 @@ from research_kb_extraction.prompts import SYSTEM_PROMPT, format_extraction_prom
 
 logger = get_logger(__name__)
 
+# Tool definition for structured concept extraction
+# This enforces the exact enum values via JSON schema
+EXTRACTION_TOOL = {
+    "name": "extract_concepts",
+    "description": "Extract concepts and relationships from academic text",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "concepts": {
+                "type": "array",
+                "description": "Concepts found in the text",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Concept name as it appears in text"
+                        },
+                        "concept_type": {
+                            "type": "string",
+                            "enum": ["method", "assumption", "problem", "definition", "theorem"],
+                            "description": "Classification of the concept"
+                        },
+                        "definition": {
+                            "type": "string",
+                            "description": "Brief definition if provided in the text"
+                        },
+                        "aliases": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Alternative names or abbreviations"
+                        },
+                        "confidence": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Confidence in extraction (0.0-1.0)"
+                        }
+                    },
+                    "required": ["name", "concept_type"]
+                }
+            },
+            "relationships": {
+                "type": "array",
+                "description": "Relationships between concepts",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "source_concept": {
+                            "type": "string",
+                            "description": "Source concept name"
+                        },
+                        "target_concept": {
+                            "type": "string",
+                            "description": "Target concept name"
+                        },
+                        "relationship_type": {
+                            "type": "string",
+                            "enum": ["REQUIRES", "USES", "ADDRESSES", "GENERALIZES", "SPECIALIZES", "ALTERNATIVE_TO", "EXTENDS"],
+                            "description": "Relationship type from ontology"
+                        },
+                        "evidence": {
+                            "type": "string",
+                            "description": "Text snippet supporting this relationship"
+                        },
+                        "confidence": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Confidence in relationship"
+                        }
+                    },
+                    "required": ["source_concept", "target_concept", "relationship_type"]
+                }
+            }
+        },
+        "required": ["concepts", "relationships"]
+    }
+}
+
 
 class AnthropicError(Exception):
     """Error from Anthropic API."""
@@ -89,14 +169,14 @@ class AnthropicClient(LLMClient):
             model_id=self.model_id,
         )
 
-    def _call_api(self, prompt: str) -> str:
-        """Synchronous API call (run in executor for async).
+    def _call_api(self, prompt: str) -> dict:
+        """Synchronous API call using tool_use for schema enforcement.
 
         Args:
             prompt: User prompt text
 
         Returns:
-            Generated text response
+            Parsed tool input as dict (already validated by Claude)
 
         Raises:
             AnthropicError: If API call fails
@@ -108,8 +188,19 @@ class AnthropicClient(LLMClient):
                 temperature=self.temperature,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": prompt}],
+                tools=[EXTRACTION_TOOL],
+                tool_choice={"type": "tool", "name": "extract_concepts"},
             )
-            return message.content[0].text
+
+            # Extract tool use from response
+            for block in message.content:
+                if block.type == "tool_use" and block.name == "extract_concepts":
+                    return block.input
+
+            # Fallback: no tool use in response
+            logger.warning("no_tool_use_in_response", model=self.model_id)
+            return {"concepts": [], "relationships": []}
+
         except Exception as e:
             logger.error("anthropic_api_error", error=str(e), model=self.model_id)
             raise AnthropicError(f"Anthropic API error: {e}") from e
@@ -142,11 +233,10 @@ class AnthropicClient(LLMClient):
 
         # Run sync API call in thread pool for async compatibility
         loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(None, self._call_api, prompt)
+        data = await loop.run_in_executor(None, self._call_api, prompt)
 
         try:
-            # Parse JSON response
-            data = json.loads(response)
+            # Tool use returns dict directly - schema already enforced by Claude
             extraction = ChunkExtraction.model_validate(data)
 
             logger.info(
@@ -158,20 +248,11 @@ class AnthropicClient(LLMClient):
 
             return extraction
 
-        except json.JSONDecodeError as e:
-            logger.error(
-                "json_parse_error",
-                response=response[:500],
-                error=str(e),
-                model=self.model_name,
-            )
-            # Return empty extraction on parse failure
-            return ChunkExtraction()
-
         except Exception as e:
             logger.error(
                 "extraction_validation_error",
                 error=str(e),
+                data=str(data)[:500] if data else None,
                 model=self.model_name,
             )
             return ChunkExtraction()
