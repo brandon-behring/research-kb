@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-11 20:46:19
+**Auto-generated**: 2025-12-14 15:54:04
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,11 +9,11 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 272 |
+| sources | 276 |
 | chunks | 142,221 |
-| concepts | 41,453 |
-| concept_relationships | 37,459 |
-| chunk_concepts | 75,729 |
+| concepts | 77,991 |
+| concept_relationships | 56,492 |
+| chunk_concepts | 135,018 |
 | citations | 5,044 |
 
 ---
@@ -23,7 +23,7 @@
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
 | Chunks | 142,221 | 142,221 | 100.0% |
-| Concepts | 41,439 | 41,453 | 100.0% |
+| Concepts | 41,439 | 77,991 | 53.1% |
 
 ---
 
@@ -32,7 +32,7 @@
 | Type | Count |
 |------|------:|
 | textbook | 180 |
-| paper | 92 |
+| paper | 96 |
 
 ---
 
@@ -40,11 +40,11 @@
 
 | Type | Count |
 |------|------:|
-| method | 18,262 |
-| definition | 16,557 |
-| problem | 3,697 |
-| assumption | 2,117 |
-| theorem | 820 |
+| method | 35,113 |
+| definition | 22,635 |
+| problem | 13,181 |
+| assumption | 5,465 |
+| theorem | 1,597 |
 
 ---
 
@@ -52,13 +52,13 @@
 
 | Type | Count |
 |------|------:|
-| USES | 15,400 |
-| REQUIRES | 6,048 |
-| SPECIALIZES | 5,471 |
-| ADDRESSES | 5,224 |
-| ALTERNATIVE_TO | 3,812 |
-| GENERALIZES | 1,204 |
-| EXTENDS | 300 |
+| USES | 22,217 |
+| ADDRESSES | 9,744 |
+| REQUIRES | 9,412 |
+| SPECIALIZES | 5,878 |
+| ALTERNATIVE_TO | 5,076 |
+| GENERALIZES | 2,559 |
+| EXTENDS | 1,606 |
 
 ---
 
@@ -69,8 +69,8 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 272 sources, 142,221 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 41,453 concepts, 37,459 relationships |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 276 sources, 142,221 chunks |
+| Phase 2: Knowledge Graph | ✅ Complete | 77,991 concepts, 56,492 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
 
