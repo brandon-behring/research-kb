@@ -27,6 +27,7 @@ class DatabaseConfig:
         password: Database password (default: postgres)
         min_pool_size: Minimum connection pool size (default: 2)
         max_pool_size: Maximum connection pool size (default: 10)
+        command_timeout: Query timeout in seconds (default: 120.0)
     """
 
     host: str = "localhost"
@@ -36,6 +37,7 @@ class DatabaseConfig:
     password: str = "postgres"
     min_pool_size: int = 2
     max_pool_size: int = 10
+    command_timeout: float = 120.0  # Increased for large batch inserts
 
     def get_dsn(self) -> str:
         """Get PostgreSQL DSN (Data Source Name).
@@ -90,7 +92,7 @@ async def get_connection_pool(config: Optional[DatabaseConfig] = None) -> asyncp
             dsn=config.get_dsn(),
             min_size=config.min_pool_size,
             max_size=config.max_pool_size,
-            command_timeout=60.0,  # 60 second timeout for queries
+            command_timeout=config.command_timeout,
         )
 
         logger.info("connection_pool_created", pool_size=config.max_pool_size)

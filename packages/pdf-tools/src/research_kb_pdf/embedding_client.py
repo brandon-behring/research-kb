@@ -7,7 +7,7 @@ Handles connection management, batching, and error recovery.
 import json
 import socket
 
-from research_kb_common import get_logger
+from research_kb_common import get_logger, retry_on_exception
 from research_kb_pdf.chunker import TextChunk
 
 logger = get_logger(__name__)
@@ -34,6 +34,12 @@ class EmbeddingClient:
         """
         self.socket_path = socket_path
 
+    @retry_on_exception(
+        exception_types=(ConnectionError, TimeoutError, BrokenPipeError, OSError),
+        max_attempts=3,
+        min_wait_seconds=1.0,
+        max_wait_seconds=5.0,
+    )
     def _send_request(self, request: dict) -> dict:
         """Send request to embedding server.
 
@@ -44,8 +50,8 @@ class EmbeddingClient:
             Response dictionary
 
         Raises:
-            ConnectionError: If cannot connect to server
-            ValueError: If server returns error
+            ConnectionError: If cannot connect to server (after retries exhausted)
+            ValueError: If server returns error (not retried)
         """
         try:
             client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)

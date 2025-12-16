@@ -37,6 +37,7 @@ import asyncio
 import json
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -55,6 +56,7 @@ from research_kb_extraction import (
     ChunkExtraction,
     ConceptExtractor,
     Deduplicator,
+    ExtractionMetrics,
     GraphSyncService,
     LLMClient,
     OllamaClient,
@@ -144,6 +146,7 @@ class ExtractionPipeline:
         sync_neo4j: bool = True,
         skip_backup: bool = False,
         concurrency: int = 1,
+        num_ctx: int = 2048,
     ):
         self.backend = backend
         self.model = model  # None means use backend's default
@@ -154,6 +157,7 @@ class ExtractionPipeline:
         self.sync_neo4j = sync_neo4j
         self.skip_backup = skip_backup
         self.concurrency = max(1, concurrency)
+        self.num_ctx = num_ctx
         self.backup_path: Optional[str] = None
 
         # Semaphore to limit concurrent LLM requests
@@ -173,6 +177,9 @@ class ExtractionPipeline:
         # Lock for database writes (ensure thread safety)
         self._db_lock: Optional[asyncio.Lock] = None
 
+        # Extraction metrics for observability
+        self.metrics: Optional[ExtractionMetrics] = None
+
     async def initialize(self) -> None:
         """Initialize clients and load existing concepts."""
         # Initialize concurrency controls
@@ -186,16 +193,35 @@ class ExtractionPipeline:
         await get_connection_pool()
 
         # Initialize LLM client using factory
+        llm_kwargs = {"temperature": 0.1}
+        if self.backend == "ollama":
+            llm_kwargs["num_ctx"] = self.num_ctx
+        elif self.backend == "llamacpp":
+            llm_kwargs["n_ctx"] = self.num_ctx
+            llm_kwargs["n_gpu_layers"] = 20  # 20 layers fits in 8GB VRAM with desktop overhead
+
         self.llm_client = get_llm_client(
             backend=self.backend,
             model=self.model,
-            temperature=0.1,
+            **llm_kwargs,
         )
+
+        # Initialize extraction metrics
+        self.metrics = ExtractionMetrics(backend=self.llm_client.extraction_method)
 
         # Check availability
         if not await self.llm_client.is_available():
             if self.backend == "ollama":
                 raise RuntimeError("Ollama server not available. Start with: ollama serve")
+            elif self.backend == "instructor":
+                raise RuntimeError("Ollama server not available. Start with: ollama serve")
+            elif self.backend == "llamacpp":
+                raise RuntimeError(
+                    "llama-cpp-python not available. Install with:\n"
+                    "  sudo ./scripts/install_llama_cpp_cuda.sh\n"
+                    "  ./scripts/build_llama_cpp_cuda.sh\n"
+                    "  ./scripts/download_gguf_model.sh"
+                )
             elif self.backend == "anthropic":
                 raise RuntimeError("Anthropic API not available. Check ANTHROPIC_API_KEY.")
             else:
@@ -391,12 +417,33 @@ class ExtractionPipeline:
         return chunks
 
     async def process_chunk(self, chunk: Chunk) -> Optional[ChunkExtraction]:
-        """Extract concepts from a single chunk."""
+        """Extract concepts from a single chunk with timing."""
+        start_time = time.perf_counter()
         try:
             extraction = await self.extractor.extract_from_chunk(chunk)
+            latency_ms = (time.perf_counter() - start_time) * 1000
+
+            # Record metrics
+            if self.metrics and extraction:
+                self.metrics.record_success(
+                    concepts=extraction.concept_count,
+                    relationships=extraction.relationship_count,
+                    latency_ms=latency_ms,
+                )
+
             return extraction
+        except json.JSONDecodeError as e:
+            latency_ms = (time.perf_counter() - start_time) * 1000
+            logger.error("chunk_json_parse_failed", chunk_id=str(chunk.id), error=str(e))
+            if self.metrics:
+                self.metrics.record_json_failure(latency_ms=latency_ms)
+            await self.save_to_dlq(chunk, f"JSON parse error: {e}")
+            return None
         except Exception as e:
+            latency_ms = (time.perf_counter() - start_time) * 1000
             logger.error("chunk_extraction_failed", chunk_id=str(chunk.id), error=str(e))
+            if self.metrics:
+                self.metrics.record_validation_failure(latency_ms=latency_ms)
             await self.save_to_dlq(chunk, str(e))
             return None
 
@@ -658,14 +705,14 @@ async def main():
         "--backend",
         type=str,
         default="ollama",
-        choices=["ollama", "anthropic"],
-        help="LLM backend (ollama for local, anthropic for API)"
+        choices=["ollama", "instructor", "llamacpp", "anthropic"],
+        help="LLM backend (ollama=local, instructor=ollama+validation, llamacpp=direct, anthropic=API)"
     )
     parser.add_argument(
         "--model",
         type=str,
         default=None,
-        help="Model name (e.g., llama3.1:8b for ollama, haiku/sonnet/opus for anthropic)"
+        help="Model name/path (ollama: llama3.1:8b, llamacpp: path/to/model.gguf, anthropic: haiku/sonnet/opus)"
     )
     parser.add_argument("--confidence", type=float, default=0.7, help="Minimum confidence threshold")
     parser.add_argument("--batch-size", type=int, default=10, help="Batch size for processing")
@@ -683,6 +730,18 @@ async def main():
         "--skip-backup",
         action="store_true",
         help="Skip pre-extraction backup (NOT recommended - risk of data loss)"
+    )
+    parser.add_argument(
+        "--num-ctx",
+        type=int,
+        default=2048,
+        help="Context window size in tokens (default: 2048, reduced from 4096 for better concurrency)"
+    )
+    parser.add_argument(
+        "--metrics-file",
+        type=str,
+        default=None,
+        help="Export metrics to Prometheus text file (e.g., /tmp/extraction_metrics.txt)"
     )
 
     args = parser.parse_args()
@@ -707,6 +766,7 @@ async def main():
         dry_run=args.dry_run,
         sync_neo4j=not args.no_neo4j,
         skip_backup=args.skip_backup,
+        num_ctx=args.num_ctx,
     )
 
     try:
@@ -717,6 +777,23 @@ async def main():
         )
         stats.print_summary()
 
+        # Print extraction metrics
+        if pipeline.metrics:
+            print(pipeline.metrics.summary())
+
+            # Check for alerts
+            alerts = pipeline.metrics.check_alerts()
+            if alerts:
+                print("\n⚠️  ALERTS:")
+                for alert in alerts:
+                    print(f"  {alert}")
+
+            # Save metrics to file if requested
+            if args.metrics_file:
+                metrics_path = Path(args.metrics_file)
+                pipeline.metrics.save_prometheus(metrics_path)
+                print(f"\n📊 Metrics saved to: {metrics_path}")
+
         # Report final counts
         total_concepts = await ConceptStore.count()
         total_relationships = await RelationshipStore.count()
@@ -725,6 +802,9 @@ async def main():
     except KeyboardInterrupt:
         print("\n\nInterrupted. Progress saved to checkpoint.")
         pipeline.save_checkpoint()
+        # Still output partial metrics on interrupt
+        if pipeline.metrics and pipeline.metrics.total_chunks > 0:
+            print(pipeline.metrics.summary())
     except Exception as e:
         logger.error("extraction_failed", error=str(e))
         raise

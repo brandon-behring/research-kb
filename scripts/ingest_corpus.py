@@ -5,8 +5,13 @@ This script:
 1. Ingests 2 textbooks (Pearl, Angrist/Pischke)
 2. Ingests 12 arXiv papers (causal inference focused)
 3. Reports total chunk count and validates ~500 target
+
+Usage:
+    python scripts/ingest_corpus.py          # Normal output
+    python scripts/ingest_corpus.py --quiet  # Errors + summary only
 """
 
+import argparse
 import asyncio
 import hashlib
 import sys
@@ -871,6 +876,90 @@ TIER2_BOOKS = [
     },
 ]
 
+# Manning Books - High-relevance technical books from Manning library
+MANNING_BOOKS = [
+    # P0 - Direct Domain Match
+    {
+        "file": "fixtures/textbooks/manning_causal_ai_2024.pdf",
+        "title": "Causal AI",
+        "authors": ["Ay, Nihat"],
+        "year": 2024,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "causal inference",
+            "level": "intermediate",
+            "key_concepts": "causal discovery, machine learning, AI applications",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/manning_causal_inference_data_science_2024.pdf",
+        "title": "Causal Inference for Data Science",
+        "authors": ["Facure Alves, Matheus"],
+        "year": 2024,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "causal inference",
+            "level": "practical",
+            "key_concepts": "treatment effects, A/B testing, observational studies",
+        },
+    },
+    # P1 - Supporting Knowledge
+    {
+        "file": "fixtures/textbooks/manning_graph_algorithms_data_science_2023.pdf",
+        "title": "Graph Algorithms for Data Science",
+        "authors": ["Needham, Mark", "Hodler, Amy"],
+        "year": 2023,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "graph theory",
+            "level": "practical",
+            "key_concepts": "graph algorithms, PageRank, centrality, community detection",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/manning_gnn_in_action_2022.pdf",
+        "title": "Graph Neural Networks in Action",
+        "authors": ["Hamilton, Will"],
+        "year": 2022,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "deep learning",
+            "level": "specialized",
+            "key_concepts": "graph neural networks, embeddings, message passing",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/manning_build_llm_from_scratch_2024.pdf",
+        "title": "Build a Large Language Model (From Scratch)",
+        "authors": ["Raschka, Sebastian"],
+        "year": 2024,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "deep learning",
+            "level": "advanced",
+            "key_concepts": "transformers, attention, LLM training, fine-tuning",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/manning_essential_graphrag_2024.pdf",
+        "title": "Essential GraphRAG",
+        "authors": ["Various"],
+        "year": 2024,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Manning Publications",
+            "domain": "knowledge representation",
+            "level": "practical",
+            "key_concepts": "knowledge graphs, RAG, LLM integration, semantic search",
+        },
+    },
+]
+
 # Papers - focused on causal inference methods
 PAPERS = [
     {
@@ -1566,8 +1655,24 @@ async def ingest_pdf(
     return str(source.id), chunks_created, len(headings)
 
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Ingest textbooks and papers into research-kb corpus."
+    )
+    parser.add_argument(
+        "-q", "--quiet",
+        action="store_true",
+        help="Minimal output (errors + final summary only)"
+    )
+    return parser.parse_args()
+
+
 async def main():
     """Ingest all textbooks and papers, report results."""
+    args = parse_args()
+    quiet = args.quiet
+
     # Full corpus ingestion - all textbooks and papers
     all_textbooks = (
         TEXTBOOKS
@@ -1577,10 +1682,13 @@ async def main():
         + CFA_L3_SCHWESER
         + TIER1_BOOKS
         + TIER2_BOOKS
+        + MANNING_BOOKS
     )
     all_docs = all_textbooks + PAPERS
     total_textbooks = len(all_textbooks)
-    logger.info("starting_corpus_ingestion", textbooks=total_textbooks, papers=len(PAPERS))
+
+    if not quiet:
+        logger.info("starting_corpus_ingestion", textbooks=total_textbooks, papers=len(PAPERS))
 
     # Initialize database connection pool
     config = DatabaseConfig()
@@ -1595,7 +1703,8 @@ async def main():
 
         if not pdf_path.exists():
             logger.error("pdf_not_found", path=str(pdf_path))
-            print(f"✗ PDF not found: {pdf_path}")
+            if not quiet:
+                print(f"✗ PDF not found: {pdf_path}")
             results[category].append({
                 "title": doc_data["title"],
                 "status": "not_found",
@@ -1620,9 +1729,10 @@ async def main():
                 "status": "success",
             })
 
-            short_title = doc_data["title"][:50]
-            print(f"✓ {short_title}")
-            print(f"  Chunks: {num_chunks} | Headings: {num_headings}")
+            if not quiet:
+                short_title = doc_data["title"][:50]
+                print(f"✓ {short_title}")
+                print(f"  Chunks: {num_chunks} | Headings: {num_headings}")
 
         except Exception as e:
             logger.error(
@@ -1633,56 +1743,68 @@ async def main():
                 "status": "failed",
                 "error": str(e),
             })
+            # Always show errors even in quiet mode
             print(f"✗ {doc_data['title'][:40]}: {e}")
 
     # Summary
-    print("\n" + "=" * 70)
-    print("CORPUS INGESTION SUMMARY")
-    print("=" * 70)
-
     textbook_success = [r for r in results["textbooks"] if r["status"] == "success"]
     paper_success = [r for r in results["papers"] if r["status"] == "success"]
 
     textbook_chunks = sum(r["chunks"] for r in textbook_success)
     paper_chunks = sum(r["chunks"] for r in paper_success)
     total_chunks = textbook_chunks + paper_chunks
-
-    # Full corpus summary
     total_textbooks = len(all_textbooks)
-    print(f"\nTEXTBOOKS: {len(textbook_success)}/{total_textbooks}")
-    for r in textbook_success:
-        print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
-    print(f"  Subtotal: {textbook_chunks} chunks")
 
-    print(f"\nPAPERS: {len(paper_success)}/{len(PAPERS)}")
-    for r in paper_success:
-        print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
-    print(f"  Subtotal: {paper_chunks} chunks")
-
-    print("\n" + "-" * 70)
-    print(f"TOTAL CHUNKS: {total_chunks}")
-    print(f"TARGET: ~500 chunks")
-
-    if total_chunks >= 450:
-        print("✓ Target achieved!")
-    else:
-        print(f"⚠ Need ~{500 - total_chunks} more chunks")
-
-    # Report failures
+    # Report failures (always shown)
     all_failed = [r for r in results["textbooks"] + results["papers"]
                   if r["status"] in ("failed", "not_found")]
-    if all_failed:
-        print("\nFAILED:")
-        for r in all_failed:
-            error = r.get("error", "not found")
-            print(f"  ✗ {r['title'][:40]}: {error}")
 
-    logger.info(
-        "corpus_ingestion_complete",
-        textbooks=len(textbook_success),
-        papers=len(paper_success),
-        total_chunks=total_chunks,
-    )
+    if quiet:
+        # Minimal summary for quiet mode
+        print(f"Ingested: {len(textbook_success)} textbooks, {len(paper_success)} papers | {total_chunks} chunks")
+        if all_failed:
+            print(f"Failed: {len(all_failed)}")
+            for r in all_failed:
+                error = r.get("error", "not found")
+                print(f"  ✗ {r['title'][:40]}: {error}")
+    else:
+        # Full summary
+        print("\n" + "=" * 70)
+        print("CORPUS INGESTION SUMMARY")
+        print("=" * 70)
+
+        print(f"\nTEXTBOOKS: {len(textbook_success)}/{total_textbooks}")
+        for r in textbook_success:
+            print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
+        print(f"  Subtotal: {textbook_chunks} chunks")
+
+        print(f"\nPAPERS: {len(paper_success)}/{len(PAPERS)}")
+        for r in paper_success:
+            print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
+        print(f"  Subtotal: {paper_chunks} chunks")
+
+        print("\n" + "-" * 70)
+        print(f"TOTAL CHUNKS: {total_chunks}")
+        print(f"TARGET: ~500 chunks")
+
+        if total_chunks >= 450:
+            print("✓ Target achieved!")
+        else:
+            print(f"⚠ Need ~{500 - total_chunks} more chunks")
+
+        if all_failed:
+            print("\nFAILED:")
+            for r in all_failed:
+                error = r.get("error", "not found")
+                print(f"  ✗ {r['title'][:40]}: {error}")
+
+    if not quiet:
+        logger.info(
+            "corpus_ingestion_complete",
+            textbooks=len(textbook_success),
+            papers=len(paper_success),
+            total_chunks=total_chunks,
+        )
 
 
 if __name__ == "__main__":

@@ -14,6 +14,16 @@ from research_kb_common import get_logger
 
 logger = get_logger(__name__)
 
+# BGE-large-en-v1.5 context limit
+MAX_EMBEDDING_TOKENS = 512
+
+# Common abbreviations that should NOT trigger sentence splits
+_ABBREVIATIONS = {
+    'Mr', 'Mrs', 'Ms', 'Dr', 'Prof', 'Jr', 'Sr',
+    'vs', 'etc', 'al', 'e.g', 'i.e', 'eg', 'ie',
+    'Fig', 'Eq', 'Ch', 'Vol', 'No', 'Ref', 'cf',
+}
+
 # Initialize BGE tokenizer (same model we'll use for embeddings)
 _tokenizer = None
 
@@ -84,7 +94,7 @@ def chunk_document(
         >>> print(f"Created {len(chunks)} chunks")
         >>> print(f"First chunk: {chunks[0].token_count} tokens")
     """
-    logger.info(
+    logger.debug(
         "chunking_document",
         path=document.file_path,
         pages=document.total_pages,
@@ -173,11 +183,25 @@ def chunk_document(
         )
         chunks.append(chunk)
 
-    logger.info(
+    # Validate chunks fit embedding model context
+    oversized_count = 0
+    for chunk in chunks:
+        if chunk.token_count > MAX_EMBEDDING_TOKENS:
+            oversized_count += 1
+            logger.warning(
+                "chunk_exceeds_embedding_limit",
+                tokens=chunk.token_count,
+                limit=MAX_EMBEDDING_TOKENS,
+                chunk_index=chunk.chunk_index,
+                path=document.file_path,
+            )
+
+    logger.debug(
         "document_chunked",
         path=document.file_path,
         num_chunks=len(chunks),
         avg_tokens=sum(c.token_count for c in chunks) / len(chunks) if chunks else 0,
+        oversized_chunks=oversized_count,
     )
 
     return chunks
@@ -234,6 +258,81 @@ def get_overlap_paragraphs(paragraphs: list[str], target_tokens: int) -> list[st
     return overlap
 
 
+def split_sentences(text: str) -> list[str]:
+    """Split text into sentences, respecting abbreviations.
+
+    Avoids splitting on:
+    - Common abbreviations (Dr., Mr., etc.)
+    - Single-letter initials (J. Smith)
+    - Latin abbreviations (e.g., i.e.)
+    - Decimal numbers (3.14)
+
+    Args:
+        text: Text to split into sentences
+
+    Returns:
+        List of sentences
+
+    Example:
+        >>> split_sentences("Dr. Smith said hello. She was right.")
+        ['Dr. Smith said hello.', 'She was right.']
+        >>> split_sentences("The value is 3.14. Next sentence.")
+        ['The value is 3.14.', 'Next sentence.']
+    """
+    if not text or not text.strip():
+        return []
+
+    # First do a simple split on sentence-ending punctuation
+    # Pattern: punctuation followed by whitespace
+    raw_parts = re.split(r'([.!?]+)\s+', text)
+
+    # Reconstruct, checking for abbreviations
+    sentences = []
+    current = ""
+
+    i = 0
+    while i < len(raw_parts):
+        part = raw_parts[i]
+
+        if i + 1 < len(raw_parts) and raw_parts[i + 1] in {'.', '!', '?', '..', '...', '.!', '!?'}:
+            # This part is followed by punctuation
+            punct = raw_parts[i + 1]
+            combined = part + punct
+
+            # Check if this ends with an abbreviation
+            words = part.split()
+            last_word = words[-1] if words else ""
+
+            # Check for abbreviations or single letter (initials)
+            is_abbreviation = (
+                last_word in _ABBREVIATIONS or
+                last_word.rstrip('.') in _ABBREVIATIONS or
+                (len(last_word) == 1 and last_word.isupper()) or  # Single capital letter
+                (len(last_word) == 2 and last_word[0].isupper() and last_word[1] == '.') or  # "J."
+                re.match(r'^\d+$', last_word)  # Number before decimal
+            )
+
+            if is_abbreviation:
+                # Don't split here - keep accumulating
+                current += combined + " "
+            else:
+                # This is a real sentence end
+                current += combined
+                sentences.append(current.strip())
+                current = ""
+            i += 2
+        else:
+            # No punctuation follows, just accumulate
+            current += part + " "
+            i += 1
+
+    # Add any remaining text
+    if current.strip():
+        sentences.append(current.strip())
+
+    return [s for s in sentences if s]
+
+
 def split_large_paragraph(
     paragraph: str, target_tokens: int, max_variance: int
 ) -> list[str]:
@@ -255,8 +354,8 @@ def split_large_paragraph(
     """
     max_tokens = target_tokens + max_variance
 
-    # Split into sentences (simple split on ". ")
-    sentences = re.split(r"(?<=[.!?])\s+", paragraph)
+    # Split into sentences using improved method
+    sentences = split_sentences(paragraph)
 
     chunks = []
     current = []
@@ -390,7 +489,7 @@ def chunk_with_sections(
     chunks = chunk_document(document, target_tokens, max_variance, overlap_tokens)
 
     if not headings:
-        logger.info("no_headings_for_section_tracking", path=document.file_path)
+        logger.debug("no_headings_for_section_tracking", path=document.file_path)
         return chunks
 
     # Build heading index sorted by character offset
@@ -427,7 +526,7 @@ def chunk_with_sections(
             chunk.metadata["section"] = current_section
             chunk.metadata["heading_level"] = current_level
 
-    logger.info(
+    logger.debug(
         "sections_tracked",
         path=document.file_path,
         chunks=len(chunks),

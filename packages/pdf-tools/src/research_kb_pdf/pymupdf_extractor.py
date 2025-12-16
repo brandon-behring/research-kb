@@ -281,7 +281,10 @@ def detect_headings(pdf_path: str | Path) -> list[Heading]:
 def extract_with_headings(
     pdf_path: str | Path,
 ) -> tuple[ExtractedDocument, list[Heading]]:
-    """Extract text AND detect headings from PDF.
+    """Extract text AND detect headings from PDF in a single pass.
+
+    Memory-efficient: Opens PDF once, extracts both text and font metadata
+    in a single iteration, then closes immediately.
 
     Args:
         pdf_path: Path to PDF file
@@ -295,6 +298,151 @@ def extract_with_headings(
         >>> for h in headings[:5]:
         ...     print(f"H{h.level}: {h.text}")
     """
-    doc = extract_pdf(pdf_path)
-    headings = detect_headings(pdf_path)
-    return doc, headings
+    pdf_path = Path(pdf_path)
+
+    if not pdf_path.exists():
+        raise FileNotFoundError(f"PDF not found: {pdf_path}")
+
+    logger.info("extracting_pdf_with_headings", path=str(pdf_path))
+
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception as e:
+        raise ValueError(f"Failed to open PDF (corrupted or encrypted?): {e}") from e
+
+    if doc.is_encrypted:
+        raise ValueError(f"PDF is encrypted: {pdf_path}")
+
+    # Single-pass extraction
+    pages = []
+    font_sizes = []
+    text_blocks = []  # (text, font_size, page_num, char_offset)
+    total_chars = 0
+    char_offset = 0
+
+    for page_num in range(len(doc)):
+        page = doc[page_num]
+
+        # Get plain text for document extraction
+        text = page.get_text()
+        text = text.replace("\x00", "")
+        text = "\n".join(line.strip() for line in text.split("\n") if line.strip())
+
+        char_count = len(text)
+        total_chars += char_count
+
+        pages.append(
+            ExtractedPage(
+                page_num=page_num + 1,
+                text=text,
+                char_count=char_count,
+            )
+        )
+
+        # Get font metadata for heading detection (same pass)
+        page_dict = page.get_text("dict")
+        for block in page_dict.get("blocks", []):
+            if block.get("type") != 0:
+                continue
+            for line in block.get("lines", []):
+                for span in line.get("spans", []):
+                    span_text = span.get("text", "").strip().replace("\x00", "")
+                    font_size = span.get("size", 0.0)
+                    if span_text and font_size > 0:
+                        font_sizes.append(font_size)
+                        text_blocks.append((span_text, font_size, page_num + 1, char_offset))
+                        char_offset += len(span_text)
+
+    doc.close()  # Close immediately after extraction
+
+    # Create document
+    extracted_doc = ExtractedDocument(
+        file_path=str(pdf_path),
+        total_pages=len(pages),
+        pages=pages,
+        total_chars=total_chars,
+    )
+
+    # Detect headings from collected font data
+    headings = _detect_headings_from_blocks(text_blocks, font_sizes, str(pdf_path))
+
+    logger.info(
+        "pdf_extracted_with_headings",
+        path=str(pdf_path),
+        pages=len(pages),
+        chars=total_chars,
+        headings=len(headings),
+    )
+
+    return extracted_doc, headings
+
+
+def _detect_headings_from_blocks(
+    text_blocks: list[tuple[str, float, int, int]],
+    font_sizes: list[float],
+    pdf_path: str,
+) -> list[Heading]:
+    """Internal: Detect headings from pre-collected font metadata.
+
+    Args:
+        text_blocks: List of (text, font_size, page_num, char_offset) tuples
+        font_sizes: List of all font sizes in document
+        pdf_path: Path for logging
+
+    Returns:
+        List of detected Heading objects
+    """
+    if not font_sizes:
+        logger.warning("no_text_with_font_metadata", path=pdf_path)
+        return []
+
+    median_size = statistics.median(font_sizes)
+
+    if len(set(font_sizes)) == 1:
+        logger.debug("uniform_font_size", path=pdf_path, median=median_size)
+        return []
+
+    stdev_size = statistics.stdev(font_sizes)
+
+    # Thresholds
+    h1_threshold = median_size + 2 * stdev_size
+    h2_threshold = median_size + 1 * stdev_size
+    h3_threshold = median_size + 0.5 * stdev_size
+
+    logger.debug(
+        "heading_thresholds",
+        median=median_size,
+        stdev=stdev_size,
+        h1=h1_threshold,
+        h2=h2_threshold,
+        h3=h3_threshold,
+    )
+
+    # Classify headings
+    headings = []
+    for text, font_size, page_num, char_offset in text_blocks:
+        if not (3 <= len(text) <= 100):
+            continue
+        if len(text.split()) > 15:
+            continue
+
+        level = None
+        if font_size >= h1_threshold:
+            level = 1
+        elif font_size >= h2_threshold:
+            level = 2
+        elif font_size >= h3_threshold:
+            level = 3
+
+        if level:
+            headings.append(
+                Heading(
+                    text=text,
+                    level=level,
+                    page_num=page_num,
+                    font_size=font_size,
+                    char_offset=char_offset,
+                )
+            )
+
+    return headings

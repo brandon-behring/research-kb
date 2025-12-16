@@ -1,0 +1,4820 @@
+{
+  "not_ingested": [
+    {
+      "title": "The Effect: An Introduction to Research Design and Causality",
+      "authors": [
+        "Huntington-Klein",
+        "Nick"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/The Effect_ An Introduction to Research Design and -- Nick Huntington-Klein -- 2nd, 2025 -- Taylor & Francis Ltd -- 9781003448969 -- fcc51a500bdf7fbe968b04fba285515f -- Anna\u2019s Archive.pdf",
+      "directory": "~/Claude/archimedes_lever",
+      "category": "causal_inference",
+      "priority": "high"
+    },
+    {
+      "title": "The effect: An introduction to research design and causality",
+      "authors": [
+        "Huntington-Klein",
+        "Nick"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/The Effect_ An Introduction to Research Design and -- Nick Huntington-Klein -- 2nd, 2025 -- Taylor & Francis Ltd -- 9781003448969 -- fcc51a500bdf7fbe968b04fba285515f -- Anna\u2019s Archive.pdf",
+      "directory": "~/Claude/archimedes_lever",
+      "category": "causal_inference",
+      "priority": "high"
+    },
+    {
+      "title": "Probabilistic Graphical Models: Principles and Techniques",
+      "authors": [
+        "Koller",
+        "Daphne",
+        "Friedman",
+        "Nir"
+      ],
+      "year": "2009",
+      "file_path": "~/Documents/Dropbox/downloads_march_2022/(Adaptive Computation and Machine Learning series) Daphne Koller, Nir Friedman - Probabilistic Graphical Models_ Principles and Techniques-The MIT Press (2009).pdf",
+      "directory": "~/Documents/Dropbox/scala/Manning Books/Haskell in Depth",
+      "category": "knowledge_graphs",
+      "priority": "high"
+    },
+    {
+      "title": "Estimating causal effects of treatments in randomized and nonrandomize",
+      "authors": [
+        "Rubin",
+        "Donald B"
+      ],
+      "year": "1974",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Estimating individual treatment effect: generalization bounds and algo",
+      "authors": [
+        "Shalit",
+        "Uri",
+        "Johansson",
+        "Fredrik D",
+        "Sontag",
+        "David"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Forecasting with Exponential Smoothing: The State Space Approach",
+      "authors": [
+        "Hyndman",
+        "Rob J.",
+        "Koehler",
+        "Anne B.",
+        "Ord",
+        "J. Keith",
+        "S"
+      ],
+      "year": "2008",
+      "file_path": "~/Claude/archimedes_lever/documents/output/pdf/test.pdf",
+      "directory": "~/Claude/archimedes_lever/documents/output/pdf",
+      "category": "time_series",
+      "priority": "medium"
+    },
+    {
+      "title": "Kernel-Based Conditional Independence Test and Application in Causal D",
+      "authors": [
+        "Zhang",
+        "Kun",
+        "Peters",
+        "Jonas",
+        "Janzing",
+        "Dominik",
+        "Sch\\\"{"
+      ],
+      "year": "2011",
+      "file_path": "~/Claude/archimedes_lever/documents/output/pdf/test.pdf",
+      "directory": "~/Claude/archimedes_lever/documents/output/pdf",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Targeted Learning: Causal Inference for Observational and Experimental",
+      "authors": [
+        "Laan",
+        "Mark",
+        "Rose",
+        "Sherri"
+      ],
+      "year": "2011",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Targeted_Learning_Causal_Inference_Observational_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Counterfactuals and Causal Inference: Methods and Principles for Socia",
+      "authors": [
+        "Morgan",
+        "Stephen L.",
+        "Winship",
+        "Christopher"
+      ],
+      "year": "2015",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Counterfactuals_Causal_Inference_Methods_Principles_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Bayesian Optimization in Action",
+      "authors": [
+        "Quan Nguyen"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Bayesian Optimization in Action/Bayesian_Optimization_in_Action (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Build a Large Language Model (From Scratch)",
+      "category": "bayesian",
+      "priority": "medium"
+    },
+    {
+      "title": "Causal Reasoning with Ancestral Graphs",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Causal Inference in Python (Companion Repo)",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Causal Effects in Nonexperimental Studies: Reevaluating the Evaluation",
+      "authors": [
+        "Dehejia",
+        "Rajeev H.",
+        "Wahba",
+        "Sadek"
+      ],
+      "year": "1999",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Causal Inference and Uplift Modeling A review of the literature",
+      "authors": [
+        "Gutierrez",
+        "Pierre",
+        "Gerardy",
+        "Jean-Yves"
+      ],
+      "year": "2016",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Causal Inference and Causal Explanation with Background Knowledge",
+      "authors": [
+        "Meek",
+        "Christopher"
+      ],
+      "year": "2013",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Graph-Powered Machine Learning",
+      "authors": [
+        "Alessandro Negro"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Graph-Powered Machine Learning/Graph-Powered_Machine_Learning.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Grokking Machine Learning",
+      "category": "knowledge_graphs",
+      "priority": "medium"
+    },
+    {
+      "title": "An Introduction to Propensity Score Methods for Reducing the Effects o",
+      "authors": [
+        "Austin",
+        "Peter C."
+      ],
+      "year": "2011",
+      "file_path": "~/Claude/job_applications/causal_inference_guide_2025/resources/repos/stanford-mse228/MSANDE228_Introduction.pdf",
+      "directory": "~/Claude/job_applications/causal_inference_guide_2025/resources/repos/stanford-mse228",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Adjacency-faithfulness and conservative causal inference",
+      "authors": [
+        "Ramsey",
+        "Joseph",
+        "Zhang",
+        "Jiji",
+        "Spirtes",
+        "Peter L"
+      ],
+      "year": "2012",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1206.6843.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Causal Structure Learning from Multivariate Time Series in Settings wi",
+      "authors": [
+        "Malinsky",
+        "Daniel",
+        "Spirtes",
+        "Peter"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/awesome/World-Model/asset/structure.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Order-Independent Constraint-Based Causal Structure Learning",
+      "authors": [
+        "Colombo",
+        "Diego",
+        "Maathuis",
+        "Marloes"
+      ],
+      "year": "2012",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "On Causal Discovery from Time Series Data using FCI",
+      "authors": [
+        "Entner",
+        "Doris",
+        "Hoyer",
+        "Patrik"
+      ],
+      "year": "2010",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Causal discovery from soft interventions with unknown targets: Charact",
+      "authors": [
+        "Jaber",
+        "Amin",
+        "Kocaoglu",
+        "Murat",
+        "Shanmugam",
+        "Karthikeyan a"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Constraint-Based Causal Discovery using Partial Ancestral Graphs in th",
+      "authors": [
+        "M. Mooij",
+        "Joris",
+        "Claassen",
+        "Tom"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "Out-of-Sample Tests of Forecasting Accuracy: An Analysis and Review",
+      "authors": [
+        "Tashman",
+        "Leonard J."
+      ],
+      "year": "2000",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data/sample.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data",
+      "category": "time_series",
+      "priority": "medium"
+    },
+    {
+      "title": "Bayesian regression tree models for causal inference: regularization, ",
+      "authors": [
+        "{Hahn}",
+        "P. Richard",
+        "{Murray}",
+        "Jared S.",
+        "{Carvalho}",
+        "Ca"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/1706.09523.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks",
+      "category": "causal_inference",
+      "priority": "medium"
+    },
+    {
+      "title": "From Local to Global: A Graph RAG Approach to Query-Focused Summarizat",
+      "authors": [
+        "Edge",
+        "Darren",
+        "Trinh",
+        "Ha",
+        "Cheng",
+        "Newman",
+        "Bradley",
+        "Jo"
+      ],
+      "year": "2024",
+      "file_path": "~/Documents/Dropbox/roc_hp.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "knowledge_graphs",
+      "priority": "medium"
+    },
+    {
+      "title": "Manning Publications Collection",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/annuity-pricing/paper/main.pdf",
+      "directory": "~/Claude/annuity-pricing/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Minimum Wages and Employment: A Case Study of the Fast-Food Industry i",
+      "authors": [
+        "Card",
+        "David",
+        "Krueger",
+        "Alan B."
+      ],
+      "year": "1994",
+      "file_path": "~/Claude/annuity-pricing/paper/main.pdf",
+      "directory": "~/Claude/annuity-pricing/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Mastering Diverse Domains Through World Models",
+      "authors": [
+        "Hafner",
+        "Danijar",
+        "Pasukonis",
+        "Jurgis",
+        "Ba",
+        "Jimmy",
+        "Lill"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/annuity-pricing/paper/main.pdf",
+      "directory": "~/Claude/annuity-pricing/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Manipulation of the Running Variable in the Regression Discontinuity D",
+      "authors": [
+        "McCrary",
+        "Justin"
+      ],
+      "year": "2008",
+      "file_path": "~/Claude/annuity-pricing/paper/main.pdf",
+      "directory": "~/Claude/annuity-pricing/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Manipulation of the Running Variable in the Regression Discontinuity D",
+      "authors": [
+        "McCrary",
+        "Justin"
+      ],
+      "year": "2008",
+      "file_path": "~/Claude/annuity-pricing/paper/main.pdf",
+      "directory": "~/Claude/annuity-pricing/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Minds, Brains, and Programs",
+      "authors": [
+        "Searle",
+        "John R."
+      ],
+      "year": "1980",
+      "file_path": "~/Claude/annuity-pricing/paper/main.pdf",
+      "directory": "~/Claude/annuity-pricing/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Plans and Situated Actions: The Problem of Human-Machine Communication",
+      "authors": [
+        "Suchman",
+        "Lucy A."
+      ],
+      "year": "1987",
+      "file_path": "~/Claude/annuity-pricing/paper/main.pdf",
+      "directory": "~/Claude/annuity-pricing/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "LeetCode - The World's Leading Online Programming Learning Platform",
+      "authors": [
+        "{LeetCode}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/annuity-pricing/paper/main.pdf",
+      "directory": "~/Claude/annuity-pricing/references/regulatory",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Model \\#806: {R}egulation for Recognizing a New Annuity Mortality Tabl",
+      "authors": [
+        "{NAIC}"
+      ],
+      "year": null,
+      "file_path": "~/Claude/annuity-pricing/references/regulatory/NAIC_Model_806_Regulation.pdf",
+      "directory": "~/Claude/archimedes_lever",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "A New Look at the Statistical Model Identification",
+      "authors": [
+        "Akaike",
+        "Hirotugu"
+      ],
+      "year": "1974",
+      "file_path": "~/Claude/archimedes_lever/causal/5 - Identification.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Estimation of the Parameters of a Single Equation in a Complete System",
+      "authors": [
+        "Anderson",
+        "T. W.",
+        "Rubin",
+        "Herman"
+      ],
+      "year": "1949",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "How Much Should We Trust Differences-In-Differences Estimates?",
+      "authors": [
+        "Bertrand",
+        "Marianne",
+        "Duflo",
+        "Esther",
+        "Mullainathan",
+        "Sendh"
+      ],
+      "year": "2004",
+      "file_path": "~/Claude/archimedes_lever/causal/9 - Difference-in-Differences.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "How Much Should We Trust Differences-In-Differences Estimates?",
+      "authors": [
+        "Bertrand",
+        "Marianne",
+        "Duflo",
+        "Esther",
+        "Mullainathan",
+        "Sendh"
+      ],
+      "year": "2004",
+      "file_path": "~/Claude/archimedes_lever/causal/9 - Difference-in-Differences.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Locally robust semiparametric estimation",
+      "authors": [
+        "Chernozhukov",
+        "Victor",
+        "Escanciano",
+        "Juan Carlos",
+        "Ichimur"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Ridge Regression: Biased Estimation for Nonorthogonal Problems",
+      "authors": [
+        "Hoerl",
+        "Arthur E.",
+        "Kennard",
+        "Robert W."
+      ],
+      "year": "1970",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Estimating the Dimension of a Model",
+      "authors": [
+        "Schwarz",
+        "Gideon"
+      ],
+      "year": "1978",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Privacy-Preserving Statistical Estimation with Optimal Convergence Rat",
+      "authors": [
+        "Smith",
+        "Adam"
+      ],
+      "year": "2011",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Philosophical Investigations",
+      "authors": [
+        "Wittgenstein",
+        "Ludwig"
+      ],
+      "year": "1953",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/docs/guides",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "6 Gotchas I Encountered Using Claude",
+      "authors": [
+        "{DoltHub Team}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/docs/guides/CLAUDE_CODE_TEAM_GUIDE_2025.pdf",
+      "directory": "~/Claude/archimedes_lever/docs/reference",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "CLAUDE.md Best Practices Learned from Optimizing Claude Code",
+      "authors": [
+        "{Arize Team}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/docs/reference/CLAUDE_BEST_PRACTICES_2025.pdf",
+      "directory": "~/Claude/archimedes_lever/documents/output/pdf",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "On the Failure of the Bootstrap for Matching Estimators",
+      "authors": [
+        "Abadie",
+        "Alberto",
+        "Imbens",
+        "Guido W."
+      ],
+      "year": "2008",
+      "file_path": "~/Claude/archimedes_lever/documents/output/pdf/test.pdf",
+      "directory": "~/Claude/archimedes_lever/documents/output/pdf",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Private Selection from Private Candidates",
+      "authors": [
+        "Jingcheng Liu",
+        "Kunal Talwar"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/archimedes_lever/documents/output/pdf/test.pdf",
+      "directory": "~/Claude/archimedes_lever/documents/output/pdf",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Optimal asymptotic tests of composite statistical hypotheses",
+      "authors": [
+        "Neyman",
+        "Jerzy"
+      ],
+      "year": "1959",
+      "file_path": "~/Claude/archimedes_lever/documents/output/pdf/test.pdf",
+      "directory": "~/Claude/archimedes_lever/documents/output/pdf",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Pretest with Caution: Event-Study Estimates after Testing for Parallel",
+      "authors": [
+        "Roth",
+        "Jonathan"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/documents/output/pdf/test.pdf",
+      "directory": "~/Claude/archimedes_lever/documents/output/pdf",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Investor Testing Study on Index-Linked Annuities",
+      "authors": [
+        "{U.S. Securities",
+        "Exchange Commission}"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/documents/output/pdf/test.pdf",
+      "directory": "~/Claude/archimedes_lever/documents/output/pdf",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Test-Driven Development: Is TDD Relevant in 2024?",
+      "authors": [
+        "{ScrumLaunch}"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/documents/output/pdf/test.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Grokking Deep Reinforcement Learning",
+      "authors": [],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Grokking_Deep_Reinforcement_Learning_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Programming Languages Part A",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Programming_Language_Pragmatics_--_Scott_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Classic Computer Science Problems in Python",
+      "authors": [
+        "David Kopec"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Classic_Computer_Science_Problems_Pyt_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Exploring a Data Science Career",
+      "authors": [
+        "Emily Robinson; Jacqueline Nolis"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Exploring_Data_Science_Career_V1_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Effective Data Science Infrastructure",
+      "authors": [
+        "Ville Tuulos"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Effective_Data_Science_Infrastructure_V3_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Deep Reinforcement Learning in Action",
+      "authors": [
+        "Alexander Zai",
+        "Brandon Brown"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Deep_Reinforcement_Learning_Action_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/\"Looks Good to Me\"",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Looks Good to Me",
+      "authors": [
+        "Adrienne Braganza"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/\"Looks Good to Me\"/\"Looks_Good_to_Me\".pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/A Simple Guide to Retrieval Augmented Generation",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "A Simple Guide to Retrieval Augmented Generation",
+      "authors": [
+        "Abhinav Kimothi"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/A Simple Guide to Retrieval Augmented Generation/A_Simple_Guide_to_Retrieval_Augmented_Ge.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/AI Agents and Applications",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "AI Agents and Applications MEAP V07",
+      "authors": [
+        "Roberto Infante"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/AI Agents and Applications/AI_Agents_and_Applications_v7_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/AI Agents in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "AI Applications Made Easy MEAP V05",
+      "authors": [
+        "Andrea De Mauro"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/AI Applications Made Easy/AI_Applications_Made_Easy_v5_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Advanced Algorithms and Data Structures",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Akka in Action",
+      "authors": [
+        "Raymond Roestenburg",
+        "Rob Bakker",
+        "Rob Williams"
+      ],
+      "year": "2016",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Akka in Action/Akka_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Algorithms and Data Structures for Massive Datasets",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Algorithms and Data Structures for Massive Datasets",
+      "authors": [
+        "Dzejla Medjedovic",
+        "Emin Tahirovic"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Algorithms and Data Structures for Massive Datasets/Algorithms_and_Data_Structures_for_Massi.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Amazon Web Services in Action, Second Edition",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Amazon Web Services in Action, Second Edition",
+      "authors": [
+        "Michael Wittig",
+        "Andreas Wittig"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Amazon Web Services in Action, Second Edition/Amazon_Web_Services_in_Action,_Second_Ed.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Amazon Web Services in Action, Second Edition",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Amazon Web Services in Action",
+      "authors": [
+        "Andreas Wittig",
+        "Michael Wittig"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Amazon Web Services in Action, Second Edition/Amazon_Web_Services_in_Action,_Second_Ed.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Automated Machine Learning in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Build a Large Language Model (From Scratch)",
+      "authors": [
+        "Sebastian Raschka"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Build a Large Language Model (From Scratch)/Build_a_Large_Language_Model_(From_Scrat.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Build an LLM Application (from Scratch)",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Building Reliable AI Systems MEAP V09",
+      "authors": [
+        "Rush Shahani"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Building Reliable AI Systems/Building_Reliable_AI_Systems_v9_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Building User-Friendly DSLs",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Building User-Friendly DSLs",
+      "authors": [
+        "Meinte Boersma"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Building User-Friendly DSLs/Building_User-Friendly_DSLs.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Data-Driven Science and Engineering",
+      "authors": [
+        "Steven L. Brunton",
+        "J. Nathan Kutz"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Chaos Engineering/Chaos_Engineering.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Chaos Engineering",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Chaos Engineering",
+      "authors": [
+        "Mikolaj Pawlikowski"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Chaos Engineering/Chaos_Engineering.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Data Science Bookcamp",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Data Science Bookcamp",
+      "authors": [
+        "Leonard Apeltsin"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Data Science Bookcamp/Data_Science_Bookcamp.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Deep Learning Patterns and Practices",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Designing APIs with Swagger and OpenAPI",
+      "authors": [
+        "Joshua S. Ponelat",
+        "Lukas L. Rosenstock"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Designing APIs with Swagger and OpenAPI/Designing_APIs_with_Swagger_and_OpenAPI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Docker in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Docker in Action",
+      "authors": [
+        "Jeff Nickoloff"
+      ],
+      "year": "2016",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Docker in Action/Docker_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Docker in Action, Second Edition",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Effective Software Testing",
+      "authors": [
+        "Maur\u00edcio Aniche"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Effective Software Testing/Effective_Software_Testing.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Ensemble Methods for Machine Learning",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Enterprise RAG MEAP V03",
+      "authors": [
+        "Tyler Suard"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Enterprise RAG/Enterprise_RAG_v3_MEAP (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Everyday Data Visualization",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Everyday Data Visualization",
+      "authors": [
+        "Desire\u00e9 Abbott"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Everyday Data Visualization/Everyday_Data_Visualization.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Evolutionary Deep Learning",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Evolutionary Deep Learning",
+      "authors": [
+        "Micheal Lanham"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Evolutionary Deep Learning/Evolutionary_Deep_Learning.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Fast Python",
+      "category": "ml",
+      "priority": "low"
+    },
+    {
+      "title": "ActuarialMath: {P}ython Library for Life Contingencies",
+      "authors": [
+        "{Actuarial Math Contributors}"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Fast Python/Fast_Python.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Fast Python",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "pandas: Python Data Analysis Library",
+      "authors": [
+        "{NumFOCUS",
+        "Inc.}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Fast Python/Fast_Python.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Financial AI in Practice",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Financial AI in Practice MEAP V03",
+      "authors": [
+        "Taehun Kim"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Financial AI in Practice/Financial_AI_in_Practice_v3_MEAP (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Five Lines of Code",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Five Lines of Code",
+      "authors": [
+        "Christian Clausen"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Five Lines of Code/Five_Lines_of_Code.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Functional Design and Architecture",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Functional Design and Architecture",
+      "authors": [
+        "Alexander Granin"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Functional Design and Architecture/Functional_Design_and_Architecture.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Functional Programming in Scala",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Generative AI in Action",
+      "authors": [
+        "Amit Bahree"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Generative AI in Action/Generative_AI_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Geometry for Programmers",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Geometry for Programmers",
+      "authors": [
+        "Oleksandr Kaleniuk"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Geometry for Programmers/Geometry_for_Programmers.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Getting Started with Natural Language Processing",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Good Code, Bad Code",
+      "authors": [
+        "Tom Long"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Good Code, Bad Code/Good_Code,_Bad_Code.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Graph Algorithms for Data Science",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Designing Machine Learning Systems (2024)",
+      "authors": [
+        "Chip Huyen"
+      ],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Grokking Machine Learning/Grokking_Machine_Learning.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Grokking Simplicity",
+      "category": "ml",
+      "priority": "low"
+    },
+    {
+      "title": "How to Lead in Data Science",
+      "authors": [
+        "Jike Chong",
+        "Yue Cathy Chang"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/How to Lead in Data Science/How_to_Lead_in_Data_Science.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Inside Deep Learning",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Interpretable AI",
+      "authors": [
+        "Ajay Thampi"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Interpretable AI/Interpretable_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Introduction to Generative AI",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Introduction to Generative AI",
+      "authors": [
+        "Numa Dhamani; Maggie Engler"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Introduction to Generative AI/Introduction_to_Generative_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Introduction to Generative AI, Second Edition",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Introduction to Generative AI, Second Edition MEAP V04",
+      "authors": [
+        "Numa Dhamani",
+        "Maggie Engler"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Introduction to Generative AI, Second Edition/Introduction_to_Generative_AI,_Second_Ed_v4_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Investing for Programmers",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Investing for Programmers",
+      "authors": [
+        "Stefan Papp"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Investing for Programmers/Investing_for_Programmers (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Julia as a Second Language",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Julia as a Second Language",
+      "authors": [
+        "Erik Engheim"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Julia as a Second Language/Julia_as_a_Second_Language (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Julia for Data Analysis",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Kubernetes for Developers",
+      "authors": [
+        "William Denniss"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Kubernetes for Developers/Kubernetes_for_Developers.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Kubernetes in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "LLMs in Production",
+      "authors": [
+        "Christopher Brousseau",
+        "Matthew Sharp"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/LLMs in Production/LLMs_in_Production.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Learn Haskell by Example",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Learn Haskell by Example",
+      "authors": [
+        "Philipp Hagenlocher"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Learn Haskell by Example/Learn_Haskell_by_Example.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/MLOps Engineering at Scale",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Pandas in Action",
+      "authors": [
+        "BORIS PASKHAVER"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Pandas in Action/Pandas_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Platform Engineering on Kubernetes",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Platform Engineering on Kubernetes",
+      "authors": [
+        "Mauricio Salatino"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Platform Engineering on Kubernetes/Platform_Engineering_on_Kubernetes.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Privacy-Preserving Machine Learning",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Privacy-Preserving Machine Learning",
+      "authors": [
+        "J. Morris Chang",
+        "Di Zhuang",
+        "G. Dumindu Samaraweera"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Privacy-Preserving Machine Learning/Privacy-Preserving_Machine_Learning.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Python Concurrency with asyncio",
+      "category": "ml",
+      "priority": "low"
+    },
+    {
+      "title": "Python Concurrency with asyncio",
+      "authors": [
+        "Matthew Fowler"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Python Concurrency with asyncio/Python_Concurrency_with_asyncio.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Python Concurrency with asyncio",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Python Concurrency with asyncio (2nd Edition)",
+      "authors": [
+        "Matthew Fowler"
+      ],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Python Concurrency with asyncio/Python_Concurrency_with_asyncio.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/R in Action, Third Edition",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "R in Action, Third Edition",
+      "authors": [
+        "Robert I. Kabacoff"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/R in Action, Third Edition/R_in_Action,_Third_Edition.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Rust in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Rust in Action",
+      "authors": [
+        "Tim McNamara"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Rust in Action/Rust_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Serverless Architectures on AWS, Second Edition",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Serverless Architecture on AWS",
+      "authors": [
+        "Peter Sbarski"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Serverless Architectures on AWS, Second Edition/Serverless_Architectures_on_AWS,_Second_.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Serverless Architectures on AWS, Second Edition",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Serverless Architectures on AWS, Second Edition",
+      "authors": [
+        "Peter Sbarski",
+        "Yan Cui",
+        "Ajay Nair"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Serverless Architectures on AWS, Second Edition/Serverless_Architectures_on_AWS,_Second_.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Software Design in Python",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Software Design in Python MEAP V06",
+      "authors": [
+        "Ronald Mak"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Software Design in Python/Software_Design_in_Python_v6_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Software Engineering for Data Scientists",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Software Mistakes and Tradeoffs",
+      "authors": [
+        "Tomasz Lelek",
+        "Jon Skeet"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Software Mistakes and Tradeoffs/Software_Mistakes_and_Tradeoffs.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Spark in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Statistics Slam Dunk",
+      "authors": [
+        "Gary Sutton"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Statistics Slam Dunk/Statistics_Slam_Dunk.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/TensorFlow in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Test Yourself on Sebastian Raschka's Build a Large Language Model (Fro",
+      "authors": [
+        "Download Your Free Companion Guide"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Test Yourself on Sebastian Raschka's Build a Large Language Model (From Scratch)/Test_Yourself_on_Sebastian_Raschka's_Bui.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/The Creative Programmer",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "The Creative Programmer",
+      "authors": [
+        "Wouter Groeneveld"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/The Creative Programmer/The_Creative_Programmer.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/The Feedback-Driven Developer",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "The Feedback-Driven Developer MEAP V04",
+      "authors": [
+        "Ashley Davis"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/The Feedback-Driven Developer/The_Feedback-Driven_Developer_v4_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/The Well-Grounded Python Developer",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "The Well-Grounded Python Developer",
+      "authors": [
+        "Doug Farrell"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/The Well-Grounded Python Developer/The_Well-Grounded_Python_Developer.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Think Like a Software Engineering Manager",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Tiny C Projects",
+      "authors": [
+        "Dan Gookin"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Tiny C Projects/Tiny_C_Projects.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Transformers in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "Some Philosophical Problems from the Standpoint of Artificial Intellig",
+      "authors": [
+        "McCarthy",
+        "John",
+        "Hayes",
+        "Patrick J."
+      ],
+      "year": "1969",
+      "file_path": "~/Claude/archimedes_lever/output/sql_problems.pdf",
+      "directory": "~/Claude/archimedes_lever/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Mental Rotation of Three-Dimensional Objects",
+      "authors": [
+        "Shepard",
+        "Roger N.",
+        "Metzler",
+        "Jacqueline"
+      ],
+      "year": "1971",
+      "file_path": "~/Claude/course_learning/02_causal_ai/causalML/projects/causal modeling with a VAE/projects.pdf",
+      "directory": "~/Claude/course_learning/deeplearning_ai_rag",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "From Fragmentation to Federation: A Strategy for Digital Engineering S",
+      "authors": [
+        "{INCOSE}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/course_learning/deeplearning_ai_rag/RAG_M2.pdf",
+      "directory": "~/Claude/job_applications/causal_inference_guide_2025/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "An Introduction to the Bootstrap",
+      "authors": [
+        "Efron",
+        "Bradley",
+        "Tibshirani",
+        "Robert J."
+      ],
+      "year": "1994",
+      "file_path": "~/Claude/job_applications/causal_inference_guide_2025/resources/repos/stanford-mse228/MSANDE228_Introduction.pdf",
+      "directory": "~/Claude/job_applications/causal_inference_guide_2025/resources/repos/stanford-mse228",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "An Introduction to the Bootstrap",
+      "authors": [
+        "Stadie",
+        "Bradly C",
+        "K{\\\"u}nzel",
+        "S{\\\"o}ren R",
+        "Vemuri",
+        "Nik"
+      ],
+      "year": "1994",
+      "file_path": "~/Claude/job_applications/causal_inference_guide_2025/resources/repos/stanford-mse228/MSANDE228_Lecture16_Heterogeneous_Treatment_Effects.pdf",
+      "directory": "~/Claude/lever_of_archimedes/docs/pdf/context_engineering/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Cognizant to Deploy 1,000 Context Engineers to Industrialize Agentic A",
+      "authors": [
+        "{Cognizant}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/docs/pdf/context_engineering/output/context_engineering.pdf",
+      "directory": "~/Claude/lever_of_archimedes/docs/pdf/guide/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Effective Context Engineering for AI Agents",
+      "authors": [
+        "{Anthropic Engineering}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/docs/pdf/guide/output/context_engineering_guide.pdf",
+      "directory": "~/Claude/lever_of_archimedes/docs/pdf/guide/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Context Engineering for AI Agents: The Complete Guide",
+      "authors": [
+        "Khan",
+        "Imran"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/docs/pdf/guide/output/context_engineering_guide.pdf",
+      "directory": "~/Claude/lever_of_archimedes/docs/pdf/guide/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Context Engineering\u2014Getting the best out of Agentic AI Systems",
+      "authors": [
+        "Vijay Kumar",
+        "Akshay Ballal"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/docs/pdf/guide/output/context_engineering_guide.pdf",
+      "directory": "~/Claude/lever_of_archimedes/docs/pdf/guide/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Context Engineering for AI Agents: Lessons from Building Manus",
+      "authors": [
+        "{Manus Team}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/docs/pdf/guide/output/context_engineering_guide.pdf",
+      "directory": "~/Claude/lever_of_archimedes/docs/pdf/guide/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Context Engineering: Why It's Replacing Prompt Engineering for Enterpr",
+      "authors": [
+        "{Gartner}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/docs/pdf/guide/output/context_engineering_guide.pdf",
+      "directory": "~/Claude/lever_of_archimedes/docs/pdf/guide/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Context Engineering Best Practices for Reliable AI in 2025",
+      "authors": [
+        "{Kubiya}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/docs/pdf/guide/output/context_engineering_guide.pdf",
+      "directory": "~/Claude/lever_of_archimedes/docs/pdf/guide/output",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Differential Privacy on Finite Computers",
+      "authors": [
+        "Victor Balcer",
+        "Salil P. Vadhan"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1709.05396.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Concentrated Differential Privacy: Simplifications, Extensions, and Lo",
+      "authors": [
+        "Mark Bun",
+        "Thomas Steinke"
+      ],
+      "year": "2016",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1605.02065.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "The Discrete Gaussian for Differential Privacy",
+      "authors": [
+        "Cl{\\'{e}}ment L. Canonne",
+        "Gautam Kamath",
+        "Thomas Steink"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2004.00010.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Bounding, Concentrating, and Truncating: Unifying Privacy Loss Composi",
+      "authors": [
+        "Mark Cesar",
+        "Ryan Rogers"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2004.07223.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Flash Attention 2: Faster Attention with Better Parallelism and Work P",
+      "authors": [
+        "Tri Dao"
+      ],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2307.08691.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Watson: A Cognitive Observability Framework for the Reasoning of Found",
+      "authors": [
+        "Dibia",
+        "Victor",
+        "Hu",
+        "Jingya",
+        "Patel",
+        "Shayak",
+        "Noever",
+        "D"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2411.03455.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Watson: A Cognitive Observability Framework for the Reasoning of Found",
+      "authors": [
+        "Jinshuo Dong",
+        "David Durfee",
+        "Ryan Rogers"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1909.13830.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "RAPPOR: Randomized Aggregatable Privacy-Preserving Ordinal Response",
+      "authors": [
+        "\u00dalfar Erlingsson",
+        "Vasyl Pihur",
+        "Aleksandra Korolova"
+      ],
+      "year": "2014",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1407.6981.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Individual Privacy Accounting via a Renyi Filter",
+      "authors": [
+        "Vitaly Feldman",
+        "Tijana Zrnic"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2008.11193.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Retrieval-Augmented Generation for Large Language Models: A Survey",
+      "authors": [
+        "Yunfan Gao",
+        "et al."
+      ],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2312.10997.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Not What You've Signed Up For: Compromising Real-World LLM-Integrated ",
+      "authors": [
+        "Greshake",
+        "Kai",
+        "Abdelnabi",
+        "Sahar",
+        "Mishra",
+        "Shailesh and"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2302.12173.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Concurrent Composition for Interactive Differential Privacy with Adapt",
+      "authors": [
+        "Samuel Haney",
+        "Michael Shoemate",
+        "Grace Tian",
+        "Salil V"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2309.05901.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Semiparametric Doubly Robust Targeted Double Machine Learning: A Revie",
+      "authors": [
+        "Kennedy",
+        "Edward H."
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2108.06532.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "ml",
+      "priority": "low"
+    },
+    {
+      "title": "Large Language Models are Zero-Shot Reasoners",
+      "authors": [
+        "Kojima",
+        "Takeshi",
+        "Gu",
+        "Shixiang (Shane)",
+        "Reid",
+        "Machel an"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2205.11916.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Emergent World Representations: Exploring a Sequence Model Trained on ",
+      "authors": [
+        "Li",
+        "Kenneth",
+        "Hopkins",
+        "Aspen K.",
+        "Bau",
+        "David",
+        "Vi{\\'e}"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2210.13382.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Composition Theorems for Interactive Differential Privacy",
+      "authors": [
+        "Xin Lyu"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2207.09397.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Permute-and-Flip: A new mechanism for differentially private selection",
+      "authors": [
+        "Ryan McKenna",
+        "Daniel Sheldon"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2010.12603.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "A Unifying Privacy Analysis Framework for Unknown Domain Algorithms in",
+      "authors": [
+        "Ryan Rogers"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2309.09170.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Privacy Odometers and Filters: Pay-as-you-Go Composition",
+      "authors": [
+        "Ryan Rogers",
+        "Aaron Roth",
+        "Jonathan Ullman",
+        "Salil Vad"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1605.08294.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Efficient Transformers: A Survey (2025 Update)",
+      "authors": [
+        "Yi Tay",
+        "et al."
+      ],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2009.06732.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "ContextAgent: Proactive Context Delivery for LLM Agents",
+      "authors": [
+        "ContextAgent Research Team"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2505.14668.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Role-Aware Context Routing for Multi-Agent Systems",
+      "authors": [
+        "RCR-Router Research Team"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2508.04903.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "A Comprehensive Survey of Memory Architectures for Large Language Mode",
+      "authors": [
+        "Memory Taxonomy Research Team"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2505.00675.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Mem0: Scalable Long-Term Memory for AI Agents",
+      "authors": [
+        "{Mem0 Team}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2504.19413.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "PROBE: Proactive Retrieval and Observation Benchmark for Context-Aware",
+      "authors": [
+        "{PROBE Benchmark Team}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2510.19771.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Concurrent Composition of Differential Privacy",
+      "authors": [
+        "Salil Vadhan",
+        "Tianhao Wang"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2105.14427.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Attention is All You Need",
+      "authors": [
+        "Vaswani",
+        "Ashish",
+        "Shazeer",
+        "Noam",
+        "Parmar",
+        "Niki",
+        "Uszko"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1706.03762.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+      "authors": [
+        "Wei",
+        "Jason",
+        "Wang",
+        "Xuezhi",
+        "Schuurmans",
+        "Dale",
+        "Bosma"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2201.11903.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Fully Adaptive Composition in Differential Privacy",
+      "authors": [
+        "Justin Whitehouse",
+        "Aaditya Ramdas",
+        "Ryan Rogers",
+        "Zhi"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2203.05481.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Tree of Thoughts: Deliberate Problem Solving with Large Language Model",
+      "authors": [
+        "Yao",
+        "Shunyu",
+        "Yu",
+        "Dian",
+        "Zhao",
+        "Jeffrey",
+        "Shafran",
+        "Izha"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2305.10601.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Personal Papers Library",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/agents/ToolBench/assets/paper.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/agents/ToolBench/assets",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Unsorted Papers Collection",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/agents/ToolBench/assets/paper.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/agents/ToolBench/assets",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "The Ecological Approach to Visual Perception",
+      "authors": [
+        "Gibson",
+        "James J."
+      ],
+      "year": "1979",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/agents/ToolBench/assets/paper.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/agents/ToolBench/assets",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Ideas Pertaining to a Pure Phenomenology and to a Phenomenological Phi",
+      "authors": [
+        "Husserl",
+        "Edmund"
+      ],
+      "year": "1913",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/agents/ToolBench/assets/paper.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/awesome/World-Model/asset",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Data Structures and Algorithms Specialization",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/awesome/World-Model/asset/structure.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/awesome/World-Model/asset",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Using the Longitudinal Structure of Earnings to Estimate the Effect of",
+      "authors": [
+        "Ashenfelter",
+        "Orley",
+        "Card",
+        "David"
+      ],
+      "year": "1985",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/awesome/World-Model/asset/structure.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/awesome/World-Model/asset",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "freeCodeCamp: Algorithms Course",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Back To Back SWE: LeetCode Explanations",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "NeetCode: Blind 75 Playlist",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "functools \u2014 Higher-order functions and operations on callable objects",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "LeetCode Contest Patterns 2024-2025",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Expected Shortfall: A Natural Coherent Alternative to Value at Risk",
+      "authors": [
+        "Acerbi",
+        "Carlo",
+        "Tasche",
+        "Dirk"
+      ],
+      "year": "2002",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Coherent Measures of Risk",
+      "authors": [
+        "Artzner",
+        "Philippe",
+        "Delbaen",
+        "Freddy",
+        "Eber",
+        "Jean-Marc an"
+      ],
+      "year": "1999",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "FinancePy: {P}ython Library for Derivatives Pricing",
+      "authors": [
+        "{FinancePy Contributors}"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Mixtape Code Repository",
+      "authors": [
+        "Scott Cunningham"
+      ],
+      "year": null,
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Why 95\\% of AI-Generated Code is Garbage",
+      "authors": [
+        "{Sanity.io Engineering}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "functools --- Higher-order functions and operations on callable object",
+      "authors": [
+        "{Python Software Foundation}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "NeetCode - A Better Way to Prepare for Coding Interviews",
+      "authors": [
+        "Navdeep Singh"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "AI Code Generation: From 95\\% Garbage to Production Quality",
+      "authors": [
+        "{Sanity Team}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Essential LeetCode for Interview Success",
+      "authors": [
+        "Zhen Wei"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Modern SQL: A Lot Has Changed Since SQL-92",
+      "authors": [
+        "Markus Winand"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "New Year Gift - Curated List of Top 75 LeetCode Questions to Save Your",
+      "authors": [
+        "{Blind}"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Large Sample Properties of Matching Estimators for Average Treatment E",
+      "authors": [
+        "Abadie",
+        "Alberto",
+        "Imbens",
+        "Guido W."
+      ],
+      "year": "2006",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data/sample.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Simple and Efficient Simulation of the {H}eston Stochastic Volatility ",
+      "authors": [
+        "Andersen",
+        "Leif B. G."
+      ],
+      "year": "2008",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data/sample.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Large Sample Properties of Generalized Method of Moments Estimators",
+      "authors": [
+        "Hansen",
+        "Lars Peter"
+      ],
+      "year": "1982",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data/sample.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelati",
+      "authors": [
+        "Newey",
+        "Whitney K.",
+        "West",
+        "Kenneth D."
+      ],
+      "year": "1987",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data/sample.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Complex Products and Options---{I}ncreased Complexity Requires a Stron",
+      "authors": [
+        "{FINRA}"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/governance/presidio/docs/samples/python/sample_data/sample.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/images",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "RiskMetrics} Technical Document",
+      "authors": [
+        "{J.P. Morgan/Reuters}"
+      ],
+      "year": "1996",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/images/iris.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Probabilities of causation: Bounds and identification",
+      "authors": [
+        "Tian",
+        "Jin",
+        "Pearl",
+        "Judea"
+      ],
+      "year": "2000",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos/identity.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/rag/langchain/libs/langchain/tests/integration_tests/examples",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Bootstrap Methods: Another Look at the Jackknife",
+      "authors": [
+        "Efron",
+        "Bradley"
+      ],
+      "year": "1979",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/rag/langchain/libs/langchain/tests/integration_tests/examples/hello.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/rag/langchain/libs/langchain/tests/integration_tests/examples",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Competitive Programming 4: The Lower Bound of Programming Contests in ",
+      "authors": [
+        "Steven Halim",
+        "Felix Halim"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/rag/langchain/libs/langchain/tests/integration_tests/examples/hello.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/rag/llama_index/llama-index-integrations/retrievers/llama-index-retrievers-vectorize/tests",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Instrumental Variables and the Search for Identification: From Supply ",
+      "authors": [
+        "Angrist",
+        "Joshua D.",
+        "Krueger",
+        "Alan B."
+      ],
+      "year": "2001",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/rag/llama_index/llama-index-integrations/retrievers/llama-index-retrievers-vectorize/tests/research.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Mamba: Linear-Time Sequence Modeling with Selective State Spaces",
+      "authors": [
+        "Albert Gu",
+        "Tri Dao"
+      ],
+      "year": null,
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2312.00752.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "World Models",
+      "authors": [
+        "Ha",
+        "David",
+        "Schmidhuber",
+        "J{\\\"u}rgen"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/1803.10122.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Dream to Control: Learning Behaviors by Latent Imagination",
+      "authors": [
+        "Hafner",
+        "Danijar",
+        "Lillicrap",
+        "Timothy",
+        "Ba",
+        "Jimmy",
+        "Nor"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/1912.01603.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?",
+      "authors": [
+        "Jimenez",
+        "Carlos E.",
+        "Yang",
+        "John",
+        "Wettig",
+        "Alexander and"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2310.06770.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "RULER: What's the Real Context Size of Your Long-Context LLM?",
+      "authors": [
+        "Kim",
+        "Haebin",
+        "others"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2404.06654.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "authors": [
+        "Lewis",
+        "Patrick",
+        "Perez",
+        "Ethan",
+        "Piktus",
+        "Aleksandra",
+        "P"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2005.11401.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Lost in the Middle: How Language Models Use Long Contexts",
+      "authors": [
+        "Liu",
+        "Nelson F.",
+        "Lin",
+        "Kevin",
+        "Hewitt",
+        "John",
+        "Paranjape"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2307.03172.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Landmark Attention: Random-Access Infinite Context Length for Transfor",
+      "authors": [
+        "Mohtashami",
+        "Amirkeivan",
+        "Jaggi",
+        "Martin"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2305.16300.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "MemGPT: Towards LLMs as Operating Systems",
+      "authors": [
+        "Packer",
+        "Charles",
+        "Fang",
+        "Vivian",
+        "Patil",
+        "Shishir G.",
+        "W"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2310.08560.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Generative Agents: Interactive Simulacra of Human Behavior",
+      "authors": [
+        "Park",
+        "Joon Sung",
+        "O'Brien",
+        "Joseph C.",
+        "Cai",
+        "Carrie J. an"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2304.03442.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Toolformer: Language Models Can Teach Themselves to Use Tools",
+      "authors": [
+        "Schick",
+        "Timo",
+        "Dwivedi-Yu",
+        "Jane",
+        "Dess{\\`i}",
+        "Roberto and"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2302.04761.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "authors": [
+        "Shinn",
+        "Noah",
+        "Cassano",
+        "Federico",
+        "Labash",
+        "Beck",
+        "Gopin"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2303.11366.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversati",
+      "authors": [
+        "Wu",
+        "Qingyun",
+        "Bansal",
+        "Gagan",
+        "Zhang",
+        "Jieyu",
+        "Wu",
+        "Yiran"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2308.08155.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "Agentic Context Engineering: Self-Improving Context for LLM Agents",
+      "authors": [
+        "Zhang",
+        "Yifei",
+        "others"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/2510.04618.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "llm",
+      "priority": "low"
+    },
+    {
+      "title": "VA: A unifying valuation approach",
+      "authors": [
+        "Bacinello et al."
+      ],
+      "year": "2011",
+      "file_path": "~/Documents/Dropbox/roc_hp.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Options: {A} {M}onte {C}arlo Approach",
+      "authors": [
+        "Boyle",
+        "Phelim P."
+      ],
+      "year": "1977",
+      "file_path": "~/Documents/Dropbox/roc_hp.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Bootstrap-Based Improvements for Inference with Clustered Errors",
+      "authors": [
+        "Cameron",
+        "A. Colin",
+        "Gelbach",
+        "Jonah B.",
+        "Miller",
+        "Douglas"
+      ],
+      "year": "2008",
+      "file_path": "~/Documents/Dropbox/book.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rive"
+      ],
+      "year": "2022",
+      "file_path": "~/Documents/Dropbox/Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein - Introduction to Algorithms 3rd Edition (2009).pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Cl"
+      ],
+      "year": "2009",
+      "file_path": "~/Documents/Dropbox/Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein - Introduction to Algorithms 3rd Edition (2009).pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "BDD vs TDD vs DDD: Choosing the Right Approach for Modern Software Dev",
+      "authors": [
+        "{Medium Engineering}"
+      ],
+      "year": "2025",
+      "file_path": "~/Documents/Dropbox/roc_hp.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "STRIPS: A New Approach to the Application of Theorem Proving to Proble",
+      "authors": [
+        "Fikes",
+        "Richard E.",
+        "Nilsson",
+        "Nils J."
+      ],
+      "year": "1971",
+      "file_path": "~/Documents/Dropbox/roc_hp.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Cracking the Coding Interview: 189 Programming Questions and Solutions",
+      "authors": [
+        "Gayle Laakmann McDowell"
+      ],
+      "year": "2015",
+      "file_path": "~/Documents/Dropbox/Gayle Laakmann McDowell - Cracking the Coding Interview_ 189 Programming Questions and Solutions-CareerCup (2015).pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "SQL Cookbook: Query Solutions and Techniques for All SQL Users",
+      "authors": [
+        "Anthony Molinaro",
+        "Robert de Graaf"
+      ],
+      "year": "2020",
+      "file_path": "~/Documents/Dropbox/book.pdf",
+      "directory": "~/Documents/Dropbox/Apps/Manning Books/Design for Developers",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Design for Developers",
+      "authors": [
+        "Stephanie Stimac"
+      ],
+      "year": "2023",
+      "file_path": "~/Documents/Dropbox/Apps/Manning Books/Design for Developers/Design_for_Developers (1).pdf",
+      "directory": "~/Documents/Dropbox/Apps/Manning Books/GANs in Action",
+      "category": "manning_book",
+      "priority": "low"
+    },
+    {
+      "title": "annuity-pricing: {O}pen-{S}ource Actuarial Pricing for {FIA}, {RILA}, ",
+      "authors": [
+        "Behring",
+        "Brandon"
+      ],
+      "year": "2025",
+      "file_path": "~/Documents/Dropbox/Documents_5_12_2022/source.pdf",
+      "directory": "~/Documents/Dropbox/Documents_5_12_2022",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "QuantLib: {A} {F}ree/Open-{S}ource {L}ibrary for {Q}uantitative {F}ina",
+      "authors": [
+        "{QuantLib Contributors}"
+      ],
+      "year": "2024",
+      "file_path": "~/Documents/Dropbox/Documents_5_12_2022/source.pdf",
+      "directory": "~/Documents/Dropbox/downloads_march_2022",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Microeconometrics: Methods and Applications",
+      "authors": [
+        "Cameron",
+        "A. Colin",
+        "Trivedi",
+        "Pravin K."
+      ],
+      "year": "2005",
+      "file_path": "~/Documents/Dropbox/unsorted_papers/Abaid_application.pdf",
+      "directory": "~/Documents/Dropbox/unsorted_papers",
+      "category": "other",
+      "priority": "low"
+    },
+    {
+      "title": "Numerical Linear Algebra",
+      "authors": [
+        "Lloyd N. Trefethen",
+        "David Bau III"
+      ],
+      "year": "1997",
+      "file_path": "~/Documents/Dropbox/unsorted_papers/Lloyd N. Trefethen, David Bau III - Numerical Linear Algebra-SIAM_ Society for Industrial and Applied Mathematics (1997).pdf",
+      "directory": "~/Documents/Dropbox/unsorted_papers",
+      "category": "other",
+      "priority": "low"
+    }
+  ],
+  "already_ingested": [
+    {
+      "title": "Mostly Harmless Econometrics: An Empiricist's Companion",
+      "authors": [
+        "Angrist",
+        "Joshua D.",
+        "Pischke",
+        "J{\\\"o}rn-Steffen"
+      ],
+      "year": "2009",
+      "file_path": "~/Claude/archimedes_lever/Mostly Harmless Econometrics_ An Empiricist's Companion -- Joshua David Angrist & J\u00f6rn-Steffen Pischke -- 2009 -- PrincetonUP -- f49291b8e935e154baa83b8ac8eb1734 -- Anna\u2019s Archive.pdf",
+      "directory": "~/Claude/archimedes_lever",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Mostly Harmless Econometrics: An Empiricist's Companion"
+    },
+    {
+      "title": "Mostly harmless econometrics: An empiricist's companion",
+      "authors": [
+        "Angrist",
+        "Joshua D",
+        "Pischke",
+        "J{\\\"o}rn-Steffen"
+      ],
+      "year": "2008",
+      "file_path": "~/Claude/archimedes_lever/Mostly Harmless Econometrics_ An Empiricist's Companion -- Joshua David Angrist & J\u00f6rn-Steffen Pischke -- 2009 -- PrincetonUP -- f49291b8e935e154baa83b8ac8eb1734 -- Anna\u2019s Archive.pdf",
+      "directory": "~/Claude/archimedes_lever",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Mostly Harmless Econometrics: An Empiricist's Companion"
+    },
+    {
+      "title": "Difference-in-Differences with Multiple Time Periods",
+      "authors": [
+        "Callaway",
+        "Brantly",
+        "Sant'Anna",
+        "Pedro H. C."
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/causal/9 - Difference-in-Differences.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Difference-in-Differences with Multiple Time Periods"
+    },
+    {
+      "title": "Difference-in-Differences with Multiple Time Periods",
+      "authors": [
+        "Callaway",
+        "Brantly",
+        "Sant'Anna",
+        "Pedro H.C."
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/causal/9 - Difference-in-Differences.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Difference-in-Differences with Multiple Time Periods"
+    },
+    {
+      "title": "Optimal doubly robust estimation of heterogeneous causal effects",
+      "authors": [
+        "Edward H. Kennedy"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Optimal Doubly Robust Estimation of Heterogeneous Causal Effects"
+    },
+    {
+      "title": "Metalearners for estimating heterogeneous treatment effects using mach",
+      "authors": [
+        "K{\\\"u}nzel",
+        "S{\\\"o}ren R",
+        "Sekhon",
+        "Jasjeet S",
+        "Bickel",
+        "Pe"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9150326797385621,
+      "matched_title": "Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning"
+    },
+    {
+      "title": "Metalearners for estimating heterogeneous treatment effects using mach",
+      "authors": [
+        "K{\\\"u}nzel",
+        "S{\\\"o}ren R",
+        "Stadie",
+        "Bradly C",
+        "Vemuri",
+        "Nik"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9150326797385621,
+      "matched_title": "Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning"
+    },
+    {
+      "title": "Quasi-oracle estimation of heterogeneous treatment effects",
+      "authors": [
+        "Nie",
+        "Xinkun",
+        "Wager",
+        "Stefan"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Quasi-Oracle Estimation of Heterogeneous Treatment Effects"
+    },
+    {
+      "title": "Estimation of Regression Coefficients When Some Regressors Are Not Alw",
+      "authors": [
+        "Robins",
+        "James M.",
+        "Rotnitzky",
+        "Andrea",
+        "Zhao",
+        "Lue Ping"
+      ],
+      "year": "1994",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9210526315789473,
+      "matched_title": "Estimation of Regression Coefficients When Some Regressors Are Not Always Observed"
+    },
+    {
+      "title": "Estimating Dynamic Treatment Effects in Event Studies with Heterogeneo",
+      "authors": [
+        "Sun",
+        "Liyang",
+        "Abraham",
+        "Sarah"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "fuzzy_title",
+      "match_score": 0.875,
+      "matched_title": "Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects"
+    },
+    {
+      "title": "Estimating Dynamic Treatment Effects in Event Studies with Heterogeneo",
+      "authors": [
+        "Sun",
+        "Liyang",
+        "Abraham",
+        "Sarah"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "fuzzy_title",
+      "match_score": 0.875,
+      "matched_title": "Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects"
+    },
+    {
+      "title": "Estimation and Inference of Heterogeneous Treatment Effects Using Rand",
+      "authors": [
+        "Wager",
+        "Stefan",
+        "Athey",
+        "Susan"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9333333333333333,
+      "matched_title": "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests"
+    },
+    {
+      "title": "Estimation and inference of heterogeneous treatment effects using rand",
+      "authors": [
+        "Wager",
+        "Stefan",
+        "Athey",
+        "Susan"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9333333333333333,
+      "matched_title": "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests"
+    },
+    {
+      "title": "Demand Forecasting Best Practices",
+      "authors": [],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Demand_Forecasting_Best_Practices_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "time_series",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Demand Forecasting Best Practices"
+    },
+    {
+      "title": "Grokking Algorithms",
+      "authors": [
+        "Aditya Y. Bhargava"
+      ],
+      "year": "2016",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Grokking_Algorithms_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Grokking Algorithms"
+    },
+    {
+      "title": "Deep Learning with Python",
+      "authors": [
+        "Fran\u00e7ois Chollet"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Deep_Learning_With_Pytorch_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9019607843137255,
+      "matched_title": "Deep Learning with PyTorch"
+    },
+    {
+      "title": "Deep Learning with Python",
+      "authors": [
+        "Fran\u00e7ois Chollet"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Deep_Learning_With_Pytorch_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9019607843137255,
+      "matched_title": "Deep Learning with PyTorch"
+    },
+    {
+      "title": "Skills of a Successful Software Engineer",
+      "authors": [
+        "Fernando Doglio"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Skills_Successful_Software_Engineer_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Skills of a Successful Software Engineer"
+    },
+    {
+      "title": "Publishing Python Packages",
+      "authors": [
+        "Dane Hillard"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Publishing_Python_Packages_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Publishing Python Packages"
+    },
+    {
+      "title": "Get Programming with Haskell",
+      "authors": [
+        "Will Kurt"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Get_Programming_With_Haskell_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Get Programming with Haskell"
+    },
+    {
+      "title": "Natural Language Processing in Action",
+      "authors": [
+        "Hobson Lane",
+        "Hannes Max Hapke",
+        "Cole Howard"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Natural_Language_Processing_Action_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9736842105263158,
+      "matched_title": "Natural Language Processing in Action (1)"
+    },
+    {
+      "title": "Natural Language Processing in Action",
+      "authors": [
+        "Hobson Lane",
+        "Maria Dyshel"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Natural_Language_Processing_Action_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.9736842105263158,
+      "matched_title": "Natural Language Processing in Action (1)"
+    },
+    {
+      "title": "Exploring Functional Programming",
+      "authors": [
+        "Eric Normand"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Exploring_Functional_Programming_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Exploring Functional Programming"
+    },
+    {
+      "title": "Data Analysis with Python and PySpark",
+      "authors": [
+        "Jonathan Rioux"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Data_Analysis_With_Python_Pyspark_NOISBN_1.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.891566265060241,
+      "matched_title": "Data Analysis with Python and PySpark v13 MEAP"
+    },
+    {
+      "title": "Causal Inference for Data Science",
+      "authors": [
+        "Aleix Ruiz de Villa Robert"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Causal_Inference_Data_Science_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Causal Inference for Data Science"
+    },
+    {
+      "title": "Get Programming with Scala",
+      "authors": [
+        "Daniela Sfregola"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Get_Programming_With_Scala_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Get Programming with Scala"
+    },
+    {
+      "title": "Deep Learning with PyTorch",
+      "authors": [
+        "Eli Stevens",
+        "Luca Antiga",
+        "Thomas Viehmann"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Deep_Learning_With_Pytorch__1__NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Deep Learning with PyTorch"
+    },
+    {
+      "title": "Causalml: Python package for causal machine learning",
+      "authors": [
+        "Chen",
+        "Huigang",
+        "Harinen",
+        "Totte",
+        "Lee",
+        "Jeong-Yoon",
+        "Yun"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "CausalML: Python Package for Causal Machine Learning"
+    },
+    {
+      "title": "CausalML: Python Package for Causal Machine Learning",
+      "authors": [
+        "Chen",
+        "Huigang",
+        "Harinen",
+        "Totte",
+        "Lee",
+        "Jeong-Yoon",
+        "Yun"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "CausalML: Python Package for Causal Machine Learning"
+    },
+    {
+      "title": "Causality: Models, Reasoning and Inference",
+      "authors": [
+        "Pearl",
+        "Judea"
+      ],
+      "year": "2009",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "high",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Causality: Models, Reasoning and Inference"
+    },
+    {
+      "title": "DoWhy: An End-to-End Library for Causal Inference",
+      "authors": [
+        "Sharma",
+        "Amit",
+        "Kiciman",
+        "Emre"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "DoWhy: An End-to-End Library for Causal Inference"
+    },
+    {
+      "title": "Matching methods for causal inference: A review and a look forward",
+      "authors": [
+        "Stuart",
+        "Elizabeth A"
+      ],
+      "year": "2010",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Matching Methods for Causal Inference: A Review and a Look Forward"
+    },
+    {
+      "title": "Monte Carlo Methods in Financial Engineering",
+      "authors": [
+        "Glasserman",
+        "Paul"
+      ],
+      "year": "2003",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Chaos Engineering/Chaos_Engineering.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Chaos Engineering",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Monte Carlo Methods in Financial Engineering"
+    },
+    {
+      "title": "Deep Learning with PyTorch, Second Edition MEAP V13",
+      "authors": [
+        "Luca Antiga",
+        "Eli Stevens",
+        "Howard Huang",
+        "Thomas Viehmann"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Deep Learning with PyTorch, Second Edition/Deep_Learning_with_PyTorch,_Second_Editi_v13_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Designing APIs with Swagger and OpenAPI",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.8478260869565217,
+      "matched_title": "Deep Learning with Python Second Editio v7"
+    },
+    {
+      "title": "Ensemble Methods for Machine Learning",
+      "authors": [
+        "Gautam Kunapuli"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Ensemble Methods for Machine Learning/Ensemble_Methods_for_Machine_Learning.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Enterprise RAG",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.8051948051948052,
+      "matched_title": "statistical methods for machine learning"
+    },
+    {
+      "title": "Functional Programming in Scala",
+      "authors": [
+        "Paul Chiusano",
+        "R\u00fanar Bjarnason"
+      ],
+      "year": "2014",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Functional Programming in Scala/Functional_Programming_in_Scala.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Functional Programming in Scala",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.8051948051948052,
+      "matched_title": "Functional Programming in Scala, Second  v2 MEAP"
+    },
+    {
+      "title": "functional programming",
+      "authors": [
+        "Micha\u0142 P\u0142achta"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Functional Programming in Scala/Functional_Programming_in_Scala.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Functional Programming in Scala, Second Edition",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.8148148148148148,
+      "matched_title": "Exploring Functional Programming"
+    },
+    {
+      "title": "Functional Programming in Scala, Second Edition",
+      "authors": [
+        "Michael Pilquist",
+        "R\u00fanar Bjarnason",
+        "Paul Chiusano"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Functional Programming in Scala, Second Edition/Functional_Programming_in_Scala,_Second_.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Generative AI in Action",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.8695652173913043,
+      "matched_title": "Functional Programming in Scala, Second  v2 MEAP"
+    },
+    {
+      "title": "Graph Algorithms for Data Science",
+      "authors": [
+        "Toma\u017e Bratanic"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Graph Algorithms for Data Science/Graph_Algorithms_for_Data_Science (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Graph Neural Networks in Action",
+      "category": "knowledge_graphs",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Graph Algorithms for Data Science"
+    },
+    {
+      "title": "Graph Neural Networks in Action",
+      "authors": [
+        "Keita Broadwater",
+        "Namid Stillman"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Graph Neural Networks in Action/Graph_Neural_Networks_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Graph-Powered Machine Learning",
+      "category": "knowledge_graphs",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Graph Neural Networks in Action"
+    },
+    {
+      "title": "Inside Deep Learning",
+      "authors": [],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Inside Deep Learning/Inside_Deep_Learning.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Interpretable AI",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.8333333333333334,
+      "matched_title": "Inside Deep Learning v9 MEAP"
+    },
+    {
+      "title": "Julia for Data Analysis",
+      "authors": [
+        "Bogumil Kaminski"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Julia for Data Analysis/Julia_for_Data_Analysis.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Knowledge Graphs and LLMs in Action",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Julia for Data Analysis"
+    },
+    {
+      "title": "Machine Learning Methods That Economists Should Know About",
+      "authors": [
+        "Athey",
+        "Susan",
+        "Imbens",
+        "Guido W."
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Machine Learning Bookcamp/Machine_Learning_Bookcamp.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Machine Learning Bookcamp",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Machine Learning Methods That Economists Should Know About"
+    },
+    {
+      "title": "Machine learning methods that economists should know about",
+      "authors": [
+        "Athey",
+        "Susan",
+        "Imbens",
+        "Guido W"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Machine Learning Bookcamp/Machine_Learning_Bookcamp.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Machine Learning Bookcamp",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Machine Learning Methods That Economists Should Know About"
+    },
+    {
+      "title": "Math and Architectures of Deep Learning",
+      "authors": [],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Math and Architectures of Deep Learning/Math_and_Architectures_of_Deep_Learning.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Optimization Algorithms",
+      "category": "ml",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Math and Architectures of Deep Learning"
+    },
+    {
+      "title": "Software Engineering for Data Scientists MEAP V05",
+      "authors": [
+        "Andrew Treadway"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Software Engineering for Data Scientists/Software_Engineering_for_Data_Scientists_v6_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Software Mistakes and Tradeoffs",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "fuzzy_title",
+      "match_score": 0.898876404494382,
+      "matched_title": "Software Engineering for Data Scientists"
+    },
+    {
+      "title": "Time Series Forecasting in Python",
+      "authors": [
+        "Marco Peixeiro"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Time Series Forecasting in Python/Time_Series_Forecasting_in_Python.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Tiny C Projects",
+      "category": "time_series",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Time Series Forecasting in Python"
+    },
+    {
+      "title": "Causal Inference: What If",
+      "authors": [
+        "Hern\\'{a}n",
+        "Miguel A.",
+        "Robins",
+        "James M."
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/job_applications/causal_inference_guide_2025/resources/repos/EconML/doc/Causal-Inference-User-Guide-v4-022520.pdf",
+      "directory": "~/Claude/job_applications/causal_inference_guide_2025/resources/repos/stanford-mse228",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Causal Inference: What If"
+    },
+    {
+      "title": "Efficient policy learning",
+      "authors": [
+        "Athey",
+        "Susan",
+        "Wager",
+        "Stefan"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1702.02896.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Efficient Policy Learning"
+    },
+    {
+      "title": "Local Linear Forests",
+      "authors": [
+        "Friedberg",
+        "Rina",
+        "Tibshirani",
+        "Julie",
+        "Athey",
+        "Susan",
+        "W"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1807.11408.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Local Linear Forests"
+    },
+    {
+      "title": "Identification of Causal Effects Using Instrumental Variables",
+      "authors": [
+        "Angrist",
+        "Joshua D.",
+        "Imbens",
+        "Guido W.",
+        "Rubin",
+        "Donald B."
+      ],
+      "year": "1996",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos/identity.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Identification of Causal Effects Using Instrumental Variables"
+    },
+    {
+      "title": "Identification of Causal Effects Using Instrumental Variables",
+      "authors": [
+        "Angrist",
+        "Joshua D.",
+        "Imbens",
+        "Guido W.",
+        "Rubin",
+        "Donald B."
+      ],
+      "year": "1996",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos/identity.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Identification of Causal Effects Using Instrumental Variables"
+    },
+    {
+      "title": "Synthetic Control Methods for Comparative Case Studies: Estimating the",
+      "authors": [
+        "Abadie",
+        "Alberto",
+        "Diamond",
+        "Alexis",
+        "Hainmueller",
+        "Jens"
+      ],
+      "year": "2010",
+      "file_path": "~/Claude/research-kb/fixtures/papers/abadie_synthetic_control_2010.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Synthetic Control Methods for Comparative Case Studies"
+    },
+    {
+      "title": "Synthetic Control Methods for Comparative Case Studies: Estimating the",
+      "authors": [
+        "Abadie",
+        "Alberto",
+        "Diamond",
+        "Alexis",
+        "Hainmueller",
+        "Jens"
+      ],
+      "year": "2010",
+      "file_path": "~/Claude/research-kb/fixtures/papers/abadie_synthetic_control_2010.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Synthetic Control Methods for Comparative Case Studies"
+    },
+    {
+      "title": "The Pricing of Options and Corporate Liabilities",
+      "authors": [
+        "Black",
+        "Fischer",
+        "Scholes",
+        "Myron"
+      ],
+      "year": "1973",
+      "file_path": "~/Claude/research-kb/fixtures/papers/black_scholes_option_pricing_1973.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Black Scholes Option Pricing 1973"
+    },
+    {
+      "title": "Time series experiments and causal estimands: Exact randomization test",
+      "authors": [
+        "Bojinov",
+        "Iavor",
+        "Shephard",
+        "Neil"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/research-kb/fixtures/papers/bojinov_timeseries_experiments_2019.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Time Series Experiments and Causal Estimands"
+    },
+    {
+      "title": "The design of equity-indexed annuities",
+      "authors": [
+        "Boyle",
+        "Phelim",
+        "Tian",
+        "Weidong"
+      ],
+      "year": "2008",
+      "file_path": "~/Claude/research-kb/fixtures/papers/boyle_equity_indexed_annuities_2008.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Boyle Equity Indexed Annuities 2008"
+    },
+    {
+      "title": "Comparing Predictive Accuracy",
+      "authors": [
+        "Diebold",
+        "Francis X.",
+        "Mariano",
+        "Roberto S."
+      ],
+      "year": "1995",
+      "file_path": "~/Claude/research-kb/fixtures/papers/diebold_mariano_predictive_accuracy_1995.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Diebold Mariano Predictive Accuracy 1995"
+    },
+    {
+      "title": "Causal AI",
+      "authors": [
+        "Robert Osazuwa Ness"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/research-kb/fixtures/papers/dl_causal_2018.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Learning Representations for Counterfactual Inference"
+    },
+    {
+      "title": "The Central Role of the Propensity Score in Observational Studies for ",
+      "authors": [
+        "Rosenbaum",
+        "Paul R.",
+        "Rubin",
+        "Donald B."
+      ],
+      "year": "1983",
+      "file_path": "~/Claude/research-kb/fixtures/papers/rosenbaum_rubin_propensity_1983.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "The Central Role of the Propensity Score in Observational Studies for Causal Effects"
+    },
+    {
+      "title": "Uplift modeling for multiple treatments with cost optimization",
+      "authors": [
+        "Zhao",
+        "Zhenyu",
+        "Harinen",
+        "Totte"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/research-kb/fixtures/papers/zhao_harinen_uplift_2019.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Uplift Modeling for Multiple Treatments with Cost Optimization"
+    },
+    {
+      "title": "Double machine learning for treatment and causal parameters",
+      "authors": [
+        "Chernozhukov",
+        "Victor",
+        "Chetverikov",
+        "Denis",
+        "Demirer",
+        "Mer"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/research-kb/fixtures/papers/arxiv/1608.00060.pdf",
+      "directory": "~/Claude/research-kb/fixtures/papers/arxiv",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "fuzzy_title",
+      "match_score": 0.8702290076335878,
+      "matched_title": "Double/Debiased Machine Learning for Treatment and Structural Parameters"
+    },
+    {
+      "title": "Causal Inference: The Mixtape",
+      "authors": [
+        "Cunningham",
+        "Scott"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/cunningham_causal_inference_mixtape_2021.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Cunningham Causal Inference Mixtape 2021"
+    },
+    {
+      "title": "Time Series Analysis",
+      "authors": [
+        "Hamilton",
+        "James D."
+      ],
+      "year": "1994",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/hamilton_time_series_analysis_1994.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks",
+      "category": "time_series",
+      "priority": "high",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Time Series Analysis"
+    },
+    {
+      "title": "Investment Guarantees: {M}odeling and Risk Management for Equity-Linke",
+      "authors": [
+        "Hardy",
+        "Mary R."
+      ],
+      "year": "2003",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/hardy_investment_guarantees_2003.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Hardy Investment Guarantees 2003"
+    },
+    {
+      "title": "Options, Futures, and Other Derivatives",
+      "authors": [
+        "Hull",
+        "John C."
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/hull_options_futures_derivatives_2021.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Hull Options Futures Derivatives 2021"
+    },
+    {
+      "title": "Causality",
+      "authors": [
+        "Pearl",
+        "Judea"
+      ],
+      "year": "2009",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/pearl_causality_2009.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks",
+      "category": "causal_inference",
+      "priority": "high",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Causality: Models, Reasoning and Inference"
+    },
+    {
+      "title": "Causation, Prediction, and Search",
+      "authors": [
+        "Spirtes",
+        "Peter",
+        "Glymour",
+        "Clark",
+        "Scheines",
+        "Richard"
+      ],
+      "year": "1993",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/spirtes_causation_prediction_search_2001.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Causation, Prediction, and Search"
+    },
+    {
+      "title": "Causation, Prediction, and Search",
+      "authors": [
+        "Spirtes",
+        "Peter",
+        "Glymour",
+        "Clark N.",
+        "Scheines",
+        "Richard"
+      ],
+      "year": "2000",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/spirtes_causation_prediction_search_2001.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Causation, Prediction, and Search"
+    },
+    {
+      "title": "Econometric Analysis of Cross Section and Panel Data",
+      "authors": [
+        "Wooldridge",
+        "Jeffrey M."
+      ],
+      "year": "2010",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/wooldridge_panel_data_2010.pdf",
+      "directory": "~/Claude/research-kb/fixtures/textbooks/migrated",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Econometric Analysis of Cross Section and Panel Data"
+    },
+    {
+      "title": "Linear Algebra and Its Applications",
+      "authors": [
+        "Gilbert Strang"
+      ],
+      "year": "2005",
+      "file_path": "~/Claude/research-kb/fixtures/textbooks/migrated/gilbert_strang_-_linear_algebra_and_its_applicatio_nd.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_filename",
+      "match_score": 1.0,
+      "matched_title": "Gilbert Strang - Linear Algebra and Its Applications, 4th Edition-Brooks Cole (2006)"
+    },
+    {
+      "title": "Elements of Programming Interviews in Python: The Insiders' Guide",
+      "authors": [
+        "Adnan Aziz",
+        "Tsung-Hsien Lee",
+        "Amit Prakash"
+      ],
+      "year": "2018",
+      "file_path": "~/Documents/Dropbox/MathProgrammingIntro.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low",
+      "match_type": "fuzzy_filename",
+      "match_score": 0.9302325581395349,
+      "matched_title": "MathProgrammingIntro"
+    },
+    {
+      "title": "Elements of Programming Interviews in Python",
+      "authors": [
+        "Adnan Aziz",
+        "Tsung-Hsien Lee",
+        "Amit Prakash"
+      ],
+      "year": "2018",
+      "file_path": "~/Documents/Dropbox/MathProgrammingIntro.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low",
+      "match_type": "fuzzy_filename",
+      "match_score": 0.9302325581395349,
+      "matched_title": "MathProgrammingIntro"
+    },
+    {
+      "title": "Deep IV: A flexible approach for counterfactual prediction",
+      "authors": [
+        "Hartford",
+        "Jason",
+        "Lewis",
+        "Greg",
+        "Leyton-Brown",
+        "Kevin and"
+      ],
+      "year": "2017",
+      "file_path": "~/Documents/Dropbox/roc_hp.pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "other",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Deep IV: A Flexible Approach for Counterfactual Prediction"
+    },
+    {
+      "title": "Grokking Algorithms: An Illustrated Guide for Programmers and Other Cu",
+      "authors": [
+        "Aditya Bhargava"
+      ],
+      "year": "2016",
+      "file_path": "~/Documents/Dropbox/Apps/Manning Books/Grokking Algorithms/Grokking_Algorithms.pdf",
+      "directory": "~/Documents/Dropbox/Apps/Manning Books/Practices of the Python Pro",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "fuzzy_filename",
+      "match_score": 0.926829268292683,
+      "matched_title": "Grokking Algorithms"
+    },
+    {
+      "title": "Practices of the Python Pro",
+      "authors": [
+        "Dane Hillard"
+      ],
+      "year": "2019",
+      "file_path": "~/Documents/Dropbox/Apps/Manning Books/Practices of the Python Pro/Practices_of_the_Python_Pro.pdf",
+      "directory": "~/Documents/Dropbox/Apps/Manning Books/Python Workout",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Practices of the Python Pro"
+    },
+    {
+      "title": "Python Workout",
+      "authors": [
+        "Reuven Lerner"
+      ],
+      "year": "2020",
+      "file_path": "~/Documents/Dropbox/Apps/Manning Books/Python Workout/Python_Workout.pdf",
+      "directory": "~/Documents/Dropbox/Documents_5_12_2022",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Python Workout"
+    },
+    {
+      "title": "Haskell in Depth",
+      "authors": [
+        "Vitaly Bragilevsky"
+      ],
+      "year": "2021",
+      "file_path": "~/Documents/Dropbox/scala/Manning Books/Haskell in Depth/Haskell_in_Depth.pdf",
+      "directory": "~/Documents/Dropbox/unsorted_papers",
+      "category": "manning_book",
+      "priority": "low",
+      "match_type": "exact_title",
+      "match_score": 1.0,
+      "matched_title": "Haskell in Depth"
+    }
+  ],
+  "uncertain_matches": [
+    {
+      "title": "Introduction to Causal Inference",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/Introduction_to_Causal_Inference-Dec17_2020-Neal.pdf",
+      "directory": "~/Claude/archimedes_lever",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6285714285714286,
+      "possible_match": "Brady Neal Intro Causal Inference 2020"
+    },
+    {
+      "title": "Introduction to Causal Inference from a Machine Learning Perspective",
+      "authors": [
+        "Neal",
+        "Brady"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/Introduction_to_Causal_Inference-Dec17_2020-Neal.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.627906976744186,
+      "possible_match": "Brady Neal Intro Causal Inference 2020"
+    },
+    {
+      "title": "Limits of estimating heterogeneous treatment effects: Guidelines for p",
+      "authors": [
+        "Alaa",
+        "Ahmed",
+        "Schaar",
+        "Mihaela"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.7105263157894737,
+      "possible_match": "Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning"
+    },
+    {
+      "title": "Influence Diagrams for Causal Modelling and Inference",
+      "authors": [
+        "A. P. Dawid"
+      ],
+      "year": "2002",
+      "file_path": "~/Claude/archimedes_lever/causal/4 - Causal Models.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6236559139784946,
+      "possible_match": "Causality: Models, Reasoning and Inference"
+    },
+    {
+      "title": "Difference-in-Differences with Variation in Treatment Timing",
+      "authors": [
+        "Goodman-Bacon",
+        "Andrew"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/causal/9 - Difference-in-Differences.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "other",
+      "priority": "low",
+      "match_score": 0.6964285714285714,
+      "possible_match": "Difference-in-Differences with Multiple Time Periods"
+    },
+    {
+      "title": "Efficient Estimation of Average Treatment Effects Using the Estimated ",
+      "authors": [
+        "Hirano",
+        "Keisuke",
+        "Imbens",
+        "Guido W.",
+        "Ridder",
+        "Geert"
+      ],
+      "year": "2003",
+      "file_path": "~/Claude/archimedes_lever/causal/6 - Estimation.pdf",
+      "directory": "~/Claude/archimedes_lever/causal",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6351351351351351,
+      "possible_match": "Machine Learning Estimation of Heterogeneous Treatment Effects with Instruments"
+    },
+    {
+      "title": "Grokking Artificial Intelligence Algorithms",
+      "authors": [],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Grokking_Artificial_Intelligence_Algorit_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "other",
+      "priority": "low",
+      "match_score": 0.6129032258064516,
+      "possible_match": "Grokking Algorithms"
+    },
+    {
+      "title": "Elements of Causal Inference Solutions",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Elements_Causal_Inference_Foundations_Learning_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.7058823529411765,
+      "possible_match": "Elements of Causal Inference: Foundations and Learning Algorithms"
+    },
+    {
+      "title": "Essential GraphRAG",
+      "authors": [
+        "Toma\u017e Bratanic",
+        "Oskar Hane"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Essential_Graphrag_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "knowledge_graphs",
+      "priority": "medium",
+      "match_score": 0.7346938775510204,
+      "possible_match": "Manning Essential Graphrag 2024"
+    },
+    {
+      "title": "Machine Learning Control",
+      "authors": [
+        "Thomas Duriez",
+        "Steven L. Brunton",
+        "Bernd R. Noack"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Machine_Learning_Control___Taming_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "ml",
+      "priority": "low",
+      "match_score": 0.6981132075471698,
+      "possible_match": "Machine Learning Control \u2013 Taming Nonlinear Dynamics and Turbulence by Thomas Duriez, Steven L. Brunton, Bernd R. Noack (auth.) (z-lib.org)"
+    },
+    {
+      "title": "Probabilistic Deep Learning",
+      "authors": [
+        "Oliver D\u00fcrr",
+        "Beate Sick",
+        "Elvis Murina"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Probabilistic_Deep_Learning__1__NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "bayesian",
+      "priority": "medium",
+      "match_score": 0.6206896551724138,
+      "possible_match": "Orthogonal Statistical Learning"
+    },
+    {
+      "title": "Causal Inference for Statistics, Social, and Biomedical Sciences: An I",
+      "authors": [
+        "Imbens",
+        "Guido W.",
+        "Rubin",
+        "Donald B."
+      ],
+      "year": "2015",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Causal_Inference_Statistics_Social_Biomedical_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.62,
+      "possible_match": "Causal Inference for Data Science"
+    },
+    {
+      "title": "Distributed Machine Learning Patterns",
+      "authors": [
+        "Yuan Tang"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Unknown_2025_Distributed_Machine_Learning_Patterns_NOISBN.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library",
+      "category": "ml",
+      "priority": "low",
+      "match_score": 0.6027397260273972,
+      "possible_match": "machine learning mastery with python"
+    },
+    {
+      "title": "AI Agents in Action",
+      "authors": [
+        "Micheal Lanham"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/AI Agents in Action/AI_Agents_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/AI Applications Made Easy",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6666666666666666,
+      "possible_match": "Manning Gnn In Action 2022"
+    },
+    {
+      "title": "Advanced Algorithms and Data Structures",
+      "authors": [
+        "Marcello La Rocca"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Advanced Algorithms and Data Structures/Advanced_Algorithms_and_Data_Structures.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Akka in Action",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6111111111111112,
+      "possible_match": "Graph Algorithms for Data Science"
+    },
+    {
+      "title": "Automated Machine Learning in Action",
+      "authors": [
+        "Qingquan Song",
+        "Haifeng Jin",
+        "Xia Hu"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Automated Machine Learning in Action/Automated_Machine_Learning_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Bayesian Optimization in Action",
+      "category": "ml",
+      "priority": "low",
+      "match_score": 0.6388888888888888,
+      "possible_match": "optimization for machine learning"
+    },
+    {
+      "title": "Build an LLM Application (from Scratch) MEAP V02",
+      "authors": [
+        "Hamza Farooq"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Build an LLM Application (from Scratch)/Build_an_LLM_Application_(from_Scratch)_v2_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Building Reliable AI Systems",
+      "category": "llm",
+      "priority": "low",
+      "match_score": 0.6172839506172839,
+      "possible_match": "Manning Build Llm From Scratch 2024"
+    },
+    {
+      "title": "Crash Course in Causality",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "high",
+      "match_score": 0.6086956521739131,
+      "possible_match": "Learning Representations for Counterfactual Inference"
+    },
+    {
+      "title": "Causal Machine Learning Course Materials",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6292134831460674,
+      "possible_match": "Orthogonal Machine Learning: Power and Limitations"
+    },
+    {
+      "title": "Causal inference and the data-fusion problem",
+      "authors": [
+        "Bareinboim",
+        "Elias",
+        "Pearl",
+        "Judea"
+      ],
+      "year": "2016",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.7012987012987013,
+      "possible_match": "Causal Inference for Data Science"
+    },
+    {
+      "title": "Causal Inference for the Brave and True",
+      "authors": [
+        "Facure",
+        "Matheus"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6666666666666666,
+      "possible_match": "Causal Inference for Data Science"
+    },
+    {
+      "title": "Causal Inference for The Brave and True",
+      "authors": [
+        "Matheus Facure"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6666666666666666,
+      "possible_match": "Causal Inference for Data Science"
+    },
+    {
+      "title": "Python Causality Handbook (Companion Repository)",
+      "authors": [
+        "Matheus Facure"
+      ],
+      "year": null,
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "high",
+      "match_score": 0.6086956521739131,
+      "possible_match": "Learning Representations for Counterfactual Inference"
+    },
+    {
+      "title": "Characterization of causal ancestral graphs for time series with laten",
+      "authors": [
+        "Gerhardus",
+        "Andreas"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6086956521739131,
+      "possible_match": "Learning Representations for Counterfactual Inference"
+    },
+    {
+      "title": "Statistics and causal inference",
+      "authors": [
+        "Holland",
+        "Paul W"
+      ],
+      "year": "1986",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6567164179104478,
+      "possible_match": "Wager Stats361 Causal Inference 2022"
+    },
+    {
+      "title": "Confounding equivalence in causal inference",
+      "authors": [
+        "Pearl",
+        "Judea",
+        "Paz",
+        "Azaria"
+      ],
+      "year": "2014",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6086956521739131,
+      "possible_match": "Learning Representations for Counterfactual Inference"
+    },
+    {
+      "title": "Causal Inference in Statistics: A Primer",
+      "authors": [
+        "Pearl",
+        "Judea",
+        "Glymour",
+        "Madelyn",
+        "Jewell",
+        "Nicholas P."
+      ],
+      "year": "2016",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6666666666666666,
+      "possible_match": "Wager Causal Inference Statistical Learning 2024"
+    },
+    {
+      "title": "Detecting and quantifying causal associations in large nonlinear time ",
+      "authors": [
+        "Jakob Runge",
+        "Peer Nowack",
+        "Marlene Kretschmer",
+        "Se"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6086956521739131,
+      "possible_match": "Learning Representations for Counterfactual Inference"
+    },
+    {
+      "title": "Facilitating score and causal inference trees for large observational ",
+      "authors": [
+        "Su",
+        "Xiaogang",
+        "Kang",
+        "Joseph",
+        "Fan",
+        "Juanjuan",
+        "Levine"
+      ],
+      "year": "2012",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Causal AI/Causal_AI.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Chaos Engineering",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6086956521739131,
+      "possible_match": "Learning Representations for Counterfactual Inference"
+    },
+    {
+      "title": "Deep Learning Patterns and Practices",
+      "authors": [
+        "Andrew Ferlitsch"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Deep Learning Patterns and Practices/Deep_Learning_Patterns_and_Practices.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Deep Learning with PyTorch, Second Edition",
+      "category": "ml",
+      "priority": "low",
+      "match_score": 0.6153846153846154,
+      "possible_match": "Deep Learning with PyTorch"
+    },
+    {
+      "title": "R in Action, Second Edition",
+      "authors": [
+        "Robert I. Kabacoff"
+      ],
+      "year": "2015",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Docker in Action, Second Edition/Docker_in_Action,_Second_Edition.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Docker in Action, Second Edition",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6486486486486487,
+      "possible_match": "Deep Learning with Python Second Editio"
+    },
+    {
+      "title": "Docker in Action, Second Edition",
+      "authors": [
+        "Jeff Nickoloff",
+        "Stephen Kuenzli"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Docker in Action, Second Edition/Docker_in_Action,_Second_Edition.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Effective Software Testing",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6571428571428571,
+      "possible_match": "Deep Learning with Python Second Editio"
+    },
+    {
+      "title": "Getting Started with Natural Language Processing",
+      "authors": [
+        "Ekaterina Kochmar"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Getting Started with Natural Language Processing/Getting_Started_with_Natural_Language_Pr.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Good Code, Bad Code",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6206896551724138,
+      "possible_match": "Natural Language Processing in Action (1)"
+    },
+    {
+      "title": "Grokking Simplicity",
+      "authors": [],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Grokking Simplicity/Grokking_Simplicity.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/How to Lead in Data Science",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.631578947368421,
+      "possible_match": "Grokking Algorithms"
+    },
+    {
+      "title": "Knowledge Graphs and LLMs in Action MEAP V11",
+      "authors": [
+        "Alessandro Negro with Vlastimil Kus",
+        "Giuseppe Futia",
+        "Fabi"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Knowledge Graphs and LLMs in Action/Knowledge_Graphs_and_LLMs_in_Action_v11_MEAP (1).pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Kubernetes for Developers",
+      "category": "knowledge_graphs",
+      "priority": "medium",
+      "match_score": 0.7291666666666666,
+      "possible_match": "Knowledge Graphs and Large Language Models in Action"
+    },
+    {
+      "title": "Kubernetes in Action",
+      "authors": [
+        "Marko Luk\u0161a"
+      ],
+      "year": "2017",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Kubernetes in Action/Kubernetes_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Kubernetes in Action, Second Edition",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6274509803921569,
+      "possible_match": "Graph Neural Networks in Action"
+    },
+    {
+      "title": "Kubernetes in Action, Second Edition MEAP V17",
+      "authors": [
+        "Marko Luk\u0161a",
+        "Kevin Conner"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Kubernetes in Action, Second Edition/Kubernetes_in_Action,_Second_Edition_v17_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/LLMs in Production",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6046511627906976,
+      "possible_match": "Deep Learning with Python Second Editio v7"
+    },
+    {
+      "title": "MLOps Engineering at Scale",
+      "authors": [
+        "Carl Osipov"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/MLOps Engineering at Scale/MLOps_Engineering_at_Scale.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Machine Learning Bookcamp",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6060606060606061,
+      "possible_match": "Software Engineering for Data Scientists"
+    },
+    {
+      "title": "Machine Learning Bookcamp",
+      "authors": [
+        "Alexey Grigorev"
+      ],
+      "year": "2021",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Machine Learning Bookcamp/Machine_Learning_Bookcamp.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Machine Learning Engineering in Action",
+      "category": "ml",
+      "priority": "low",
+      "match_score": 0.6461538461538462,
+      "possible_match": "machine learning algorithms from scratch"
+    },
+    {
+      "title": "Machine Learning Engineering in Action",
+      "authors": [
+        "Ben Wilson"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Machine Learning Engineering in Action/Machine_Learning_Engineering_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Managing Machine Learning Projects",
+      "category": "ml",
+      "priority": "low",
+      "match_score": 0.6486486486486487,
+      "possible_match": "machine learning mastery with python"
+    },
+    {
+      "title": "Managing Machine Learning Projects",
+      "authors": [
+        "Simon Thompson"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Managing Machine Learning Projects/Managing_Machine_Learning_Projects.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Mastering Large Datasets with Python",
+      "category": "ml",
+      "priority": "low",
+      "match_score": 0.6206896551724138,
+      "possible_match": "Emmanuel Ameisen - Building Machine Learning Powered Applications  Going from Idea to Product (2020, O'Reilly Media) - libgen.li"
+    },
+    {
+      "title": "Mastering Large Datasets with Python",
+      "authors": [
+        "J.T. Wolohan"
+      ],
+      "year": "2019",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Mastering Large Datasets with Python/Mastering_Large_Datasets_with_Python.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Math and Architectures of Deep Learning",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6052631578947368,
+      "possible_match": "ensemble learning algorithms with python"
+    },
+    {
+      "title": "Optimization Algorithms",
+      "authors": [
+        "Alaa Khamis"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Optimization Algorithms/Optimization_Algorithms.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Pandas Workout",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6666666666666666,
+      "possible_match": "Grokking Algorithms"
+    },
+    {
+      "title": "Pandas Workout",
+      "authors": [
+        "Reuven M. Lerner"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Pandas Workout/Pandas_Workout.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Pandas in Action",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.7142857142857143,
+      "possible_match": "Python Workout"
+    },
+    {
+      "title": "Spark in Action",
+      "authors": [
+        "Petar Ze\u010devi\u0107",
+        "Marko Bona\u0107i"
+      ],
+      "year": "2016",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Spark in Action/Spark_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Spark in Action, Second Edition",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6086956521739131,
+      "possible_match": "Graph Neural Networks in Action"
+    },
+    {
+      "title": "Akka in Action, Second Edition",
+      "authors": [
+        "Francisco Lopez-Sancho Abraham"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Spark in Action, Second Edition/Spark_in_Action,_Second_Edition.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Spark in Action, Second Edition",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6575342465753424,
+      "possible_match": "Deep Learning with Python Second Editio"
+    },
+    {
+      "title": "Spark in Action, Second Edition",
+      "authors": [
+        "Jean-Georges Perrin"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Spark in Action, Second Edition/Spark_in_Action,_Second_Edition.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Statistics Slam Dunk",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6666666666666666,
+      "possible_match": "Deep Learning with Python Second Editio"
+    },
+    {
+      "title": "TensorFlow in Action",
+      "authors": [
+        "Thushan Ganegedara"
+      ],
+      "year": "2022",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/TensorFlow in Action/TensorFlow_in_Action.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Test Yourself on Sebastian Raschka's Build a Large Language Model (From Scratch)",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.7547169811320755,
+      "possible_match": "TensorFlow 2.0 in Action v12 MEAP"
+    },
+    {
+      "title": "Think Like a Software Engineering Manager",
+      "authors": [
+        "Akanksha Gupta"
+      ],
+      "year": "2024",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Think Like a Software Engineering Manager/Think_Like_a_Software_Engineering_Manage.pdf",
+      "directory": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Time Series Forecasting in Python",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6,
+      "possible_match": "Software Engineering for Data Scientists"
+    },
+    {
+      "title": "Transformers in Action MEAP V10",
+      "authors": [
+        "Nicole Koenigstein"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/archimedes_lever/knowledge/sources/books/library/Manning Books/Transformers in Action/Transformers_in_Action_v10_MEAP.pdf",
+      "directory": "~/Claude/archimedes_lever/output",
+      "category": "llm",
+      "priority": "low",
+      "match_score": 0.696969696969697,
+      "possible_match": "TensorFlow 2.0 in Action v12 MEAP"
+    },
+    {
+      "title": "Testing the Null Hypothesis of Stationarity Against the Alternative of",
+      "authors": [
+        "Kwiatkowski",
+        "Denis",
+        "Phillips",
+        "Peter C. B.",
+        "Schmidt",
+        "Pe"
+      ],
+      "year": "1992",
+      "file_path": "~/Claude/archimedes_lever/output/ab_testing.pdf",
+      "directory": "~/Claude/archimedes_lever/output",
+      "category": "other",
+      "priority": "low",
+      "match_score": 0.625,
+      "possible_match": "Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing"
+    },
+    {
+      "title": "Testing for Unit Roots in Autoregressive-Moving Average Models of Unkn",
+      "authors": [
+        "Said",
+        "Said E.",
+        "Dickey",
+        "David A."
+      ],
+      "year": "1984",
+      "file_path": "~/Claude/archimedes_lever/output/ab_testing.pdf",
+      "directory": "~/Claude/archimedes_lever/output",
+      "category": "other",
+      "priority": "low",
+      "match_score": 0.625,
+      "possible_match": "Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing"
+    },
+    {
+      "title": "Testing for Weak Instruments in Linear IV Regression",
+      "authors": [
+        "Stock",
+        "James H.",
+        "Yogo",
+        "Motohiro"
+      ],
+      "year": "2005",
+      "file_path": "~/Claude/archimedes_lever/output/ab_testing.pdf",
+      "directory": "~/Claude/course_learning/02_causal_ai/causalML/projects/causal modeling with a VAE",
+      "category": "other",
+      "priority": "low",
+      "match_score": 0.625,
+      "possible_match": "Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing"
+    },
+    {
+      "title": "Causal Inference in Python",
+      "authors": [],
+      "year": null,
+      "file_path": "~/Claude/job_applications/causal_inference_guide_2025/output/causal_inference_complete_guide_2025.pdf",
+      "directory": "~/Claude/job_applications/causal_inference_guide_2025/resources/repos/EconML/doc",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.72,
+      "possible_match": "Causal Inference: What If"
+    },
+    {
+      "title": "Context Engineering for Agents",
+      "authors": [
+        "{LangChain}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/docs/pdf/guide/output/context_engineering_guide.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "other",
+      "priority": "low",
+      "match_score": 0.7142857142857143,
+      "possible_match": "Software Engineering for Data Scientists"
+    },
+    {
+      "title": "Orthogonal Random Forest for Heterogeneous Treatment Effect Estimation",
+      "authors": [
+        "Miruna Oprescu",
+        "Vasilis Syrgkanis",
+        "Zhiwei Steven Wu"
+      ],
+      "year": "2018",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/1806.03467.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6708074534161491,
+      "possible_match": "Feature Selection Methods for Uplift Modeling and Heterogeneous Treatment Effect Estimation"
+    },
+    {
+      "title": "Feature Selection Methods for Uplift Modeling",
+      "authors": [
+        "Zhao",
+        "Zhenyu",
+        "Zhang",
+        "Yumin",
+        "Harinen",
+        "Totte",
+        "Yung",
+        "M"
+      ],
+      "year": "2020",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/papers/arxiv/2005.03447.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/agents/ToolBench/assets",
+      "category": "other",
+      "priority": "low",
+      "match_score": 0.6666666666666666,
+      "possible_match": "Matrix Completion Methods for Causal Panel Data Models"
+    },
+    {
+      "title": "Bayesian nonparametric modeling for causal inference",
+      "authors": [
+        "Hill",
+        "Jennifer L"
+      ],
+      "year": "2011",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6,
+      "possible_match": "DoWhy: An End-to-End Library for Causal Inference"
+    },
+    {
+      "title": "Causal Inference and Discovery in Python",
+      "authors": [
+        "Molak",
+        "Aleksander"
+      ],
+      "year": "2023",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.759493670886076,
+      "possible_match": "Causal-learn: Causal Discovery in Python"
+    },
+    {
+      "title": "Claude Code Best Practices",
+      "authors": [
+        "{Anthropic}"
+      ],
+      "year": "2025",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper/CodeR.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/embeddings/FlagEmbedding/research/BGE_Coder/paper",
+      "category": "other",
+      "priority": "low",
+      "match_score": 0.6440677966101694,
+      "possible_match": "Demand Forecasting Best Practices"
+    },
+    {
+      "title": "Identification and Estimation of Treatment Effects with a Regression-D",
+      "authors": [
+        "Hahn",
+        "Jinyong",
+        "Todd",
+        "Petra",
+        "Van der Klaauw",
+        "Wilbert"
+      ],
+      "year": "2001",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos/identity.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6174496644295302,
+      "possible_match": "Machine Learning Estimation of Heterogeneous Treatment Effects with Instruments"
+    },
+    {
+      "title": "Identification and Estimation of Treatment Effects with a Regression-D",
+      "authors": [
+        "Hahn",
+        "Jinyong",
+        "Todd",
+        "Petra",
+        "Van der Klaauw",
+        "Wilbert"
+      ],
+      "year": "1998",
+      "file_path": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos/identity.pdf",
+      "directory": "~/Claude/lever_of_archimedes/knowledge/sources/repos/ml/scikit-learn/doc/logos",
+      "category": "causal_inference",
+      "priority": "medium",
+      "match_score": 0.6174496644295302,
+      "possible_match": "Machine Learning Estimation of Heterogeneous Treatment Effects with Instruments"
+    },
+    {
+      "title": "Time Series Analysis: Forecasting and Control",
+      "authors": [
+        "Box",
+        "George E. P.",
+        "Jenkins",
+        "Gwilym M."
+      ],
+      "year": "1970",
+      "file_path": "~/Documents/Dropbox/(Wiley Series in Probability and Statistics) George E. P. Box, Gwilym M. Jenkins, Gregory C. Reinsel, Greta M. Ljung - Time Series Analysis_ Forecasting and Control-Wiley (2015).pdf",
+      "directory": "~/Documents/Dropbox",
+      "category": "time_series",
+      "priority": "high",
+      "match_score": 0.7272727272727273,
+      "possible_match": "Time Series Forecasting in Python"
+    },
+    {
+      "title": "GANs in Action",
+      "authors": [
+        "Jakub Langr",
+        "Vladimir Bok"
+      ],
+      "year": "2019",
+      "file_path": "~/Documents/Dropbox/Apps/Manning Books/GANs in Action/GANs_in_Action.pdf",
+      "directory": "~/Documents/Dropbox/Apps/Manning Books/Grokking Algorithms",
+      "category": "manning_book",
+      "priority": "low",
+      "match_score": 0.6222222222222222,
+      "possible_match": "Graph Neural Networks in Action"
+    }
+  ]
+}

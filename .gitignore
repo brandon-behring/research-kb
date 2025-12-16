@@ -33,6 +33,10 @@ Thumbs.db
 fixtures/papers/
 fixtures/textbooks/
 fixtures/golden/
+
+# Large model files (download separately)
+models/
+*.gguf
 # Keep fixtures/samples/ for CI test data
 # Keep fixtures/concepts/ and fixtures/eval/ for validation configs
 .extraction_checkpoint.json

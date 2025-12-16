@@ -323,7 +323,7 @@ class ConceptStore:
             raise StorageError(f"Failed to list concepts: {e}") from e
 
     @staticmethod
-    async def list_all(limit: int = 1000, offset: int = 0) -> list[Concept]:
+    async def list_all(limit: int = 50000, offset: int = 0) -> list[Concept]:
         """List all concepts with pagination."""
         pool = await get_connection_pool()
 
