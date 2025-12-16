@@ -89,6 +89,33 @@ python scripts/ingest_missing_textbooks.py
 - Embedding service errors: ensure embed_server is running
 - Database errors: check PostgreSQL connection and disk space
 
+### Extraction Profiles
+
+**Fast Profile** (Ollama, GPU): ~50 chunks/min on RTX 2070 SUPER
+```bash
+python scripts/extract_concepts.py \
+  --backend ollama \
+  --model llama3.1:8b \
+  --concurrency 2 \
+  --metrics-file /tmp/extraction_metrics.txt
+```
+
+**Quality Profile** (Anthropic): Higher accuracy, ~20 chunks/min
+```bash
+python scripts/extract_concepts.py \
+  --backend anthropic \
+  --model haiku \
+  --concurrency 4
+```
+
+**Ollama Optimization** (already applied via systemd override):
+```bash
+# /etc/systemd/system/ollama.service.d/override.conf
+OLLAMA_FLASH_ATTENTION=1   # Enable flash attention
+OLLAMA_NUM_PARALLEL=2      # Allow 2 parallel streams
+OLLAMA_KV_CACHE_TYPE=q8_0  # Quantized KV cache
+```
+
 ### CLI Usage
 
 ```bash

@@ -1,6 +1,11 @@
 #!/bin/bash
 # Extract concepts from top 10 most useful sources using Ollama
 # Run with: nohup ./scripts/extract_top10.sh > /tmp/extract_top10.log 2>&1 &
+#
+# Config:
+#   --concurrency 2: Optimized for RTX 2070 SUPER (8GB VRAM)
+#   --metrics-file: Per-source Prometheus metrics saved to /tmp/
+#   Backup: Enabled by default (remove --skip-backup to restore safety)
 
 set -e
 
@@ -41,9 +46,9 @@ for source in "${SOURCES[@]}"; do
     --backend ollama \
     --model llama3.1:8b \
     --source-id "$id" \
-    --skip-backup \
     --no-neo4j \
-    --concurrency 1
+    --concurrency 2 \
+    --metrics-file "/tmp/extraction_metrics_${id}.txt"
 
   PROCESSED=$((PROCESSED + chunks))
 

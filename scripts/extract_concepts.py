@@ -659,7 +659,8 @@ class ExtractionPipeline:
                         self.save_checkpoint()
             else:
                 # Parallel processing in batches
-                batch_size = self.concurrency * 2  # Process batches of 2x concurrency
+                # Use CLI batch_size, or auto-calculate as 2x concurrency if default (10)
+                batch_size = self.batch_size if self.batch_size != 10 else self.concurrency * 2
                 processed = 0
 
                 for batch_start in range(0, len(valid_chunks), batch_size):
@@ -715,7 +716,7 @@ async def main():
         help="Model name/path (ollama: llama3.1:8b, llamacpp: path/to/model.gguf, anthropic: haiku/sonnet/opus)"
     )
     parser.add_argument("--confidence", type=float, default=0.7, help="Minimum confidence threshold")
-    parser.add_argument("--batch-size", type=int, default=10, help="Batch size for processing")
+    parser.add_argument("--batch-size", type=int, default=10, help="Batch size for processing (default: auto = concurrency * 2)")
     parser.add_argument(
         "--concurrency",
         type=int,
