@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "research-kb": {
+      "command": "python",
+      "args": ["-m", "research_kb_mcp.server"],
+      "cwd": "<PROJECT_ROOT>",
+      "description": "Search causal inference literature with hybrid FTS+vector+graph retrieval"
+    }
+  }
+}

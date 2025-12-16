@@ -1,0 +1,329 @@
+"""Response formatters for MCP tool outputs.
+
+Converts service layer responses to markdown format optimized for
+LLM consumption. Includes source IDs, page numbers, and relevance scores.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from research_kb_api.service import SearchResponse, SearchResultDetail
+    from research_kb_contracts import Source, Concept, ConceptRelationship
+
+
+# Maximum content length before truncation
+MAX_CONTENT_LENGTH = 1500
+TRUNCATION_SUFFIX = "..."
+
+
+def truncate(text: str, max_length: int = MAX_CONTENT_LENGTH) -> str:
+    """Truncate text with ellipsis if too long."""
+    if len(text) <= max_length:
+        return text
+    return text[: max_length - len(TRUNCATION_SUFFIX)] + TRUNCATION_SUFFIX
+
+
+def format_search_results(response: SearchResponse) -> str:
+    """Format search response as markdown for LLM consumption.
+
+    Args:
+        response: SearchResponse from service layer
+
+    Returns:
+        Markdown-formatted search results
+    """
+    lines = [f"## Search Results for: {response.query}"]
+
+    if response.expanded_query:
+        lines.append(f"*Query expanded to: {response.expanded_query}*")
+
+    lines.append(f"\n**Found {len(response.results)} results** (in {response.execution_time_ms:.0f}ms)\n")
+
+    if not response.results:
+        lines.append("No results found.")
+        return "\n".join(lines)
+
+    for i, result in enumerate(response.results, 1):
+        lines.append(format_search_result(result, i))
+
+    return "\n".join(lines)
+
+
+def format_search_result(result: SearchResultDetail, rank: int) -> str:
+    """Format a single search result."""
+    source = result.source
+    chunk = result.chunk
+
+    lines = [f"### {rank}. {source.title}"]
+
+    # Source metadata
+    meta_parts = []
+    if source.authors:
+        meta_parts.append(", ".join(source.authors[:3]))
+        if len(source.authors) > 3:
+            meta_parts.append("et al.")
+    if source.year:
+        meta_parts.append(f"({source.year})")
+    if source.source_type:
+        meta_parts.append(f"[{source.source_type}]")
+
+    if meta_parts:
+        lines.append(" ".join(meta_parts))
+
+    # Page reference
+    page_ref = ""
+    if chunk.page_start:
+        if chunk.page_end and chunk.page_end != chunk.page_start:
+            page_ref = f"pp. {chunk.page_start}-{chunk.page_end}"
+        else:
+            page_ref = f"p. {chunk.page_start}"
+    if chunk.section:
+        page_ref = f"{chunk.section}, {page_ref}" if page_ref else chunk.section
+
+    if page_ref:
+        lines.append(f"*{page_ref}*")
+
+    # Content
+    lines.append(f"\n> {truncate(chunk.content)}\n")
+
+    # Score breakdown
+    scores = result.scores
+    score_parts = [f"Score: {result.combined_score:.3f}"]
+    if scores.fts > 0:
+        score_parts.append(f"FTS: {scores.fts:.3f}")
+    if scores.vector > 0:
+        score_parts.append(f"Vector: {scores.vector:.3f}")
+    if scores.graph > 0:
+        score_parts.append(f"Graph: {scores.graph:.3f}")
+
+    lines.append(f"*{' | '.join(score_parts)}*")
+    lines.append(f"*Source ID: `{source.id}` | Chunk ID: `{chunk.id}`*\n")
+
+    return "\n".join(lines)
+
+
+def format_source_list(sources: list[Source]) -> str:
+    """Format source list as markdown."""
+    if not sources:
+        return "No sources found."
+
+    lines = [f"## Sources ({len(sources)} total)\n"]
+
+    for source in sources:
+        lines.append(format_source_summary(source))
+
+    return "\n".join(lines)
+
+
+def format_source_summary(source: Source) -> str:
+    """Format a single source summary."""
+    parts = [f"- **{source.title}**"]
+
+    if source.authors:
+        authors = ", ".join(source.authors[:2])
+        if len(source.authors) > 2:
+            authors += " et al."
+        parts.append(f"  - Authors: {authors}")
+
+    if source.year:
+        parts.append(f"  - Year: {source.year}")
+
+    if source.source_type:
+        parts.append(f"  - Type: {source.source_type.value if hasattr(source.source_type, 'value') else source.source_type}")
+
+    parts.append(f"  - ID: `{source.id}`")
+
+    return "\n".join(parts)
+
+
+def format_source_detail(source: Source, chunks: Optional[list] = None) -> str:
+    """Format detailed source information."""
+    lines = [f"## {source.title}"]
+
+    if source.authors:
+        lines.append(f"**Authors:** {', '.join(source.authors)}")
+    if source.year:
+        lines.append(f"**Year:** {source.year}")
+    if source.source_type:
+        type_val = source.source_type.value if hasattr(source.source_type, "value") else source.source_type
+        lines.append(f"**Type:** {type_val}")
+
+    lines.append(f"**ID:** `{source.id}`")
+
+    if source.metadata:
+        lines.append("\n### Metadata")
+        for key, value in source.metadata.items():
+            if value:
+                lines.append(f"- {key}: {value}")
+
+    if chunks:
+        lines.append(f"\n### Content Chunks ({len(chunks)} total)")
+        for i, chunk in enumerate(chunks[:5], 1):  # Show first 5 chunks
+            page_info = f"p. {chunk.page_start}" if hasattr(chunk, "page_start") and chunk.page_start else ""
+            lines.append(f"\n**Chunk {i}** {page_info}")
+            content = chunk.content if hasattr(chunk, "content") else str(chunk)
+            lines.append(f"> {truncate(content, 500)}")
+
+        if len(chunks) > 5:
+            lines.append(f"\n*... and {len(chunks) - 5} more chunks*")
+
+    return "\n".join(lines)
+
+
+def format_citations(citations_data: dict) -> str:
+    """Format citation information."""
+    lines = [f"## Citations for Source `{citations_data['source_id']}`\n"]
+
+    citing = citations_data.get("citing_sources", [])
+    cited = citations_data.get("cited_sources", [])
+
+    lines.append(f"### Papers Citing This Source ({len(citing)})")
+    if citing:
+        for s in citing:
+            year = f" ({s['year']})" if s.get("year") else ""
+            lines.append(f"- {s['title']}{year} [`{s['id']}`]")
+    else:
+        lines.append("*No citing papers found*")
+
+    lines.append(f"\n### Papers Cited By This Source ({len(cited)})")
+    if cited:
+        for s in cited:
+            year = f" ({s['year']})" if s.get("year") else ""
+            lines.append(f"- {s['title']}{year} [`{s['id']}`]")
+    else:
+        lines.append("*No cited papers found*")
+
+    return "\n".join(lines)
+
+
+def format_concept_list(concepts: list[Concept]) -> str:
+    """Format concept list as markdown."""
+    if not concepts:
+        return "No concepts found."
+
+    lines = [f"## Concepts ({len(concepts)} total)\n"]
+
+    for concept in concepts:
+        lines.append(format_concept_summary(concept))
+
+    return "\n".join(lines)
+
+
+def format_concept_summary(concept: Concept) -> str:
+    """Format a single concept summary."""
+    type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+    return f"- **{concept.name}** [{type_val}] `{concept.id}`"
+
+
+def format_concept_detail(
+    concept: Concept,
+    relationships: Optional[list[ConceptRelationship]] = None
+) -> str:
+    """Format detailed concept information."""
+    lines = [f"## {concept.name}"]
+
+    type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+    lines.append(f"**Type:** {type_val}")
+    lines.append(f"**ID:** `{concept.id}`")
+
+    if concept.description:
+        lines.append(f"\n### Description\n{concept.description}")
+
+    if relationships:
+        lines.append(f"\n### Relationships ({len(relationships)} total)")
+        for rel in relationships[:20]:  # Show first 20
+            rel_type = rel.relationship_type.value if hasattr(rel.relationship_type, "value") else rel.relationship_type
+            lines.append(f"- {rel_type} → `{rel.target_id}`")
+
+        if len(relationships) > 20:
+            lines.append(f"*... and {len(relationships) - 20} more relationships*")
+
+    return "\n".join(lines)
+
+
+def format_graph_neighborhood(neighborhood: dict) -> str:
+    """Format graph neighborhood as markdown."""
+    if "error" in neighborhood:
+        return f"**Error:** {neighborhood['error']}"
+
+    center = neighborhood.get("center", {})
+    nodes = neighborhood.get("nodes", [])
+    edges = neighborhood.get("edges", [])
+
+    lines = [f"## Graph Neighborhood: {center.get('name', 'Unknown')}"]
+    lines.append(f"*Type: {center.get('type', 'unknown')} | ID: `{center.get('id')}`*")
+    lines.append(f"\n**{len(nodes)} connected concepts, {len(edges)} relationships**\n")
+
+    if nodes:
+        lines.append("### Connected Concepts")
+        for node in nodes[:30]:  # Show first 30
+            lines.append(f"- {node['name']} [{node.get('type', '?')}]")
+
+        if len(nodes) > 30:
+            lines.append(f"*... and {len(nodes) - 30} more*")
+
+    if edges:
+        lines.append("\n### Relationships")
+        # Group by relationship type
+        by_type: dict[str, int] = {}
+        for edge in edges:
+            rel_type = edge.get("type", "UNKNOWN")
+            by_type[rel_type] = by_type.get(rel_type, 0) + 1
+
+        for rel_type, count in sorted(by_type.items(), key=lambda x: -x[1]):
+            lines.append(f"- {rel_type}: {count}")
+
+    return "\n".join(lines)
+
+
+def format_graph_path(path_data: dict) -> str:
+    """Format graph path as markdown."""
+    if "error" in path_data:
+        return f"**Error:** {path_data['error']}"
+
+    from_concept = path_data.get("from", "?")
+    to_concept = path_data.get("to", "?")
+    path = path_data.get("path", [])
+
+    lines = [f"## Path: {from_concept} → {to_concept}"]
+
+    if not path:
+        lines.append("\n*No path found between these concepts*")
+    else:
+        lines.append(f"\n**Path length: {len(path)} hops**\n")
+        for i, step in enumerate(path):
+            if isinstance(step, dict):
+                lines.append(f"{i + 1}. {step.get('name', step.get('id', '?'))}")
+            else:
+                lines.append(f"{i + 1}. {step}")
+
+    return "\n".join(lines)
+
+
+def format_stats(stats: dict) -> str:
+    """Format database statistics as markdown."""
+    lines = ["## Research KB Statistics\n"]
+
+    lines.append("| Entity | Count |")
+    lines.append("|--------|------:|")
+
+    for key, value in stats.items():
+        label = key.replace("_", " ").title()
+        lines.append(f"| {label} | {value:,} |")
+
+    return "\n".join(lines)
+
+
+def format_health(healthy: bool, details: Optional[dict] = None) -> str:
+    """Format health check result."""
+    status = "✅ Healthy" if healthy else "❌ Unhealthy"
+    lines = [f"## Research KB Health: {status}"]
+
+    if details:
+        lines.append("\n### Details")
+        for key, value in details.items():
+            lines.append(f"- {key}: {value}")
+
+    return "\n".join(lines)
