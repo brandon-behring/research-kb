@@ -2,7 +2,7 @@
 
 ## Current Status
 
-- **Phase**: Phase 3 ✅ Complete, Phase 4 (Production) ready to start
+- **Phase**: All phases ✅ Complete (Personal Use Scope)
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
 
 ---
@@ -13,7 +13,8 @@
 |--------------|----------|
 | Understand the architecture | [System Design](SYSTEM_DESIGN.md) |
 | See current status | [Current Status](status/CURRENT_STATUS.md) |
-| Work on Phase 4 | [Phase 4 Plan](phases/phase4/PRODUCTION.md) |
+| Understand lever integration | [Integration Overview](INTEGRATION.md) |
+| See technical integration details | [Lever Integration Technical](guides/LEVER_INTEGRATION_TECHNICAL.md) |
 | Run the CLI | [CLAUDE.md](../CLAUDE.md#cli-usage) |
 | Set up locally | [Local Development](guides/LOCAL_DEVELOPMENT.md) |
 | Update status docs | `python scripts/generate_status.py` |
@@ -28,7 +29,7 @@
 | 1.5 PDF Ingestion | ✅ Complete | Dispatcher, citations, embeddings | [→](phases/phase1.5/PDF_INGESTION.md) |
 | 2. Knowledge Graph | ✅ Complete | Concept extraction, graph queries | [→](phases/phase2/KNOWLEDGE_GRAPH.md) |
 | 3. Enhanced Retrieval | ✅ Complete | Re-ranking, query expansion | [→](phases/phase3/ENHANCED_RETRIEVAL.md) |
-| 4. Production | 📋 Planned | FastAPI, auth, deployment | [→](phases/phase4/PRODUCTION.md) |
+| 4. Production | ✅ Complete | FastAPI, dashboard, metrics | [→](phases/phase4/PRODUCTION.md) |
 
 ---
 

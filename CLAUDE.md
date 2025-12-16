@@ -70,15 +70,55 @@ python scripts/eval_retrieval.py                 # Validate retrieval quality
 python scripts/run_quality_checks.py             # Quality metrics
 ```
 
+### Ingestion Best Practices
+
+```bash
+# Recommended: Use quiet mode for Claude Code monitoring (minimal output)
+python scripts/ingest_missing_textbooks.py --quiet
+
+# JSON output for programmatic parsing
+python scripts/ingest_missing_textbooks.py --quiet --json > ingestion_report.json
+
+# Full verbose output for debugging
+python scripts/ingest_missing_textbooks.py
+```
+
+**Error Recovery:**
+- Failed files with `recoverable: true` can be re-ingested later
+- Memory errors indicate PDF too large (contact maintainer)
+- Embedding service errors: ensure embed_server is running
+- Database errors: check PostgreSQL connection and disk space
+
 ### CLI Usage
 
 ```bash
-research-kb query "instrumental variables"        # Default (graph-boosted)
-research-kb query "test" --no-graph               # Without graph
-research-kb sources                               # List sources
-research-kb stats                                 # Database statistics
-research-kb concepts "IV"                         # Concept search
+# Search and retrieval
+research-kb query "instrumental variables"            # Default (graph-boosted)
+research-kb query "test" --no-graph                   # Without graph
+research-kb query "IV" --context building             # Context-tuned weights
+
+# Source management
+research-kb sources                                   # List sources
+research-kb stats                                     # Database statistics
+research-kb extraction-status                         # Extraction pipeline stats
+
+# Knowledge graph
+research-kb concepts "IV"                             # Concept search
 research-kb graph "double machine learning" --hops 2  # Graph exploration
+research-kb path "IV" "unconfoundedness"              # Shortest path between concepts
+
+# Citation network
+research-kb citations <source>                        # List citations from a source
+research-kb cited-by <source>                         # Find sources citing this one
+research-kb cites <source>                            # Find sources this one cites
+research-kb citation-stats                            # Corpus citation statistics
+
+# Semantic Scholar discovery (s2-client)
+research-kb discover search "double machine learning"  # Search S2 for papers
+research-kb discover topics                            # Browse by topic
+research-kb discover author "Chernozhukov"             # Find by author
+research-kb enrich citations                           # Enrich corpus with S2 metadata
+research-kb enrich status                              # Show enrichment status
 ```
 
 ## Architecture
@@ -202,3 +242,27 @@ See [`docs/RECOVERY.md`](docs/RECOVERY.md) for detailed recovery procedures.
 - Table name is `concept_relationships` (not `relationships`)
 - CLI adds packages to `sys.path` for development mode imports
 - **NEVER use `docker compose down -v`** without the safe wrapper — it deletes all data
+
+## Documentation Protocol
+
+When modifying code, update docs accordingly:
+
+| Change Type | Required Doc Updates |
+|-------------|---------------------|
+| New CLI command | CLAUDE.md (CLI Usage), README.md |
+| New package | Create README.md, add to CLAUDE.md architecture |
+| New extraction backend | packages/extraction/README.md comparison table |
+| External path change | docs/INTEGRATION.md, docs/guides/LEVER_INTEGRATION_TECHNICAL.md |
+| New API endpoint | Run `scripts/generate_package_docs.py` |
+| Database schema | docs/phases/ relevant phase doc |
+
+Run `python scripts/audit_docs.py` periodically to detect drift.
+
+## Integration
+
+This system integrates with [lever_of_archimedes](~/Claude/lever_of_archimedes):
+- **Daemon service**: Unix socket at `/tmp/research_kb_daemon.sock`
+- **Hook integration**: `hooks/lib/research_kb.sh`
+- **Health monitoring**: `services/health/research_kb_status.jl`
+
+See [docs/INTEGRATION.md](docs/INTEGRATION.md) for full details.

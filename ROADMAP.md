@@ -33,6 +33,20 @@ A causal inference knowledge base for research context retrieval.
 - ✅ Concept graph explorer with N-hop neighborhoods
 - MCP server for Claude Code integration (future)
 
+## Phase 5: Advanced Graph Analytics (Future)
+
+When corpus scale requires advanced graph operations:
+
+- **Neo4j Integration**: Multi-hop traversal optimization beyond recursive CTEs
+- **Citation Network Analysis**: PageRank centrality, community detection
+- **Graph Neural Networks**: Export for GNN-based embeddings
+- **Clustering**: Automatic topic/method clustering via graph structure
+
+**Status**: Future consideration. PostgreSQL handles current scale efficiently (2.11ms for 2-hop queries). Consider when:
+- Graph queries exceed 100ms consistently
+- Need complex path algorithms (betweenness centrality, etc.)
+- Graph exceeds 1M nodes/edges
+
 ---
 
 **Current Status**: Phase 4 complete. All core features implemented.

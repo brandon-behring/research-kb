@@ -1,13 +1,48 @@
 # Research KB Extraction
 
-Concept extraction package for the research knowledge base using Ollama LLM.
+Concept extraction package for the research knowledge base with multiple LLM backend options.
 
 ## Features
 
-- **OllamaClient**: GPU-accelerated LLM wrapper for structured JSON output
+- **Multiple Backends**: OllamaClient, InstructorOllamaClient, LlamaCppClient, AnthropicClient
 - **ConceptExtractor**: Extract concepts and relationships from text chunks
 - **Deduplicator**: Canonical name normalization and embedding-based deduplication
-- **GraphSyncService**: Sync concepts to Neo4j graph database
+- **Metrics**: Extraction quality and performance tracking
+
+## Backend Comparison
+
+| Backend | Speed | Cost | GPU | JSON Method | Best For |
+|---------|-------|------|-----|-------------|----------|
+| **OllamaClient** | Fast | Free | Recommended | Native JSON mode | Default local use |
+| **InstructorOllamaClient** | Fast | Free | Recommended | Pydantic + retry | Validation-critical |
+| **LlamaCppClient** | Fastest | Free | Required | Grammar-based | Maximum throughput |
+| **AnthropicClient** | Medium | $$$ | No | tool_use schema | Highest quality |
+
+### Configuration Reference
+
+| Backend | Default Model | Key Config |
+|---------|---------------|------------|
+| ollama | llama3.1:8b | `num_ctx=4096`, `temperature=0.1` |
+| instructor | llama3.1:8b | `max_retries=3` (auto-retry on schema fail) |
+| llamacpp | Meta-Llama-3.1-8B-Q4_K_M.gguf | `n_gpu_layers=20` (~8GB VRAM) |
+| anthropic | claude-3-5-haiku-latest | Models: haiku, haiku-3.5, sonnet, opus |
+
+### Backend Selection
+
+```bash
+# Default Ollama
+python scripts/extract_concepts.py --backend ollama
+
+# With Pydantic validation
+python scripts/extract_concepts.py --backend instructor
+
+# Direct GPU (fastest)
+python scripts/extract_concepts.py --backend llamacpp
+
+# API-based (highest quality)
+python scripts/extract_concepts.py --backend anthropic --model haiku
+python scripts/extract_concepts.py --backend anthropic --model opus
+```
 
 ## Installation
 
@@ -48,22 +83,22 @@ canonical = dedup.to_canonical_name("DiD")  # "difference-in-differences"
 matches = await dedup.deduplicate_batch(extracted_concepts)
 ```
 
-### Neo4j Sync
+### Using Different Backends
 
 ```python
-from research_kb_extraction import GraphSyncService
+from research_kb_extraction import InstructorOllamaClient, LlamaCppClient, AnthropicClient
 
-async with GraphSyncService() as sync:
-    # Sync concept to Neo4j
-    await sync.sync_concept(
-        concept_id=uuid,
-        name="instrumental variables",
-        canonical_name="instrumental variables",
-        concept_type="method",
-    )
+# Instructor with auto-retry on validation errors
+async with InstructorOllamaClient() as client:
+    result = await client.extract_concepts(text, max_retries=3)
 
-    # Find related concepts
-    related = await sync.find_related_concepts(concept_id, max_hops=2)
+# LlamaCpp for maximum throughput
+async with LlamaCppClient(model_path="path/to/model.gguf") as client:
+    result = await client.extract_concepts(text)
+
+# Anthropic for highest quality
+async with AnthropicClient(model="opus") as client:
+    result = await client.extract_concepts(text)
 ```
 
 ## Configuration
@@ -74,10 +109,16 @@ async with GraphSyncService() as sync:
 - Server: `http://localhost:11434`
 - GPU acceleration recommended (RTX 2070 SUPER or better)
 
-### Neo4j
+### LlamaCpp
 
-- URI: `bolt://localhost:7687`
-- Auth: `neo4j/research_kb_dev`
+- Model path: `models/*.gguf` (download separately)
+- GPU layers: Set `n_gpu_layers` based on VRAM
+- See `scripts/download_gguf_model.sh` for model setup
+
+### Anthropic
+
+- API key: Set `ANTHROPIC_API_KEY` environment variable
+- Models: haiku (fast/cheap), sonnet (balanced), opus (best quality)
 
 ## Concept Types
 
@@ -93,13 +134,22 @@ async with GraphSyncService() as sync:
 
 | Type | Description | Example |
 |------|-------------|---------|
-| `REQUIRES` | Method requires assumption | IV → relevance |
-| `USES` | Method uses technique | Matching → propensity scores |
-| `ADDRESSES` | Method solves problem | IV → endogeneity |
-| `GENERALIZES` | Broader concept | Panel → DiD |
-| `SPECIALIZES` | Narrower concept | LATE → ATE |
+| `REQUIRES` | Method requires assumption | IV -> relevance |
+| `USES` | Method uses technique | Matching -> propensity scores |
+| `ADDRESSES` | Method solves problem | IV -> endogeneity |
+| `GENERALIZES` | Broader concept | Panel -> DiD |
+| `SPECIALIZES` | Narrower concept | LATE -> ATE |
 | `ALTERNATIVE_TO` | Competing approaches | Matching vs Regression |
-| `EXTENDS` | Builds upon | DML → ML + CI |
+| `EXTENDS` | Builds upon | DML -> ML + CI |
+
+## Graph Storage
+
+All graph queries are handled by PostgreSQL using recursive CTEs. This provides:
+- ACID transactions with chunk/concept data
+- No additional infrastructure needed
+- Efficient 2-3 hop queries for typical use cases
+
+See `docs/ROADMAP.md` Phase 5 for future Neo4j considerations when scale requires advanced graph analytics.
 
 ## Testing
 
