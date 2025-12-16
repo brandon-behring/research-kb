@@ -111,6 +111,41 @@ research-kb path "instrumental variables" "exogeneity"
 research-kb extraction-status
 ```
 
+#### Citation Network
+
+```bash
+# List citations from a source
+research-kb citations <source>
+
+# Find sources citing this one
+research-kb cited-by <source>
+
+# Find sources this one cites
+research-kb cites <source>
+
+# Corpus citation statistics
+research-kb citation-stats
+```
+
+#### Semantic Scholar Discovery
+
+```bash
+# Search Semantic Scholar
+research-kb discover search "double machine learning"
+
+# Browse by topic
+research-kb discover topics
+
+# Find by author
+research-kb discover author "Chernozhukov"
+
+# Enrich corpus with S2 metadata
+research-kb enrich citations
+
+# Show enrichment status
+research-kb enrich status
+```
+
 ## Graph-Boosted Search
 
 ### How It Works
