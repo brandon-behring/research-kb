@@ -4,6 +4,16 @@ import pytest
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
+
+def pytest_addoption(parser):
+    """Register custom pytest options."""
+    parser.addoption(
+        "--run-neo4j",
+        action="store_true",
+        default=False,
+        help="Run tests that require Neo4j",
+    )
+
 from research_kb_extraction.models import (
     ChunkExtraction,
     ExtractedConcept,
