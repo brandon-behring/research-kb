@@ -42,14 +42,21 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "packages" / "stora
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "packages" / "common" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "packages" / "contracts" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "packages" / "pdf-tools" / "src"))
+# Add daemon directory for local imports when running as script
+sys.path.insert(0, str(Path(__file__).parent))
 
 from research_kb_common import get_logger
 from research_kb_api import service
 from research_kb_api.service import SearchOptions, ContextType
 
-# Local imports
-from .metrics import metrics
-from .health_server import HealthServer
+# Local imports - handle both module and script execution
+try:
+    from .metrics import metrics
+    from .health_server import HealthServer
+except ImportError:
+    # Running as script directly
+    from metrics import metrics
+    from health_server import HealthServer
 
 logger = get_logger(__name__)
 

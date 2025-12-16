@@ -14,7 +14,10 @@ import asyncio
 import json
 from typing import Callable, Awaitable
 
-from .metrics import metrics
+try:
+    from .metrics import metrics
+except ImportError:
+    from metrics import metrics
 
 # Configuration
 HEALTH_PORT = 9001
