@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-16 14:17:57
+**Auto-generated**: 2025-12-16 15:58:47
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -23,7 +23,7 @@
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
 | Chunks | 142,221 | 142,221 | 100.0% |
-| Concepts | 41,439 | 78,003 | 53.1% |
+| Concepts | 78,003 | 78,003 | 100.0% |
 
 ---
 

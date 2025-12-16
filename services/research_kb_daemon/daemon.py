@@ -43,8 +43,36 @@ from research_kb_api.service import SearchOptions, ContextType
 logger = get_logger(__name__)
 
 # Configuration
-SOCKET_PATH = os.environ.get("RESEARCH_KB_SOCKET_PATH", "/tmp/research_kb_daemon.sock")
+USER = os.environ.get("USER", "unknown")
+SOCKET_PATH = os.environ.get("RESEARCH_KB_SOCKET_PATH", f"/tmp/research_kb_daemon_{USER}.sock")
+PID_FILE = os.environ.get("RESEARCH_KB_PID_FILE", f"/tmp/research_kb_daemon_{USER}.pid")
 MAX_MESSAGE_SIZE = 1024 * 1024  # 1MB
+
+
+def write_pid_file() -> None:
+    """Write PID file for daemon management."""
+    with open(PID_FILE, "w") as f:
+        f.write(str(os.getpid()))
+    logger.info("pid_file_written", pid=os.getpid(), path=PID_FILE)
+
+
+def remove_pid_file() -> None:
+    """Clean up PID file."""
+    Path(PID_FILE).unlink(missing_ok=True)
+    logger.debug("pid_file_removed", path=PID_FILE)
+
+
+def check_existing_daemon() -> int | None:
+    """Check if daemon already running, return PID or None."""
+    if not Path(PID_FILE).exists():
+        return None
+    try:
+        pid = int(Path(PID_FILE).read_text().strip())
+        os.kill(pid, 0)  # Check if process exists
+        return pid
+    except (ValueError, ProcessLookupError, PermissionError):
+        remove_pid_file()
+        return None
 
 
 class DaemonServer:
@@ -133,6 +161,9 @@ class DaemonServer:
 
             elif action == "graph":
                 return await self._handle_graph(request)
+
+            elif action == "reload":
+                return await self._handle_reload()
 
             else:
                 return {"status": "error", "error": f"Unknown action: {action}"}
@@ -239,6 +270,20 @@ class DaemonServer:
 
         return {"status": "ok", "data": neighborhood}
 
+    async def _handle_reload(self) -> dict[str, Any]:
+        """Handle reload request - clear caches."""
+        # Clear embedding cache in service layer
+        service._embedding_cache.clear()
+        self._warmup_done = False
+        logger.info("daemon_cache_cleared")
+        return {"status": "ok", "data": {"message": "cache cleared"}}
+
+    def reload(self) -> None:
+        """Reload daemon - clear caches (called from SIGHUP handler)."""
+        service._embedding_cache.clear()
+        self._warmup_done = False
+        logger.info("daemon_reloaded_via_signal")
+
     async def _send_response(
         self, writer: asyncio.StreamWriter, response: dict[str, Any]
     ) -> None:
@@ -286,6 +331,16 @@ class DaemonServer:
 
 async def main() -> None:
     """Main entry point."""
+    # Check for existing daemon
+    existing_pid = check_existing_daemon()
+    if existing_pid:
+        print(f"Daemon already running (PID {existing_pid})", file=sys.stderr)
+        print(f"Socket: {SOCKET_PATH}", file=sys.stderr)
+        sys.exit(1)
+
+    # Write PID file
+    write_pid_file()
+
     daemon = DaemonServer()
 
     # Handle signals
@@ -293,7 +348,13 @@ async def main() -> None:
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop.add_signal_handler(sig, daemon.stop)
 
-    await daemon.start()
+    # SIGHUP for reload (cache clearing)
+    loop.add_signal_handler(signal.SIGHUP, daemon.reload)
+
+    try:
+        await daemon.start()
+    finally:
+        remove_pid_file()
 
 
 if __name__ == "__main__":

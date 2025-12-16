@@ -4,17 +4,21 @@ After=network.target postgresql.service
 
 [Service]
 Type=simple
-User=%i
 WorkingDirectory=<PROJECT_ROOT>
 Environment="PATH=<PROJECT_ROOT>/venv/bin:/usr/bin"
 Environment="PYTHONPATH=<PROJECT_ROOT>"
 Environment="DATABASE_URL=postgresql://research_kb:research_kb@localhost:5432/research_kb"
+Environment="TMPDIR=$HOME/.cache/research_kb_daemon/tmp"
 ExecStart=<PROJECT_ROOT>/venv/bin/python services/research_kb_daemon/daemon.py
+ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 RestartSec=5s
 
-# Socket permissions
-UMask=0111
+# Socket permissions (0022 = standard umask, allows directory traversal)
+UMask=0022
+
+# PyTorch needs access to shared /tmp for JIT compilation
+PrivateTmp=no
 
 # Logging
 StandardOutput=journal
