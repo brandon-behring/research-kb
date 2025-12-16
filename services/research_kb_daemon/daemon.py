@@ -5,6 +5,7 @@ Provides low-latency access to research-kb search functionality via Unix socket.
 Keeps embedding model warm for <100ms response times after initial cold start.
 
 Socket location: /tmp/research_kb_daemon.sock (configurable via RESEARCH_KB_SOCKET_PATH)
+Health endpoint: http://localhost:9001 (configurable via RESEARCH_KB_HEALTH_PORT)
 
 Protocol:
     JSON messages, newline-delimited.
@@ -17,6 +18,11 @@ Actions:
     graph   - {"action": "graph", "concept": "...", "hops": 2}
     ping    - {"action": "ping"}
     shutdown - {"action": "shutdown"}
+
+Health Endpoints:
+    GET /health       - Liveness probe
+    GET /health/ready - Readiness probe
+    GET /metrics      - Prometheus metrics
 """
 
 from __future__ import annotations
@@ -26,6 +32,7 @@ import json
 import os
 import signal
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -39,6 +46,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "packages" / "pdf-t
 from research_kb_common import get_logger
 from research_kb_api import service
 from research_kb_api.service import SearchOptions, ContextType
+
+# Local imports
+from .metrics import metrics
+from .health_server import HealthServer
 
 logger = get_logger(__name__)
 
@@ -83,6 +94,7 @@ class DaemonServer:
         self.server: asyncio.Server | None = None
         self.running = False
         self._warmup_done = False
+        self.health_server = HealthServer(is_ready=lambda: self._warmup_done)
 
     async def warmup(self) -> None:
         """Pre-warm the embedding model with a dummy query."""
@@ -116,6 +128,7 @@ class DaemonServer:
                 try:
                     request = json.loads(data.decode("utf-8"))
                 except json.JSONDecodeError as e:
+                    metrics.record_error("json_parse")
                     response = {"status": "error", "error": f"Invalid JSON: {e}"}
                     await self._send_response(writer, response)
                     continue
@@ -142,34 +155,43 @@ class DaemonServer:
     async def _process_request(self, request: dict[str, Any]) -> dict[str, Any]:
         """Process a request and return response."""
         action = request.get("action")
+        start_time = time.perf_counter()
 
         if not action:
+            metrics.record_error("missing_action")
             return {"status": "error", "error": "Missing 'action' field"}
 
         try:
             if action == "ping":
-                return {"status": "ok", "data": {"message": "pong"}}
+                result = {"status": "ok", "data": {"message": "pong"}}
 
             elif action == "shutdown":
-                return {"status": "ok", "data": {"message": "shutting down"}}
+                result = {"status": "ok", "data": {"message": "shutting down"}}
 
             elif action == "search":
-                return await self._handle_search(request)
+                result = await self._handle_search(request)
 
             elif action == "concepts":
-                return await self._handle_concepts(request)
+                result = await self._handle_concepts(request)
 
             elif action == "graph":
-                return await self._handle_graph(request)
+                result = await self._handle_graph(request)
 
             elif action == "reload":
-                return await self._handle_reload()
+                result = await self._handle_reload()
 
             else:
+                metrics.record_error("unknown_action")
                 return {"status": "error", "error": f"Unknown action: {action}"}
+
+            # Record successful request metrics
+            duration_ms = (time.perf_counter() - start_time) * 1000
+            metrics.record_request(action, duration_ms)
+            return result
 
         except Exception as e:
             logger.error("request_processing_error", action=action, error=str(e))
+            metrics.record_error("internal")
             return {"status": "error", "error": str(e)}
 
     async def _handle_search(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -302,7 +324,11 @@ class DaemonServer:
         # Pre-warm embedding model
         await self.warmup()
 
-        # Create server
+        # Start health server for HTTP endpoints
+        await self.health_server.start()
+        logger.info("health_server_started", port=9001)
+
+        # Create Unix socket server
         self.server = await asyncio.start_unix_server(
             self.handle_client,
             path=self.socket_path,
@@ -312,13 +338,14 @@ class DaemonServer:
         os.chmod(self.socket_path, 0o666)
 
         self.running = True
-        logger.info("daemon_started", socket_path=self.socket_path)
+        logger.info("daemon_started", socket_path=self.socket_path, health_port=9001)
 
         async with self.server:
             while self.running:
                 await asyncio.sleep(0.1)
 
         # Cleanup
+        await self.health_server.stop()
         socket_path.unlink(missing_ok=True)
         logger.info("daemon_stopped")
 

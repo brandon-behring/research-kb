@@ -1,0 +1,54 @@
+# Prometheus configuration for research-kb monitoring
+#
+# Usage:
+#   docker-compose -f monitoring/docker-compose.monitoring.yml up -d
+#
+# Targets:
+#   - research_kb_daemon: Unix socket daemon health endpoint (port 9001)
+#   - research_kb_api: FastAPI server (port 8000)
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+  external_labels:
+    monitor: 'research-kb'
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load alert rules
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  # Daemon metrics (Unix socket server with HTTP health endpoint)
+  - job_name: 'research_kb_daemon'
+    static_configs:
+      - targets: ['host.docker.internal:9001']
+        labels:
+          service: 'daemon'
+          component: 'search'
+    metrics_path: /metrics
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # API metrics (FastAPI with prometheus-client)
+  - job_name: 'research_kb_api'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+        labels:
+          service: 'api'
+          component: 'http'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

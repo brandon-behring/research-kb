@@ -1,0 +1,122 @@
+# Alert rules for research-kb
+#
+# Severity levels:
+#   - critical: Immediate attention required (pages on-call)
+#   - warning: Should be investigated soon
+#   - info: Informational, may require action
+
+groups:
+  - name: research_kb_daemon
+    rules:
+      # Daemon availability
+      - alert: DaemonDown
+        expr: up{job="research_kb_daemon"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: daemon
+        annotations:
+          summary: "Research-KB daemon is down"
+          description: "Daemon has been unreachable for more than 1 minute"
+
+      # Latency SLO violation (p95 > 3s)
+      - alert: DaemonHighLatency
+        expr: daemon_request_duration_ms{quantile="0.95"} > 3000
+        for: 5m
+        labels:
+          severity: warning
+          service: daemon
+        annotations:
+          summary: "High daemon latency detected"
+          description: "p95 latency is {{ $value }}ms (threshold: 3000ms)"
+
+      # Error rate > 5%
+      - alert: DaemonHighErrorRate
+        expr: |
+          (
+            sum(rate(daemon_errors_total[5m]))
+            /
+            sum(rate(daemon_requests_total[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: daemon
+        annotations:
+          summary: "High daemon error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # Low cache hit rate (< 50%)
+      - alert: DaemonLowCacheHitRate
+        expr: daemon_cache_hit_rate < 0.5
+        for: 15m
+        labels:
+          severity: info
+          service: daemon
+        annotations:
+          summary: "Low embedding cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} (threshold: 50%)"
+
+  - name: research_kb_api
+    rules:
+      # API availability
+      - alert: APIDown
+        expr: up{job="research_kb_api"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "Research-KB API is down"
+          description: "API has been unreachable for more than 1 minute"
+
+      # High request latency
+      - alert: APIHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "High API latency"
+          description: "p95 latency is {{ $value | humanizeDuration }}"
+
+      # High error rate
+      - alert: APIHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "High API error rate"
+          description: "5xx error rate is {{ $value | humanizePercentage }}"
+
+  - name: research_kb_extraction
+    rules:
+      # Extraction failure rate (from extraction metrics file)
+      - alert: ExtractionHighFailureRate
+        expr: extraction_failure_rate > 0.05
+        for: 10m
+        labels:
+          severity: warning
+          service: extraction
+        annotations:
+          summary: "High extraction failure rate"
+          description: "Failure rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # High empty extraction rate
+      - alert: ExtractionHighEmptyRate
+        expr: extraction_empty_rate > 0.15
+        for: 10m
+        labels:
+          severity: info
+          service: extraction
+        annotations:
+          summary: "High empty extraction rate"
+          description: "Empty rate is {{ $value | humanizePercentage }} (threshold: 15%)"
