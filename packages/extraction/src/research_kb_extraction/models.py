@@ -23,7 +23,8 @@ class ExtractedConcept(BaseModel):
 
     name: str = Field(..., description="Concept name as it appears in text")
     concept_type: Literal[
-        "method", "assumption", "problem", "definition", "theorem"
+        "method", "assumption", "problem", "definition", "theorem",
+        "concept", "principle", "technique", "model"
     ] = Field(..., description="Classification of the concept")
     definition: Optional[str] = Field(
         None, description="Brief definition if provided in the text"

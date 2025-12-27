@@ -25,6 +25,7 @@ logger = get_logger(__name__)
 
 # Configuration
 DEFAULT_MODEL = "BAAI/bge-reranker-v2-m3"
+DEFAULT_REVISION = "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"  # Pin for reproducibility
 FALLBACK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DEFAULT_TOP_K = 10
@@ -87,16 +88,20 @@ class CrossEncoderReranker:
         Raises:
             RuntimeError: If model fails to load
         """
+        revision = None
         if use_fast:
             model_name = FALLBACK_MODEL
+        else:
+            revision = DEFAULT_REVISION
 
         self.device = device or DEVICE
         self.model_name = model_name
+        self.revision = revision
 
-        logger.info("loading_reranker", model=model_name, device=self.device)
+        logger.info("loading_reranker", model=model_name, device=self.device, revision=revision)
 
         try:
-            self.model = CrossEncoder(model_name, device=self.device)
+            self.model = CrossEncoder(model_name, device=self.device, revision=revision)
         except Exception as e:
             logger.error("reranker_load_failed", model=model_name, error=str(e))
             raise RuntimeError(f"Failed to load reranker model: {e}") from e

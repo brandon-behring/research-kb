@@ -4,9 +4,15 @@ Main Streamlit application entry point. Run with:
     streamlit run packages/dashboard/src/research_kb_dashboard/app.py
 """
 
+import os
 import streamlit as st
 import asyncio
 import asyncpg
+
+
+def _get_db_password() -> str:
+    """Get database password from environment."""
+    return os.environ.get("POSTGRES_PASSWORD", "postgres")
 
 # Page config must be first Streamlit command
 st.set_page_config(
@@ -29,7 +35,7 @@ async def get_stats():
         port=5432,
         database="research_kb",
         user="postgres",
-        password="postgres",
+        password=_get_db_password(),
     )
     try:
         sources = await conn.fetchval("SELECT COUNT(*) FROM sources")
@@ -116,7 +122,7 @@ async def get_concept_count():
         port=5432,
         database="research_kb",
         user="postgres",
-        password="postgres",
+        password=_get_db_password(),
     )
     try:
         return await conn.fetchval("SELECT COUNT(*) FROM concepts")

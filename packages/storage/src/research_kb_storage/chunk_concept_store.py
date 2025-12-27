@@ -379,6 +379,62 @@ class ChunkConceptStore:
             logger.error("chunk_concept_get_batch_failed", error=str(e))
             raise StorageError(f"Failed to get concept IDs for chunks: {e}") from e
 
+    @staticmethod
+    async def get_concept_info_for_chunks(
+        chunk_ids: list[UUID],
+    ) -> dict[UUID, list[tuple[UUID, str, float | None]]]:
+        """Get concept info for multiple chunks including mention metadata.
+
+        Enhanced version of get_concept_ids_for_chunks that returns mention_type
+        and relevance_score for weighted graph scoring.
+
+        Args:
+            chunk_ids: List of chunk UUIDs
+
+        Returns:
+            Dict mapping chunk_id -> list of (concept_id, mention_type, relevance_score)
+            - mention_type: 'defines', 'reference', or 'example'
+            - relevance_score: Optional float 0.0-1.0
+
+        Example:
+            >>> info = await ChunkConceptStore.get_concept_info_for_chunks([chunk_id])
+            >>> for concept_id, mention_type, relevance in info[chunk_id]:
+            ...     print(f"{concept_id}: {mention_type} ({relevance})")
+        """
+        if not chunk_ids:
+            return {}
+
+        pool = await get_connection_pool()
+
+        try:
+            async with pool.acquire() as conn:
+                rows = await conn.fetch(
+                    """
+                    SELECT chunk_id, concept_id, mention_type, relevance_score
+                    FROM chunk_concepts
+                    WHERE chunk_id = ANY($1)
+                    """,
+                    chunk_ids,
+                )
+
+                result: dict[UUID, list[tuple[UUID, str, float | None]]] = {
+                    cid: [] for cid in chunk_ids
+                }
+                for row in rows:
+                    result[row["chunk_id"]].append((
+                        row["concept_id"],
+                        row["mention_type"] or "reference",
+                        row["relevance_score"],
+                    ))
+
+                return result
+
+        except Exception as e:
+            logger.error("chunk_concept_get_info_batch_failed", error=str(e))
+            raise StorageError(
+                f"Failed to get concept info for chunks: {e}"
+            ) from e
+
 
 def _row_to_chunk_concept(row: asyncpg.Record) -> ChunkConcept:
     """Convert database row to ChunkConcept model."""

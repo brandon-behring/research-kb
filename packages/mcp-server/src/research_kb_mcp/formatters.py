@@ -198,6 +198,48 @@ def format_citations(citations_data: dict) -> str:
     return "\n".join(lines)
 
 
+def format_citing_sources(sources: list, source_id: str) -> str:
+    """Format sources that cite a given source."""
+    lines = [f"## Sources Citing `{source_id}`\n"]
+    lines.append(f"**{len(sources)} sources cite this paper**\n")
+
+    if not sources:
+        lines.append("*No citing sources found in the knowledge base*")
+        return "\n".join(lines)
+
+    for s in sources:
+        year = f" ({s.year})" if s.year else ""
+        authors = ", ".join(s.authors[:2]) if s.authors else "Unknown"
+        if s.authors and len(s.authors) > 2:
+            authors += " et al."
+        lines.append(f"- **{s.title}**{year}")
+        lines.append(f"  - {authors}")
+        lines.append(f"  - ID: `{s.id}`")
+
+    return "\n".join(lines)
+
+
+def format_cited_sources(sources: list, source_id: str) -> str:
+    """Format sources that are cited by a given source."""
+    lines = [f"## Sources Cited By `{source_id}`\n"]
+    lines.append(f"**{len(sources)} sources are cited**\n")
+
+    if not sources:
+        lines.append("*No cited sources found in the knowledge base*")
+        return "\n".join(lines)
+
+    for s in sources:
+        year = f" ({s.year})" if s.year else ""
+        authors = ", ".join(s.authors[:2]) if s.authors else "Unknown"
+        if s.authors and len(s.authors) > 2:
+            authors += " et al."
+        lines.append(f"- **{s.title}**{year}")
+        lines.append(f"  - {authors}")
+        lines.append(f"  - ID: `{s.id}`")
+
+    return "\n".join(lines)
+
+
 def format_concept_list(concepts: list[Concept]) -> str:
     """Format concept list as markdown."""
     if not concepts:

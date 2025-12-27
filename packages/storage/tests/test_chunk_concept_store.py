@@ -382,3 +382,82 @@ async def test_get_concept_ids_for_chunks_empty_list(test_db):
     """Test getting concept IDs for empty chunk list."""
     result = await ChunkConceptStore.get_concept_ids_for_chunks([])
     assert result == {}
+
+
+@pytest.mark.asyncio
+async def test_get_concept_info_for_chunks(test_db, test_source):
+    """Test getting concept info with mention_type and relevance_score."""
+    # Create chunks
+    chunk1 = await ChunkStore.create(
+        source_id=test_source.id, content="Info chunk 1", content_hash="hash_info_1"
+    )
+    chunk2 = await ChunkStore.create(
+        source_id=test_source.id, content="Info chunk 2", content_hash="hash_info_2"
+    )
+
+    # Create concepts
+    concept1 = await ConceptStore.create(
+        name="Concept Info A",
+        canonical_name="concept_info_a",
+        concept_type=ConceptType.DEFINITION,
+    )
+    concept2 = await ConceptStore.create(
+        name="Concept Info B",
+        canonical_name="concept_info_b",
+        concept_type=ConceptType.METHOD,
+    )
+
+    # Create links with different mention types and relevance scores
+    await ChunkConceptStore.create(
+        chunk_id=chunk1.id,
+        concept_id=concept1.id,
+        mention_type="defines",
+        relevance_score=0.95,
+    )
+    await ChunkConceptStore.create(
+        chunk_id=chunk1.id,
+        concept_id=concept2.id,
+        mention_type="reference",
+        relevance_score=0.7,
+    )
+    await ChunkConceptStore.create(
+        chunk_id=chunk2.id,
+        concept_id=concept1.id,
+        mention_type="example",
+        # No relevance_score - should be None
+    )
+
+    # Get concept info for chunks
+    result = await ChunkConceptStore.get_concept_info_for_chunks([chunk1.id, chunk2.id])
+
+    assert len(result) == 2
+
+    # Chunk1 has 2 concepts
+    chunk1_info = result[chunk1.id]
+    assert len(chunk1_info) == 2
+
+    # Find the 'defines' link
+    defines_link = next((c for c in chunk1_info if c[0] == concept1.id), None)
+    assert defines_link is not None
+    assert defines_link[1] == "defines"
+    assert defines_link[2] == pytest.approx(0.95, rel=1e-5)  # DB uses REAL (single precision)
+
+    # Find the 'reference' link
+    ref_link = next((c for c in chunk1_info if c[0] == concept2.id), None)
+    assert ref_link is not None
+    assert ref_link[1] == "reference"
+    assert ref_link[2] == pytest.approx(0.7, rel=1e-5)
+
+    # Chunk2 has 1 concept with 'example' mention
+    chunk2_info = result[chunk2.id]
+    assert len(chunk2_info) == 1
+    assert chunk2_info[0][0] == concept1.id
+    assert chunk2_info[0][1] == "example"
+    assert chunk2_info[0][2] is None  # No relevance score
+
+
+@pytest.mark.asyncio
+async def test_get_concept_info_for_chunks_empty_list(test_db):
+    """Test getting concept info for empty chunk list."""
+    result = await ChunkConceptStore.get_concept_info_for_chunks([])
+    assert result == {}

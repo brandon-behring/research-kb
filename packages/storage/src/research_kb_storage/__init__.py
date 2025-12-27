@@ -34,10 +34,12 @@ from research_kb_storage.search import SearchQuery, search_hybrid, search_hybrid
 from research_kb_storage.query_extractor import (
     extract_query_concepts,
     extract_query_concepts_by_similarity,
+    extract_query_concepts_unified,
 )
 from research_kb_storage.source_store import SourceStore
 from research_kb_storage.method_store import MethodStore
 from research_kb_storage.assumption_store import AssumptionStore
+from research_kb_storage.biblio_store import BiblioStore
 from research_kb_storage.graph_queries import (
     compute_graph_score,
     compute_weighted_graph_score,
@@ -46,13 +48,19 @@ from research_kb_storage.graph_queries import (
     find_shortest_path_length,
     get_neighborhood,
     get_path_with_explanation,
+    get_mention_weight,
     get_relationship_weight,
+    MENTION_WEIGHTS,
     RELATIONSHIP_WEIGHTS,
 )
 from research_kb_storage.query_expander import (
     ExpandedQuery,
     QueryExpander,
     expand_query,
+    # HyDE (Phase 3)
+    HydeConfig,
+    generate_hyde_document,
+    get_hyde_embedding,
 )
 from research_kb_storage.citation_graph import (
     build_citation_graph,
@@ -82,6 +90,7 @@ __all__ = [
     "ChunkConceptStore",
     "MethodStore",
     "AssumptionStore",
+    "BiblioStore",
     # Search
     "SearchQuery",
     "search_hybrid",
@@ -90,6 +99,7 @@ __all__ = [
     "search_with_expansion",
     "extract_query_concepts",
     "extract_query_concepts_by_similarity",
+    "extract_query_concepts_unified",
     # Graph Queries (Phase 2 Step 7 + Phase 3 enhancements)
     "find_shortest_path",
     "find_shortest_path_length",
@@ -98,12 +108,18 @@ __all__ = [
     "compute_weighted_graph_score",
     "explain_path",
     "get_path_with_explanation",
+    "get_mention_weight",
     "get_relationship_weight",
+    "MENTION_WEIGHTS",
     "RELATIONSHIP_WEIGHTS",
     # Query Expansion (Phase 3)
     "ExpandedQuery",
     "QueryExpander",
     "expand_query",
+    # HyDE (Phase 3)
+    "HydeConfig",
+    "generate_hyde_document",
+    "get_hyde_embedding",
     # Citation Graph (Phase 3)
     "build_citation_graph",
     "compute_pagerank_authority",

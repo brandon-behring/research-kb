@@ -6,13 +6,23 @@ Provides:
 - Health checks
 """
 
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, field
 from typing import Optional
 
 import asyncpg
 from research_kb_common import StorageError, get_logger
 
 logger = get_logger(__name__)
+
+
+def _get_password_from_env() -> str:
+    """Get database password from environment.
+
+    Reads from POSTGRES_PASSWORD environment variable.
+    Falls back to 'postgres' for development compatibility.
+    """
+    return os.environ.get("POSTGRES_PASSWORD", "postgres")
 
 
 @dataclass

@@ -6,10 +6,12 @@ This package provides:
 - InstructorOllamaClient: Ollama with instructor for schema validation + retry
 - LlamaCppClient: Direct llama.cpp inference (for headless/high-VRAM setups)
 - AnthropicClient: Claude API for fast, high-quality extraction
+- BatchClient: Anthropic Message Batches API for 50% cost savings
 - ConceptExtractor: Extract concepts and relationships from text chunks
 - Deduplicator: Canonical name normalization and embedding-based deduplication
 - GraphSyncService: Sync concepts to Neo4j graph database
 - get_llm_client: Factory function for backend selection
+- get_batch_client: Factory for batch extraction
 """
 
 from typing import Optional
@@ -96,6 +98,29 @@ def get_llm_client(
         )
 
 
+def get_batch_client(
+    model: str = "haiku-4.5",
+    **kwargs,
+):
+    """Factory function to create Batch API client.
+
+    Args:
+        model: Model name (haiku, haiku-3.5, haiku-4.5, sonnet)
+        **kwargs: Additional arguments (max_retries, output_dir)
+
+    Returns:
+        BatchClient instance
+
+    Example:
+        >>> client = get_batch_client("haiku-4.5")
+        >>> batch_id = await client.submit_batch(chunks)
+        >>> results = await client.wait_for_results(batch_id)
+    """
+    from research_kb_extraction.batch_client import BatchClient
+
+    return BatchClient(model=model, **kwargs)
+
+
 __all__ = [
     # Models
     "ExtractedConcept",
@@ -121,4 +146,5 @@ __all__ = [
     "ExtractionMetrics",
     # Factory
     "get_llm_client",
+    "get_batch_client",
 ]

@@ -38,3 +38,19 @@ class SearchError(ResearchKBError):
     """Error during search operations (FTS or vector)."""
 
     pass
+
+
+class ExtractionError(ResearchKBError):
+    """Error during concept extraction from chunks."""
+
+    pass
+
+
+class ExtractionValidationError(ExtractionError):
+    """Error validating extraction output (malformed JSON, invalid schema).
+
+    This error indicates the LLM returned output that could not be parsed.
+    The chunk should be retried or sent to a dead-letter queue.
+    """
+
+    pass

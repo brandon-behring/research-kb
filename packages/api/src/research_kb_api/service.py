@@ -131,10 +131,14 @@ def get_embedding_client() -> EmbeddingClient:
 
 
 def get_cached_embedding(text: str) -> list[float]:
-    """Get embedding with caching."""
+    """Get query embedding with caching.
+
+    Uses embed_query() which adds the BGE query instruction prefix
+    for better asymmetric retrieval (short queries finding long documents).
+    """
     if text not in _embedding_cache:
         client = get_embedding_client()
-        _embedding_cache[text] = client.embed(text)
+        _embedding_cache[text] = client.embed_query(text)
         # Keep cache bounded
         if len(_embedding_cache) > 1000:
             # Remove oldest entries

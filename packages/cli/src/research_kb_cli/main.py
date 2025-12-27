@@ -122,6 +122,8 @@ async def run_query(
     source_filter: Optional[str],
     use_graph: bool = True,
     graph_weight: float = 0.2,
+    use_citations: bool = True,
+    citation_weight: float = 0.15,
     use_rerank: bool = True,
     use_expand: bool = True,
     use_llm_expand: bool = False,
@@ -136,6 +138,8 @@ async def run_query(
         source_filter: Optional source type filter
         use_graph: Enable graph-boosted search (default: True)
         graph_weight: Graph score weight (default: 0.2)
+        use_citations: Enable citation authority boosting (default: True)
+        citation_weight: Citation score weight (default: 0.15)
         use_rerank: Enable cross-encoder reranking (default: True)
         use_expand: Enable query expansion (default: True)
         use_llm_expand: Enable LLM-based expansion (default: False)
@@ -169,42 +173,43 @@ async def run_query(
             print("", file=sys.stderr)
             use_graph = False
 
-    # Generate embedding for query
+    # Generate embedding for query (uses BGE query instruction prefix for better recall)
     embed_client = EmbeddingClient()
-    query_embedding = embed_client.embed(query_text)
+    query_embedding = embed_client.embed_query(query_text)
 
     # Get weights based on context type
     fts_weight, vector_weight = get_context_weights(context_type)
 
+    # Collect active signal weights
+    active_weights = [("fts", fts_weight), ("vector", vector_weight)]
     if use_graph:
-        # Normalize weights to sum to 1.0
-        total = fts_weight + vector_weight + graph_weight
-        fts_weight = fts_weight / total
-        vector_weight = vector_weight / total
-        graph_weight = graph_weight / total
+        active_weights.append(("graph", graph_weight))
+    if use_citations:
+        active_weights.append(("citation", citation_weight))
 
-        # Build search query with graph
-        search_query = SearchQuery(
-            text=query_text,
-            embedding=query_embedding,
-            fts_weight=fts_weight,
-            vector_weight=vector_weight,
-            graph_weight=graph_weight,
-            use_graph=True,
-            max_hops=2,
-            limit=limit,
-            source_filter=source_filter,
-        )
-    else:
-        # Build standard search query
-        search_query = SearchQuery(
-            text=query_text,
-            embedding=query_embedding,
-            fts_weight=fts_weight,
-            vector_weight=vector_weight,
-            limit=limit,
-            source_filter=source_filter,
-        )
+    # Normalize weights to sum to 1.0
+    total = sum(w for _, w in active_weights)
+    fts_weight = fts_weight / total
+    vector_weight = vector_weight / total
+    if use_graph:
+        graph_weight = graph_weight / total
+    if use_citations:
+        citation_weight = citation_weight / total
+
+    # Build search query with all enabled signals
+    search_query = SearchQuery(
+        text=query_text,
+        embedding=query_embedding,
+        fts_weight=fts_weight,
+        vector_weight=vector_weight,
+        graph_weight=graph_weight if use_graph else 0.0,
+        use_graph=use_graph,
+        citation_weight=citation_weight if use_citations else 0.0,
+        use_citations=use_citations,
+        max_hops=2,
+        limit=limit,
+        source_filter=source_filter,
+    )
 
     # Execute search with expansion if enabled
     expanded_query = None
@@ -282,6 +287,17 @@ def query(
         "--llm-expand",
         help="Enable LLM-based query expansion via Ollama (slower, optional)",
     ),
+    use_citations: bool = typer.Option(
+        True,
+        "--citations/--no-citations",
+        "-C/-X",
+        help="Enable/disable citation authority boosting (default: enabled)",
+    ),
+    citation_weight: float = typer.Option(
+        0.15,
+        "--citation-weight",
+        help="Citation score weight (0.0-1.0)",
+    ),
     verbose: bool = typer.Option(
         False,
         "--verbose",
@@ -291,10 +307,12 @@ def query(
 ):
     """Search the research knowledge base with graph-boosted search and reranking.
 
-    Graph-boosted search, query expansion, and cross-encoder reranking are enabled by default:
+    Graph-boosted search, query expansion, citation authority, and cross-encoder
+    reranking are enabled by default:
     - Full-text search (keyword matching)
     - Vector similarity (semantic matching)
     - Knowledge graph signals (concept relationships)
+    - Citation authority (boost highly-cited sources)
     - Query expansion (synonyms + graph neighbors, improves recall)
     - Cross-encoder reranking (Phase 3, improves precision)
 
@@ -306,11 +324,13 @@ def query(
 
         research-kb query "cross-fitting" --no-graph  # Fallback to FTS+vector only
 
+        research-kb query "IV" --no-citations  # Disable citation authority
+
+        research-kb query "IV" --citation-weight 0.25  # Boost citation influence
+
         research-kb query "IV" --no-rerank  # Skip cross-encoder reranking
 
         research-kb query "IV" --expand --verbose  # Show expansion details
-
-        research-kb query "IV" --llm-expand  # Use LLM for semantic expansion
     """
     try:
         # Run async query
@@ -322,6 +342,8 @@ def query(
                 source_type,
                 use_graph,
                 graph_weight,
+                use_citations,
+                citation_weight,
                 use_rerank,
                 use_expand,
                 use_llm_expand,
@@ -373,7 +395,7 @@ def sources():
 
         config = DatabaseConfig()
         await get_connection_pool(config)
-        return await SourceStore.list_all()
+        return await SourceStore.list_all(limit=10000)
 
     try:
         sources = asyncio.run(list_sources())
@@ -934,7 +956,7 @@ def citations(
         await get_connection_pool(config)
 
         # Find matching sources
-        all_sources = await SourceStore.list_all()
+        all_sources = await SourceStore.list_all(limit=10000)
         query_lower = source_query.lower()
 
         matches = []
@@ -1038,7 +1060,7 @@ def cited_by(
         await get_connection_pool(config)
 
         # Find matching sources
-        all_sources = await SourceStore.list_all()
+        all_sources = await SourceStore.list_all(limit=10000)
         query_lower = source_query.lower()
 
         matches = [s for s in all_sources if query_lower in s.title.lower()]
@@ -1129,7 +1151,7 @@ def cites_command(
         await get_connection_pool(config)
 
         # Find matching sources
-        all_sources = await SourceStore.list_all()
+        all_sources = await SourceStore.list_all(limit=10000)
         query_lower = source_query.lower()
 
         matches = [s for s in all_sources if query_lower in s.title.lower()]
@@ -1239,6 +1261,79 @@ def citation_stats_command():
                 typer.echo(f"    Cited by: {source['cited_by_count']} | Authority: {source['citation_authority']:.4f}")
         else:
             typer.echo("No citation graph data. Run: python scripts/build_citation_graph.py")
+
+    except Exception as e:
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(1)
+
+
+@app.command(name="biblio-similar")
+def biblio_similar_command(
+    source_query: str = typer.Argument(..., help="Source title or partial match"),
+    limit: int = typer.Option(10, "--limit", "-l", help="Maximum results"),
+):
+    """Find sources with similar research focus via bibliographic coupling.
+
+    Bibliographic coupling measures similarity based on shared references:
+    sources that cite the same works are likely topically related.
+
+    Coupling strength uses Jaccard similarity (0.0-1.0).
+
+    Examples:
+
+        research-kb biblio-similar "DML"
+
+        research-kb biblio-similar "causal forest" --limit 5
+
+        research-kb biblio-similar "Pearl" --limit 20
+    """
+    from research_kb_storage import BiblioStore, SourceStore
+
+    async def find_similar():
+        config = DatabaseConfig()
+        await get_connection_pool(config)
+
+        # Find matching source (fetch all sources for matching)
+        all_sources = await SourceStore.list_all(limit=10000)
+        query_lower = source_query.lower()
+
+        matches = [s for s in all_sources if query_lower in s.title.lower()]
+
+        if not matches:
+            return None, []
+
+        source = matches[0]
+
+        # Get similar sources via bibliographic coupling
+        similar = await BiblioStore.get_similar_sources(source.id, limit=limit)
+
+        return source, similar
+
+    try:
+        source, similar_sources = asyncio.run(find_similar())
+
+        if not source:
+            typer.echo(f"No source found matching: {source_query}", err=True)
+            raise typer.Exit(1)
+
+        typer.echo(f"Bibliographic Coupling for: {source.title[:60]}...")
+        typer.echo()
+
+        if not similar_sources:
+            typer.echo("No similar sources found. Ensure bibliographic coupling is computed:")
+            typer.echo("  python scripts/compute_bibliographic_coupling.py")
+            return
+
+        typer.echo(f"Similar sources ({len(similar_sources)}):\n")
+
+        for i, s in enumerate(similar_sources, 1):
+            type_badge = f"[{s['source_type']}]"
+            coupling = s['coupling_strength']
+            shared = s['shared_references']
+            typer.echo(f"{i:2}. {type_badge:12} {s['title'][:50]}...")
+            if s['authors']:
+                authors = ", ".join(s['authors'][:2]) if s['authors'] else "Unknown"
+                typer.echo(f"    {authors} ({s['year']}) | Coupling: {coupling:.3f} ({shared} shared refs)")
 
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)

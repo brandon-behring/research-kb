@@ -4,16 +4,25 @@ Usage:
     research-kb enrich-citations --dry-run
     research-kb enrich-citations --source "Pearl 2009"
     research-kb enrich-citations --all
+    research-kb enrich-citations --all --execute --slow --background
+    research-kb enrich-citations --resume
 
 This command uses the s2-client package to match extracted citations
 to Semantic Scholar papers and enrich them with citation counts,
 fields of study, and other metadata.
+
+Checkpoint/Resume:
+    Long-running jobs (~10 hours at 0.2 RPS) support checkpointing.
+    Use --resume to continue from the last checkpoint.
+    Press Ctrl+C to gracefully save progress and exit.
 """
 
 import asyncio
+import json
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Optional
+from uuid import UUID
 
 import typer
 
@@ -86,6 +95,26 @@ def enrich_citations(
         "--format",
         help="Output format",
     ),
+    slow: bool = typer.Option(
+        False,
+        "--slow",
+        help="Use slow rate (0.2 RPS) to avoid rate limits without API key",
+    ),
+    resume: bool = typer.Option(
+        False,
+        "--resume",
+        help="Resume from last checkpoint (continue interrupted job)",
+    ),
+    checkpoint_interval: int = typer.Option(
+        100,
+        "--checkpoint-interval",
+        help="Save checkpoint every N citations (default: 100)",
+    ),
+    job_id: Optional[str] = typer.Option(
+        None,
+        "--job-id",
+        help="Specific job ID to resume (default: most recent)",
+    ),
 ):
     """Enrich citations with Semantic Scholar metadata.
 
@@ -107,19 +136,50 @@ def enrich_citations(
 
         # Force re-enrich all (ignore staleness)
         research-kb enrich citations --all --force --execute
+
+        # Slow mode (no API key) - ~10 hours for 7K citations
+        research-kb enrich citations --all --execute --slow
+
+        # Resume from checkpoint (after Ctrl+C or crash)
+        research-kb enrich citations --resume
+
+        # Resume specific job
+        research-kb enrich citations --resume --job-id 20251226_143000
     """
     try:
-        from s2_client import S2Client, Citation, match_citation, citation_to_enrichment_metadata
+        from s2_client import (
+            S2Client,
+            Citation,
+            match_citation,
+            citation_to_enrichment_metadata,
+            EnrichmentCheckpoint,
+            GracefulShutdown,
+        )
     except ImportError:
         typer.echo("Error: s2-client package not installed.", err=True)
         typer.echo("Run: pip install -e packages/s2-client", err=True)
         raise typer.Exit(1)
+
+    # Handle resume mode
+    if resume:
+        checkpoint = EnrichmentCheckpoint.load(job_id)
+        if checkpoint is None:
+            typer.echo("Error: No checkpoint found to resume from.", err=True)
+            typer.echo("Start a new enrichment job with: research-kb enrich citations --all --execute", err=True)
+            raise typer.Exit(1)
+        typer.echo(f"Resuming job {checkpoint.job_id}: {checkpoint.processed_count} already processed")
+        typer.echo(f"Progress: {checkpoint.format_progress()}")
+        all_citations = True  # Resume implies --all
+        dry_run = False  # Resume implies --execute
+    else:
+        checkpoint = None
 
     if not source_query and not all_citations:
         typer.echo("Error: Specify --source or --all", err=True)
         raise typer.Exit(1)
 
     async def do_enrichment():
+        import json as json_module  # Import locally to avoid closure issues
         import sys
         from pathlib import Path
 
@@ -133,7 +193,8 @@ def enrich_citations(
         pool = await get_connection_pool(config)
 
         # Build query based on filters
-        staleness_cutoff = datetime.now(timezone.utc) - timedelta(days=staleness_days)
+        # Use naive datetime since database stores naive timestamps
+        staleness_cutoff = datetime.utcnow() - timedelta(days=staleness_days)
 
         query_parts = ["SELECT c.id, c.title, c.authors, c.year, c.venue, c.doi, c.arxiv_id, c.metadata, s.title as source_title FROM citations c JOIN sources s ON c.source_id = s.id WHERE 1=1"]
         params = []
@@ -150,8 +211,10 @@ def enrich_citations(
             params.append(staleness_cutoff)
             param_idx += 1
 
-        query_parts.append(f"LIMIT ${param_idx}")
-        params.append(limit)
+        # Apply limit: --all means no limit, otherwise use --limit value
+        if not all_citations:
+            query_parts.append(f"LIMIT ${param_idx}")
+            params.append(limit)
 
         query = " ".join(query_parts)
 
@@ -198,74 +261,127 @@ def enrich_citations(
 
             return results
 
-        # Execute enrichment
-        typer.echo("\nEnriching citations...")
+        # Execute enrichment with checkpoint support
+        rps = 0.2 if slow else 10.0  # Slow mode: 1 request per 5 seconds
 
-        async with S2Client() as client:
-            for i, row in enumerate(rows):
-                citation = Citation(
-                    id=str(row["id"]),
-                    title=row["title"],
-                    authors=row["authors"],
-                    year=row["year"],
-                    venue=row["venue"],
-                    doi=row["doi"],
-                    arxiv_id=row["arxiv_id"],
-                )
+        # Initialize or resume checkpoint
+        nonlocal checkpoint
+        if checkpoint is None:
+            checkpoint = EnrichmentCheckpoint(
+                job_id=datetime.now().strftime("%Y%m%d_%H%M%S"),
+                total_citations=len(rows),
+                rps=rps,
+                checkpoint_interval=checkpoint_interval,
+            )
+            typer.echo(f"\nStarting new enrichment job: {checkpoint.job_id}")
+        else:
+            checkpoint.total_citations = len(rows)
 
-                try:
-                    result = await match_citation(citation, client)
+        # Filter out already-processed citations (from checkpoint)
+        processed_ids = checkpoint.processed_ids
+        rows_to_process = [r for r in rows if r["id"] not in processed_ids]
 
-                    if result.status == "matched":
-                        results["matched"] += 1
-                        results["by_method"][result.match_method] = results["by_method"].get(result.match_method, 0) + 1
+        if len(rows_to_process) < len(rows):
+            typer.echo(f"  Skipping {len(rows) - len(rows_to_process)} already-processed citations")
 
-                        # Update database
-                        metadata = citation_to_enrichment_metadata(result)
-                        async with pool.acquire() as conn:
-                            # Merge with existing metadata
-                            await conn.execute(
-                                """
-                                UPDATE citations
-                                SET metadata = metadata || $1::jsonb
-                                WHERE id = $2
-                                """,
-                                metadata,
-                                row["id"],
-                            )
+        if not rows_to_process:
+            typer.echo("All citations already processed!")
+            return results
 
-                        results["enriched_citations"].append({
-                            "id": str(row["id"]),
-                            "title": row["title"],
-                            "method": result.match_method,
-                            "confidence": result.confidence,
-                        })
+        if slow:
+            eta_hours = len(rows_to_process) * 5 / 3600
+            typer.echo(f"\nEnriching {len(rows_to_process)} citations in SLOW mode (0.2 RPS)...")
+            typer.echo(f"  Estimated time: {eta_hours:.1f} hours")
+            typer.echo(f"  Press Ctrl+C to save checkpoint and exit")
+        else:
+            typer.echo(f"\nEnriching {len(rows_to_process)} citations...")
 
-                    elif result.status == "ambiguous":
-                        results["ambiguous"] += 1
-                        # Store ambiguous status for review
-                        metadata = citation_to_enrichment_metadata(result)
-                        async with pool.acquire() as conn:
-                            await conn.execute(
-                                """
-                                UPDATE citations
-                                SET metadata = metadata || $1::jsonb
-                                WHERE id = $2
-                                """,
-                                metadata,
-                                row["id"],
-                            )
+        async with S2Client(requests_per_second=rps) as client:
+            with GracefulShutdown(checkpoint) as shutdown:
+                for i, row in enumerate(rows_to_process):
+                    # Check for shutdown request
+                    if shutdown.shutdown_requested:
+                        typer.echo("\nShutdown requested. Exiting gracefully...")
+                        break
 
-                    else:
+                    citation = Citation(
+                        id=str(row["id"]),
+                        title=row["title"],
+                        authors=row["authors"],
+                        year=row["year"],
+                        venue=row["venue"],
+                        doi=row["doi"],
+                        arxiv_id=row["arxiv_id"],
+                    )
+
+                    try:
+                        result = await match_citation(citation, client)
+
+                        if result.status == "matched":
+                            results["matched"] += 1
+                            checkpoint.matched += 1
+                            results["by_method"][result.match_method] = results["by_method"].get(result.match_method, 0) + 1
+
+                            # Update database
+                            metadata = citation_to_enrichment_metadata(result)
+                            async with pool.acquire() as conn:
+                                await conn.execute(
+                                    """
+                                    UPDATE citations
+                                    SET metadata = metadata || $1::jsonb
+                                    WHERE id = $2
+                                    """,
+                                    json_module.dumps(metadata),
+                                    row["id"],
+                                )
+
+                            results["enriched_citations"].append({
+                                "id": str(row["id"]),
+                                "title": row["title"],
+                                "method": result.match_method,
+                                "confidence": result.confidence,
+                            })
+
+                        elif result.status == "ambiguous":
+                            results["ambiguous"] += 1
+                            checkpoint.ambiguous += 1
+                            metadata = citation_to_enrichment_metadata(result)
+                            async with pool.acquire() as conn:
+                                await conn.execute(
+                                    """
+                                    UPDATE citations
+                                    SET metadata = metadata || $1::jsonb
+                                    WHERE id = $2
+                                    """,
+                                    json_module.dumps(metadata),
+                                    row["id"],
+                                )
+
+                        else:
+                            results["unmatched"] += 1
+                            checkpoint.unmatched += 1
+
+                    except Exception as e:
+                        typer.echo(f"  Error enriching citation {row['id']}: {e}", err=True)
                         results["unmatched"] += 1
+                        checkpoint.errors += 1
 
-                except Exception as e:
-                    typer.echo(f"  Error enriching citation {row['id']}: {e}", err=True)
-                    results["unmatched"] += 1
+                    # Mark as processed
+                    checkpoint.processed_ids.add(row["id"])
 
-                # Progress indicator
-                if (i + 1) % 10 == 0:
-                    typer.echo(f"  Processed {i + 1}/{len(rows)} citations...")
+                    # Periodic checkpoint save and progress
+                    if (i + 1) % checkpoint_interval == 0:
+                        checkpoint.save()
+                        typer.echo(f"  {checkpoint.format_progress()} | {checkpoint.format_stats()}")
+
+        # Final checkpoint save
+        if shutdown.shutdown_requested:
+            # Keep checkpoint for resume
+            typer.echo(f"\n✓ Checkpoint saved. Resume with: research-kb enrich citations --resume")
+        else:
+            # Job completed - delete checkpoint
+            checkpoint.delete()
+            typer.echo("\n✓ Enrichment complete. Checkpoint cleaned up.")
 
         return results
 
@@ -387,3 +503,84 @@ def enrichment_status():
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
         raise typer.Exit(1)
+
+
+@app.command(name="job-status")
+def job_status_command(
+    job_id: Optional[str] = typer.Option(
+        None,
+        "--job",
+        "-j",
+        help="Specific job ID to check (default: most recent)",
+    ),
+    list_all: bool = typer.Option(
+        False,
+        "--list",
+        "-l",
+        help="List all available checkpoints",
+    ),
+):
+    """Check status of enrichment jobs (running or completed).
+
+    Shows progress, statistics, and ETA for checkpoint-based enrichment jobs.
+
+    Examples:
+
+        # Check most recent job
+        research-kb enrich job-status
+
+        # Check specific job
+        research-kb enrich job-status --job 20251226_143000
+
+        # List all checkpoints
+        research-kb enrich job-status --list
+    """
+    try:
+        from s2_client import EnrichmentCheckpoint, list_checkpoints
+    except ImportError:
+        typer.echo("Error: s2-client package not installed.", err=True)
+        raise typer.Exit(1)
+
+    if list_all:
+        checkpoints = list_checkpoints()
+        if not checkpoints:
+            typer.echo("No enrichment checkpoints found.")
+            return
+
+        typer.echo("Available Enrichment Checkpoints")
+        typer.echo("=" * 60)
+        for cp in checkpoints:
+            processed = cp["processed"]
+            total = cp["total"]
+            pct = (processed / total * 100) if total > 0 else 0
+            stats = cp.get("stats", {})
+            typer.echo(f"\nJob: {cp['job_id']}")
+            typer.echo(f"  Started: {cp['started_at']}")
+            typer.echo(f"  Last saved: {cp['last_saved_at']}")
+            typer.echo(f"  Progress: {processed}/{total} ({pct:.1f}%)")
+            typer.echo(f"  Matched: {stats.get('matched', 0)}, Ambiguous: {stats.get('ambiguous', 0)}, Unmatched: {stats.get('unmatched', 0)}")
+        return
+
+    checkpoint = EnrichmentCheckpoint.load(job_id)
+    if checkpoint is None:
+        typer.echo("No enrichment checkpoint found.", err=True)
+        if job_id:
+            typer.echo(f"Job ID '{job_id}' does not exist.", err=True)
+        typer.echo("Start a new job with: research-kb enrich citations --all --execute", err=True)
+        raise typer.Exit(1)
+
+    typer.echo("Enrichment Job Status")
+    typer.echo("=" * 60)
+    typer.echo(f"\nJob ID:        {checkpoint.job_id}")
+    typer.echo(f"Started:       {checkpoint.started_at.isoformat()}")
+    if checkpoint.last_saved_at:
+        typer.echo(f"Last saved:    {checkpoint.last_saved_at.isoformat()}")
+    typer.echo(f"\nProgress:      {checkpoint.format_progress()}")
+    typer.echo(f"Statistics:    {checkpoint.format_stats()}")
+    typer.echo(f"\nRate:          {checkpoint.rps} requests/second")
+    typer.echo(f"Checkpoint:    Every {checkpoint.checkpoint_interval} citations")
+
+    if checkpoint.remaining > 0:
+        typer.echo(f"\nTo resume:     research-kb enrich citations --resume")
+    else:
+        typer.echo(f"\n✓ Job appears complete. Delete checkpoint with new job.")

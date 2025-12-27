@@ -174,9 +174,9 @@ async def test_retrieval_precision_threshold(corpus_chunks):
     precision_scores = []
 
     for test in test_queries:
-        # Generate embedding
+        # Generate embedding (uses BGE query instruction prefix)
         try:
-            query_embedding = embed_client.embed(test['query'])
+            query_embedding = embed_client.embed_query(test['query'])
         except Exception:
             continue
 
@@ -491,9 +491,9 @@ async def test_search_latency(corpus_chunks):
     latencies = []
 
     for query in test_queries:
-        # Generate embedding
+        # Generate embedding (uses BGE query instruction prefix)
         try:
-            query_embedding = embed_client.embed(query)
+            query_embedding = embed_client.embed_query(query)
         except Exception:
             continue
 

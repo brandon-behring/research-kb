@@ -4,10 +4,16 @@ Interactive PyVis graph showing paper/textbook citation relationships.
 Nodes sized by PageRank authority, colored by source type.
 """
 
+import os
 import streamlit as st
 import asyncio
 import asyncpg
 from typing import Optional
+
+
+def _get_db_password() -> str:
+    """Get database password from environment."""
+    return os.environ.get("POSTGRES_PASSWORD", "postgres")
 
 from research_kb_dashboard.components.graph import (
     create_network,
@@ -38,7 +44,7 @@ async def load_citation_data(source_type_filter: Optional[str] = None):
         port=5432,
         database="research_kb",
         user="postgres",
-        password="postgres",
+        password=_get_db_password(),
     )
 
     try:

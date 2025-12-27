@@ -4,11 +4,17 @@ Syncs concepts and relationships from PostgreSQL to Neo4j
 for efficient graph traversal queries.
 """
 
+import os
 from typing import Any, Optional
 from uuid import UUID
 
 from neo4j import AsyncGraphDatabase, AsyncDriver
 from research_kb_common import get_logger
+
+
+def _get_neo4j_password() -> str:
+    """Get Neo4j password from environment."""
+    return os.environ.get("NEO4J_PASSWORD", "research_kb_dev")
 
 logger = get_logger(__name__)
 
@@ -39,18 +45,18 @@ class GraphSyncService:
         self,
         uri: str = "bolt://localhost:7687",
         username: str = "neo4j",
-        password: str = "research_kb_dev",
+        password: str | None = None,
     ):
         """Initialize graph sync service.
 
         Args:
             uri: Neo4j Bolt protocol URI
             username: Neo4j username
-            password: Neo4j password
+            password: Neo4j password (from NEO4J_PASSWORD env var if not specified)
         """
         self.uri = uri
         self.username = username
-        self.password = password
+        self.password = password if password is not None else _get_neo4j_password()
         self._driver: Optional[AsyncDriver] = None
 
     async def _get_driver(self) -> AsyncDriver:

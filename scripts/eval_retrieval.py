@@ -4,9 +4,15 @@
 Master Plan Reference: Lines 596-601, 1382-1383
 
 Metrics:
-- Known-answer tests: backdoor criterion → Pearl, cross-fitting → Chernozhukov
-- Precision@5: >90% target
-- Recall: >95% target (when ground truth available)
+- Hit Rate@K: % of queries where expected result appears in top K (target: 90%)
+- MRR (Mean Reciprocal Rank): average of 1/rank for successful queries
+  - MRR=1.0 means always rank 1, MRR=0.5 means average rank 2
+- NDCG@K (Normalized Discounted Cumulative Gain): standard ranking metric
+  - Accounts for position of relevant results (earlier = better)
+  - Range 0-1, where 1.0 is perfect ranking
+
+Note: True Precision@K requires graded relevance labels for ALL retrieved
+results. Since we only label expected sources, we use Hit Rate, MRR, and NDCG.
 
 Usage:
     python scripts/eval_retrieval.py
@@ -21,7 +27,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+import numpy as np
 import yaml
+from sklearn.metrics import ndcg_score
 
 # Add packages to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "pdf-tools" / "src"))
@@ -106,8 +114,8 @@ async def run_test_case(
         TestResult with pass/fail and details
     """
     try:
-        # Generate query embedding
-        query_embedding = embed_client.embed(test_case.query)
+        # Generate query embedding (uses BGE query instruction prefix)
+        query_embedding = embed_client.embed_query(test_case.query)
 
         # Execute search
         query = SearchQuery(
@@ -215,12 +223,50 @@ async def run_eval(
     passed = sum(1 for r in results if r.passed)
     total = len(results)
 
+    # Mean Reciprocal Rank (MRR): average of 1/rank for successful queries
+    # Measures ranking quality - higher is better, 1.0 means always rank 1
+    reciprocal_ranks = [
+        1.0 / r.matched_rank
+        for r in results
+        if r.passed and r.matched_rank
+    ]
+    mrr = sum(reciprocal_ranks) / len(reciprocal_ranks) if reciprocal_ranks else 0.0
+
+    # NDCG@K (Normalized Discounted Cumulative Gain)
+    # For binary relevance with 1 relevant doc: NDCG = 1/log2(rank+1) if found, 0 otherwise
+    # Uses sklearn for standard computation
+    def compute_ndcg_at_k(results: list[TestResult], k: int) -> float:
+        """Compute NDCG@K for binary relevance with single relevant item per query."""
+        ndcg_scores = []
+        for r in results:
+            if r.passed and r.matched_rank and r.matched_rank <= k:
+                # Binary relevance: 1 at matched position, 0 elsewhere
+                y_true = np.zeros(k)
+                y_true[r.matched_rank - 1] = 1.0
+                # Predicted scores: decreasing by rank (position 1 = highest score)
+                y_score = np.arange(k, 0, -1, dtype=float)
+                ndcg_scores.append(ndcg_score([y_true], [y_score], k=k))
+            else:
+                # Not found in top K → NDCG = 0
+                ndcg_scores.append(0.0)
+        return float(np.mean(ndcg_scores)) if ndcg_scores else 0.0
+
+    ndcg_5 = compute_ndcg_at_k(results, 5)
+    ndcg_10 = compute_ndcg_at_k(results, 10)
+
     metrics = {
         "total": total,
         "passed": passed,
         "failed": total - passed,
-        "pass_rate": passed / total if total > 0 else 0,
-        "precision_at_k": passed / total if total > 0 else 0,  # Simplified P@K
+        # Hit Rate@K: % of queries where expected result appears in top K
+        # (Previously mislabeled as "precision_at_k")
+        "hit_rate_at_k": passed / total if total > 0 else 0,
+        # Mean Reciprocal Rank: average of 1/rank for successful queries
+        # MRR=1.0 means always rank 1, MRR=0.5 means avg rank 2
+        "mrr": mrr,
+        # NDCG: accounts for position (earlier = better), range 0-1
+        "ndcg_5": ndcg_5,
+        "ndcg_10": ndcg_10,
     }
 
     return results, metrics
@@ -235,14 +281,27 @@ def print_summary(results: list[TestResult], metrics: dict):
     print(f"\nTotal tests: {metrics['total']}")
     print(f"Passed: {metrics['passed']}")
     print(f"Failed: {metrics['failed']}")
-    print(f"Pass rate: {metrics['pass_rate']:.1%}")
 
-    # Target comparison
-    print("\nTarget Comparison:")
-    target_precision = 0.90
-    actual_precision = metrics['precision_at_k']
-    status = "✓" if actual_precision >= target_precision else "✗"
-    print(f"  {status} Precision@K: {actual_precision:.1%} (target: ≥{target_precision:.0%})")
+    # Metrics
+    print("\nMetrics:")
+    target_hit_rate = 0.90
+    actual_hit_rate = metrics['hit_rate_at_k']
+    status = "✓" if actual_hit_rate >= target_hit_rate else "✗"
+    print(f"  {status} Hit Rate@K: {actual_hit_rate:.1%} (target: ≥{target_hit_rate:.0%})")
+    print(f"      (% of queries where expected result appears in top K)")
+
+    mrr = metrics['mrr']
+    mrr_status = "✓" if mrr >= 0.5 else "✗"  # MRR >= 0.5 means avg rank ≤ 2
+    print(f"  {mrr_status} MRR: {mrr:.3f}")
+    print(f"      (Mean Reciprocal Rank: 1.0=always rank 1, 0.5=avg rank 2)")
+
+    # NDCG metrics
+    ndcg_5 = metrics.get('ndcg_5', 0.0)
+    ndcg_10 = metrics.get('ndcg_10', 0.0)
+    ndcg_status = "✓" if ndcg_5 >= 0.7 else "✗"  # NDCG ≥ 0.7 is good ranking
+    print(f"  {ndcg_status} NDCG@5: {ndcg_5:.3f}")
+    print(f"    NDCG@10: {ndcg_10:.3f}")
+    print(f"      (Position-weighted: 1.0=perfect, 0.5=avg rank 3)")
 
     # List failures
     failures = [r for r in results if not r.passed]

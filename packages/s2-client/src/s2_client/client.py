@@ -10,6 +10,7 @@ Base URL: https://api.semanticscholar.org
 Docs: https://api.semanticscholar.org/api-docs/graph
 """
 
+import asyncio
 import os
 from typing import Any
 
@@ -370,7 +371,7 @@ class S2Client:
         params: dict[str, Any] | None = None,
         json: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Make API request with rate limiting and caching.
+        """Make API request with rate limiting, caching, and 429 retry.
 
         Args:
             method: HTTP method
@@ -383,7 +384,7 @@ class S2Client:
 
         Raises:
             S2APIError: On API errors
-            S2RateLimitError: On rate limit (429)
+            S2RateLimitError: On rate limit (429) after max retries
             S2NotFoundError: On 404
         """
         if not self._client:
@@ -397,44 +398,65 @@ class S2Client:
                 logger.debug("Cache hit", endpoint=endpoint)
                 return cached
 
-        # Rate limit
-        await self._rate_limiter.acquire()
+        # 429 retry configuration
+        max_429_retries = 3
+        base_wait = 5.0  # Base wait time for exponential backoff
 
-        # Make request
-        logger.debug("API request", method=method, endpoint=endpoint)
+        for attempt in range(max_429_retries + 1):
+            # Rate limit
+            await self._rate_limiter.acquire()
 
-        if method == "GET":
-            response = await self._client.get(endpoint, params=params)
-        elif method == "POST":
-            response = await self._client.post(endpoint, params=params, json=json)
-        else:
-            raise ValueError(f"Unsupported method: {method}")
+            # Make request
+            logger.debug("API request", method=method, endpoint=endpoint)
 
-        # Handle errors
-        if response.status_code == 429:
-            retry_after = response.headers.get("Retry-After")
-            raise S2RateLimitError(
-                retry_after=float(retry_after) if retry_after else None,
-                endpoint=endpoint,
-            )
+            if method == "GET":
+                response = await self._client.get(endpoint, params=params)
+            elif method == "POST":
+                response = await self._client.post(endpoint, params=params, json=json)
+            else:
+                raise ValueError(f"Unsupported method: {method}")
 
-        if response.status_code == 404:
-            raise S2NotFoundError(endpoint.split("/")[-1])
+            # Handle 429 with retry
+            if response.status_code == 429:
+                if attempt < max_429_retries:
+                    retry_after = response.headers.get("Retry-After")
+                    wait_time = float(retry_after) if retry_after else base_wait * (2 ** attempt)
+                    logger.warning(
+                        "rate_limited_retrying",
+                        endpoint=endpoint,
+                        attempt=attempt + 1,
+                        wait_seconds=wait_time,
+                    )
+                    await asyncio.sleep(wait_time)
+                    continue
+                else:
+                    # Max retries exceeded
+                    raise S2RateLimitError(
+                        retry_after=float(response.headers.get("Retry-After")) if response.headers.get("Retry-After") else None,
+                        endpoint=endpoint,
+                    )
 
-        if response.status_code >= 400:
-            raise S2APIError(
-                response.status_code,
-                response.text[:500],
-                endpoint,
-            )
+            # Handle other errors (no retry)
+            if response.status_code == 404:
+                raise S2NotFoundError(endpoint.split("/")[-1])
 
-        data = response.json()
+            if response.status_code >= 400:
+                raise S2APIError(
+                    response.status_code,
+                    response.text[:500],
+                    endpoint,
+                )
 
-        # Cache successful GET responses
-        if self._cache and method == "GET":
-            await self._cache.set(endpoint, cache_key_params, data)
+            # Success - parse and cache
+            data = response.json()
 
-        return data
+            if self._cache and method == "GET":
+                await self._cache.set(endpoint, cache_key_params, data)
+
+            return data
+
+        # Should not reach here, but safety fallback
+        raise S2RateLimitError(retry_after=None, endpoint=endpoint)
 
     async def cache_stats(self) -> dict[str, Any]:
         """Get cache statistics."""

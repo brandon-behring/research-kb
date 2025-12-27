@@ -15,16 +15,22 @@ logger = get_logger(__name__)
 # Default socket path (matches embed_server.py)
 DEFAULT_SOCKET_PATH = "/tmp/research_kb_embed.sock"
 BUFFER_SIZE = 131072  # 128KB
+SOCKET_TIMEOUT = 60.0  # 60 seconds per operation
 
 
 class EmbeddingClient:
     """Client for communicating with embedding server."""
 
-    def __init__(self, socket_path: str = DEFAULT_SOCKET_PATH):
+    def __init__(
+        self,
+        socket_path: str = DEFAULT_SOCKET_PATH,
+        timeout: float = SOCKET_TIMEOUT,
+    ):
         """Initialize embedding client.
 
         Args:
             socket_path: Path to Unix domain socket
+            timeout: Socket timeout in seconds (default 60s)
 
         Example:
             >>> client = EmbeddingClient()
@@ -33,6 +39,7 @@ class EmbeddingClient:
             1024
         """
         self.socket_path = socket_path
+        self.timeout = timeout
 
     @retry_on_exception(
         exception_types=(ConnectionError, TimeoutError, BrokenPipeError, OSError),
@@ -51,10 +58,13 @@ class EmbeddingClient:
 
         Raises:
             ConnectionError: If cannot connect to server (after retries exhausted)
+            TimeoutError: If socket operation times out
             ValueError: If server returns error (not retried)
         """
+        client = None
         try:
             client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            client.settimeout(self.timeout)
             client.connect(self.socket_path)
             client.sendall(json.dumps(request).encode("utf-8"))
             client.shutdown(socket.SHUT_WR)  # Signal end of request
@@ -66,7 +76,6 @@ class EmbeddingClient:
                     break
                 response_data += chunk
 
-            client.close()
             response = json.loads(response_data.decode("utf-8"))
 
             if "error" in response:
@@ -74,13 +83,26 @@ class EmbeddingClient:
 
             return response
 
+        except socket.timeout:
+            raise TimeoutError(
+                f"Embedding request timed out after {self.timeout}s. "
+                "Server may be overloaded or hung."
+            )
         except FileNotFoundError:
             raise ConnectionError(
                 "Embedding server not running. Start with: "
                 "python -m research_kb_pdf.embed_server"
             )
+        except (ConnectionError, TimeoutError, ValueError):
+            raise  # Re-raise without wrapping
         except Exception as e:
             raise ConnectionError(f"Failed to connect to embedding server: {e}")
+        finally:
+            if client:
+                try:
+                    client.close()
+                except Exception:
+                    pass  # Ignore errors during cleanup
 
     def ping(self) -> dict:
         """Health check for embedding server.
@@ -97,7 +119,7 @@ class EmbeddingClient:
         return self._send_request({"action": "ping"})
 
     def embed(self, text: str) -> list[float]:
-        """Embed a single text string.
+        """Embed a single text string (for documents/passages).
 
         Args:
             text: Text to embed
@@ -114,8 +136,30 @@ class EmbeddingClient:
         response = self._send_request({"action": "embed", "text": text})
         return response["embedding"]
 
+    def embed_query(self, text: str) -> list[float]:
+        """Embed a query string with BGE instruction prefix.
+
+        For asymmetric retrieval (short queries finding long documents),
+        this adds the BGE query instruction prefix to improve recall,
+        especially for terse queries like "IV" or "DML".
+
+        Args:
+            text: Query text to embed
+
+        Returns:
+            1024-dimensional embedding vector
+
+        Example:
+            >>> client = EmbeddingClient()
+            >>> embedding = client.embed_query("instrumental variables")
+            >>> len(embedding)
+            1024
+        """
+        response = self._send_request({"action": "embed_query", "text": text})
+        return response["embedding"]
+
     def embed_batch(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
-        """Embed multiple texts in a batch.
+        """Embed multiple texts in a batch (for documents/passages).
 
         Args:
             texts: List of texts to embed
@@ -132,6 +176,29 @@ class EmbeddingClient:
         """
         response = self._send_request(
             {"action": "embed_batch", "texts": texts, "batch_size": batch_size}
+        )
+        return response["embeddings"]
+
+    def embed_query_batch(
+        self, texts: list[str], batch_size: int = 32
+    ) -> list[list[float]]:
+        """Embed multiple query strings with BGE instruction prefix.
+
+        Args:
+            texts: List of query texts to embed
+            batch_size: Server-side batch size (default 32)
+
+        Returns:
+            List of 1024-dimensional embeddings
+
+        Example:
+            >>> client = EmbeddingClient()
+            >>> embeddings = client.embed_query_batch(["IV", "DML"])
+            >>> len(embeddings)
+            2
+        """
+        response = self._send_request(
+            {"action": "embed_query_batch", "texts": texts, "batch_size": batch_size}
         )
         return response["embeddings"]
 
@@ -195,7 +262,7 @@ def embed_text(text: str, socket_path: str = DEFAULT_SOCKET_PATH) -> list[float]
 def embed_texts(
     texts: list[str], socket_path: str = DEFAULT_SOCKET_PATH
 ) -> list[list[float]]:
-    """Convenience function to embed multiple texts.
+    """Convenience function to embed multiple texts (documents/passages).
 
     Args:
         texts: List of texts to embed
@@ -211,3 +278,46 @@ def embed_texts(
     """
     client = EmbeddingClient(socket_path)
     return client.embed_batch(texts)
+
+
+def embed_query(text: str, socket_path: str = DEFAULT_SOCKET_PATH) -> list[float]:
+    """Convenience function to embed a query string with BGE instruction prefix.
+
+    For asymmetric retrieval (short queries finding long documents),
+    this adds the BGE query instruction prefix to improve recall.
+
+    Args:
+        text: Query text to embed
+        socket_path: Path to Unix domain socket
+
+    Returns:
+        1024-dimensional embedding vector
+
+    Example:
+        >>> embedding = embed_query("instrumental variables")
+        >>> len(embedding)
+        1024
+    """
+    client = EmbeddingClient(socket_path)
+    return client.embed_query(text)
+
+
+def embed_queries(
+    texts: list[str], socket_path: str = DEFAULT_SOCKET_PATH
+) -> list[list[float]]:
+    """Convenience function to embed multiple query strings with BGE instruction prefix.
+
+    Args:
+        texts: List of query texts to embed
+        socket_path: Path to Unix domain socket
+
+    Returns:
+        List of 1024-dimensional embeddings
+
+    Example:
+        >>> embeddings = embed_queries(["IV", "DML"])
+        >>> len(embeddings)
+        2
+    """
+    client = EmbeddingClient(socket_path)
+    return client.embed_query_batch(texts)

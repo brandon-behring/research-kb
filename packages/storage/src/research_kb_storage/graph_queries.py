@@ -45,6 +45,31 @@ RELATIONSHIP_WEIGHTS: dict[RelationshipType, float] = {
     RelationshipType.ALTERNATIVE_TO: 0.5,
 }
 
+# Mention type weights for graph scoring
+# How a concept appears in a chunk affects its relevance signal:
+# - 'defines': Chunk formally defines the concept (highest signal)
+# - 'reference': Chunk mentions/uses the concept (moderate signal)
+# - 'example': Chunk provides an example of the concept (lower signal)
+MENTION_WEIGHTS: dict[str, float] = {
+    "defines": 1.0,
+    "reference": 0.6,
+    "example": 0.4,
+}
+
+
+def get_mention_weight(mention_type: str | None) -> float:
+    """Get scoring weight for a concept mention type.
+
+    Args:
+        mention_type: How the concept appears in the chunk
+
+    Returns:
+        Weight value (0.4-1.0), defaults to 0.5 for unknown/None
+    """
+    if mention_type is None:
+        return 0.5
+    return MENTION_WEIGHTS.get(mention_type, 0.5)
+
 
 def get_relationship_weight(rel_type: RelationshipType) -> float:
     """Get scoring weight for a relationship type.
@@ -490,22 +515,26 @@ async def compute_weighted_graph_score(
     query_concept_ids: list[UUID],
     chunk_concept_ids: list[UUID],
     max_hops: int = 2,
+    chunk_mention_info: dict[UUID, tuple[str, float | None]] | None = None,
 ) -> tuple[float, list[str]]:
-    """Compute weighted graph score with path explanations.
+    """Compute weighted graph score with path explanations and mention weighting.
 
     Enhanced version of compute_graph_score that:
     1. Uses relationship type weights (REQUIRES > USES > ADDRESSES)
-    2. Returns human-readable explanations of scoring paths
+    2. Uses mention type weights (defines > reference > example)
+    3. Returns human-readable explanations of scoring paths
 
     Algorithm:
     1. For each query→chunk concept pair, find shortest path
-    2. Score = product of relationship weights along path / (path_length + 1)
+    2. Score = (product of rel weights) * mention_weight * relevance / (path_length + 1)
     3. Collect explanations for top contributing paths
 
     Args:
         query_concept_ids: Concepts from query
         chunk_concept_ids: Concepts in candidate chunk
         max_hops: Maximum path length to consider
+        chunk_mention_info: Optional dict mapping concept_id -> (mention_type, relevance_score)
+                           for weighted scoring based on how concepts appear in chunk
 
     Returns:
         Tuple of (normalized_score, list_of_explanations)
@@ -513,13 +542,13 @@ async def compute_weighted_graph_score(
         - explanations: List of path explanation strings for top contributing paths
 
     Example:
+        >>> mention_info = {concept_id: ("defines", 0.9)}
         >>> score, explanations = await compute_weighted_graph_score(
         ...     [iv_concept_id],
-        ...     [endogeneity_id, unconfoundedness_id]
+        ...     [endogeneity_id],
+        ...     chunk_mention_info=mention_info,
         ... )
         >>> print(f"Score: {score:.2f}")
-        >>> for exp in explanations:
-        ...     print(f"  - {exp}")
     """
     if not query_concept_ids or not chunk_concept_ids:
         return 0.0, []
@@ -548,8 +577,17 @@ async def compute_weighted_graph_score(
                             if rel:
                                 path_weight *= get_relationship_weight(rel.relationship_type)
 
-                    # Score contribution: weight / (path_length + 1)
-                    score_contribution = path_weight / (path_len + 1)
+                    # Apply mention weight if info provided
+                    mention_weight = 1.0
+                    if chunk_mention_info and c_id in chunk_mention_info:
+                        mention_type, relevance = chunk_mention_info[c_id]
+                        mention_weight = get_mention_weight(mention_type)
+                        # Multiply by relevance_score if available
+                        if relevance is not None:
+                            mention_weight *= relevance
+
+                    # Score contribution: (path_weight * mention_weight) / (path_length + 1)
+                    score_contribution = (path_weight * mention_weight) / (path_len + 1)
                     total_score += score_contribution
 
                     # Generate explanation

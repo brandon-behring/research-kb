@@ -22,6 +22,11 @@ from s2_client.acquire import (
     load_existing_identifiers,
 )
 from s2_client.cache import S2Cache
+from s2_client.checkpoint import (
+    EnrichmentCheckpoint,
+    GracefulShutdown,
+    list_checkpoints,
+)
 from s2_client.client import S2Client
 from s2_client.enrichment import (
     Citation,
@@ -69,6 +74,10 @@ __all__ = [
     "match_citation",
     "score_candidates",
     "citation_to_enrichment_metadata",
+    # Checkpoint/Resume
+    "EnrichmentCheckpoint",
+    "GracefulShutdown",
+    "list_checkpoints",
     # Rate limiting & caching
     "RateLimiter",
     "S2Cache",

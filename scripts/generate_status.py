@@ -94,6 +94,18 @@ async def get_db_stats() -> dict:
             )
             stats["citations"] = await conn.fetchval("SELECT COUNT(*) FROM citations")
 
+            # Enrichment tables
+            stats["methods"] = await conn.fetchval("SELECT COUNT(*) FROM methods")
+            stats["assumptions"] = await conn.fetchval("SELECT COUNT(*) FROM assumptions")
+
+            # Enrichment coverage (methods with attributes populated)
+            stats["methods_with_assumptions"] = await conn.fetchval(
+                "SELECT COUNT(*) FROM methods WHERE array_length(required_assumptions, 1) > 0"
+            )
+            stats["assumptions_with_math"] = await conn.fetchval(
+                "SELECT COUNT(*) FROM assumptions WHERE mathematical_statement IS NOT NULL"
+            )
+
             # Embedding coverage
             stats["chunks_with_embeddings"] = await conn.fetchval(
                 "SELECT COUNT(*) FROM chunks WHERE embedding IS NOT NULL"
@@ -188,6 +200,17 @@ def generate_status_md(stats: dict) -> str:
 | concept_relationships | {stats['relationships']:,} |
 | chunk_concepts | {stats['chunk_concepts']:,} |
 | citations | {stats['citations']:,} |
+| methods | {stats['methods']:,} |
+| assumptions | {stats['assumptions']:,} |
+
+---
+
+## Enrichment Coverage
+
+| Entity | Enriched | Total | Coverage |
+|--------|----------:|------:|---------:|
+| Methods (with assumptions) | {stats['methods_with_assumptions']:,} | {stats['methods']:,} | {100 * stats['methods_with_assumptions'] / max(stats['methods'], 1):.1f}% |
+| Assumptions (with math) | {stats['assumptions_with_math']:,} | {stats['assumptions']:,} | {100 * stats['assumptions_with_math'] / max(stats['assumptions'], 1):.1f}% |
 
 ---
 

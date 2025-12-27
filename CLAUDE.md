@@ -119,9 +119,11 @@ OLLAMA_KV_CACHE_TYPE=q8_0  # Quantized KV cache
 ### CLI Usage
 
 ```bash
-# Search and retrieval
-research-kb query "instrumental variables"            # Default (graph-boosted)
+# Search and retrieval (4-way ranking: FTS + vector + graph + citation)
+research-kb query "instrumental variables"            # Default (all signals)
 research-kb query "test" --no-graph                   # Without graph
+research-kb query "IV" --no-citations                 # Without citation authority
+research-kb query "IV" --citation-weight 0.25         # Boost citation influence
 research-kb query "IV" --context building             # Context-tuned weights
 
 # Source management
@@ -139,6 +141,7 @@ research-kb citations <source>                        # List citations from a so
 research-kb cited-by <source>                         # Find sources citing this one
 research-kb cites <source>                            # Find sources this one cites
 research-kb citation-stats                            # Corpus citation statistics
+research-kb biblio-similar <source>                   # Find similar sources (shared refs)
 
 # Semantic Scholar discovery (s2-client)
 research-kb discover search "double machine learning"  # Search S2 for papers
@@ -200,6 +203,30 @@ Context types adjust weights:
 - **building**: 20% FTS, 80% vector (favor semantic breadth)
 - **auditing**: 50% FTS, 50% vector (favor precision)
 - **balanced**: 30% FTS, 70% vector (default)
+
+### HyDE (Hypothetical Document Embeddings)
+
+Optional query expansion that generates a hypothetical document to improve embedding quality for terse queries.
+
+```python
+from research_kb_storage import HydeConfig, get_hyde_embedding
+
+# Configure HyDE (Ollama default, Anthropic for production)
+config = HydeConfig(
+    enabled=True,
+    backend="ollama",  # or "anthropic"
+    model="llama3.1:8b",  # or "claude-3-5-haiku-20241022"
+    max_length=200,  # words in hypothetical document
+)
+
+# Get embedding using HyDE
+embedding = await get_hyde_embedding("IV assumptions", config)
+```
+
+Benefits:
+- 5-10% improvement on terse queries ("IV", "DML")
+- Graceful fallback if LLM unavailable
+- Configurable backend: Ollama (dev), Anthropic (prod)
 
 ## Key Patterns
 
@@ -293,3 +320,36 @@ This system integrates with [lever_of_archimedes](~/Claude/lever_of_archimedes):
 - **Health monitoring**: `services/health/research_kb_status.jl`
 
 See [docs/INTEGRATION.md](docs/INTEGRATION.md) for full details.
+
+### MCP Server (Claude Code Integration)
+
+The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
+
+**Available Tools:**
+| Tool | Description |
+|------|-------------|
+| `research_kb_search` | Hybrid search (FTS + vector + graph) |
+| `research_kb_list_sources` | List sources (papers, textbooks) |
+| `research_kb_get_source` | Get source details and chunks |
+| `research_kb_get_source_citations` | Get citations for a source |
+| `research_kb_get_citing_sources` | Find sources citing this one |
+| `research_kb_get_cited_sources` | Find sources this one cites |
+| `research_kb_list_concepts` | List/search concepts |
+| `research_kb_get_concept` | Get concept with relationships |
+| `research_kb_graph_neighborhood` | Explore concept neighborhood |
+| `research_kb_graph_path` | Find path between concepts |
+| `research_kb_stats` | Database statistics |
+| `research_kb_health` | Health check |
+
+**Installation in Claude Code:**
+```json
+// In ~/.config/claude-code/config.json
+{
+  "mcpServers": {
+    "research-kb": {
+      "command": "research-kb-mcp",
+      "args": []
+    }
+  }
+}
+```

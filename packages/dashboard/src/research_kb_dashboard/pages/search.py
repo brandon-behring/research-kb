@@ -4,10 +4,16 @@ Full hybrid search with FTS + vector + citation authority boosting.
 Results include chunk previews and source information.
 """
 
+import os
 import streamlit as st
 import asyncio
 import asyncpg
 from typing import Optional
+
+
+def _get_db_password() -> str:
+    """Get database password from environment."""
+    return os.environ.get("POSTGRES_PASSWORD", "postgres")
 
 
 def run_async(coro):
@@ -38,9 +44,9 @@ async def search_chunks(
     """
     from research_kb_pdf_tools import EmbeddingClient
 
-    # Generate embedding for query
+    # Generate embedding for query (uses BGE query instruction prefix)
     embedding_client = EmbeddingClient()
-    query_embedding = embedding_client.embed(query_text)
+    query_embedding = embedding_client.embed_query(query_text)
 
     # Create fresh connection (avoid global pool cache issues with event loops)
     conn = await asyncpg.connect(
@@ -48,7 +54,7 @@ async def search_chunks(
         port=5432,
         database="research_kb",
         user="postgres",
-        password="postgres",
+        password=_get_db_password(),
     )
 
     try:

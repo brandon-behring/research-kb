@@ -26,13 +26,16 @@ _ABBREVIATIONS = {
 
 # Initialize BGE tokenizer (same model we'll use for embeddings)
 _tokenizer = None
+# Pin revision for reproducibility (same as embed_server.py)
+BGE_MODEL = "BAAI/bge-large-en-v1.5"
+BGE_REVISION = "d4aa6901d3a41ba39fb536a557fa166f842b0e09"
 
 
 def get_tokenizer() -> AutoTokenizer:
     """Lazy-load tokenizer to avoid startup cost."""
     global _tokenizer
     if _tokenizer is None:
-        _tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-large-en-v1.5")
+        _tokenizer = AutoTokenizer.from_pretrained(BGE_MODEL, revision=BGE_REVISION)
     return _tokenizer
 
 

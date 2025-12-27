@@ -411,3 +411,131 @@ class TestGraphIntegration:
         assert concepts[2].id in neighbor_ids  # C (1-hop forward)
         assert concepts[3].id in neighbor_ids  # D (2-hop forward)
         assert concepts[4].id not in neighbor_ids  # E (3-hop, out of range)
+
+
+class TestMentionWeights:
+    """Tests for mention type weighting functionality."""
+
+    def test_get_mention_weight_defines(self):
+        """Test 'defines' mention type has highest weight."""
+        from research_kb_storage.graph_queries import get_mention_weight
+
+        weight = get_mention_weight("defines")
+        assert weight == 1.0
+
+    def test_get_mention_weight_reference(self):
+        """Test 'reference' mention type has medium weight."""
+        from research_kb_storage.graph_queries import get_mention_weight
+
+        weight = get_mention_weight("reference")
+        assert weight == 0.6
+
+    def test_get_mention_weight_example(self):
+        """Test 'example' mention type has lower weight."""
+        from research_kb_storage.graph_queries import get_mention_weight
+
+        weight = get_mention_weight("example")
+        assert weight == 0.4
+
+    def test_get_mention_weight_none(self):
+        """Test None mention type uses default weight."""
+        from research_kb_storage.graph_queries import get_mention_weight
+
+        weight = get_mention_weight(None)
+        assert weight == 0.5
+
+    def test_get_mention_weight_unknown(self):
+        """Test unknown mention type uses default weight."""
+        from research_kb_storage.graph_queries import get_mention_weight
+
+        weight = get_mention_weight("unknown_type")
+        assert weight == 0.5
+
+    def test_mention_weights_exported(self):
+        """Test MENTION_WEIGHTS constant is exported."""
+        from research_kb_storage import MENTION_WEIGHTS, get_mention_weight
+
+        assert "defines" in MENTION_WEIGHTS
+        assert "reference" in MENTION_WEIGHTS
+        assert "example" in MENTION_WEIGHTS
+        assert callable(get_mention_weight)
+
+
+class TestWeightedGraphScoreWithMention:
+    """Tests for compute_weighted_graph_score with mention info."""
+
+    async def test_weighted_score_with_mention_info(self, test_graph):
+        """Test weighted graph score applies mention weights."""
+        from research_kb_storage.graph_queries import compute_weighted_graph_score
+
+        concepts = test_graph["concepts"]
+
+        # Without mention info (baseline)
+        score_no_mention, _ = await compute_weighted_graph_score(
+            query_concept_ids=[concepts["a"].id],
+            chunk_concept_ids=[concepts["b"].id],
+        )
+
+        # With 'defines' mention info (highest weight)
+        mention_info = {concepts["b"].id: ("defines", None)}
+        score_defines, _ = await compute_weighted_graph_score(
+            query_concept_ids=[concepts["a"].id],
+            chunk_concept_ids=[concepts["b"].id],
+            chunk_mention_info=mention_info,
+        )
+
+        # With 'example' mention info (lower weight)
+        mention_info = {concepts["b"].id: ("example", None)}
+        score_example, _ = await compute_weighted_graph_score(
+            query_concept_ids=[concepts["a"].id],
+            chunk_concept_ids=[concepts["b"].id],
+            chunk_mention_info=mention_info,
+        )
+
+        # 'defines' should produce same or higher score than baseline
+        assert score_defines >= score_no_mention * 0.9  # Allow small variance
+        # 'example' should produce lower score
+        assert score_example < score_defines
+
+    async def test_weighted_score_with_relevance(self, test_graph):
+        """Test weighted graph score multiplies by relevance_score."""
+        from research_kb_storage.graph_queries import compute_weighted_graph_score
+
+        concepts = test_graph["concepts"]
+
+        # High relevance
+        mention_info_high = {concepts["b"].id: ("defines", 1.0)}
+        score_high, _ = await compute_weighted_graph_score(
+            query_concept_ids=[concepts["a"].id],
+            chunk_concept_ids=[concepts["b"].id],
+            chunk_mention_info=mention_info_high,
+        )
+
+        # Low relevance
+        mention_info_low = {concepts["b"].id: ("defines", 0.5)}
+        score_low, _ = await compute_weighted_graph_score(
+            query_concept_ids=[concepts["a"].id],
+            chunk_concept_ids=[concepts["b"].id],
+            chunk_mention_info=mention_info_low,
+        )
+
+        # Higher relevance should produce higher score
+        assert score_high > score_low
+
+    async def test_weighted_score_missing_concept_in_mention_info(self, test_graph):
+        """Test weighted score handles concept not in mention_info."""
+        from research_kb_storage.graph_queries import compute_weighted_graph_score
+
+        concepts = test_graph["concepts"]
+
+        # Mention info for a different concept
+        mention_info = {concepts["c"].id: ("defines", 1.0)}
+
+        # Should not raise, just use default weight (1.0)
+        score, _ = await compute_weighted_graph_score(
+            query_concept_ids=[concepts["a"].id],
+            chunk_concept_ids=[concepts["b"].id],
+            chunk_mention_info=mention_info,
+        )
+
+        assert score > 0.0

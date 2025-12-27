@@ -235,13 +235,33 @@ class SearchResult(BaseModel):
 
 
 class ConceptType(str, Enum):
-    """Concept classification types."""
+    """Concept classification types.
 
+    Original types (causal inference focused):
+    - METHOD: Statistical/ML methods (DML, IV, matching)
+    - ASSUMPTION: Identifying assumptions (unconfoundedness, SUTVA)
+    - PROBLEM: Research problems (selection bias, confounding)
+    - DEFINITION: Key terms (ATE, CATE)
+    - THEOREM: Mathematical results (Neyman orthogonality)
+
+    Extended types (broader knowledge domains):
+    - CONCEPT: General concepts not fitting other types
+    - PRINCIPLE: Foundational principles (ergodicity, superposition)
+    - TECHNIQUE: Applied techniques (cross-validation, bootstrap)
+    - MODEL: Formal models (DAG, SCM, neural network architectures)
+    """
+
+    # Original causal inference types
     METHOD = "method"
     ASSUMPTION = "assumption"
     PROBLEM = "problem"
     DEFINITION = "definition"
     THEOREM = "theorem"
+    # Extended types for broader domains
+    CONCEPT = "concept"
+    PRINCIPLE = "principle"
+    TECHNIQUE = "technique"
+    MODEL = "model"
 
 
 class RelationshipType(str, Enum):

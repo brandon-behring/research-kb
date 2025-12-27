@@ -1,20 +1,20 @@
 """Prompt templates for concept extraction.
 
-These prompts are designed to work with Ollama's JSON mode for
-structured output. They guide the LLM to extract concepts and
-relationships from causal inference / econometrics text.
+These prompts are designed to work with structured output (tool_use).
+They guide the LLM to extract concepts and relationships from
+academic text across multiple domains.
 """
 
 # System prompt establishing the extraction task
-SYSTEM_PROMPT = """You are an expert in causal inference, econometrics, and machine learning.
+SYSTEM_PROMPT = """You are an expert in research methodology, statistics, machine learning, and scientific literature.
 Your task is to extract structured knowledge from academic text.
 
 You will identify:
-1. CONCEPTS: Methods, assumptions, problems, definitions, and theorems
+1. CONCEPTS: Methods, assumptions, problems, definitions, theorems, principles, techniques, and models
 2. RELATIONSHIPS: How concepts relate to each other
 
 Be precise and conservative - only extract what is clearly stated or strongly implied.
-Output must be valid JSON matching the specified schema."""
+Use the tool provided to output structured results."""
 
 # Main extraction prompt template
 EXTRACTION_PROMPT = """Analyze the following text chunk from an academic paper or textbook.
@@ -30,14 +30,27 @@ TEXT CHUNK:
 
 CONCEPT TYPES (USE ONLY THESE):
 You MUST use ONLY one of these exact values for concept_type:
-1. method: Statistical/econometric methods (e.g., IV, DiD, matching, regression)
-2. assumption: Required conditions for validity (e.g., parallel trends, unconfoundedness)
-3. problem: Issues methods address (e.g., endogeneity, selection bias, confounding)
-4. definition: Formal definitions of terms
-5. theorem: Formal mathematical results
 
-CRITICAL: Do NOT use ANY other concept_type values like "concept", "parameter", "technique", "framework", etc.
-Only use: method, assumption, problem, definition, theorem
+Causal inference / econometrics:
+1. method: Statistical/ML methods (e.g., IV, DiD, DML, matching, regression)
+2. assumption: Required conditions for validity (e.g., parallel trends, unconfoundedness, SUTVA)
+3. problem: Issues methods address (e.g., endogeneity, selection bias, confounding)
+4. definition: Formal definitions of terms (e.g., ATE, CATE, LATE)
+5. theorem: Formal mathematical results (e.g., Neyman orthogonality, CLT)
+
+Broader domains (use when more appropriate):
+6. concept: General concepts not fitting other types (e.g., ergodicity, entropy, causality)
+7. principle: Foundational principles (e.g., superposition, Occam's razor, conservation laws)
+8. technique: Applied techniques that aren't full methods (e.g., cross-validation, bootstrap, regularization)
+9. model: Formal models/architectures (e.g., DAG, SCM, transformer, LSTM)
+
+TYPE DISTRIBUTION GUIDANCE:
+- Avoid defaulting to "method" - only ~30-35% of concepts should be methods
+- Use "technique" for smaller procedural steps within methods
+- Use "concept" for abstract ideas that don't fit specific categories
+- Use "model" for formal structures and architectures
+- Reserve "theorem" for proven mathematical statements
+- Reserve "assumption" for conditions that must hold for validity
 
 RELATIONSHIP TYPES (USE ONLY THESE):
 You MUST use ONLY one of these exact values for relationship_type:
@@ -80,7 +93,8 @@ GUIDELINES:
 - Include aliases like abbreviations (IV, DiD, DML) when mentioned
 - Relationships should be supported by evidence in the text
 - If no concepts or relationships are found, return empty arrays
-- ALWAYS verify your concept_type values are one of: method, assumption, problem, definition, theorem
+- Aim for type diversity: avoid assigning "method" to everything
+- ALWAYS verify your concept_type values are one of: method, assumption, problem, definition, theorem, concept, principle, technique, model
 - ALWAYS verify your relationship_type values are one of: REQUIRES, USES, ADDRESSES, GENERALIZES, SPECIALIZES, ALTERNATIVE_TO, EXTENDS
 
 Return ONLY valid JSON, no additional text."""
@@ -100,8 +114,8 @@ Focus on:
 - Key terms being defined
 
 IMPORTANT CONSTRAINTS:
-- concept_type MUST be one of: definition, assumption, theorem (use ONLY these)
-- Do NOT use values like "concept", "parameter", "framework", etc.
+- concept_type MUST be one of: definition, assumption, theorem, principle, concept
+- These are the appropriate types for formal definitions and mathematical statements
 
 OUTPUT FORMAT (JSON):
 {{
@@ -159,7 +173,7 @@ TEXT: {chunk}
 
 {{
   "concepts": [
-    {{"name": "...", "concept_type": "method|assumption|problem|definition|theorem", "confidence": 0.7}}
+    {{"name": "...", "concept_type": "method|assumption|problem|definition|theorem|concept|principle|technique|model", "confidence": 0.7}}
   ],
   "relationships": []
 }}"""

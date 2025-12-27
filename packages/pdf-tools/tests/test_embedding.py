@@ -305,6 +305,44 @@ class TestEmbeddingEndToEnd:
         assert sim2 > 0.9999, f"Batch/single embeddings differ: similarity {sim2}"
 
 
+class TestEmbeddingClientTimeout:
+    """Tests for socket timeout in embedding client."""
+
+    @pytest.mark.unit
+    def test_default_timeout(self):
+        """Test default timeout is set."""
+        from research_kb_pdf.embedding_client import SOCKET_TIMEOUT
+
+        client = EmbeddingClient()
+        assert client.timeout == SOCKET_TIMEOUT
+        assert client.timeout == 60.0
+
+    @pytest.mark.unit
+    def test_custom_timeout(self):
+        """Test custom timeout can be set."""
+        client = EmbeddingClient(timeout=30.0)
+        assert client.timeout == 30.0
+
+    @pytest.mark.unit
+    def test_socket_timeout_raises(self):
+        """Test that socket timeout raises TimeoutError."""
+        import socket
+
+        with patch("socket.socket") as mock_socket_class:
+            mock_socket = MagicMock()
+            mock_socket_class.return_value = mock_socket
+
+            # Simulate socket.timeout on recv
+            mock_socket.recv.side_effect = socket.timeout("timed out")
+
+            client = EmbeddingClient(timeout=1.0)
+            with pytest.raises(TimeoutError, match="timed out after 1.0s"):
+                client.embed("test")
+
+            # Verify settimeout was called
+            mock_socket.settimeout.assert_called_with(1.0)
+
+
 class TestEmbeddingClientRetry:
     """Tests for retry logic in embedding client."""
 

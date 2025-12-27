@@ -15,8 +15,10 @@ def test_system_prompt_structure():
     """Test SYSTEM_PROMPT is well-formed."""
     assert isinstance(SYSTEM_PROMPT, str)
     assert len(SYSTEM_PROMPT) > 50
-    assert "causal inference" in SYSTEM_PROMPT.lower()
-    assert "JSON" in SYSTEM_PROMPT or "json" in SYSTEM_PROMPT
+    # Check for research domain expertise
+    assert "research methodology" in SYSTEM_PROMPT.lower() or "statistics" in SYSTEM_PROMPT.lower()
+    # Check for structured output requirement
+    assert "tool" in SYSTEM_PROMPT.lower() or "json" in SYSTEM_PROMPT.lower()
 
 
 def test_system_prompt_mentions_task():
@@ -229,9 +231,11 @@ Including math notation: Y = βX + ε"""
 def test_system_prompt_sets_expert_persona():
     """Test SYSTEM_PROMPT establishes expert persona."""
     assert "expert" in SYSTEM_PROMPT.lower()
+    # Check for domain expertise (generalized from causal inference)
     assert (
-        "causal inference" in SYSTEM_PROMPT.lower()
-        or "econometrics" in SYSTEM_PROMPT.lower()
+        "research methodology" in SYSTEM_PROMPT.lower()
+        or "statistics" in SYSTEM_PROMPT.lower()
+        or "machine learning" in SYSTEM_PROMPT.lower()
     )
 
 

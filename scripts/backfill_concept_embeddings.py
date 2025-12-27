@@ -55,6 +55,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "pdf-tools" /
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" / "src"))
 
+from pgvector.asyncpg import register_vector
+
 from research_kb_common import get_logger
 from research_kb_pdf.embedding_client import EmbeddingClient
 from research_kb_storage.concept_store import ConceptStore
@@ -298,6 +300,7 @@ class EmbeddingBackfillRunner:
         errors = 0
 
         async with pool.acquire() as conn:
+            await register_vector(conn)  # Required for pgvector type handling
             async with conn.transaction():
                 for concept, embedding in zip(concepts, embeddings):
                     try:

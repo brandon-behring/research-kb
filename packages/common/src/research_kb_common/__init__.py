@@ -13,6 +13,8 @@ from research_kb_common.config import Settings, get_settings
 from research_kb_common.errors import (
     ChunkExtractionError,
     EmbeddingError,
+    ExtractionError,
+    ExtractionValidationError,
     IngestionError,
     SearchError,
     StorageError,
@@ -45,6 +47,8 @@ __all__ = [
     "IngestionError",
     "ChunkExtractionError",
     "EmbeddingError",
+    "ExtractionError",
+    "ExtractionValidationError",
     "SearchError",
     "StorageError",
 ]

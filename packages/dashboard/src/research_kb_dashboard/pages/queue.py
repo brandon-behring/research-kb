@@ -4,11 +4,19 @@ Shows extraction progress by source, sorted small-to-large for quick wins.
 Provides commands to run extraction on specific sources.
 """
 
+import os
 import streamlit as st
 import asyncio
 import asyncpg
 import pandas as pd
+
+
 from datetime import timedelta
+
+
+def _get_db_password() -> str:
+    """Get database password from environment."""
+    return os.environ.get("POSTGRES_PASSWORD", "postgres")
 
 
 def run_async(coro):
@@ -27,7 +35,7 @@ async def get_extraction_status():
         port=5432,
         database="research_kb",
         user="postgres",
-        password="postgres",
+        password=_get_db_password(),
     )
 
     try:

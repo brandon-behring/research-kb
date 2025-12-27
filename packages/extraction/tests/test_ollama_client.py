@@ -4,6 +4,7 @@ import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from research_kb_common import ExtractionValidationError
 from research_kb_extraction.ollama_client import OllamaClient, OllamaError
 from research_kb_extraction.models import ChunkExtraction
 
@@ -195,18 +196,17 @@ class TestOllamaExtraction:
 
     @pytest.mark.asyncio
     async def test_extract_concepts_invalid_json(self):
-        """Test handling of invalid JSON response."""
+        """Test handling of invalid JSON response raises ExtractionValidationError."""
         client = OllamaClient()
 
         with patch.object(client, "generate") as mock_generate:
             mock_generate.return_value = "This is not JSON"
 
-            result = await client.extract_concepts("Sample text")
+            # Should raise ExtractionValidationError on parse failure (fail fast)
+            with pytest.raises(ExtractionValidationError) as exc_info:
+                await client.extract_concepts("Sample text")
 
-            # Should return empty extraction on parse failure
-            assert isinstance(result, ChunkExtraction)
-            assert len(result.concepts) == 0
-            assert len(result.relationships) == 0
+            assert "Failed to parse JSON response" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_extract_concepts_empty_response(self):

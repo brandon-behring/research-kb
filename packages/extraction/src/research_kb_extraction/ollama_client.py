@@ -8,7 +8,7 @@ import json
 from typing import Any, Optional
 
 import httpx
-from research_kb_common import get_logger
+from research_kb_common import ExtractionValidationError, get_logger
 
 from research_kb_extraction.base_client import LLMClient
 from research_kb_extraction.models import ChunkExtraction
@@ -199,12 +199,15 @@ class OllamaClient(LLMClient):
 
         except json.JSONDecodeError as e:
             logger.error("json_parse_error", response=response[:200], error=str(e))
-            # Return empty extraction on parse failure
-            return ChunkExtraction()
+            raise ExtractionValidationError(
+                f"Failed to parse JSON response: {e}"
+            ) from e
 
         except Exception as e:
             logger.error("extraction_validation_error", error=str(e))
-            return ChunkExtraction()
+            raise ExtractionValidationError(
+                f"Failed to validate extraction output: {e}"
+            ) from e
 
     async def extract_batch(
         self,

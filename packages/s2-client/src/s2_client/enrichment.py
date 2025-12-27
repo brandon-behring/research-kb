@@ -352,4 +352,12 @@ def citation_to_enrichment_metadata(result: MatchResult) -> dict:
         ],
         "s2_venue": paper.venue,
         "s2_year": paper.year,
+        # Enhanced fields (Phase 2.2)
+        "s2_abstract": (paper.abstract or "")[:2000],  # Truncated for storage
+        "s2_reference_count": paper.reference_count,
+        "s2_publication_types": paper.publication_types or [],
+        "s2_is_open_access": paper.is_open_access,
+        "s2_open_access_pdf_url": (
+            paper.open_access_pdf.url if paper.open_access_pdf else None
+        ),
     }

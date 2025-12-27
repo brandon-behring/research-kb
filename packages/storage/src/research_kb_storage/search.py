@@ -211,7 +211,7 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
         # Step 1: Extract concepts from query text
         from research_kb_storage.query_extractor import extract_query_concepts
         from research_kb_storage.chunk_concept_store import ChunkConceptStore
-        from research_kb_storage.graph_queries import compute_graph_score
+        from research_kb_storage.graph_queries import compute_weighted_graph_score
 
         query_concept_ids = []
         if query.text:
@@ -262,23 +262,33 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             else:
                 raise SearchError("No search criteria provided")
 
-        # Step 3: Fetch chunk-concept links (batch operation) - only if graph enabled
+        # Step 3: Fetch chunk-concept links with mention metadata (batch operation)
         chunk_ids = [result.chunk.id for result in base_results]
-        chunk_concepts = {}
+        chunk_concepts_info: dict = {}
         if query.use_graph:
-            chunk_concepts = await ChunkConceptStore.get_concept_ids_for_chunks(chunk_ids)
+            # Use enhanced function that returns (concept_id, mention_type, relevance_score)
+            chunk_concepts_info = await ChunkConceptStore.get_concept_info_for_chunks(chunk_ids)
 
         # Step 4: Compute graph scores for each result
         if query.use_graph:
             for result in base_results:
-                chunk_concept_ids = chunk_concepts.get(result.chunk.id, [])
+                chunk_info = chunk_concepts_info.get(result.chunk.id, [])
+                # Extract just concept IDs for path finding
+                chunk_concept_ids = [cid for cid, _, _ in chunk_info]
 
                 if query_concept_ids and chunk_concept_ids:
-                    # Compute graph score using shortest paths
-                    graph_score = await compute_graph_score(
+                    # Build mention info dict for weighted scoring
+                    # Maps concept_id -> (mention_type, relevance_score)
+                    mention_info = {
+                        cid: (mtype, rel) for cid, mtype, rel in chunk_info
+                    }
+
+                    # Compute graph score using shortest paths with relationship + mention weights
+                    graph_score, _ = await compute_weighted_graph_score(
                         query_concept_ids,
                         chunk_concept_ids,
                         max_hops=query.max_hops,
+                        chunk_mention_info=mention_info,
                     )
                 else:
                     # No concepts extracted - graph score = 0
@@ -523,21 +533,38 @@ async def _hybrid_search_for_rerank(
         FROM fts_results fts
         FULL OUTER JOIN vector_results vec ON fts.id = vec.id
     ),
+    with_similarity AS (
+        SELECT
+            chunk_id,
+            source_id,
+            fts_score,
+            vector_distance,
+            -- Convert vector distance to similarity (0=identical, 2=opposite -> 1=identical, 0=opposite)
+            1.0 - (vector_distance / 2.0) AS vector_similarity
+        FROM combined
+    ),
     normalized AS (
         SELECT
             chunk_id,
             source_id,
             fts_score,
             vector_distance,
-            -- Normalize FTS score (0-1)
+            vector_similarity,
+            -- Normalize FTS score (min-max to 0-1 within result set)
             CASE
-                WHEN MAX(fts_score) OVER () > 0
-                THEN fts_score / MAX(fts_score) OVER ()
+                WHEN MAX(fts_score) OVER () - MIN(fts_score) OVER () > 0
+                THEN (fts_score - MIN(fts_score) OVER ()) / (MAX(fts_score) OVER () - MIN(fts_score) OVER ())
+                WHEN MAX(fts_score) OVER () > 0 THEN 1.0
                 ELSE 0
             END AS fts_normalized,
-            -- Normalize vector distance (convert to similarity)
-            1.0 - (vector_distance / 2.0) AS vector_normalized
-        FROM combined
+            -- Normalize vector similarity (min-max to 0-1 within result set)
+            CASE
+                WHEN MAX(vector_similarity) OVER () - MIN(vector_similarity) OVER () > 0
+                THEN (vector_similarity - MIN(vector_similarity) OVER ()) / (MAX(vector_similarity) OVER () - MIN(vector_similarity) OVER ())
+                WHEN MAX(vector_similarity) OVER () > 0 THEN 1.0
+                ELSE 0
+            END AS vector_normalized
+        FROM with_similarity
     )
     SELECT
         c.id, c.source_id, c.content, c.content_hash, c.location,
@@ -606,21 +633,38 @@ async def _hybrid_search(
         FROM fts_results fts
         FULL OUTER JOIN vector_results vec ON fts.id = vec.id
     ),
+    with_similarity AS (
+        SELECT
+            chunk_id,
+            source_id,
+            fts_score,
+            vector_distance,
+            -- Convert vector distance to similarity (0=identical, 2=opposite -> 1=identical, 0=opposite)
+            1.0 - (vector_distance / 2.0) AS vector_similarity
+        FROM combined
+    ),
     normalized AS (
         SELECT
             chunk_id,
             source_id,
             fts_score,
             vector_distance,
-            -- Normalize FTS score (0-1)
+            vector_similarity,
+            -- Normalize FTS score (min-max to 0-1 within result set)
             CASE
-                WHEN MAX(fts_score) OVER () > 0
-                THEN fts_score / MAX(fts_score) OVER ()
+                WHEN MAX(fts_score) OVER () - MIN(fts_score) OVER () > 0
+                THEN (fts_score - MIN(fts_score) OVER ()) / (MAX(fts_score) OVER () - MIN(fts_score) OVER ())
+                WHEN MAX(fts_score) OVER () > 0 THEN 1.0
                 ELSE 0
             END AS fts_normalized,
-            -- Normalize vector distance (convert to similarity: 0=identical, 2=opposite)
-            1.0 - (vector_distance / 2.0) AS vector_normalized
-        FROM combined
+            -- Normalize vector similarity (min-max to 0-1 within result set)
+            CASE
+                WHEN MAX(vector_similarity) OVER () - MIN(vector_similarity) OVER () > 0
+                THEN (vector_similarity - MIN(vector_similarity) OVER ()) / (MAX(vector_similarity) OVER () - MIN(vector_similarity) OVER ())
+                WHEN MAX(vector_similarity) OVER () > 0 THEN 1.0
+                ELSE 0
+            END AS vector_normalized
+        FROM with_similarity
     )
     SELECT
         c.id, c.source_id, c.content, c.content_hash, c.location,

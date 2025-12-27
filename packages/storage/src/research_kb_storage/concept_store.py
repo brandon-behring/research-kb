@@ -436,6 +436,95 @@ class ConceptStore:
             raise StorageError(f"Failed to batch create concepts: {e}") from e
 
     @staticmethod
+    async def search(
+        query: str,
+        limit: int = 50,
+        concept_type: Optional[ConceptType] = None,
+    ) -> list[Concept]:
+        """Search concepts by name using fuzzy text matching.
+
+        Args:
+            query: Search query (matches against name, canonical_name, aliases)
+            limit: Maximum results to return
+            concept_type: Optional filter by concept type
+
+        Returns:
+            List of matching Concepts ordered by relevance
+        """
+        pool = await get_connection_pool()
+        query_pattern = f"%{query.lower()}%"
+
+        try:
+            async with pool.acquire() as conn:
+                await register_vector(conn)
+                await conn.set_type_codec(
+                    "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+                )
+
+                if concept_type:
+                    rows = await conn.fetch(
+                        """
+                        SELECT *,
+                               CASE
+                                   WHEN LOWER(canonical_name) = $1 THEN 1.0
+                                   WHEN LOWER(canonical_name) LIKE $2 THEN 0.9
+                                   WHEN LOWER(name) LIKE $2 THEN 0.8
+                                   ELSE 0.5
+                               END AS relevance
+                        FROM concepts
+                        WHERE concept_type = $3 AND (
+                            LOWER(canonical_name) LIKE $2
+                            OR LOWER(name) LIKE $2
+                            OR EXISTS (
+                                SELECT 1 FROM unnest(aliases) AS alias
+                                WHERE LOWER(alias) LIKE $2
+                            )
+                        )
+                        ORDER BY relevance DESC, canonical_name ASC
+                        LIMIT $4
+                        """,
+                        query.lower(),
+                        query_pattern,
+                        concept_type.value,
+                        limit,
+                    )
+                else:
+                    rows = await conn.fetch(
+                        """
+                        SELECT *,
+                               CASE
+                                   WHEN LOWER(canonical_name) = $1 THEN 1.0
+                                   WHEN LOWER(canonical_name) LIKE $2 THEN 0.9
+                                   WHEN LOWER(name) LIKE $2 THEN 0.8
+                                   ELSE 0.5
+                               END AS relevance
+                        FROM concepts
+                        WHERE LOWER(canonical_name) LIKE $2
+                            OR LOWER(name) LIKE $2
+                            OR EXISTS (
+                                SELECT 1 FROM unnest(aliases) AS alias
+                                WHERE LOWER(alias) LIKE $2
+                            )
+                        ORDER BY relevance DESC, canonical_name ASC
+                        LIMIT $3
+                        """,
+                        query.lower(),
+                        query_pattern,
+                        limit,
+                    )
+
+                return [_row_to_concept(row) for row in rows]
+
+        except Exception as e:
+            logger.error("concept_search_failed", query=query[:50], error=str(e))
+            raise StorageError(f"Failed to search concepts: {e}") from e
+
+    @staticmethod
+    async def get(concept_id: UUID) -> Optional[Concept]:
+        """Alias for get_by_id (matches API service expectations)."""
+        return await ConceptStore.get_by_id(concept_id)
+
+    @staticmethod
     async def find_similar(
         embedding: list[float],
         limit: int = 10,

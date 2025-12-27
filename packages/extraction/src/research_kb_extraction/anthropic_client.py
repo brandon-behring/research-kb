@@ -40,8 +40,8 @@ EXTRACTION_TOOL = {
                         },
                         "concept_type": {
                             "type": "string",
-                            "enum": ["method", "assumption", "problem", "definition", "theorem"],
-                            "description": "Classification of the concept"
+                            "enum": ["method", "assumption", "problem", "definition", "theorem", "concept", "principle", "technique", "model"],
+                            "description": "Classification of the concept (method ≤35% of extractions)"
                         },
                         "definition": {
                             "type": "string",
@@ -123,6 +123,7 @@ class AnthropicClient(LLMClient):
     MODELS = {
         "haiku": "claude-3-haiku-20240307",
         "haiku-3.5": "claude-3-5-haiku-20241022",
+        "haiku-4.5": "claude-haiku-4-5-20251001",
         "sonnet": "claude-sonnet-4-20250514",
         "opus": "claude-opus-4-5-20251101",
     }

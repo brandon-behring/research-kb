@@ -111,8 +111,8 @@ async def validate_query(query_data: dict, embedding_client: EmbeddingClient) ->
 
     logger.info("running_query", query_id=query_id, query=query_text)
 
-    # Generate query embedding
-    query_embedding = embedding_client.embed(query_text)
+    # Generate query embedding (uses BGE query instruction prefix)
+    query_embedding = embedding_client.embed_query(query_text)
 
     # Search (hybrid: FTS + vector)
     search_query = SearchQuery(

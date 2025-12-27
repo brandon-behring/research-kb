@@ -329,8 +329,8 @@ async def evaluate_config(
     latencies = []
 
     for query in queries:
-        # Generate embedding
-        embedding = embed_client.embed(query.query)
+        # Generate embedding (uses BGE query instruction prefix)
+        embedding = embed_client.embed_query(query.query)
 
         # Run search
         results, latency_ms = await run_search_config(

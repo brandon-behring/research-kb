@@ -230,3 +230,84 @@ async def extract_query_concepts_by_similarity(
             error=str(e),
         )
         return []
+
+
+async def extract_query_concepts_unified(
+    query_text: str,
+    query_embedding: list[float] | None = None,
+    use_text_match: bool = True,
+    use_semantic: bool = True,
+    min_semantic_similarity: float = 0.80,
+    max_concepts: int = 10,
+) -> list[UUID]:
+    """Extract concepts from query using combined text and semantic matching.
+
+    Unified strategy that combines text-based and embedding-based concept
+    extraction, returning deduplicated results prioritized by match strength.
+
+    Args:
+        query_text: User query text
+        query_embedding: Pre-computed query embedding (1024-dim), or None
+        use_text_match: Whether to use text-based matching
+        use_semantic: Whether to use semantic similarity matching
+        min_semantic_similarity: Minimum cosine similarity for semantic matches
+        max_concepts: Maximum concepts to return
+
+    Returns:
+        List of deduplicated concept UUIDs from both strategies
+
+    Example:
+        >>> from research_kb_pdf import embed_text
+        >>> embedding = embed_text("instrumental variables")
+        >>> concepts = await extract_query_concepts_unified(
+        ...     "how does IV work?",
+        ...     query_embedding=embedding,
+        ... )
+    """
+    if not query_text or not query_text.strip():
+        return []
+
+    results: set[UUID] = set()
+
+    # Strategy 1: Text-based matching (exact/fuzzy on canonical names)
+    if use_text_match:
+        try:
+            text_matches = await extract_query_concepts(
+                query_text,
+                max_concepts=max_concepts,
+            )
+            results.update(text_matches)
+            logger.debug(
+                "text_match_results",
+                count=len(text_matches),
+            )
+        except Exception as e:
+            logger.warning("text_match_failed", error=str(e))
+
+    # Strategy 2: Semantic similarity matching (if embedding provided)
+    if use_semantic and query_embedding:
+        try:
+            semantic_matches = await extract_query_concepts_by_similarity(
+                query_embedding,
+                min_similarity=min_semantic_similarity,
+                max_concepts=max_concepts,
+            )
+            results.update(semantic_matches)
+            logger.debug(
+                "semantic_match_results",
+                count=len(semantic_matches),
+            )
+        except Exception as e:
+            logger.warning("semantic_match_failed", error=str(e))
+
+    final_results = list(results)[:max_concepts]
+
+    logger.info(
+        "query_concepts_unified",
+        query_text=query_text[:100],
+        use_text=use_text_match,
+        use_semantic=use_semantic and query_embedding is not None,
+        total_concepts=len(final_results),
+    )
+
+    return final_results

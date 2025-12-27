@@ -32,7 +32,7 @@ EXTRACTION_SCHEMA = {
                     "name": {"type": "string"},
                     "concept_type": {
                         "type": "string",
-                        "enum": ["method", "assumption", "problem", "definition", "theorem"]
+                        "enum": ["method", "assumption", "problem", "definition", "theorem", "concept", "principle", "technique", "model"]
                     },
                     "definition": {"type": ["string", "null"]},
                     "aliases": {

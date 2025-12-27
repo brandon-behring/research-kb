@@ -9,16 +9,21 @@ from typing import Optional
 
 from fastmcp import FastMCP
 
+from uuid import UUID
+
 from research_kb_api.service import (
     get_sources,
     get_source_by_id,
     get_source_chunks,
     get_citations_for_source,
 )
+from research_kb_storage import get_citing_sources, get_cited_sources
 from research_kb_mcp.formatters import (
     format_source_list,
     format_source_detail,
     format_citations,
+    format_citing_sources,
+    format_cited_sources,
 )
 
 
@@ -118,3 +123,53 @@ def register_source_tools(mcp: FastMCP) -> None:
 
         citations = await get_citations_for_source(source_id)
         return format_citations(citations)
+
+    @mcp.tool()
+    async def research_kb_get_citing_sources(source_id: str) -> str:
+        """Find all sources that cite a given source.
+
+        Returns papers in the knowledge base that cite this source.
+        Useful for finding downstream influence and who built on this work.
+
+        Args:
+            source_id: UUID of the source to find citations for
+
+        Returns:
+            Markdown-formatted list of citing sources with:
+            - Title
+            - Authors
+            - Year
+            - Source ID for further queries
+        """
+        source = await get_source_by_id(source_id)
+
+        if source is None:
+            return f"**Error:** Source `{source_id}` not found"
+
+        citing = await get_citing_sources(UUID(source_id))
+        return format_citing_sources(citing, source_id)
+
+    @mcp.tool()
+    async def research_kb_get_cited_sources(source_id: str) -> str:
+        """Find all sources that a given source cites.
+
+        Returns papers in the knowledge base that are cited by this source.
+        Useful for finding foundations, context, and related work.
+
+        Args:
+            source_id: UUID of the source to find references for
+
+        Returns:
+            Markdown-formatted list of cited sources with:
+            - Title
+            - Authors
+            - Year
+            - Source ID for further queries
+        """
+        source = await get_source_by_id(source_id)
+
+        if source is None:
+            return f"**Error:** Source `{source_id}` not found"
+
+        cited = await get_cited_sources(UUID(source_id))
+        return format_cited_sources(cited, source_id)

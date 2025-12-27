@@ -30,9 +30,15 @@ from research_kb_common import get_logger
 # Configuration
 SOCKET_PATH = "/tmp/research_kb_embed.sock"
 MODEL_NAME = "BAAI/bge-large-en-v1.5"
+MODEL_REVISION = "d4aa6901d3a41ba39fb536a557fa166f842b0e09"  # Pin for reproducibility
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BUFFER_SIZE = 131072  # 128KB for larger batch requests
 MAX_BATCH_SIZE = 32  # Recommended batch size for BGE
+
+# BGE query instruction for asymmetric retrieval
+# See: https://huggingface.co/BAAI/bge-large-en-v1.5
+# For short queries searching long documents, this prefix improves recall
+QUERY_INSTRUCTION = "Represent this sentence for searching relevant passages: "
 
 logger = get_logger(__name__)
 
@@ -40,17 +46,28 @@ logger = get_logger(__name__)
 class EmbeddingServer:
     """Long-running embedding server for research-kb."""
 
-    def __init__(self, model_name: str = MODEL_NAME, device: str = DEVICE):
+    def __init__(
+        self,
+        model_name: str = MODEL_NAME,
+        device: str = DEVICE,
+        revision: str | None = MODEL_REVISION,
+    ):
         """Initialize embedding server with BGE model.
 
         Args:
             model_name: SentenceTransformer model name
             device: 'cuda' or 'cpu'
+            revision: Model revision/commit hash for reproducibility
         """
-        logger.info("loading_model", model=model_name, device=device)
-        self.model = SentenceTransformer(model_name, device=device)
+        logger.info("loading_model", model=model_name, device=device, revision=revision)
+        self.model = SentenceTransformer(
+            model_name,
+            device=device,
+            revision=revision,
+        )
         self.device = device
         self.model_name = model_name
+        self.revision = revision
 
         # Warmup with representative text
         warmup_texts = [
@@ -66,7 +83,7 @@ class EmbeddingServer:
         )
 
     def embed(self, text: str) -> list[float]:
-        """Embed a single text string.
+        """Embed a single text string (for documents/passages).
 
         Args:
             text: Text to embed
@@ -83,10 +100,33 @@ class EmbeddingServer:
         embedding = self.model.encode([text], convert_to_numpy=True)[0]
         return embedding.tolist()
 
+    def embed_query(self, text: str) -> list[float]:
+        """Embed a query string with BGE query instruction prefix.
+
+        For asymmetric retrieval (short queries finding long documents),
+        adding the instruction prefix improves recall, especially for
+        terse queries like "IV" or "DML".
+
+        Args:
+            text: Query text to embed
+
+        Returns:
+            1024-dimensional embedding vector
+
+        Example:
+            >>> server = EmbeddingServer()
+            >>> embedding = server.embed_query("instrumental variables")
+            >>> len(embedding)
+            1024
+        """
+        prefixed_text = f"{QUERY_INSTRUCTION}{text}"
+        embedding = self.model.encode([prefixed_text], convert_to_numpy=True)[0]
+        return embedding.tolist()
+
     def embed_batch(
         self, texts: list[str], batch_size: int = MAX_BATCH_SIZE
     ) -> list[list[float]]:
-        """Embed multiple texts in batches.
+        """Embed multiple texts in batches (for documents/passages).
 
         Args:
             texts: List of texts to embed
@@ -113,12 +153,35 @@ class EmbeddingServer:
             embeddings = self.model.encode(texts, convert_to_numpy=True)
             return embeddings.tolist()
 
+    def embed_query_batch(
+        self, texts: list[str], batch_size: int = MAX_BATCH_SIZE
+    ) -> list[list[float]]:
+        """Embed multiple query strings with BGE query instruction prefix.
+
+        Args:
+            texts: List of query texts to embed
+            batch_size: Maximum batch size (default 32)
+
+        Returns:
+            List of 1024-dimensional embeddings
+
+        Example:
+            >>> server = EmbeddingServer()
+            >>> embeddings = server.embed_query_batch(["IV", "DML"])
+            >>> len(embeddings)
+            2
+        """
+        prefixed_texts = [f"{QUERY_INSTRUCTION}{text}" for text in texts]
+        return self.embed_batch(prefixed_texts, batch_size)
+
     def handle_request(self, data: dict) -> dict:
         """Handle JSON request and return JSON response.
 
         Supported actions:
-            - embed: Single text embedding
-            - embed_batch: Multiple text embeddings
+            - embed: Single text embedding (for documents)
+            - embed_batch: Multiple text embeddings (for documents)
+            - embed_query: Single query embedding (with BGE instruction prefix)
+            - embed_query_batch: Multiple query embeddings (with BGE instruction prefix)
             - ping: Health check
             - shutdown: Graceful shutdown
 
@@ -138,12 +201,31 @@ class EmbeddingServer:
                 embedding = self.embed(text)
                 return {"embedding": embedding, "dim": len(embedding)}
 
+            elif action == "embed_query":
+                text = data.get("text", "")
+                if not text:
+                    return {"error": "Missing 'text' field"}
+                embedding = self.embed_query(text)
+                return {"embedding": embedding, "dim": len(embedding)}
+
             elif action == "embed_batch":
                 texts = data.get("texts", [])
                 if not texts:
                     return {"error": "Missing 'texts' field"}
                 batch_size = data.get("batch_size", MAX_BATCH_SIZE)
                 embeddings = self.embed_batch(texts, batch_size)
+                return {
+                    "embeddings": embeddings,
+                    "count": len(embeddings),
+                    "dim": len(embeddings[0]) if embeddings else 0,
+                }
+
+            elif action == "embed_query_batch":
+                texts = data.get("texts", [])
+                if not texts:
+                    return {"error": "Missing 'texts' field"}
+                batch_size = data.get("batch_size", MAX_BATCH_SIZE)
+                embeddings = self.embed_query_batch(texts, batch_size)
                 return {
                     "embeddings": embeddings,
                     "count": len(embeddings),
@@ -185,8 +267,8 @@ class EmbeddingServer:
         # Create socket
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         server.bind(socket_path)
-        server.listen(5)
-        os.chmod(socket_path, 0o666)  # Allow other processes to connect
+        server.listen(128)  # Increased backlog for better concurrency
+        os.chmod(socket_path, 0o600)  # User-only access for security
 
         logger.info("server_listening", socket=socket_path)
 
