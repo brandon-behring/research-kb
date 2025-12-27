@@ -80,7 +80,8 @@ class OllamaClient(LLMClient):
             client = await self._get_client()
             response = await client.get("/api/tags")
             return response.status_code == 200
-        except Exception:
+        except Exception as e:
+            logger.debug("ollama_unavailable", error=str(e))
             return False
 
     async def is_model_loaded(self) -> bool:
@@ -99,7 +100,8 @@ class OllamaClient(LLMClient):
                 or f"{self.model}:latest" in model_names
                 or self.model.split(":")[0] in [m.split(":")[0] for m in model_names]
             )
-        except Exception:
+        except Exception as e:
+            logger.debug("model_check_failed", model=self.model, error=str(e))
             return False
 
     async def generate(

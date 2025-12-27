@@ -6,6 +6,7 @@ Provides:
 - Health checks
 """
 
+import asyncio
 import os
 from dataclasses import dataclass, field
 from typing import Optional
@@ -60,6 +61,7 @@ class DatabaseConfig:
 
 # Global connection pool (initialized once)
 _connection_pool: Optional[asyncpg.Pool] = None
+_pool_lock = asyncio.Lock()
 
 
 async def get_connection_pool(config: Optional[DatabaseConfig] = None) -> asyncpg.Pool:
@@ -82,35 +84,42 @@ async def get_connection_pool(config: Optional[DatabaseConfig] = None) -> asyncp
     """
     global _connection_pool
 
+    # Fast path: pool already exists (no lock needed)
     if _connection_pool is not None:
         return _connection_pool
 
-    if config is None:
-        config = DatabaseConfig()
+    # Slow path: acquire lock and double-check
+    async with _pool_lock:
+        # Double-check after acquiring lock (another coroutine may have created it)
+        if _connection_pool is not None:
+            return _connection_pool
 
-    try:
-        logger.info(
-            "creating_connection_pool",
-            host=config.host,
-            port=config.port,
-            database=config.database,
-            min_size=config.min_pool_size,
-            max_size=config.max_pool_size,
-        )
+        if config is None:
+            config = DatabaseConfig()
 
-        _connection_pool = await asyncpg.create_pool(
-            dsn=config.get_dsn(),
-            min_size=config.min_pool_size,
-            max_size=config.max_pool_size,
-            command_timeout=config.command_timeout,
-        )
+        try:
+            logger.info(
+                "creating_connection_pool",
+                host=config.host,
+                port=config.port,
+                database=config.database,
+                min_size=config.min_pool_size,
+                max_size=config.max_pool_size,
+            )
 
-        logger.info("connection_pool_created", pool_size=config.max_pool_size)
-        return _connection_pool
+            _connection_pool = await asyncpg.create_pool(
+                dsn=config.get_dsn(),
+                min_size=config.min_pool_size,
+                max_size=config.max_pool_size,
+                command_timeout=config.command_timeout,
+            )
 
-    except Exception as e:
-        logger.error("connection_pool_creation_failed", error=str(e))
-        raise StorageError(f"Failed to create connection pool: {e}") from e
+            logger.info("connection_pool_created", pool_size=config.max_pool_size)
+            return _connection_pool
+
+        except Exception as e:
+            logger.error("connection_pool_creation_failed", error=str(e))
+            raise StorageError(f"Failed to create connection pool: {e}") from e
 
 
 async def close_connection_pool() -> None:

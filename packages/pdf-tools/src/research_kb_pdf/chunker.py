@@ -5,6 +5,7 @@ Respects paragraph boundaries and tracks page numbers.
 """
 
 import re
+import threading
 from dataclasses import dataclass
 
 from transformers import AutoTokenizer
@@ -26,17 +27,22 @@ _ABBREVIATIONS = {
 
 # Initialize BGE tokenizer (same model we'll use for embeddings)
 _tokenizer = None
+_tokenizer_lock = threading.Lock()
 # Pin revision for reproducibility (same as embed_server.py)
 BGE_MODEL = "BAAI/bge-large-en-v1.5"
 BGE_REVISION = "d4aa6901d3a41ba39fb536a557fa166f842b0e09"
 
 
 def get_tokenizer() -> AutoTokenizer:
-    """Lazy-load tokenizer to avoid startup cost."""
+    """Lazy-load tokenizer to avoid startup cost (thread-safe)."""
     global _tokenizer
-    if _tokenizer is None:
-        _tokenizer = AutoTokenizer.from_pretrained(BGE_MODEL, revision=BGE_REVISION)
-    return _tokenizer
+    if _tokenizer is not None:
+        return _tokenizer
+    with _tokenizer_lock:
+        # Double-check after acquiring lock
+        if _tokenizer is None:
+            _tokenizer = AutoTokenizer.from_pretrained(BGE_MODEL, revision=BGE_REVISION)
+        return _tokenizer
 
 
 @dataclass
