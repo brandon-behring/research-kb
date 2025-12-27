@@ -44,6 +44,8 @@ from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
+import asyncpg
+
 # Add packages to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "extraction" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "storage" / "src"))
@@ -517,8 +519,10 @@ class ExtractionPipeline:
                         relevance_score=extracted.confidence,
                     )
                     links_created += 1
-                except Exception:
-                    pass  # Link may already exist
+                except asyncpg.UniqueViolationError:
+                    logger.debug("chunk_concept_link_exists", chunk_id=str(chunk.id), concept=extracted.name)
+                except Exception as e:
+                    logger.warning("chunk_concept_link_failed", chunk_id=str(chunk.id), concept=extracted.name, error=str(e))
 
         # Process relationships
         for rel in extraction.relationships:

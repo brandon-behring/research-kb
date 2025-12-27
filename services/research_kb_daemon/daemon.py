@@ -111,7 +111,7 @@ class DaemonServer:
         logger.info("daemon_warmup_start")
         try:
             # Trigger embedding model load
-            service.get_cached_embedding("warmup query")
+            await service.get_cached_embedding("warmup query")
             self._warmup_done = True
             logger.info("daemon_warmup_complete")
         except Exception as e:

@@ -32,8 +32,8 @@ def temp_socket():
 def mock_service():
     """Mock the service module."""
     with patch("daemon.service") as mock:
-        # Mock warmup
-        mock.get_cached_embedding.return_value = [0.1] * 1024
+        # Mock warmup (async function)
+        mock.get_cached_embedding = AsyncMock(return_value=[0.1] * 1024)
 
         # Mock search
         search_response = MagicMock()

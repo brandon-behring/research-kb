@@ -14,11 +14,10 @@ from research_kb_api.main import create_app
 @pytest.fixture
 def mock_embedding_client():
     """Mock embedding client for tests."""
-    with patch("research_kb_api.service._embedding_client") as mock:
-        client = MagicMock()
-        client.embed.return_value = [0.1] * 1024
-        mock.return_value = client
-        yield client
+    client = MagicMock()
+    client.embed.return_value = [0.1] * 1024
+    client.embed_query.return_value = [0.1] * 1024
+    return client
 
 
 @pytest.fixture
@@ -75,8 +74,12 @@ def mock_storage():
 @pytest.fixture
 async def app_client(mock_pool, mock_storage, mock_embedding_client) -> AsyncGenerator[AsyncClient, None]:
     """Create test client with mocked dependencies."""
+    # Create async mock for get_cached_embedding
+    async_embedding_mock = AsyncMock(return_value=[0.1] * 1024)
+
     with patch("research_kb_api.main.get_connection_pool", return_value=mock_pool), \
-         patch("research_kb_api.service.get_embedding_client", return_value=mock_embedding_client):
+         patch("research_kb_api.service.get_embedding_client", return_value=mock_embedding_client), \
+         patch("research_kb_api.service.get_cached_embedding", async_embedding_mock):
         app = create_app()
         app.state.pool = mock_pool
 

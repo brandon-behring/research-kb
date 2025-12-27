@@ -6,7 +6,9 @@ and the socket daemon. All operations are async and use the storage layer.
 
 from __future__ import annotations
 
+import asyncio
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
@@ -119,6 +121,8 @@ class ScoreBreakdown:
 # Singleton embedding client with lazy loading
 _embedding_client: Optional[EmbeddingClient] = None
 _embedding_cache: dict[str, list[float]] = {}
+_cache_lock = asyncio.Lock()
+_executor = ThreadPoolExecutor(max_workers=2)  # Bounded for GPU work
 
 
 def get_embedding_client() -> EmbeddingClient:
@@ -130,22 +134,36 @@ def get_embedding_client() -> EmbeddingClient:
     return _embedding_client
 
 
-def get_cached_embedding(text: str) -> list[float]:
-    """Get query embedding with caching.
+async def get_cached_embedding(text: str) -> list[float]:
+    """Get query embedding with caching (fully async, non-blocking).
 
     Uses embed_query() which adds the BGE query instruction prefix
     for better asymmetric retrieval (short queries finding long documents).
+
+    Thread-safe with asyncio.Lock() and uses run_in_executor() to avoid
+    blocking the event loop during CPU/GPU-bound embedding generation.
     """
-    if text not in _embedding_cache:
-        client = get_embedding_client()
-        _embedding_cache[text] = client.embed_query(text)
+    # Fast path: check cache under lock
+    async with _cache_lock:
+        if text in _embedding_cache:
+            return _embedding_cache[text]
+
+    # CPU/GPU-bound work runs in thread pool (doesn't block event loop)
+    loop = asyncio.get_event_loop()
+    client = get_embedding_client()
+    embedding = await loop.run_in_executor(_executor, client.embed_query, text)
+
+    # Store result under lock
+    async with _cache_lock:
+        _embedding_cache[text] = embedding
         # Keep cache bounded
         if len(_embedding_cache) > 1000:
             # Remove oldest entries
             keys = list(_embedding_cache.keys())[:500]
             for k in keys:
                 del _embedding_cache[k]
-    return _embedding_cache[text]
+
+    return embedding
 
 
 def get_context_weights(context_type: ContextType) -> tuple[float, float]:
@@ -168,7 +186,7 @@ async def search(options: SearchOptions) -> SearchResponse:
 
     # Generate embedding
     embed_start = time.perf_counter()
-    query_embedding = get_cached_embedding(options.query)
+    query_embedding = await get_cached_embedding(options.query)
     response.embedding_time_ms = (time.perf_counter() - embed_start) * 1000
 
     # Check if concepts exist when graph search requested
