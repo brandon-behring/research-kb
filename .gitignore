@@ -49,3 +49,8 @@ models/
 !.claude/
 backups/
 .dlq/
+
+# Phase 3: Archived operational data
+.archive/
+batch_results/
+quality-reports/
