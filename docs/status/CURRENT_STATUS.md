@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-27 13:55:34
+**Auto-generated**: 2025-12-27 16:15:38
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -11,9 +11,9 @@
 |-------|------:|
 | sources | 284 |
 | chunks | 142,221 |
-| concepts | 290,219 |
-| concept_relationships | 678,772 |
-| chunk_concepts | 1,145,930 |
+| concepts | 283,714 |
+| concept_relationships | 725,866 |
+| chunk_concepts | 1,145,921 |
 | citations | 10,758 |
 | methods | 15,505 |
 | assumptions | 9,468 |
@@ -34,7 +34,7 @@
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
 | Chunks | 142,221 | 142,221 | 100.0% |
-| Concepts | 290,219 | 290,219 | 100.0% |
+| Concepts | 283,714 | 283,714 | 100.0% |
 
 ---
 
@@ -51,15 +51,15 @@
 
 | Type | Count |
 |------|------:|
-| concept | 83,378 |
-| technique | 69,765 |
-| definition | 52,732 |
-| model | 23,069 |
-| method | 17,042 |
-| problem | 16,527 |
-| principle | 11,292 |
-| assumption | 10,707 |
-| theorem | 5,707 |
+| concept | 80,721 |
+| technique | 68,816 |
+| definition | 51,376 |
+| model | 22,273 |
+| method | 16,703 |
+| problem | 16,343 |
+| principle | 11,219 |
+| assumption | 10,591 |
+| theorem | 5,672 |
 
 ---
 
@@ -67,13 +67,14 @@
 
 | Type | Count |
 |------|------:|
-| USES | 342,682 |
-| ADDRESSES | 110,524 |
-| SPECIALIZES | 87,932 |
-| REQUIRES | 62,369 |
-| ALTERNATIVE_TO | 39,800 |
-| EXTENDS | 27,049 |
-| GENERALIZES | 8,416 |
+| USES | 340,211 |
+| ADDRESSES | 109,914 |
+| SPECIALIZES | 87,162 |
+| REQUIRES | 62,141 |
+| RELATED_TO | 51,547 |
+| ALTERNATIVE_TO | 39,559 |
+| EXTENDS | 26,964 |
+| GENERALIZES | 8,368 |
 
 ---
 
@@ -85,7 +86,7 @@ Based on database population and feature detection:
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
 | Phase 1.5: PDF Ingestion | ✅ Complete | 284 sources, 142,221 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 290,219 concepts, 678,772 relationships |
+| Phase 2: Knowledge Graph | ✅ Complete | 283,714 concepts, 725,866 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
 
