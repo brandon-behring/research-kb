@@ -24,6 +24,8 @@ def register_search_tools(mcp: FastMCP) -> None:
         use_graph: bool = True,
         use_rerank: bool = True,
         use_expand: bool = True,
+        use_citations: bool = True,
+        citation_weight: float = 0.15,
     ) -> str:
         """Search the causal inference research knowledge base.
 
@@ -31,6 +33,7 @@ def register_search_tools(mcp: FastMCP) -> None:
         - Full-text search (BM25) for keyword matching
         - Vector similarity (BGE-large embeddings) for semantic matching
         - Knowledge graph signals for concept relationships
+        - Citation authority signals (PageRank-style boosting)
 
         Args:
             query: Search query (natural language or keywords)
@@ -42,13 +45,15 @@ def register_search_tools(mcp: FastMCP) -> None:
             use_graph: Include knowledge graph signals (default True)
             use_rerank: Apply cross-encoder reranking (default True)
             use_expand: Expand query with synonyms (default True)
+            use_citations: Enable citation authority boosting (default True)
+            citation_weight: Weight for citation signal (0-1, default 0.15)
 
         Returns:
             Markdown-formatted search results with:
             - Source title, authors, year
             - Page numbers and section headers
             - Relevant text excerpt
-            - Score breakdown (FTS, vector, graph)
+            - Score breakdown (FTS, vector, graph, citation)
             - Source and chunk IDs for follow-up queries
 
         Example queries:
@@ -58,6 +63,7 @@ def register_search_tools(mcp: FastMCP) -> None:
         """
         # Validate and clamp limit
         limit = max(1, min(50, limit))
+        citation_weight = max(0.0, min(1.0, citation_weight))
 
         options = SearchOptions(
             query=query,
@@ -66,6 +72,8 @@ def register_search_tools(mcp: FastMCP) -> None:
             use_graph=use_graph,
             use_rerank=use_rerank,
             use_expand=use_expand,
+            use_citations=use_citations,
+            citation_weight=citation_weight,
         )
 
         response = await search(options)

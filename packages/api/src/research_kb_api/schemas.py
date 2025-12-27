@@ -64,6 +64,8 @@ class SearchRequest(BaseModel):
     graph_weight: float = Field(0.2, ge=0, le=1, description="Graph score weight")
     use_rerank: bool = Field(True, description="Enable cross-encoder reranking")
     use_expand: bool = Field(True, description="Enable query expansion")
+    use_citations: bool = Field(True, description="Enable citation authority boosting")
+    citation_weight: float = Field(0.15, ge=0, le=1, description="Citation weight (0-1)")
 
 
 # === Response Models ===

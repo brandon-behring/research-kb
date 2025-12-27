@@ -42,6 +42,7 @@ class CitationStore:
         bibtex: Optional[str] = None,
         extraction_method: Optional[str] = None,
         confidence_score: Optional[float] = None,
+        context: Optional[str] = None,
         metadata: Optional[dict] = None,
     ) -> Citation:
         """Create a new citation record.
@@ -58,6 +59,7 @@ class CitationStore:
             bibtex: Generated BibTeX entry
             extraction_method: "grobid" or "manual"
             confidence_score: Extraction confidence (0.0 to 1.0)
+            context: Citing sentence/context where citation appears
             metadata: Extensible JSONB metadata
 
         Returns:
@@ -94,9 +96,9 @@ class CitationStore:
                     INSERT INTO citations (
                         id, source_id, authors, title, year, venue,
                         doi, arxiv_id, raw_string, bibtex,
-                        extraction_method, confidence_score,
+                        extraction_method, confidence_score, context,
                         metadata, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                     RETURNING *
                     """,
                     citation_id,
@@ -111,6 +113,7 @@ class CitationStore:
                     bibtex,
                     extraction_method,
                     confidence_score,
+                    context,
                     metadata or {},
                     now,
                 )
@@ -289,9 +292,9 @@ class CitationStore:
                             INSERT INTO citations (
                                 id, source_id, authors, title, year, venue,
                                 doi, arxiv_id, raw_string, bibtex,
-                                extraction_method, confidence_score,
+                                extraction_method, confidence_score, context,
                                 metadata, created_at
-                            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                             RETURNING *
                             """,
                             citation_id,
@@ -306,6 +309,7 @@ class CitationStore:
                             cit_dict.get("bibtex"),
                             cit_dict.get("extraction_method"),
                             cit_dict.get("confidence_score"),
+                            cit_dict.get("context"),
                             cit_dict.get("metadata", {}),
                             now,
                         )
@@ -456,6 +460,7 @@ def _row_to_citation(row: asyncpg.Record) -> Citation:
         doi=row["doi"],
         arxiv_id=row["arxiv_id"],
         raw_string=row["raw_string"],
+        context=row.get("context"),  # May not exist in older schema
         bibtex=row["bibtex"],
         extraction_method=row["extraction_method"],
         confidence_score=row["confidence_score"],

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from research_kb_api.service import SearchResponse, SearchResultDetail
-    from research_kb_contracts import Source, Concept, ConceptRelationship
+    from research_kb_contracts import Source, Concept, ConceptRelationship, Chunk, ChunkConcept
 
 
 # Maximum content length before truncation
@@ -360,12 +360,161 @@ def format_stats(stats: dict) -> str:
 
 def format_health(healthy: bool, details: Optional[dict] = None) -> str:
     """Format health check result."""
-    status = "✅ Healthy" if healthy else "❌ Unhealthy"
+    status = "Healthy" if healthy else "Unhealthy"
     lines = [f"## Research KB Health: {status}"]
 
     if details:
         lines.append("\n### Details")
         for key, value in details.items():
             lines.append(f"- {key}: {value}")
+
+    return "\n".join(lines)
+
+
+def format_citation_network(citing: list, cited: list, source: Source) -> str:
+    """Format bidirectional citation network as markdown.
+
+    Args:
+        citing: List of Source objects that cite this source
+        cited: List of Source objects cited by this source
+        source: The center source
+
+    Returns:
+        Markdown-formatted citation network
+    """
+    lines = [f"## Citation Network: {source.title}"]
+    lines.append(f"*Source ID: `{source.id}`*\n")
+
+    # Papers citing this source (downstream)
+    lines.append(f"### Citing This Source ({len(citing)})")
+    lines.append("*Papers that built on this work*\n")
+
+    if citing:
+        for s in citing:
+            year = f" ({s.year})" if s.year else ""
+            authors = ", ".join(s.authors[:2]) if s.authors else "Unknown"
+            if s.authors and len(s.authors) > 2:
+                authors += " et al."
+            lines.append(f"- **{s.title}**{year}")
+            lines.append(f"  - {authors}")
+            lines.append(f"  - ID: `{s.id}`")
+    else:
+        lines.append("*No citing sources found in the knowledge base*")
+
+    lines.append("")
+
+    # Papers cited by this source (upstream)
+    lines.append(f"### Cited By This Source ({len(cited)})")
+    lines.append("*Foundations and context*\n")
+
+    if cited:
+        for s in cited:
+            year = f" ({s.year})" if s.year else ""
+            authors = ", ".join(s.authors[:2]) if s.authors else "Unknown"
+            if s.authors and len(s.authors) > 2:
+                authors += " et al."
+            lines.append(f"- **{s.title}**{year}")
+            lines.append(f"  - {authors}")
+            lines.append(f"  - ID: `{s.id}`")
+    else:
+        lines.append("*No cited sources found in the knowledge base*")
+
+    return "\n".join(lines)
+
+
+def format_biblio_similar(similar_sources: list[dict], source: Source) -> str:
+    """Format bibliographic coupling results as markdown.
+
+    Args:
+        similar_sources: List of dicts from BiblioStore.get_similar_sources()
+        source: The query source
+
+    Returns:
+        Markdown-formatted similar sources with coupling percentages
+    """
+    lines = [f"## Bibliographically Similar: {source.title}"]
+    lines.append(f"*Source ID: `{source.id}`*\n")
+
+    if not similar_sources:
+        lines.append("*No similar sources found (no shared references)*")
+        return "\n".join(lines)
+
+    lines.append(f"**{len(similar_sources)} similar sources** by shared references\n")
+
+    for s in similar_sources:
+        coupling_pct = s["coupling_strength"] * 100
+        year = f" ({s['year']})" if s.get("year") else ""
+        authors = s.get("authors", [])
+        author_str = ", ".join(authors[:2]) if authors else "Unknown"
+        if authors and len(authors) > 2:
+            author_str += " et al."
+
+        lines.append(f"- **{s['title']}**{year}")
+        lines.append(f"  - {author_str}")
+        lines.append(f"  - Coupling: **{coupling_pct:.1f}%** ({s['shared_references']} shared refs)")
+        lines.append(f"  - ID: `{s['source_id']}`")
+
+    return "\n".join(lines)
+
+
+def format_chunk_concepts(chunk: Chunk, concepts_with_links: list) -> str:
+    """Format concepts linked to a chunk as markdown.
+
+    Args:
+        chunk: The Chunk object
+        concepts_with_links: List of (Concept, ChunkConcept) tuples
+
+    Returns:
+        Markdown-formatted concept list with mention metadata
+    """
+    # Create page reference
+    page_ref = ""
+    if chunk.page_start:
+        if chunk.page_end and chunk.page_end != chunk.page_start:
+            page_ref = f"pp. {chunk.page_start}-{chunk.page_end}"
+        else:
+            page_ref = f"p. {chunk.page_start}"
+
+    lines = [f"## Concepts in Chunk"]
+    lines.append(f"*Chunk ID: `{chunk.id}`*")
+    if page_ref:
+        lines.append(f"*Location: {page_ref}*")
+    lines.append(f"\n**{len(concepts_with_links)} concepts linked**\n")
+
+    # Group by mention type
+    by_type: dict[str, list] = {"defines": [], "reference": [], "example": []}
+
+    for concept, cc in concepts_with_links:
+        mention_type = cc.mention_type or "reference"
+        if mention_type not in by_type:
+            by_type[mention_type] = []
+        by_type[mention_type].append((concept, cc))
+
+    # Format defines first (most important)
+    if by_type.get("defines"):
+        lines.append("### Defines")
+        for concept, cc in by_type["defines"]:
+            type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+            relevance = f" (relevance: {cc.relevance_score:.2f})" if cc.relevance_score else ""
+            lines.append(f"- **{concept.name}** [{type_val}]{relevance}")
+            lines.append(f"  - ID: `{concept.id}`")
+
+    # Format references
+    if by_type.get("reference"):
+        lines.append("\n### References")
+        for concept, cc in by_type["reference"]:
+            type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+            relevance = f" (relevance: {cc.relevance_score:.2f})" if cc.relevance_score else ""
+            lines.append(f"- **{concept.name}** [{type_val}]{relevance}")
+            lines.append(f"  - ID: `{concept.id}`")
+
+    # Format examples
+    if by_type.get("example"):
+        lines.append("\n### Examples")
+        for concept, cc in by_type["example"]:
+            type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+            relevance = f" (relevance: {cc.relevance_score:.2f})" if cc.relevance_score else ""
+            lines.append(f"- **{concept.name}** [{type_val}]{relevance}")
+            lines.append(f"  - ID: `{concept.id}`")
 
     return "\n".join(lines)

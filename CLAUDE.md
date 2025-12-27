@@ -328,14 +328,17 @@ The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 **Available Tools:**
 | Tool | Description |
 |------|-------------|
-| `research_kb_search` | Hybrid search (FTS + vector + graph) |
+| `research_kb_search` | Hybrid search (FTS + vector + graph + citation) |
 | `research_kb_list_sources` | List sources (papers, textbooks) |
 | `research_kb_get_source` | Get source details and chunks |
 | `research_kb_get_source_citations` | Get citations for a source |
 | `research_kb_get_citing_sources` | Find sources citing this one |
 | `research_kb_get_cited_sources` | Find sources this one cites |
+| `research_kb_citation_network` | Bidirectional citation network for a source |
+| `research_kb_biblio_coupling` | Find similar sources by shared references |
 | `research_kb_list_concepts` | List/search concepts |
 | `research_kb_get_concept` | Get concept with relationships |
+| `research_kb_chunk_concepts` | Get concepts linked to a chunk |
 | `research_kb_graph_neighborhood` | Explore concept neighborhood |
 | `research_kb_graph_path` | Find path between concepts |
 | `research_kb_stats` | Database statistics |

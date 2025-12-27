@@ -175,8 +175,11 @@ def parse_tei_xml(tei_xml: str) -> ExtractedPaper:
     # Extract sections
     sections = _extract_sections(root, ns)
 
-    # Extract citations from bibliography
-    citations = _extract_citations(root, ns)
+    # Extract citation contexts from body text (before extracting citations)
+    contexts = _extract_citation_contexts(root, ns)
+
+    # Extract citations from bibliography with contexts
+    citations = _extract_citations(root, ns, contexts)
 
     # Extract full text
     raw_text = _extract_full_text(root, ns)
@@ -273,17 +276,102 @@ def _get_text_content(element) -> str:
     return "".join(element.itertext())
 
 
-def _extract_citations(root, ns: dict) -> list[Citation]:
+def _extract_citation_contexts(root, ns: dict) -> dict[str, str]:
+    """Build a mapping of citation ref IDs to their citing contexts.
+
+    In GROBID TEI-XML:
+    - Citations in body are: <ref type="bibr" target="#b0">[1]</ref>
+    - We find the parent paragraph/sentence and extract surrounding text
+
+    Args:
+        root: Parsed XML root element
+        ns: Namespace dictionary
+
+    Returns:
+        Dict mapping ref_id (e.g., "b0") to context string
+    """
+    contexts: dict[str, str] = {}
+    max_context_length = 500  # Truncate long contexts
+
+    # Find all citation references in the text body
+    for ref in root.findall(".//tei:text//tei:ref[@type='bibr']", ns):
+        target = ref.get("target")
+        if not target or not target.startswith("#"):
+            continue
+
+        ref_id = target[1:]  # Remove leading "#"
+
+        # Skip if we already have context for this citation
+        if ref_id in contexts:
+            continue
+
+        # Try to get the parent sentence <s> first
+        parent = ref.getparent()
+        context_elem = None
+
+        # Walk up to find sentence or paragraph
+        while parent is not None:
+            tag = etree.QName(parent.tag).localname if parent.tag else ""
+            if tag == "s":  # Sentence element
+                context_elem = parent
+                break
+            elif tag == "p":  # Paragraph element
+                context_elem = parent
+                break
+            parent = parent.getparent()
+
+        if context_elem is not None:
+            context_text = _get_text_content(context_elem).strip()
+            # Clean up whitespace
+            context_text = " ".join(context_text.split())
+
+            if len(context_text) > max_context_length:
+                # Try to truncate intelligently at sentence boundary
+                # Find the citation marker in the text
+                ref_text = _get_text_content(ref).strip()
+                if ref_text in context_text:
+                    # Center around the citation
+                    idx = context_text.find(ref_text)
+                    start = max(0, idx - max_context_length // 2)
+                    end = min(len(context_text), idx + len(ref_text) + max_context_length // 2)
+
+                    if start > 0:
+                        context_text = "..." + context_text[start:end]
+                    else:
+                        context_text = context_text[start:end]
+
+                    if end < len(context_text):
+                        context_text = context_text + "..."
+                else:
+                    # Just truncate from the beginning
+                    context_text = context_text[:max_context_length] + "..."
+
+            if context_text:
+                contexts[ref_id] = context_text
+
+    return contexts
+
+
+def _extract_citations(root, ns: dict, contexts: Optional[dict[str, str]] = None) -> list[Citation]:
     """Extract citations from TEI-XML bibliography.
 
     Parses <listBibl> element containing <biblStruct> entries.
     Each entry becomes a Citation with extracted metadata.
+
+    Args:
+        root: Parsed XML root element
+        ns: Namespace dictionary
+        contexts: Optional dict mapping ref_id to citing context string
     """
     citations = []
+    contexts = contexts or {}
 
     # Find all bibliography entries
     for bibl in root.findall(".//tei:listBibl/tei:biblStruct", ns):
         try:
+            # Get the xml:id for context lookup (e.g., "b0", "b1")
+            xml_id = bibl.get("{http://www.w3.org/XML/1998/namespace}id")
+
             # Extract authors
             authors = []
             for author in bibl.findall(".//tei:author", ns):
@@ -343,6 +431,9 @@ def _extract_citations(root, ns: dict) -> list[Citation]:
             # Build raw string from all text content
             raw_string = _get_text_content(bibl).strip()
 
+            # Get citation context if available
+            context = contexts.get(xml_id) if xml_id else None
+
             citations.append(
                 Citation(
                     authors=authors,
@@ -352,6 +443,7 @@ def _extract_citations(root, ns: dict) -> list[Citation]:
                     doi=doi,
                     arxiv_id=arxiv_id,
                     raw_string=raw_string or title,
+                    context=context,
                 )
             )
 

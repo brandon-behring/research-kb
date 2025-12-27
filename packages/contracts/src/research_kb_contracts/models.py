@@ -156,6 +156,9 @@ class Citation(BaseModel):
     doi: Optional[str] = None
     arxiv_id: Optional[str] = None
     raw_string: str = Field(..., description="Original citation text from document")
+    context: Optional[str] = Field(
+        None, description="Citing sentence/context where this citation appears"
+    )
 
     # BibTeX and extraction metadata
     bibtex: Optional[str] = Field(None, description="Generated BibTeX entry")

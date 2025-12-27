@@ -83,6 +83,30 @@ class TestCitationStoreCreate:
         assert citation.arxiv_id == "1706.03762"
         assert citation.doi is None
 
+    async def test_create_citation_with_context(self, test_source):
+        """Test creating citation with citing context."""
+        context = "As shown by Pearl [1], causal inference requires counterfactual reasoning."
+        citation = await CitationStore.create(
+            source_id=test_source.id,
+            raw_string="Pearl, J. (2009). Causality.",
+            title="Causality",
+            year=2009,
+            context=context,
+            extraction_method="grobid",
+        )
+
+        assert citation.context == context
+        assert citation.title == "Causality"
+
+    async def test_create_citation_without_context(self, test_source):
+        """Test that context defaults to None."""
+        citation = await CitationStore.create(
+            source_id=test_source.id,
+            raw_string="Test citation without context",
+        )
+
+        assert citation.context is None
+
 
 class TestCitationStoreRetrieve:
     """Test CitationStore retrieval operations."""
@@ -246,6 +270,39 @@ class TestCitationStoreBatch:
         assert created[0].bibtex is not None
         assert "pearl2009causality" in created[0].bibtex
         assert created[1].arxiv_id == "1706.03762"
+
+    async def test_batch_create_with_context(self, test_source):
+        """Test batch creating citations with context field."""
+        citations_data = [
+            {
+                "source_id": test_source.id,
+                "raw_string": "Pearl (2009)",
+                "title": "Causality",
+                "context": "This method is based on Pearl [1] framework.",
+                "extraction_method": "grobid",
+            },
+            {
+                "source_id": test_source.id,
+                "raw_string": "Angrist (1996)",
+                "title": "Identification of LATE",
+                "context": None,  # Explicitly None
+                "extraction_method": "grobid",
+            },
+            {
+                "source_id": test_source.id,
+                "raw_string": "Rubin (1974)",
+                "title": "Estimating Causal Effects",
+                # No context field at all
+                "extraction_method": "grobid",
+            },
+        ]
+
+        created = await CitationStore.batch_create(citations_data)
+
+        assert len(created) == 3
+        assert created[0].context == "This method is based on Pearl [1] framework."
+        assert created[1].context is None
+        assert created[2].context is None  # Missing field treated as None
 
 
 class TestCitationStoreDelete:

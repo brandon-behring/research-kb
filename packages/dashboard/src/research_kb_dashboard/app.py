@@ -2,17 +2,16 @@
 
 Main Streamlit application entry point. Run with:
     streamlit run packages/dashboard/src/research_kb_dashboard/app.py
+
+Requires the Research-KB API server to be running at RESEARCH_KB_API_URL
+(default: http://localhost:8000).
 """
 
-import os
 import streamlit as st
 import asyncio
-import asyncpg
+import httpx
 
-
-def _get_db_password() -> str:
-    """Get database password from environment."""
-    return os.environ.get("POSTGRES_PASSWORD", "postgres")
+from research_kb_dashboard.api_client import ResearchKBClient
 
 # Page config must be first Streamlit command
 st.set_page_config(
@@ -29,32 +28,21 @@ def run_async(coro):
 
 
 async def get_stats():
-    """Get database statistics."""
-    conn = await asyncpg.connect(
-        host="localhost",
-        port=5432,
-        database="research_kb",
-        user="postgres",
-        password=_get_db_password(),
-    )
+    """Get database statistics via API."""
+    client = ResearchKBClient()
     try:
-        sources = await conn.fetchval("SELECT COUNT(*) FROM sources")
-        chunks = await conn.fetchval("SELECT COUNT(*) FROM chunks")
-        citations = await conn.fetchval("SELECT COUNT(*) FROM citations")
-        concepts = await conn.fetchval("SELECT COUNT(*) FROM concepts")
-        edges = await conn.fetchval(
-            "SELECT COUNT(*) FROM source_citations WHERE cited_source_id IS NOT NULL"
-        )
+        stats = await client.get_stats()
+        # Map API response fields to expected format
+        # API returns: sources, chunks, concepts, relationships, citations, chunk_concepts
+        return {
+            "sources": stats.get("sources", 0),
+            "chunks": stats.get("chunks", 0),
+            "citations": stats.get("citations", 0),
+            "concepts": stats.get("concepts", 0),
+            "edges": stats.get("relationships", 0),  # relationships = internal edges
+        }
     finally:
-        await conn.close()
-
-    return {
-        "sources": sources,
-        "chunks": chunks,
-        "citations": citations,
-        "concepts": concepts,
-        "edges": edges,
-    }
+        await client.close()
 
 
 def main():
@@ -83,6 +71,9 @@ def main():
             st.metric("Internal Edges", stats["edges"])
             st.metric("Concepts", stats["concepts"])
 
+        except httpx.ConnectError:
+            st.error("Cannot connect to API server. Ensure the API is running.")
+            st.caption("Start with: uvicorn research_kb_api.main:app --host 0.0.0.0 --port 8000")
         except Exception as e:
             st.error(f"Could not load stats: {e}")
 
@@ -116,18 +107,13 @@ def render_search():
 
 
 async def get_concept_count():
-    """Get concept count for progress display."""
-    conn = await asyncpg.connect(
-        host="localhost",
-        port=5432,
-        database="research_kb",
-        user="postgres",
-        password=_get_db_password(),
-    )
+    """Get concept count for progress display via API."""
+    client = ResearchKBClient()
     try:
-        return await conn.fetchval("SELECT COUNT(*) FROM concepts")
+        stats = await client.get_stats()
+        return stats.get("concepts", 0)
     finally:
-        await conn.close()
+        await client.close()
 
 
 def render_concept_graph():

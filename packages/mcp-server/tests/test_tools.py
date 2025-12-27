@@ -10,6 +10,7 @@ from research_kb_mcp.tools.sources import register_source_tools
 from research_kb_mcp.tools.concepts import register_concept_tools
 from research_kb_mcp.tools.graph import register_graph_tools
 from research_kb_mcp.tools.health import register_health_tools
+from research_kb_mcp.tools.citations import register_citation_tools
 
 
 class MockFastMCP:
@@ -74,6 +75,14 @@ class TestToolRegistration:
         assert "research_kb_stats" in mcp.tools
         assert "research_kb_health" in mcp.tools
 
+    def test_citation_tools_registered(self):
+        """Citation tools are registered correctly."""
+        mcp = MockFastMCP()
+        register_citation_tools(mcp)
+
+        assert "research_kb_citation_network" in mcp.tools
+        assert "research_kb_biblio_coupling" in mcp.tools
+
     def test_all_tools_have_docstrings(self):
         """All registered tools have docstrings for MCP schema."""
         mcp = MockFastMCP()
@@ -83,6 +92,7 @@ class TestToolRegistration:
         register_concept_tools(mcp)
         register_graph_tools(mcp)
         register_health_tools(mcp)
+        register_citation_tools(mcp)
 
         for name, tool in mcp.tools.items():
             assert tool["func"].__doc__, f"Tool {name} missing docstring"

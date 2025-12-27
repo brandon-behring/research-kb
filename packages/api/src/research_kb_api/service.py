@@ -60,6 +60,8 @@ class SearchOptions:
     use_rerank: bool = True
     use_expand: bool = True
     use_llm_expand: bool = False
+    use_citations: bool = True
+    citation_weight: float = 0.15
 
 
 @dataclass

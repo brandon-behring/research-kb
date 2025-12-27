@@ -53,6 +53,8 @@ async def search(request: schemas.SearchRequest) -> schemas.SearchResponse:
         graph_weight=request.graph_weight,
         use_rerank=request.use_rerank,
         use_expand=request.use_expand,
+        use_citations=request.use_citations,
+        citation_weight=request.citation_weight,
     )
 
     response = await service.search(options)

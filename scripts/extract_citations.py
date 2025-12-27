@@ -161,6 +161,7 @@ async def extract_citations_for_source(
                 "venue": citation.venue,
                 "doi": citation.doi,
                 "arxiv_id": citation.arxiv_id,
+                "context": citation.context,  # Citing sentence from body text
                 "extraction_method": "grobid",
                 "metadata": {
                     "source_type": source.source_type.value,

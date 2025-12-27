@@ -2,18 +2,16 @@
 
 Interactive PyVis graph showing paper/textbook citation relationships.
 Nodes sized by PageRank authority, colored by source type.
+
+Uses the Research-KB API for data access.
 """
 
-import os
 import streamlit as st
 import asyncio
-import asyncpg
+import httpx
 from typing import Optional
 
-
-def _get_db_password() -> str:
-    """Get database password from environment."""
-    return os.environ.get("POSTGRES_PASSWORD", "postgres")
+from research_kb_dashboard.api_client import ResearchKBClient
 
 from research_kb_dashboard.components.graph import (
     create_network,
@@ -30,7 +28,7 @@ def run_async(coro):
 
 
 async def load_citation_data(source_type_filter: Optional[str] = None):
-    """Load sources and citation edges from database.
+    """Load sources and citation edges via API.
 
     Args:
         source_type_filter: Optional filter by source type
@@ -38,54 +36,57 @@ async def load_citation_data(source_type_filter: Optional[str] = None):
     Returns:
         Tuple of (sources list, edges list)
     """
-    # Create fresh connection (avoid global pool cache issues with event loops)
-    conn = await asyncpg.connect(
-        host="localhost",
-        port=5432,
-        database="research_kb",
-        user="postgres",
-        password=_get_db_password(),
-    )
-
+    client = ResearchKBClient()
     try:
-        # Load sources
+        # Map source filter for API
+        api_source_filter = None
         if source_type_filter and source_type_filter != "All":
-            sources = await conn.fetch("""
-                SELECT id, source_type, title, authors, year,
-                       COALESCE(citation_authority, 0.1) as authority
-                FROM sources
-                WHERE source_type = $1
-                ORDER BY citation_authority DESC NULLS LAST
-            """, source_type_filter.lower())
-        else:
-            sources = await conn.fetch("""
-                SELECT id, source_type, title, authors, year,
-                       COALESCE(citation_authority, 0.1) as authority
-                FROM sources
-                ORDER BY citation_authority DESC NULLS LAST
-            """)
+            api_source_filter = source_type_filter.upper()
+
+        # Load sources via API
+        response = await client.list_sources(
+            limit=1000,  # Get all for visualization
+            source_type=api_source_filter,
+        )
+
+        # Convert API response to expected format
+        sources = []
+        for s in response.get("sources", []):
+            sources.append({
+                "id": s.get("id"),
+                "source_type": s.get("source_type", "paper"),
+                "title": s.get("title", "Untitled"),
+                "authors": s.get("authors", []),
+                "year": s.get("year"),
+                # Use metadata for authority if available, default to 0.1
+                "authority": s.get("metadata", {}).get("citation_authority", 0.1)
+                             if s.get("metadata") else 0.1,
+            })
 
         # Get source IDs for edge filtering
-        source_ids = [str(s["id"]) for s in sources]
+        source_ids = {s["id"] for s in sources}
 
-        # Load edges (only internal citations between corpus sources)
-        edges = await conn.fetch("""
-            SELECT citing_source_id, cited_source_id
-            FROM source_citations
-            WHERE cited_source_id IS NOT NULL
-        """)
+        # Load edges by getting citations for each source
+        # NOTE: This is less efficient than a direct query, but works with the API
+        # For large datasets, consider adding a dedicated /citations endpoint
+        edges = []
+        for source in sources:
+            try:
+                citations = await client.get_source_citations(source["id"])
+                # Add edges for cited sources (this source cites them)
+                for cited in citations.get("cited_sources", []):
+                    if cited.get("id") in source_ids:
+                        edges.append({
+                            "citing_source_id": source["id"],
+                            "cited_source_id": cited.get("id"),
+                        })
+            except Exception:
+                # Skip sources with citation errors
+                continue
 
-        # Filter edges to only include sources in our filtered set
-        if source_type_filter and source_type_filter != "All":
-            edges = [
-                e for e in edges
-                if str(e["citing_source_id"]) in source_ids
-                and str(e["cited_source_id"]) in source_ids
-            ]
+        return sources, edges
     finally:
-        await conn.close()
-
-    return sources, edges
+        await client.close()
 
 
 def citation_network_page():
@@ -125,8 +126,16 @@ def citation_network_page():
         )
 
     # Load data
-    with st.spinner("Loading citation network..."):
-        sources, edges = run_async(load_citation_data(source_type))
+    try:
+        with st.spinner("Loading citation network..."):
+            sources, edges = run_async(load_citation_data(source_type))
+    except httpx.ConnectError:
+        st.error("Cannot connect to API server. Ensure the API is running.")
+        st.caption("Start with: uvicorn research_kb_api.main:app --host 0.0.0.0 --port 8000")
+        return
+    except Exception as e:
+        st.error(f"Failed to load citation data: {e}")
+        return
 
     # Filter by authority
     if min_authority > 0:

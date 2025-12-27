@@ -1,11 +1,12 @@
 """Concept tools for MCP server.
 
-Exposes concept listing and detail functionality.
+Exposes concept listing, detail, and chunk-concept link functionality.
 """
 
 from __future__ import annotations
 
 from typing import Optional
+from uuid import UUID
 
 from fastmcp import FastMCP
 
@@ -14,9 +15,11 @@ from research_kb_api.service import (
     get_concept_by_id,
     get_concept_relationships,
 )
+from research_kb_storage import ChunkConceptStore, ChunkStore, ConceptStore
 from research_kb_mcp.formatters import (
     format_concept_list,
     format_concept_detail,
+    format_chunk_concepts,
 )
 
 
@@ -100,3 +103,46 @@ def register_concept_tools(mcp: FastMCP) -> None:
             relationships = await get_concept_relationships(concept_id)
 
         return format_concept_detail(concept, relationships)
+
+    @mcp.tool()
+    async def research_kb_chunk_concepts(chunk_id: str) -> str:
+        """Get all concepts linked to a specific chunk.
+
+        Shows concepts extracted from a text chunk, with mention type
+        indicating how the concept appears (defines, references, or examples).
+        Useful for understanding the conceptual content of a specific passage.
+
+        Args:
+            chunk_id: UUID of the chunk (from search results)
+
+        Returns:
+            Markdown-formatted list of concepts with:
+            - Concept name and type
+            - Mention type (defines, reference, example)
+            - Relevance score (if available)
+            - Concept IDs for follow-up queries
+
+        Mention types:
+            - defines: Chunk provides definition/explanation of concept
+            - reference: Chunk mentions or uses the concept
+            - example: Chunk provides an example of the concept
+        """
+        # Validate chunk exists
+        chunk = await ChunkStore.get_by_id(UUID(chunk_id))
+        if chunk is None:
+            return f"**Error:** Chunk `{chunk_id}` not found"
+
+        # Get chunk-concept links
+        chunk_concepts = await ChunkConceptStore.list_concepts_for_chunk(UUID(chunk_id))
+
+        if not chunk_concepts:
+            return f"**Chunk `{chunk_id}`**: No concepts linked to this chunk."
+
+        # Fetch concept details for each link
+        concepts_with_links = []
+        for cc in chunk_concepts:
+            concept = await ConceptStore.get(cc.concept_id)
+            if concept:
+                concepts_with_links.append((concept, cc))
+
+        return format_chunk_concepts(chunk, concepts_with_links)

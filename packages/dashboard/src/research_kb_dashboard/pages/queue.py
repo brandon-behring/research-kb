@@ -2,21 +2,20 @@
 
 Shows extraction progress by source, sorted small-to-large for quick wins.
 Provides commands to run extraction on specific sources.
+
+Uses the Research-KB API for data access.
+
+NOTE: Per-source extraction status currently requires direct database access
+because the API doesn't expose chunk_concepts per source. This is a known
+limitation that could be addressed with a /extraction-status API endpoint.
 """
 
-import os
 import streamlit as st
 import asyncio
-import asyncpg
+import httpx
 import pandas as pd
 
-
-from datetime import timedelta
-
-
-def _get_db_password() -> str:
-    """Get database password from environment."""
-    return os.environ.get("POSTGRES_PASSWORD", "postgres")
+from research_kb_dashboard.api_client import ResearchKBClient
 
 
 def run_async(coro):
@@ -25,28 +24,32 @@ def run_async(coro):
 
 
 async def get_extraction_status():
-    """Get extraction status for all sources.
+    """Get extraction status via API.
 
     Returns:
         Tuple of (overall_stats dict, list of per-source stats)
+
+    NOTE: The API provides overall stats but not per-source extraction status.
+    Per-source stats are derived from source metadata which may not include
+    extraction progress details. For full per-source extraction tracking,
+    a dedicated /extraction-status endpoint would be needed.
     """
-    conn = await asyncpg.connect(
-        host="localhost",
-        port=5432,
-        database="research_kb",
-        user="postgres",
-        password=_get_db_password(),
-    )
-
+    client = ResearchKBClient()
     try:
-        # Overall stats
-        total_chunks = await conn.fetchval("SELECT COUNT(*) FROM chunks")
-        total_concepts = await conn.fetchval("SELECT COUNT(*) FROM concepts")
-        chunk_concept_links = await conn.fetchval("SELECT COUNT(*) FROM chunk_concepts")
+        # Get overall stats from API
+        stats = await client.get_stats()
 
-        processed_chunks = await conn.fetchval("""
-            SELECT COUNT(DISTINCT chunk_id) FROM chunk_concepts
-        """)
+        # Calculate overall extraction progress
+        # The API returns chunk_concepts count which represents processed chunks
+        total_chunks = stats.get("chunks", 0)
+        total_concepts = stats.get("concepts", 0)
+        chunk_concept_links = stats.get("chunk_concepts", 0)
+
+        # Estimate processed chunks from chunk_concepts links
+        # NOTE: This is an approximation - ideally the API would return
+        # a distinct count of chunk_ids in chunk_concepts
+        # For now, assume ~3 concepts per chunk on average
+        processed_chunks = min(chunk_concept_links // 3, total_chunks) if chunk_concept_links > 0 else 0
 
         overall = {
             "total_chunks": total_chunks,
@@ -57,27 +60,27 @@ async def get_extraction_status():
             "chunk_concept_links": chunk_concept_links,
         }
 
-        # Per-source stats (sorted by remaining chunks ascending = small first)
-        per_source = await conn.fetch("""
-            SELECT
-                s.id,
-                s.title,
-                s.source_type,
-                COUNT(DISTINCT c.id) as total_chunks,
-                COUNT(DISTINCT cc.chunk_id) as processed_chunks
-            FROM sources s
-            LEFT JOIN chunks c ON s.id = c.source_id
-            LEFT JOIN chunk_concepts cc ON c.id = cc.chunk_id
-            GROUP BY s.id, s.title, s.source_type
-            HAVING COUNT(DISTINCT c.id) > 0
-            ORDER BY (COUNT(DISTINCT c.id) - COUNT(DISTINCT cc.chunk_id)) ASC,
-                     COUNT(DISTINCT c.id) ASC
-        """)
+        # Get sources for per-source display
+        # NOTE: Without a dedicated extraction status endpoint, we can only
+        # show basic source info. Chunk counts require the SourceWithChunks endpoint
+        # which would be too slow to call for all sources.
+        sources_response = await client.list_sources(limit=1000)
 
+        per_source = []
+        for s in sources_response.get("sources", []):
+            # We don't have per-source chunk counts without additional API calls
+            # Show placeholder data that indicates limitation
+            per_source.append({
+                "id": s.get("id"),
+                "title": s.get("title", "Untitled"),
+                "source_type": s.get("source_type", "paper"),
+                "total_chunks": None,  # Not available from list endpoint
+                "processed_chunks": None,  # Not available from API
+            })
+
+        return overall, per_source
     finally:
-        await conn.close()
-
-    return overall, per_source
+        await client.close()
 
 
 def format_time(minutes: float) -> str:
@@ -96,25 +99,33 @@ def queue_page():
     """Render the extraction queue status page."""
     st.header("📋 Extraction Queue")
     st.markdown(
-        "Track concept extraction progress by source. "
-        "Sources sorted by remaining chunks (smallest first for quick wins)."
+        "Track concept extraction progress. "
+        "Shows overall progress and commands to run extraction."
     )
 
     # Load data
-    with st.spinner("Loading extraction status..."):
-        overall, per_source = run_async(get_extraction_status())
+    try:
+        with st.spinner("Loading extraction status..."):
+            overall, per_source = run_async(get_extraction_status())
+    except httpx.ConnectError:
+        st.error("Cannot connect to API server. Ensure the API is running.")
+        st.caption("Start with: uvicorn research_kb_api.main:app --host 0.0.0.0 --port 8000")
+        return
+    except Exception as e:
+        st.error(f"Failed to load extraction status: {e}")
+        return
 
     # Overall progress section
     st.subheader("Overall Progress")
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Chunks", f"{overall['total_chunks']:,}")
-    col2.metric("Processed", f"{overall['processed_chunks']:,}")
-    col3.metric("Remaining", f"{overall['remaining_chunks']:,}")
-    col4.metric("Complete", f"{overall['percent_complete']:.1f}%")
+    col2.metric("Processed (est.)", f"{overall['processed_chunks']:,}")
+    col3.metric("Remaining (est.)", f"{overall['remaining_chunks']:,}")
+    col4.metric("Complete (est.)", f"{overall['percent_complete']:.1f}%")
 
     # Progress bar
-    st.progress(overall['percent_complete'] / 100)
+    st.progress(min(overall['percent_complete'] / 100, 1.0))
 
     # ETA calculation (assuming ~1.5 chunks/min throughput)
     throughput = 1.5  # chunks per minute
@@ -126,29 +137,18 @@ def queue_page():
 
     st.divider()
 
-    # Quick wins section
-    quick_wins = [
-        r for r in per_source
-        if (r['total_chunks'] - r['processed_chunks']) > 0
-        and (r['total_chunks'] - r['processed_chunks']) <= 50
-    ]
+    # Per-source status notice
+    st.info(
+        "**Note:** Per-source extraction status requires a dedicated API endpoint. "
+        "The current API provides overall stats but not per-source chunk/extraction counts. "
+        "Use the CLI for detailed per-source status: `research-kb extraction-status`"
+    )
 
-    if quick_wins:
-        with st.expander(f"⚡ Quick Wins ({len(quick_wins)} sources with ≤50 chunks remaining)", expanded=True):
-            for source in quick_wins[:10]:
-                remaining = source['total_chunks'] - source['processed_chunks']
-                title = source['title'][:60] if source['title'] else "Untitled"
-                col1, col2 = st.columns([3, 1])
-                with col1:
-                    st.write(f"**{title}** ({remaining} remaining)")
-                with col2:
-                    cmd = f"python scripts/extract_concepts.py --source-id {source['id']}"
-                    st.code(cmd, language="bash")
-
-    st.divider()
+    # Source list (without chunk counts)
+    st.subheader("Sources")
 
     # Filter controls
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
     with col1:
         source_type_filter = st.selectbox(
@@ -157,98 +157,46 @@ def queue_page():
             index=0,
         )
 
-    with col2:
-        status_filter = st.selectbox(
-            "Filter by Status",
-            ["All", "Incomplete", "Complete", "Not Started"],
-            index=1,  # Default to incomplete
-        )
-
-    with col3:
-        sort_order = st.selectbox(
-            "Sort Order",
-            ["Remaining (asc)", "Remaining (desc)", "Total (asc)", "Total (desc)"],
-            index=0,
-        )
-
     # Build filtered dataframe
     data = []
     for source in per_source:
-        remaining = source['total_chunks'] - source['processed_chunks']
-        progress_pct = (source['processed_chunks'] / source['total_chunks'] * 100) if source['total_chunks'] > 0 else 0
-
-        # Apply filters
+        # Apply filter
         if source_type_filter != "All" and source['source_type'] != source_type_filter:
-            continue
-
-        if status_filter == "Incomplete" and remaining == 0:
-            continue
-        elif status_filter == "Complete" and remaining > 0:
-            continue
-        elif status_filter == "Not Started" and source['processed_chunks'] > 0:
             continue
 
         data.append({
             "id": str(source['id']),
-            "title": source['title'][:50] if source['title'] else "Untitled",
+            "title": source['title'][:60] if source['title'] else "Untitled",
             "type": source['source_type'],
-            "total": source['total_chunks'],
-            "done": source['processed_chunks'],
-            "remaining": remaining,
-            "progress": progress_pct,
         })
 
-    # Apply sort
     if data:
         df = pd.DataFrame(data)
 
-        if sort_order == "Remaining (asc)":
-            df = df.sort_values("remaining", ascending=True)
-        elif sort_order == "Remaining (desc)":
-            df = df.sort_values("remaining", ascending=False)
-        elif sort_order == "Total (asc)":
-            df = df.sort_values("total", ascending=True)
-        elif sort_order == "Total (desc)":
-            df = df.sort_values("total", ascending=False)
-
-        # Display table
-        st.subheader(f"Sources ({len(df)} shown)")
-
-        # Show as interactive table
+        # Display table (limited info without chunk counts)
         st.dataframe(
-            df[["title", "type", "total", "done", "remaining", "progress"]].rename(columns={
+            df[["title", "type"]].rename(columns={
                 "title": "Source",
                 "type": "Type",
-                "total": "Total",
-                "done": "Done",
-                "remaining": "Remaining",
-                "progress": "Progress %",
             }),
             use_container_width=True,
             hide_index=True,
         )
 
-        # Selected source details
         st.subheader("Run Extraction")
 
-        # Show command for first incomplete source
-        incomplete = df[df["remaining"] > 0]
-        if not incomplete.empty:
-            first_incomplete = incomplete.iloc[0]
-            st.markdown(f"**Next up:** {first_incomplete['title']} ({first_incomplete['remaining']} chunks)")
-
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("**Process this source:**")
+        # Show general extraction commands
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Process specific source:**")
+            if len(data) > 0:
                 st.code(
-                    f"python scripts/extract_concepts.py --source-id {first_incomplete['id']}",
+                    f"python scripts/extract_concepts.py --source-id {data[0]['id']}",
                     language="bash"
                 )
-            with col2:
-                st.markdown("**Resume all (auto-selects unprocessed):**")
-                st.code("python scripts/extract_concepts.py --resume", language="bash")
-        else:
-            st.success("🎉 All sources have been processed!")
+        with col2:
+            st.markdown("**Resume all (auto-selects unprocessed):**")
+            st.code("python scripts/extract_concepts.py --resume", language="bash")
 
     else:
         st.info("No sources match the current filters.")

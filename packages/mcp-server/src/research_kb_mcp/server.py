@@ -66,6 +66,7 @@ from research_kb_mcp.tools import (  # noqa: E402
     register_concept_tools,
     register_graph_tools,
     register_health_tools,
+    register_citation_tools,
 )
 
 register_search_tools(mcp)
@@ -73,6 +74,7 @@ register_source_tools(mcp)
 register_concept_tools(mcp)
 register_graph_tools(mcp)
 register_health_tools(mcp)
+register_citation_tools(mcp)
 
 
 def main():
