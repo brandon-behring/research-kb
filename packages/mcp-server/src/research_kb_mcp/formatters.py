@@ -270,8 +270,8 @@ def format_concept_detail(
     lines.append(f"**Type:** {type_val}")
     lines.append(f"**ID:** `{concept.id}`")
 
-    if concept.description:
-        lines.append(f"\n### Description\n{concept.description}")
+    if concept.definition:
+        lines.append(f"\n### Description\n{concept.definition}")
 
     if relationships:
         lines.append(f"\n### Relationships ({len(relationships)} total)")
@@ -290,9 +290,12 @@ def format_graph_neighborhood(neighborhood: dict) -> str:
     if "error" in neighborhood:
         return f"**Error:** {neighborhood['error']}"
 
-    center = neighborhood.get("center", {})
+    center = neighborhood.get("center") or {}
     nodes = neighborhood.get("nodes", [])
     edges = neighborhood.get("edges", [])
+
+    if not center:
+        return "**Error:** Concept not found"
 
     lines = [f"## Graph Neighborhood: {center.get('name', 'Unknown')}"]
     lines.append(f"*Type: {center.get('type', 'unknown')} | ID: `{center.get('id')}`*")
