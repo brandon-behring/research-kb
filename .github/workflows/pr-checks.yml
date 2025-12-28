@@ -39,6 +39,16 @@ jobs:
           pip install -e packages/contracts
           pip install -e packages/common
           pip install pytest pytest-asyncio
+          pip install black ruff mypy
+
+      - name: Code quality checks
+        run: |
+          echo "=== Black (formatting) ==="
+          black --check packages/
+          echo "=== Ruff (linting) ==="
+          ruff check packages/
+          echo "=== Mypy (type checking) ==="
+          mypy packages/ --config-file mypy.ini
 
       - name: Run unit tests (no services required)
         env:

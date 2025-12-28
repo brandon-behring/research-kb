@@ -164,7 +164,9 @@ common (logging, retry, instrumentation)
     │     ├─→ pdf-tools
     │     ├─→ extraction
     │     ├─→ api
-    │     └─→ dashboard
+    │     ├─→ dashboard
+    │     ├─→ daemon
+    │     └─→ mcp-server
     ├─→ pdf-tools
     ├─→ extraction
     └─→ s2-client
@@ -183,6 +185,8 @@ common (logging, retry, instrumentation)
 | **api** | FastAPI REST endpoints with health checks and metrics |
 | **dashboard** | Streamlit visualization for search and graph exploration |
 | **s2-client** | Semantic Scholar API client with rate limiting and caching |
+| **daemon** | Low-latency query service via Unix socket (JSON-RPC 2.0) |
+| **mcp-server** | Model Context Protocol server for Claude Code integration |
 
 ### Database Schema
 
@@ -190,14 +194,22 @@ common (logging, retry, instrumentation)
 **Knowledge graph:** `concepts`, `concept_relationships`, `chunk_concepts`, `methods`, `assumptions`
 
 Key enums:
-- `ConceptType`: METHOD, ASSUMPTION, PROBLEM, DEFINITION, THEOREM
+- `ConceptType`: METHOD, ASSUMPTION, PROBLEM, DEFINITION, THEOREM, CONCEPT, PRINCIPLE, TECHNIQUE, MODEL
 - `RelationshipType`: REQUIRES, USES, ADDRESSES, GENERALIZES, SPECIALIZES, ALTERNATIVE_TO, EXTENDS
 
 ### Hybrid Search
 
+4-way ranking combines text matching, semantic similarity, knowledge graph, and citation authority:
+
 ```
-score = fts_weight × fts + vector_weight × vector + graph_weight × graph
+score = fts_weight × fts + vector_weight × vector + graph_weight × graph + citation_weight × citation
 ```
+
+**Signals:**
+- **FTS**: PostgreSQL full-text search (keyword matching)
+- **Vector**: BGE-large cosine similarity (semantic matching)
+- **Graph**: Concept co-occurrence boost (knowledge graph)
+- **Citation**: PageRank-style authority score (citation network)
 
 Context types adjust weights:
 - **building**: 20% FTS, 80% vector (favor semantic breadth)
@@ -315,11 +327,45 @@ Run `python scripts/audit_docs.py` periodically to detect drift.
 ## Integration
 
 This system integrates with [lever_of_archimedes](~/Claude/lever_of_archimedes):
-- **Daemon service**: Unix socket at `/tmp/research_kb_daemon.sock`
+- **Daemon service**: Unix socket at `/tmp/research_kb_daemon_${USER}.sock`
 - **Hook integration**: `hooks/lib/research_kb.sh`
 - **Health monitoring**: `services/health/research_kb_status.jl`
 
 See [docs/INTEGRATION.md](docs/INTEGRATION.md) for full details.
+
+### Daemon Service
+
+Low-latency query service providing sub-100ms responses via Unix domain socket.
+
+**Starting the daemon:**
+```bash
+# Direct start
+research-kb-daemon
+
+# Systemd user service
+systemctl --user start research-kb-daemon
+systemctl --user enable research-kb-daemon  # Auto-start on login
+systemctl --user status research-kb-daemon
+```
+
+**Protocol:** JSON-RPC 2.0
+
+**Methods:**
+| Method | Description |
+|--------|-------------|
+| `search` | Hybrid search with optional graph/citation boosting |
+| `health` | System health check (database, embed server, uptime) |
+| `stats` | Database statistics |
+
+**Example request:**
+```bash
+echo '{"jsonrpc":"2.0","method":"health","id":1}' | nc -U /tmp/research_kb_daemon_$USER.sock
+```
+
+**Installation:**
+```bash
+./scripts/install_daemon.sh install
+```
 
 ### MCP Server (Claude Code Integration)
 
