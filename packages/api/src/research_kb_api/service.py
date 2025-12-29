@@ -244,7 +244,7 @@ async def search(options: SearchOptions) -> SearchResponse:
             rerank_top_k=options.limit,
         )
         if expanded_query:
-            response.expanded_query = expanded_query.expanded_text
+            response.expanded_query = ", ".join(expanded_query.expanded_terms) if expanded_query.expanded_terms else None
     elif options.use_rerank:
         results = await search_with_rerank(search_query, rerank_top_k=options.limit)
     elif use_graph:
