@@ -5,7 +5,7 @@ Provides:
 - Two-stage retrieval: fast bi-encoder retrieval → accurate cross-encoder reranking
 
 Model: BAAI/bge-reranker-v2-m3 (278M params, NDCG@10: 0.52)
-Alternative: cross-encoder/ms-marco-MiniLM-L-6-v2 (22M params, faster but less accurate)
+Alternative: cross-encoder/ms-marco-MiniLM-L6-v2 (22M params, faster but less accurate)
 
 Usage:
     >>> from research_kb_pdf.reranker import CrossEncoderReranker
@@ -26,7 +26,8 @@ logger = get_logger(__name__)
 # Configuration
 DEFAULT_MODEL = "BAAI/bge-reranker-v2-m3"
 DEFAULT_REVISION = "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"  # Pin for reproducibility
-FALLBACK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+FALLBACK_MODEL = "cross-encoder/ms-marco-MiniLM-L6-v2"
+FALLBACK_REVISION = "c5ee24c628b6e0db192d00de9c7cac0f2b9a9a0c"  # Pin for reproducibility
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DEFAULT_TOP_K = 10
 MAX_BATCH_SIZE = 50  # Typical reranking window
@@ -88,9 +89,9 @@ class CrossEncoderReranker:
         Raises:
             RuntimeError: If model fails to load
         """
-        revision = None
         if use_fast:
             model_name = FALLBACK_MODEL
+            revision = FALLBACK_REVISION
         else:
             revision = DEFAULT_REVISION
 

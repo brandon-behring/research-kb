@@ -12,17 +12,26 @@ from research_kb_pdf.reranker import (
 )
 
 
+@pytest.mark.requires_reranker
 class TestCrossEncoderRerankerUnit:
-    """Unit tests for CrossEncoderReranker (no socket needed)."""
+    """Unit tests for CrossEncoderReranker (no socket needed).
+
+    Requires cross-encoder model to be loadable. Skip with:
+        pytest -m "not requires_reranker"
+    """
 
     @pytest.fixture(scope="class")
     def reranker(self):
         """Create reranker instance.
 
         Uses class scope to avoid reloading the model for each test.
+        Skips all tests in this class if model loading fails.
         """
-        # Use faster model for tests to reduce CI time
-        return CrossEncoderReranker(use_fast=True)
+        try:
+            # Use faster model for tests to reduce CI time
+            return CrossEncoderReranker(use_fast=True)
+        except RuntimeError as e:
+            pytest.skip(f"Reranker model not available: {e}")
 
     def test_reranker_initialization(self, reranker):
         """Test reranker initializes with correct model."""
@@ -184,15 +193,26 @@ class TestRerankResultDataclass:
         assert result.metadata is None
 
 
+@pytest.mark.requires_reranker
 class TestRerankServerUnit:
-    """Unit tests for RerankServer (no socket needed)."""
+    """Unit tests for RerankServer (no socket needed).
+
+    Requires cross-encoder model to be loadable. Skip with:
+        pytest -m "not requires_reranker"
+    """
 
     @pytest.fixture(scope="class")
     def server(self):
-        """Create rerank server instance."""
+        """Create rerank server instance.
+
+        Skips all tests in this class if model loading fails.
+        """
         from research_kb_pdf.rerank_server import RerankServer
 
-        return RerankServer(model_name=FALLBACK_MODEL)
+        try:
+            return RerankServer(model_name=FALLBACK_MODEL)
+        except RuntimeError as e:
+            pytest.skip(f"Reranker model not available: {e}")
 
     def test_server_initialization(self, server):
         """Test server initializes correctly."""
@@ -259,6 +279,7 @@ class TestRerankServerUnit:
 
 
 @pytest.mark.integration
+@pytest.mark.requires_reranker
 class TestRerankClientIntegration:
     """Integration tests for RerankClient (requires running server).
 
