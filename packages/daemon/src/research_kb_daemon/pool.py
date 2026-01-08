@@ -18,6 +18,7 @@ logger = get_logger(__name__)
 
 # Default paths
 EMBED_SOCKET_PATH = os.getenv("EMBED_SOCKET_PATH", "/tmp/research_kb_embed.sock")
+RERANK_SOCKET_PATH = os.getenv("RERANK_SOCKET_PATH", "/tmp/research_kb_rerank.sock")
 
 # Connection pool singleton
 _pool = None
@@ -60,9 +61,13 @@ async def close_pool() -> None:
 class EmbedClient:
     """Client for embedding server via Unix socket.
 
-    Thread-safe synchronous client for embedding queries.
-    Uses simple JSON protocol over Unix socket.
+    Thread-safe async client for embedding queries.
+    Uses semaphore to allow controlled concurrency (not serialization).
     """
+
+    # Allow N concurrent embedding requests (not just 1)
+    MAX_CONCURRENT_EMBEDS = 3
+    EMBED_TIMEOUT = 5.0  # Reduced from 30s for faster failure
 
     def __init__(self, socket_path: str = EMBED_SOCKET_PATH):
         """Initialize embed client.
@@ -71,13 +76,17 @@ class EmbedClient:
             socket_path: Path to embedding server Unix socket
         """
         self.socket_path = socket_path
-        self._lock = asyncio.Lock()
+        # Use semaphore instead of lock to allow concurrent requests
+        self._semaphore = asyncio.Semaphore(self.MAX_CONCURRENT_EMBEDS)
+        self._consecutive_failures = 0
+        self._circuit_open_until: Optional[float] = None
 
-    def _sync_request(self, data: dict) -> dict:
+    def _sync_request(self, data: dict, timeout: float) -> dict:
         """Send synchronous request to embed server.
 
         Args:
             data: Request data
+            timeout: Socket timeout in seconds
 
         Returns:
             Response data
@@ -85,10 +94,11 @@ class EmbedClient:
         Raises:
             ConnectionError: If cannot connect to server
             ValueError: If response invalid
+            TimeoutError: If request times out
         """
         try:
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.settimeout(30.0)  # 30 second timeout for embedding
+            sock.settimeout(timeout)
             sock.connect(self.socket_path)
 
             # Send request
@@ -109,15 +119,54 @@ class EmbedClient:
             response_bytes = b"".join(chunks)
             return json.loads(response_bytes.decode("utf-8"))
 
+        except socket.timeout:
+            raise TimeoutError(f"Embed server timeout after {timeout}s")
         except socket.error as e:
             raise ConnectionError(f"Cannot connect to embed server at {self.socket_path}: {e}")
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid response from embed server: {e}")
 
+    def _is_circuit_open(self) -> bool:
+        """Check if circuit breaker is open (failing fast).
+
+        Returns:
+            True if circuit is open and we should fail fast
+        """
+        import time
+
+        if self._circuit_open_until is None:
+            return False
+        if time.time() > self._circuit_open_until:
+            # Reset circuit
+            self._circuit_open_until = None
+            self._consecutive_failures = 0
+            logger.info("embed_circuit_closed", message="Circuit breaker reset")
+            return False
+        return True
+
+    def _record_failure(self) -> None:
+        """Record a failure for circuit breaker logic."""
+        import time
+
+        self._consecutive_failures += 1
+        if self._consecutive_failures >= 3:
+            # Open circuit for 30 seconds
+            self._circuit_open_until = time.time() + 30.0
+            logger.warning(
+                "embed_circuit_opened",
+                failures=self._consecutive_failures,
+                cooldown_seconds=30,
+            )
+
+    def _record_success(self) -> None:
+        """Record a success (resets failure counter)."""
+        self._consecutive_failures = 0
+
     async def embed_query(self, text: str) -> list[float]:
         """Embed a query string.
 
         Uses BGE query instruction prefix for better retrieval.
+        Allows up to MAX_CONCURRENT_EMBEDS concurrent requests.
 
         Args:
             text: Query text
@@ -128,33 +177,56 @@ class EmbedClient:
         Raises:
             ConnectionError: If embed server unavailable
             ValueError: If embedding fails
+            TimeoutError: If request times out
+            RuntimeError: If circuit breaker is open
         """
-        async with self._lock:
-            # Run sync socket in thread to not block event loop
-            loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(
-                None, self._sync_request, {"action": "embed_query", "text": text}
-            )
+        # Check circuit breaker first
+        if self._is_circuit_open():
+            raise RuntimeError("Embed server circuit breaker open - failing fast")
 
-        if "error" in response:
-            raise ValueError(f"Embedding failed: {response['error']}")
+        async with self._semaphore:
+            try:
+                # Run sync socket in thread to not block event loop
+                loop = asyncio.get_event_loop()
+                response = await asyncio.wait_for(
+                    loop.run_in_executor(
+                        None,
+                        self._sync_request,
+                        {"action": "embed_query", "text": text},
+                        self.EMBED_TIMEOUT,
+                    ),
+                    timeout=self.EMBED_TIMEOUT + 1.0,  # Async timeout slightly longer
+                )
 
-        embedding = response.get("embedding")
-        if not embedding or len(embedding) != 1024:
-            raise ValueError(f"Invalid embedding dimension: {len(embedding) if embedding else 0}")
+                if "error" in response:
+                    self._record_failure()
+                    raise ValueError(f"Embedding failed: {response['error']}")
 
-        return embedding
+                embedding = response.get("embedding")
+                if not embedding or len(embedding) != 1024:
+                    self._record_failure()
+                    raise ValueError(f"Invalid embedding dimension: {len(embedding) if embedding else 0}")
+
+                self._record_success()
+                return embedding
+
+            except (TimeoutError, asyncio.TimeoutError) as e:
+                self._record_failure()
+                raise TimeoutError(f"Embed query timeout: {e}")
+            except (ConnectionError, OSError) as e:
+                self._record_failure()
+                raise ConnectionError(f"Embed server connection failed: {e}")
 
     async def health_check(self) -> dict:
         """Check embedding server health.
 
         Returns:
-            Health status dict with keys: status, device, model, dim
+            Health status dict with keys: status, device, model, dim, circuit_breaker
         """
         try:
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(
-                None, self._sync_request, {"action": "ping"}
+                None, self._sync_request, {"action": "ping"}, 5.0  # 5s health check timeout
             )
 
             if "error" in response:
@@ -165,6 +237,8 @@ class EmbedClient:
                 "device": response.get("device", "unknown"),
                 "model": response.get("model", "unknown"),
                 "dim": response.get("dim", 0),
+                "circuit_breaker": "closed" if not self._is_circuit_open() else "open",
+                "concurrent_limit": self.MAX_CONCURRENT_EMBEDS,
             }
         except Exception as e:
             return {"status": "unhealthy", "error": str(e)}
@@ -187,3 +261,93 @@ def get_embed_client(socket_path: str = EMBED_SOCKET_PATH) -> EmbedClient:
     if _embed_client is None:
         _embed_client = EmbedClient(socket_path)
     return _embed_client
+
+
+class RerankClientWrapper:
+    """Async wrapper for reranking server health checks.
+
+    Wraps synchronous RerankClient for use in async daemon.
+    """
+
+    def __init__(self, socket_path: str = RERANK_SOCKET_PATH):
+        """Initialize rerank client wrapper.
+
+        Args:
+            socket_path: Path to reranking server Unix socket
+        """
+        self.socket_path = socket_path
+        self._lock = asyncio.Lock()
+
+    def _sync_ping(self) -> dict:
+        """Synchronous ping to rerank server.
+
+        Returns:
+            Response dict with status, model, device info
+
+        Raises:
+            ConnectionError: If cannot connect
+        """
+        try:
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sock.settimeout(5.0)  # 5 second timeout for health check
+            sock.connect(self.socket_path)
+
+            # Send ping request
+            request = json.dumps({"action": "ping"}).encode("utf-8")
+            sock.sendall(request)
+            sock.shutdown(socket.SHUT_WR)
+
+            # Receive response
+            chunks = []
+            while True:
+                chunk = sock.recv(4096)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+
+            sock.close()
+            return json.loads(b"".join(chunks).decode("utf-8"))
+
+        except socket.error as e:
+            raise ConnectionError(f"Cannot connect to rerank server: {e}")
+
+    async def health_check(self) -> dict:
+        """Check reranking server health.
+
+        Returns:
+            Health status dict with keys: status, model, device
+        """
+        try:
+            async with self._lock:
+                loop = asyncio.get_event_loop()
+                response = await loop.run_in_executor(None, self._sync_ping)
+
+            if response.get("status") == "ok":
+                return {
+                    "status": "healthy",
+                    "model": response.get("model", "unknown"),
+                    "device": response.get("device", "unknown"),
+                }
+            return {"status": "unhealthy", "error": "unexpected response"}
+
+        except Exception as e:
+            return {"status": "unhealthy", "error": str(e)}
+
+
+# Singleton rerank client
+_rerank_client: Optional[RerankClientWrapper] = None
+
+
+def get_rerank_client(socket_path: str = RERANK_SOCKET_PATH) -> RerankClientWrapper:
+    """Get or create rerank client singleton.
+
+    Args:
+        socket_path: Path to reranking server socket
+
+    Returns:
+        RerankClientWrapper instance
+    """
+    global _rerank_client
+    if _rerank_client is None:
+        _rerank_client = RerankClientWrapper(socket_path)
+    return _rerank_client

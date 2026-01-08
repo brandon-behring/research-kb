@@ -36,6 +36,14 @@ logger = get_logger(__name__)
 # Default socket path (user-scoped)
 DEFAULT_SOCKET_PATH = f"/tmp/research_kb_daemon_{os.getenv('USER', 'unknown')}.sock"
 
+# Connection limits
+MAX_CONCURRENT_CONNECTIONS = 50
+CONNECTION_TIMEOUT = 5.0  # Reduced from 30s
+
+# Connection tracking
+_connection_semaphore: Optional[asyncio.Semaphore] = None
+_active_connections = 0
+
 # JSON-RPC error codes
 PARSE_ERROR = -32700
 INVALID_REQUEST = -32600
@@ -150,15 +158,38 @@ async def handle_request(data: bytes) -> bytes:
 async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
     """Handle a client connection.
 
+    Uses a semaphore to limit concurrent connections and prevent resource exhaustion.
+
     Args:
         reader: Stream reader
         writer: Stream writer
     """
+    global _active_connections
+
     addr = writer.get_extra_info("peername")
+
+    # Try to acquire semaphore (with timeout to prevent deadlock)
+    try:
+        await asyncio.wait_for(_connection_semaphore.acquire(), timeout=1.0)
+    except asyncio.TimeoutError:
+        logger.warning(
+            "connection_rejected",
+            reason="max_connections_reached",
+            active=_active_connections,
+            max=MAX_CONCURRENT_CONNECTIONS,
+        )
+        writer.write(make_error(INTERNAL_ERROR, "Server busy, try again later"))
+        await writer.drain()
+        writer.close()
+        await writer.wait_closed()
+        return
+
+    _active_connections += 1
+    logger.debug("connection_opened", active=_active_connections)
 
     try:
         # Read entire request (client should close write end after sending)
-        data = await asyncio.wait_for(reader.read(1024 * 1024), timeout=30.0)  # 1MB limit
+        data = await asyncio.wait_for(reader.read(1024 * 1024), timeout=CONNECTION_TIMEOUT)
 
         if not data:
             return
@@ -171,14 +202,17 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
         await writer.drain()
 
     except asyncio.TimeoutError:
-        logger.warning("client_timeout", addr=addr)
-        writer.write(make_error(INTERNAL_ERROR, "Request timeout"))
+        logger.warning("client_timeout", addr=addr, timeout=CONNECTION_TIMEOUT)
+        writer.write(make_error(INTERNAL_ERROR, f"Request timeout ({CONNECTION_TIMEOUT}s)"))
         await writer.drain()
 
     except Exception as e:
         logger.exception("client_error", addr=addr, error=str(e))
 
     finally:
+        _active_connections -= 1
+        _connection_semaphore.release()
+        logger.debug("connection_closed", active=_active_connections)
         writer.close()
         await writer.wait_closed()
 
@@ -189,6 +223,16 @@ async def run_server(socket_path: str) -> None:
     Args:
         socket_path: Path to Unix domain socket
     """
+    global _connection_semaphore
+
+    # Initialize connection semaphore
+    _connection_semaphore = asyncio.Semaphore(MAX_CONCURRENT_CONNECTIONS)
+    logger.info(
+        "connection_limits_configured",
+        max_connections=MAX_CONCURRENT_CONNECTIONS,
+        timeout=CONNECTION_TIMEOUT,
+    )
+
     # Remove existing socket
     if os.path.exists(socket_path):
         os.remove(socket_path)

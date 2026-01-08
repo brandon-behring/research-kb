@@ -218,15 +218,18 @@ python scripts/master_plan_validation.py
 # All tests
 pytest
 
-# CLI tests only
+# By package
 pytest packages/cli/tests/ -v
+pytest packages/storage/tests/ -v
+pytest packages/pdf-tools/tests/ -v
+pytest packages/extraction/tests/ -v
 
-# Script tests only
-pytest tests/scripts/ -v
-
-# Skip slow/integration tests
-pytest -m "not slow and not integration"
+# By marker (limited coverage - most tests lack markers)
+pytest -m "unit"            # Fast, isolated (6 tests in pdf-tools)
+pytest -m "requires_reranker"  # Needs reranker service (3 tests)
 ```
+
+**Note**: Test markers have sparse coverage. Run by package for more reliable filtering. See Phase 5 in remediation plan for marker expansion.
 
 ### CI/CD
 

@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2025-12-29 13:19:31
+**Auto-generated**: 2026-01-08 13:35:22
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,11 +9,11 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 294 |
-| chunks | 142,962 |
-| concepts | 283,714 |
-| concept_relationships | 725,866 |
-| chunk_concepts | 1,145,921 |
+| sources | 318 |
+| chunks | 145,248 |
+| concepts | 284,314 |
+| concept_relationships | 726,009 |
+| chunk_concepts | 1,146,727 |
 | citations | 10,758 |
 | methods | 15,505 |
 | assumptions | 9,468 |
@@ -33,8 +33,8 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 142,962 | 142,962 | 100.0% |
-| Concepts | 283,714 | 283,714 | 100.0% |
+| Chunks | 145,248 | 145,248 | 100.0% |
+| Concepts | 283,714 | 284,314 | 99.8% |
 
 ---
 
@@ -42,8 +42,8 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 180 |
-| paper | 114 |
+| textbook | 185 |
+| paper | 133 |
 
 ---
 
@@ -51,15 +51,15 @@
 
 | Type | Count |
 |------|------:|
-| concept | 80,721 |
-| technique | 68,816 |
-| definition | 51,376 |
-| model | 22,273 |
-| method | 16,703 |
-| problem | 16,343 |
-| principle | 11,219 |
-| assumption | 10,591 |
-| theorem | 5,672 |
+| concept | 80,888 |
+| technique | 68,860 |
+| definition | 51,402 |
+| model | 22,456 |
+| method | 16,772 |
+| problem | 16,386 |
+| principle | 11,233 |
+| assumption | 10,621 |
+| theorem | 5,696 |
 
 ---
 
@@ -67,14 +67,14 @@
 
 | Type | Count |
 |------|------:|
-| USES | 340,211 |
-| ADDRESSES | 109,914 |
-| SPECIALIZES | 87,162 |
-| REQUIRES | 62,141 |
+| USES | 340,263 |
+| ADDRESSES | 109,931 |
+| SPECIALIZES | 87,166 |
+| REQUIRES | 62,158 |
 | RELATED_TO | 51,547 |
-| ALTERNATIVE_TO | 39,559 |
-| EXTENDS | 26,964 |
-| GENERALIZES | 8,368 |
+| ALTERNATIVE_TO | 39,562 |
+| EXTENDS | 26,978 |
+| GENERALIZES | 8,404 |
 
 ---
 
@@ -85,8 +85,8 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 294 sources, 142,962 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 283,714 concepts, 725,866 relationships |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 318 sources, 145,248 chunks |
+| Phase 2: Knowledge Graph | ✅ Complete | 284,314 concepts, 726,009 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
 

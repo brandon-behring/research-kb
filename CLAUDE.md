@@ -24,16 +24,14 @@ pytest packages/storage/tests/ -v
 pytest packages/pdf-tools/tests/ -v
 pytest packages/extraction/tests/ -v
 
-# By marker
-pytest -m "unit"                    # Fast, isolated
-pytest -m "integration"             # Multi-component
-pytest -m "e2e"                     # Full pipeline
-pytest -m "smoke"                   # Real PDFs
-pytest -m "scripts"                 # Script validation
-pytest -m "not slow"                # Skip >5s tests
-pytest -m "not requires_ollama"     # Skip Ollama tests
-pytest -m "not requires_embedding"  # Skip embedding tests
+# By marker (limited coverage - see note below)
+pytest -m "unit"                    # Fast, isolated (6 tests in pdf-tools)
+pytest -m "integration"             # Multi-component (1 test)
+pytest -m "e2e"                     # Full pipeline (1 test)
+pytest -m "requires_reranker"       # Needs reranker service (3 tests)
 ```
+
+**Note on Test Markers**: Most tests currently lack markers. The marker system exists but coverage is sparse (Phase 5 in remediation plan). For now, run by package rather than marker.
 
 ### Installation
 
