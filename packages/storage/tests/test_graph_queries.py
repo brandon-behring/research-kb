@@ -18,6 +18,29 @@ from research_kb_storage import (
     get_neighborhood,
     compute_graph_score,
 )
+from research_kb_storage.graph_queries import reset_kuzu_cache
+
+
+@pytest.fixture(autouse=True)
+def force_postgres_graph():
+    """Force graph queries to use PostgreSQL fallback for tests.
+
+    Tests create data in PostgreSQL, not KuzuDB. Reset the cache
+    before and after tests to ensure PostgreSQL path is used.
+    """
+    # Reset before test (in case production KuzuDB was detected)
+    reset_kuzu_cache()
+
+    # Mock KuzuDB availability check to return False
+    import research_kb_storage.graph_queries as gq
+    original_check = gq._check_kuzu_ready
+    gq._check_kuzu_ready = lambda: False
+
+    yield
+
+    # Restore original function
+    gq._check_kuzu_ready = original_check
+    reset_kuzu_cache()
 
 
 @pytest.fixture
