@@ -20,6 +20,14 @@ class SourceType(str, Enum):
     CODE_REPO = "code_repo"
 
 
+class CrossDomainLinkType(str, Enum):
+    """Types of links between concepts across domains."""
+
+    SAME_AS = "SAME_AS"  # Identical concept in different domain
+    RELATED_TO = "RELATED_TO"  # Related but distinct concepts
+    APPLIES_IN = "APPLIES_IN"  # Concept applies in context of another domain
+
+
 class IngestionStage(str, Enum):
     """Ingestion pipeline state machine stages."""
 
@@ -50,6 +58,12 @@ class Source(BaseModel):
     authors: list[str] = Field(default_factory=list)
     year: Optional[int] = None
 
+    # Domain scoping (multi-domain support)
+    domain_id: str = Field(
+        default="causal_inference",
+        description="Knowledge domain this source belongs to",
+    )
+
     # File tracking (for idempotency)
     file_path: Optional[str] = None
     file_hash: str = Field(..., description="SHA256 hash for deduplication")
@@ -79,6 +93,12 @@ class Chunk(BaseModel):
 
     id: UUID
     source_id: UUID
+
+    # Domain scoping (denormalized from source for query performance)
+    domain_id: str = Field(
+        default="causal_inference",
+        description="Knowledge domain (inherited from source)",
+    )
 
     # Content
     content: str = Field(..., min_length=1)
@@ -291,6 +311,12 @@ class Concept(BaseModel):
     canonical_name: str
     aliases: list[str] = Field(default_factory=list)
     concept_type: ConceptType
+
+    # Domain scoping (multi-domain support)
+    domain_id: str = Field(
+        default="causal_inference",
+        description="Knowledge domain this concept belongs to",
+    )
     category: Optional[str] = None  # identification, estimation, testing
     definition: Optional[str] = None
 
@@ -401,3 +427,71 @@ class Assumption(BaseModel):
     violation_consequences: Optional[str] = Field(
         None, description="Consequences of violating this assumption"
     )
+
+
+# ===========================================================================
+# Multi-Domain Models (Migration 010)
+# ===========================================================================
+
+
+class Domain(BaseModel):
+    """Knowledge domain registry entry.
+
+    Matches PostgreSQL table: domains (Migration 010)
+    Defines available knowledge domains and their configuration.
+    """
+
+    id: str = Field(..., description="Domain identifier (e.g., 'causal_inference')")
+    name: str = Field(..., description="Human-readable name (e.g., 'Causal Inference')")
+    description: Optional[str] = None
+
+    # Domain configuration
+    config: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Domain-specific configuration (extraction prompts, etc.)",
+    )
+    concept_types: list[str] = Field(
+        default_factory=list,
+        description="Allowed concept types for this domain",
+    )
+    relationship_types: list[str] = Field(
+        default_factory=list,
+        description="Allowed relationship types for this domain",
+    )
+
+    # Default search weights
+    default_fts_weight: float = Field(default=0.3, ge=0.0, le=1.0)
+    default_vector_weight: float = Field(default=0.7, ge=0.0, le=1.0)
+    default_graph_weight: float = Field(default=0.1, ge=0.0, le=1.0)
+    default_citation_weight: float = Field(default=0.15, ge=0.0, le=1.0)
+
+    # Status
+    status: str = Field(default="active", description="active, inactive, deprecated")
+
+    created_at: Optional[datetime] = None
+
+
+class CrossDomainLink(BaseModel):
+    """Link between concepts across different knowledge domains.
+
+    Matches PostgreSQL table: cross_domain_links (Migration 010)
+    Enables cross-domain knowledge integration and discovery.
+    """
+
+    id: Optional[UUID] = None
+    source_concept_id: UUID = Field(..., description="Concept in source domain")
+    target_concept_id: UUID = Field(..., description="Concept in target domain")
+
+    # Link metadata
+    link_type: CrossDomainLinkType = Field(
+        ..., description="Type of cross-domain relationship"
+    )
+    confidence_score: Optional[float] = Field(
+        None, ge=0.0, le=1.0, description="Confidence in link validity"
+    )
+    evidence: Optional[str] = Field(None, description="Evidence/reason for this link")
+
+    # Extensibility
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    created_at: Optional[datetime] = None

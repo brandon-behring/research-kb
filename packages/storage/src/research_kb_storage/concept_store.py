@@ -43,6 +43,7 @@ class ConceptStore:
         confidence_score: Optional[float] = None,
         validated: bool = False,
         metadata: Optional[dict] = None,
+        domain_id: str = "causal_inference",
     ) -> Concept:
         """Create a new concept record.
 
@@ -58,6 +59,7 @@ class ConceptStore:
             confidence_score: Extraction confidence 0.0-1.0
             validated: Whether manually reviewed
             metadata: Extensible JSONB metadata
+            domain_id: Knowledge domain (default: causal_inference)
 
         Returns:
             Created Concept
@@ -82,8 +84,8 @@ class ConceptStore:
                         id, name, canonical_name, aliases, concept_type,
                         category, definition, embedding,
                         extraction_method, confidence_score, validated,
-                        metadata, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                        metadata, domain_id, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
                     RETURNING *
                     """,
                     concept_id,
@@ -98,6 +100,7 @@ class ConceptStore:
                     confidence_score,
                     validated,
                     metadata or {},
+                    domain_id,
                     now,
                 )
 
@@ -106,6 +109,7 @@ class ConceptStore:
                     concept_id=str(concept_id),
                     canonical_name=canonical_name,
                     concept_type=concept_type.value,
+                    domain_id=domain_id,
                 )
 
                 return _row_to_concept(row)
@@ -323,8 +327,18 @@ class ConceptStore:
             raise StorageError(f"Failed to list concepts: {e}") from e
 
     @staticmethod
-    async def list_all(limit: int = 50000, offset: int = 0) -> list[Concept]:
-        """List all concepts with pagination."""
+    async def list_all(
+        limit: int = 50000,
+        offset: int = 0,
+        domain_id: Optional[str] = None,
+    ) -> list[Concept]:
+        """List all concepts with pagination.
+
+        Args:
+            limit: Maximum number of results
+            offset: Number of results to skip
+            domain_id: Optional filter by domain (None = all domains)
+        """
         pool = await get_connection_pool()
 
         try:
@@ -334,15 +348,28 @@ class ConceptStore:
                     "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
                 )
 
-                rows = await conn.fetch(
-                    """
-                    SELECT * FROM concepts
-                    ORDER BY canonical_name ASC
-                    LIMIT $1 OFFSET $2
-                    """,
-                    limit,
-                    offset,
-                )
+                if domain_id:
+                    rows = await conn.fetch(
+                        """
+                        SELECT * FROM concepts
+                        WHERE domain_id = $1
+                        ORDER BY canonical_name ASC
+                        LIMIT $2 OFFSET $3
+                        """,
+                        domain_id,
+                        limit,
+                        offset,
+                    )
+                else:
+                    rows = await conn.fetch(
+                        """
+                        SELECT * FROM concepts
+                        ORDER BY canonical_name ASC
+                        LIMIT $1 OFFSET $2
+                        """,
+                        limit,
+                        offset,
+                    )
 
                 return [_row_to_concept(row) for row in rows]
 
@@ -580,6 +607,7 @@ def _row_to_concept(row: asyncpg.Record) -> Concept:
         canonical_name=row["canonical_name"],
         aliases=row["aliases"] or [],
         concept_type=ConceptType(row["concept_type"]),
+        domain_id=row.get("domain_id", "causal_inference"),
         category=row["category"],
         definition=row["definition"],
         embedding=list(row["embedding"]) if row["embedding"] is not None else None,

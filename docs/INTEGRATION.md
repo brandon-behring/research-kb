@@ -32,7 +32,7 @@ research-kb (domain knowledge layer)
 
 A Unix socket daemon provides low-latency queries for AI assistant workflows:
 
-- **Socket**: `/tmp/research_kb_daemon.sock`
+- **Socket**: `/tmp/research_kb_daemon_${USER}.sock`
 - **Startup**: 2-3 seconds (loads embedding model)
 - **Query latency**: <100ms after warmup
 - **Protocol**: Newline-delimited JSON
@@ -82,7 +82,7 @@ Graph signals add +20% when enabled (normalized).
 | Task | How |
 |------|-----|
 | Query via CLI | `research-kb query "instrumental variables"` |
-| Query via daemon | Send JSON to `/tmp/research_kb_daemon.sock` |
+| Query via daemon | Send JSON to `/tmp/research_kb_daemon_${USER}.sock` |
 | Check status | `research-kb stats` |
 | See ingested papers | `research-kb sources` |
 | Explore concepts | `research-kb graph "IV" --hops 2` |

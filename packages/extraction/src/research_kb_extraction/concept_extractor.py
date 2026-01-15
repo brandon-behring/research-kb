@@ -31,6 +31,10 @@ class ConceptExtractor:
         >>> extractor = ConceptExtractor()
         >>> result = await extractor.extract_from_chunk(chunk)
         >>> print(f"Found {len(result.concepts)} concepts")
+
+        >>> # Domain-specific extraction
+        >>> extractor = ConceptExtractor(domain_id="time_series")
+        >>> result = await extractor.extract_from_chunk(ts_chunk)
     """
 
     def __init__(
@@ -39,6 +43,7 @@ class ConceptExtractor:
         deduplicator: Optional[Deduplicator] = None,
         confidence_threshold: float = 0.7,
         min_chunk_length: int = 100,
+        domain_id: str = "causal_inference",
     ):
         """Initialize concept extractor.
 
@@ -47,9 +52,11 @@ class ConceptExtractor:
             deduplicator: Deduplicator for canonical name matching
             confidence_threshold: Minimum confidence to keep concept
             min_chunk_length: Minimum chunk length to process
+            domain_id: Knowledge domain (e.g., "causal_inference", "time_series")
         """
+        self.domain_id = domain_id
         self.ollama_client = ollama_client or OllamaClient()
-        self.deduplicator = deduplicator or Deduplicator()
+        self.deduplicator = deduplicator or Deduplicator(domain_id=domain_id)
         self.confidence_threshold = confidence_threshold
         self.min_chunk_length = min_chunk_length
 
@@ -74,9 +81,9 @@ class ConceptExtractor:
             )
             return ChunkExtraction()
 
-        # Extract with LLM
+        # Extract with LLM (pass domain_id for domain-specific prompts)
         raw_extraction = await self.ollama_client.extract_concepts(
-            chunk.content, prompt_type
+            chunk.content, prompt_type, self.domain_id
         )
 
         # Filter by confidence
@@ -145,7 +152,9 @@ class ConceptExtractor:
         if len(text) < self.min_chunk_length:
             return ChunkExtraction()
 
-        raw_extraction = await self.ollama_client.extract_concepts(text, prompt_type)
+        raw_extraction = await self.ollama_client.extract_concepts(
+            text, prompt_type, self.domain_id
+        )
 
         # Filter by confidence
         filtered_concepts = [

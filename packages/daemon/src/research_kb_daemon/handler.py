@@ -15,12 +15,13 @@ from research_kb_storage import (
     SearchQuery,
     search_hybrid,
     search_hybrid_v2,
+    search_vector_only,
     SourceStore,
     ChunkStore,
     ConceptStore,
 )
 
-from research_kb_daemon.pool import get_pool, get_embed_client
+from research_kb_daemon.pool import get_pool, get_embed_client, get_rerank_client
 
 logger = get_logger(__name__)
 
@@ -66,6 +67,7 @@ async def handle_search(params: dict[str, Any]) -> list[dict[str, Any]]:
             - use_citations (bool): Enable citation authority
             - graph_weight (float): Graph weight if use_graph
             - citation_weight (float): Citation weight if use_citations
+            - domain (str): Knowledge domain to search (None = all domains)
 
     Returns:
         List of search results
@@ -81,6 +83,7 @@ async def handle_search(params: dict[str, Any]) -> list[dict[str, Any]]:
     context_type = params.get("context_type", "balanced")
     use_graph = params.get("use_graph", False)
     use_citations = params.get("use_citations", False)
+    domain_id = params.get("domain")  # None = all domains
 
     # Context-based weight presets
     weight_presets = {
@@ -105,6 +108,7 @@ async def handle_search(params: dict[str, Any]) -> list[dict[str, Any]]:
         graph_weight=params.get("graph_weight", 0.15) if use_graph else 0.0,
         use_citations=use_citations,
         citation_weight=params.get("citation_weight", 0.15) if use_citations else 0.0,
+        domain_id=domain_id,
     )
 
     # Execute search
@@ -115,6 +119,7 @@ async def handle_search(params: dict[str, Any]) -> list[dict[str, Any]]:
         context=context_type,
         use_graph=use_graph,
         use_citations=use_citations,
+        domain=domain_id,
     )
 
     # Use v2 search if graph or citations enabled, otherwise basic hybrid
@@ -126,11 +131,73 @@ async def handle_search(params: dict[str, Any]) -> list[dict[str, Any]]:
     return [_result_to_dict(r) for r in results]
 
 
+async def handle_fast_search(params: dict[str, Any]) -> list[dict[str, Any]]:
+    """Handle fast_search method - vector-only search for low latency.
+
+    Optimized for latency-sensitive contexts (ProactiveContext integration).
+    Skips FTS, graph, citation, and normalization overhead.
+
+    Performance: ~30ms database + ~150ms embedding = ~200ms total
+    (vs ~3s for hybrid search with normalization)
+
+    Args:
+        params: Search parameters
+            - query (str): Search query text (required)
+            - limit (int): Max results (default: 5)
+            - domain (str): Knowledge domain to search (None = all domains)
+
+    Returns:
+        List of search results (vector scores only)
+
+    Raises:
+        ValueError: If required params missing
+    """
+    query_text = params.get("query")
+    if not query_text:
+        raise ValueError("Missing required parameter: query")
+
+    limit = params.get("limit", 5)
+    domain_id = params.get("domain")
+
+    # Get query embedding
+    embed_client = get_embed_client()
+    embedding = await embed_client.embed_query(query_text)
+
+    # Build minimal search query (vector-only)
+    search_query = SearchQuery(
+        text=query_text,
+        embedding=embedding,
+        fts_weight=0.0,
+        vector_weight=1.0,
+        limit=limit,
+        use_graph=False,
+        graph_weight=0.0,
+        use_citations=False,
+        citation_weight=0.0,
+        domain_id=domain_id,
+    )
+
+    logger.info(
+        "fast_search_request",
+        query=query_text[:50],
+        limit=limit,
+        domain=domain_id,
+    )
+
+    # Execute vector-only search
+    results = await search_vector_only(search_query)
+
+    return [_result_to_dict(r) for r in results]
+
+
 async def handle_health(params: dict[str, Any]) -> dict[str, Any]:
     """Handle health method.
 
     Returns:
-        Health status with component checks
+        Health status with component checks:
+        - database: PostgreSQL connectivity
+        - embed_server: BGE embedding service
+        - rerank_server: Cross-encoder reranking service
     """
     uptime = time.time() - _start_time
 
@@ -148,8 +215,18 @@ async def handle_health(params: dict[str, Any]) -> dict[str, Any]:
     embed_client = get_embed_client()
     embed_health = await embed_client.health_check()
 
+    # Check rerank server
+    rerank_client = get_rerank_client()
+    rerank_health = await rerank_client.health_check()
+
+    # Determine overall status
+    # healthy = all services up
+    # degraded = core services up, optional (reranker) down
+    # unhealthy = core services (db, embed) down
     overall = "healthy"
     if db_status != "healthy" or embed_health.get("status") != "healthy":
+        overall = "unhealthy"
+    elif rerank_health.get("status") != "healthy":
         overall = "degraded"
 
     return {
@@ -157,6 +234,7 @@ async def handle_health(params: dict[str, Any]) -> dict[str, Any]:
         "uptime_seconds": round(uptime, 1),
         "database": db_status,
         "embed_server": embed_health,
+        "rerank_server": rerank_health,
     }
 
 
@@ -194,6 +272,7 @@ async def handle_stats(params: dict[str, Any]) -> dict[str, Any]:
 # Method registry
 METHODS = {
     "search": handle_search,
+    "fast_search": handle_fast_search,
     "health": handle_health,
     "stats": handle_stats,
 }

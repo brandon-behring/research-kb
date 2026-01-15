@@ -67,12 +67,14 @@ def create_app() -> FastAPI:
     from research_kb_api.routes.sources import router as sources_router
     from research_kb_api.routes.concepts import router as concepts_router
     from research_kb_api.routes.graph import router as graph_router
+    from research_kb_api.routes.domains import router as domains_router
 
     app.include_router(health_router, tags=["Health"])
     app.include_router(search_router, prefix="/search", tags=["Search"])
     app.include_router(sources_router, prefix="/sources", tags=["Sources"])
     app.include_router(concepts_router, prefix="/concepts", tags=["Concepts"])
     app.include_router(graph_router, prefix="/graph", tags=["Graph"])
+    app.include_router(domains_router)  # prefix defined in router
 
     return app
 

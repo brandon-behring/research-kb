@@ -5,6 +5,7 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     container_name: research-kb-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -34,6 +35,7 @@ services:
   grobid:
     image: grobid/grobid:0.8.2-full
     container_name: research-kb-grobid
+    restart: unless-stopped
     ports:
       - "8070:8070"
     environment:

@@ -178,6 +178,9 @@ class DaemonServer:
             elif action == "search":
                 result = await self._handle_search(request)
 
+            elif action == "fast_search":
+                result = await self._handle_fast_search(request)
+
             elif action == "concepts":
                 result = await self._handle_concepts(request)
 
@@ -259,6 +262,81 @@ class DaemonServer:
                 "expanded_query": response.expanded_query,
                 "results": results,
                 "execution_time_ms": response.execution_time_ms,
+            },
+        }
+
+    async def _handle_fast_search(self, request: dict[str, Any]) -> dict[str, Any]:
+        """Handle fast_search request - vector-only for low latency.
+
+        Optimized for latency-sensitive contexts (ProactiveContext integration).
+        Skips FTS, graph, citation, rerank, and expansion.
+
+        Performance: ~30ms database + ~150ms embedding = ~200ms total
+        (vs ~3s for full hybrid search with normalization)
+        """
+        import time as time_module
+        from research_kb_storage import SearchQuery, search_vector_only
+
+        query = request.get("query")
+        if not query:
+            return {"status": "error", "error": "Missing 'query' field"}
+
+        limit = request.get("limit", 5)
+        start_time = time_module.perf_counter()
+
+        # Get embedding (cached after warmup)
+        embedding = await service.get_cached_embedding(query)
+
+        # Build minimal query for vector-only search
+        search_query = SearchQuery(
+            text=query,
+            embedding=embedding,
+            fts_weight=0.0,
+            vector_weight=1.0,
+            limit=limit,
+            use_graph=False,
+            graph_weight=0.0,
+            use_citations=False,
+            citation_weight=0.0,
+        )
+
+        # Execute vector-only search (no normalization overhead)
+        raw_results = await search_vector_only(search_query)
+
+        # Convert to same nested format as regular search
+        results = []
+        for r in raw_results:
+            chunk_metadata = r.chunk.metadata if r.chunk else {}
+            results.append({
+                "source": {
+                    "id": str(r.source.id) if r.source else None,
+                    "title": r.source.title if r.source else None,
+                    "authors": r.source.authors if r.source else [],
+                    "year": r.source.year if r.source else None,
+                },
+                "chunk": {
+                    "id": str(r.chunk.id) if r.chunk else None,
+                    "content": r.chunk.content[:500] if r.chunk else "",
+                    "page_start": r.chunk.page_start if r.chunk else None,
+                    "section": chunk_metadata.get("section_header") if chunk_metadata else None,
+                },
+                "scores": {
+                    "fts": r.fts_score or 0.0,
+                    "vector": r.vector_score or 0.0,
+                    "graph": 0.0,  # Skipped
+                    "combined": r.vector_score or 0.0,  # Vector-only
+                },
+            })
+
+        execution_time_ms = (time_module.perf_counter() - start_time) * 1000
+
+        return {
+            "status": "ok",
+            "data": {
+                "query": query,
+                "results": results,
+                "execution_time_ms": round(execution_time_ms, 1),
+                "fast_path": True,
             },
         }
 

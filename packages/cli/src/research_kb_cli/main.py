@@ -81,6 +81,17 @@ class ContextType(str, Enum):
     balanced = "balanced"
 
 
+class ScoringMethod(str, Enum):
+    """Scoring method for combining search signals.
+
+    - weighted: Weighted sum of normalized scores (default)
+    - rrf: Reciprocal Rank Fusion (parameter-free, rank-based)
+    """
+
+    weighted = "weighted"
+    rrf = "rrf"
+
+
 # Create the Typer app
 app = typer.Typer(
     name="research-kb",
@@ -128,6 +139,8 @@ async def run_query(
     use_expand: bool = True,
     use_llm_expand: bool = False,
     verbose: bool = False,
+    domain_id: Optional[str] = None,
+    scoring_method: str = "weighted",
 ) -> tuple:
     """Execute the search query with graph-boosted search, expansion, and reranking.
 
@@ -144,6 +157,8 @@ async def run_query(
         use_expand: Enable query expansion (default: True)
         use_llm_expand: Enable LLM-based expansion (default: False)
         verbose: Show expansion details (default: False)
+        domain_id: Knowledge domain filter (None = all domains)
+        scoring_method: Score combination method - "weighted" or "rrf" (default: weighted)
 
     Returns:
         Tuple of (SearchResult list, ExpandedQuery or None)
@@ -209,6 +224,8 @@ async def run_query(
         max_hops=2,
         limit=limit,
         source_filter=source_filter,
+        domain_id=domain_id,
+        scoring_method=scoring_method,
     )
 
     # Execute search with expansion if enabled
@@ -298,6 +315,18 @@ def query(
         "--citation-weight",
         help="Citation score weight (0.0-1.0)",
     ),
+    domain: Optional[str] = typer.Option(
+        None,
+        "--domain",
+        "-d",
+        help="Knowledge domain (causal_inference, time_series, or None for all)",
+    ),
+    scoring: ScoringMethod = typer.Option(
+        ScoringMethod.weighted,
+        "--scoring",
+        "-S",
+        help="Score combination method: 'weighted' (default) or 'rrf' (Reciprocal Rank Fusion)",
+    ),
     verbose: bool = typer.Option(
         False,
         "--verbose",
@@ -331,6 +360,12 @@ def query(
         research-kb query "IV" --no-rerank  # Skip cross-encoder reranking
 
         research-kb query "IV" --expand --verbose  # Show expansion details
+
+        research-kb query "ARIMA" --domain time_series  # Search time series domain only
+
+        research-kb query "causal forecasting"  # Search all domains (default)
+
+        research-kb query "IV" --scoring rrf  # Use RRF rank fusion (parameter-free)
     """
     try:
         # Run async query
@@ -348,6 +383,8 @@ def query(
                 use_expand,
                 use_llm_expand,
                 verbose,
+                domain,
+                scoring.value,
             )
         )
 
@@ -686,6 +723,13 @@ def path(
     start: str = typer.Argument(..., help="Starting concept name"),
     end: str = typer.Argument(..., help="Target concept name"),
     max_hops: int = typer.Option(5, "--max-hops", "-m", help="Maximum path length"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show concept definitions"),
+    synthesis: bool = typer.Option(False, "--synthesis", "-s", help="Include synthesis prompt"),
+    style: str = typer.Option(
+        "educational",
+        "--style",
+        help="Synthesis style: educational, research, or implementation",
+    ),
 ):
     """Find shortest path between two concepts in the knowledge graph.
 
@@ -693,12 +737,19 @@ def path(
 
     Examples:
 
+        # Basic path finding
         research-kb path "double machine learning" "k-fold cross-validation"
 
-        research-kb path "IV" "endogeneity" --max-hops 3
+        # With concept definitions
+        research-kb path "IV" "endogeneity" --verbose
 
-        research-kb path "matching" "propensity score" --max-hops 2
+        # With synthesis prompt for research
+        research-kb path "matching" "propensity score" --synthesis --style research
+
+        # Full output
+        research-kb path "DML" "unconfoundedness" -v -s --style implementation
     """
+    from research_kb_storage import generate_synthesis_prompt, explain_path
 
     async def find_path():
         config = DatabaseConfig()
@@ -738,7 +789,7 @@ def path(
         return start_concept, end_concept, path
 
     try:
-        start_concept, end_concept, path = asyncio.run(find_path())
+        start_concept, end_concept, found_path = asyncio.run(find_path())
 
         if not start_concept:
             typer.echo(f"Start concept not found: {start}")
@@ -752,25 +803,201 @@ def path(
         typer.echo("=" * 60)
         typer.echo()
 
-        if not path:
+        if not found_path:
             typer.echo("No path found (concepts not connected)")
             return
 
         # Display path
-        typer.echo(f"Path length: {len(path) - 1} hop(s)\n")
+        typer.echo(f"Path length: {len(found_path) - 1} hop(s)\n")
 
-        for i, (concept, relationship) in enumerate(path):
+        for i, (concept, relationship) in enumerate(found_path):
             if i == 0:
                 # Starting point
                 typer.echo(f"START: {concept.name} ({concept.concept_type.value})")
+                if verbose and concept.definition:
+                    # Indent and wrap definition
+                    definition = concept.definition[:300] + "..." if len(concept.definition) > 300 else concept.definition
+                    typer.echo(f"       {definition}")
             else:
                 # Show relationship and next concept
                 if relationship:
                     typer.echo(f"  ↓ [{relationship.relationship_type.value}]")
                 typer.echo(f"  {concept.name} ({concept.concept_type.value})")
+                if verbose and concept.definition:
+                    definition = concept.definition[:300] + "..." if len(concept.definition) > 300 else concept.definition
+                    typer.echo(f"       {definition}")
 
         typer.echo()
         typer.echo(f"END: {end_concept.name}")
+
+        # Show path explanation
+        explanation = explain_path(found_path)
+        typer.echo()
+        typer.echo(f"Path: {explanation}")
+
+        # Show synthesis prompt if requested
+        if synthesis:
+            typer.echo()
+            typer.echo("-" * 60)
+            typer.echo(f"Synthesis Prompt ({style}):")
+            typer.echo()
+            prompt = generate_synthesis_prompt(found_path, style=style)
+            typer.echo(prompt)
+
+    except Exception as e:
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(1)
+
+
+@app.command(name="audit-assumptions")
+def audit_assumptions(
+    method_name: str = typer.Argument(..., help="Method name, abbreviation, or alias"),
+    format: OutputFormat = typer.Option(
+        OutputFormat.markdown,
+        "--format",
+        "-f",
+        help="Output format (markdown or json)",
+    ),
+    include_docstring: bool = typer.Option(
+        True,
+        "--docstring/--no-docstring",
+        "-d/-D",
+        help="Include ready-to-paste code docstring snippet",
+    ),
+    use_ollama: bool = typer.Option(
+        True,
+        "--ollama/--no-ollama",
+        "-o/-O",
+        help="Use Ollama LLM fallback if graph returns <3 assumptions",
+    ),
+):
+    """Get required assumptions for a statistical/ML method.
+
+    Queries the knowledge graph for METHOD → REQUIRES/USES → ASSUMPTION
+    relationships. If fewer than 3 assumptions are found, optionally
+    uses Ollama LLM to extract additional assumptions.
+
+    The output is optimized for implementation guidance:
+    - Assumption name and importance level (critical/standard/technical)
+    - Formal mathematical statement (if available)
+    - Plain English explanation
+    - Verification approaches
+    - Ready-to-paste docstring snippet
+
+    Examples:
+
+        research-kb audit-assumptions "double machine learning"
+
+        research-kb audit-assumptions "DML" --format json
+
+        research-kb audit-assumptions "IV" --no-ollama
+
+        research-kb audit-assumptions "DiD" --no-docstring
+    """
+    from research_kb_storage import MethodAssumptionAuditor
+
+    async def run_audit():
+        config = DatabaseConfig()
+        await get_connection_pool(config)
+        return await MethodAssumptionAuditor.audit_assumptions(
+            method_name,
+            use_ollama_fallback=use_ollama,
+        )
+
+    try:
+        result = asyncio.run(run_audit())
+
+        if format == OutputFormat.json:
+            import json
+            output = json.dumps(result.to_dict(), indent=2)
+        else:
+            # Markdown format
+            lines = []
+            lines.append(f"## Assumptions for: {result.method}")
+
+            if result.method_aliases:
+                lines.append(f"**Aliases**: {', '.join(result.method_aliases)}")
+
+            if result.method_id:
+                lines.append(f"**Method ID**: `{result.method_id}`")
+
+            if result.definition:
+                lines.append(f"\n**Definition**: {result.definition}")
+
+            lines.append(f"\n**Source**: {result.source}")
+            lines.append("")
+
+            if result.source == "not_found":
+                lines.append("**Method not found in knowledge base.**")
+                lines.append("")
+                lines.append("Try:")
+                lines.append("- Different spelling or abbreviation")
+                lines.append("- `research-kb concepts` to search for related methods")
+                lines.append("- `research-kb query` for full-text search")
+            elif not result.assumptions:
+                lines.append("### No assumptions found")
+                lines.append("")
+                lines.append("The knowledge graph doesn't have assumption relationships for this method.")
+            else:
+                lines.append(f"### Required Assumptions ({len(result.assumptions)} found)")
+                lines.append("")
+
+                # Group by importance
+                critical = [a for a in result.assumptions if a.importance == "critical"]
+                standard = [a for a in result.assumptions if a.importance == "standard"]
+                technical = [a for a in result.assumptions if a.importance == "technical"]
+
+                for group, label in [
+                    (critical, "Critical (identification fails if violated)"),
+                    (standard, "Standard"),
+                    (technical, "Technical"),
+                ]:
+                    if not group:
+                        continue
+
+                    lines.append(f"#### {label}")
+                    lines.append("")
+
+                    for i, a in enumerate(group, 1):
+                        importance_badge = (
+                            "[CRITICAL]" if a.importance == "critical"
+                            else "[technical]" if a.importance == "technical"
+                            else ""
+                        )
+
+                        lines.append(f"**{i}. {a.name}** {importance_badge}")
+
+                        if a.formal_statement:
+                            lines.append(f"   - **Formal**: `{a.formal_statement}`")
+
+                        if a.plain_english:
+                            lines.append(f"   - **Plain English**: {a.plain_english}")
+
+                        if a.violation_consequence:
+                            lines.append(f"   - **If violated**: {a.violation_consequence}")
+
+                        if a.verification_approaches:
+                            approaches = ", ".join(a.verification_approaches)
+                            lines.append(f"   - **Verify**: {approaches}")
+
+                        if a.source_citation:
+                            lines.append(f"   - **Citation**: {a.source_citation}")
+
+                        lines.append("")
+
+            # Docstring snippet
+            if include_docstring and result.code_docstring_snippet:
+                lines.append("### Code Docstring Snippet")
+                lines.append("")
+                lines.append("```python")
+                lines.append(result.code_docstring_snippet)
+                lines.append("```")
+                lines.append("")
+                lines.append("*Paste this into your implementation's docstring.*")
+
+            output = "\n".join(lines)
+
+        typer.echo(output)
 
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)

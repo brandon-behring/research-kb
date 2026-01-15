@@ -12,6 +12,7 @@ research-kb-common = {path = "../common", develop = true}
 asyncpg = "^0.31.0"  # Async PostgreSQL driver
 pgvector = "^0.4.0"  # pgvector support
 numpy = "^2.3.0"  # Required by pgvector
+kuzu = "^0.9.0"  # Embedded graph database for fast traversal
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

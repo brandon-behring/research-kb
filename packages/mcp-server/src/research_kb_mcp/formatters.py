@@ -323,26 +323,73 @@ def format_graph_neighborhood(neighborhood: dict) -> str:
     return "\n".join(lines)
 
 
-def format_graph_path(path_data: dict) -> str:
-    """Format graph path as markdown."""
+def format_graph_path(path_data: dict, include_definitions: bool = True) -> str:
+    """Format graph path as markdown.
+
+    Supports enhanced path format with definitions and synthesis prompts.
+
+    Args:
+        path_data: Dict with path info from get_graph_path()
+        include_definitions: Show concept definitions (default True for MCP)
+
+    Returns:
+        Markdown-formatted path with optional definitions and synthesis prompt
+    """
     if "error" in path_data:
         return f"**Error:** {path_data['error']}"
 
     from_concept = path_data.get("from", "?")
     to_concept = path_data.get("to", "?")
     path = path_data.get("path", [])
+    relationships = path_data.get("relationships", [])
+    explanation = path_data.get("explanation")
+    path_length = path_data.get("path_length", len(path) - 1 if path else 0)
 
-    lines = [f"## Path: {from_concept} → {to_concept}"]
+    lines = [f"## Conceptual Path: {from_concept} → {to_concept}"]
 
     if not path:
         lines.append("\n*No path found between these concepts*")
-    else:
-        lines.append(f"\n**Path length: {len(path)} hops**\n")
-        for i, step in enumerate(path):
-            if isinstance(step, dict):
-                lines.append(f"{i + 1}. {step.get('name', step.get('id', '?'))}")
-            else:
-                lines.append(f"{i + 1}. {step}")
+        return "\n".join(lines)
+
+    lines.append(f"\n**Path length: {path_length} hops**\n")
+
+    # Format each concept in the path
+    for i, step in enumerate(path):
+        if isinstance(step, dict):
+            name = step.get("name", step.get("id", "?"))
+            concept_type = step.get("type", "")
+            definition = step.get("definition")
+
+            # Numbered concept header with type
+            type_str = f" ({concept_type})" if concept_type else ""
+            lines.append(f"### {i + 1}. {name}{type_str}")
+
+            # Include definition if present and requested
+            if include_definitions and definition:
+                # Truncate long definitions
+                if len(definition) > 300:
+                    definition = definition[:297] + "..."
+                lines.append(f"> {definition}")
+
+            # Add relationship arrow to next concept (if not last)
+            if i < len(path) - 1:
+                rel_type = relationships[i] if i < len(relationships) else "→"
+                lines.append(f"**→ {rel_type} →**\n")
+        else:
+            # Fallback for simple string paths
+            lines.append(f"{i + 1}. {step}")
+
+    # Add explanation if provided
+    if explanation:
+        lines.append("\n---")
+        lines.append(f"*Path: {explanation}*")
+
+    # Add synthesis prompt if present
+    if path_data.get("synthesis_prompt"):
+        style = path_data.get("synthesis_style", "educational")
+        lines.append("\n---")
+        lines.append(f"## Synthesis Prompt ({style})")
+        lines.append(f"\n> {path_data['synthesis_prompt']}")
 
     return "\n".join(lines)
 
@@ -370,6 +417,38 @@ def format_health(healthy: bool, details: Optional[dict] = None) -> str:
         lines.append("\n### Details")
         for key, value in details.items():
             lines.append(f"- {key}: {value}")
+
+    return "\n".join(lines)
+
+
+def format_domains(domain_stats: list[dict]) -> str:
+    """Format domain statistics as markdown.
+
+    Args:
+        domain_stats: List of domain statistics from DomainStore.get_all_stats()
+
+    Returns:
+        Markdown-formatted table with domain info and counts
+    """
+    if not domain_stats:
+        return "## Knowledge Domains\n\n*No domains configured*"
+
+    lines = ["## Knowledge Domains\n"]
+    lines.append("| Domain ID | Name | Sources | Chunks | Concepts |")
+    lines.append("|-----------|------|--------:|-------:|---------:|")
+
+    for stat in domain_stats:
+        lines.append(
+            f"| `{stat['domain_id']}` | {stat['name']} | "
+            f"{stat['source_count']:,} | {stat['chunk_count']:,} | "
+            f"{stat['concept_count']:,} |"
+        )
+
+    lines.append("\n### Usage")
+    lines.append("Use the `domain` parameter in `research_kb_search` to filter by domain:")
+    lines.append("- `domain=None` — Search all domains (default)")
+    for stat in domain_stats:
+        lines.append(f"- `domain=\"{stat['domain_id']}\"` — {stat['name']} only")
 
     return "\n".join(lines)
 

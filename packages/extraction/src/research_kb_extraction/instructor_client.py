@@ -100,22 +100,25 @@ class InstructorOllamaClient(LLMClient):
         self,
         chunk: str,
         prompt_type: str = "full",
+        domain_id: str = "causal_inference",
     ) -> ChunkExtraction:
         """Extract concepts using instructor for validation.
 
         Args:
             chunk: Text chunk to analyze
             prompt_type: Prompt type ("full", "definition", "relationship", "quick")
+            domain_id: Knowledge domain (e.g., "causal_inference", "time_series")
 
         Returns:
             ChunkExtraction with validated concepts and relationships
         """
-        prompt = format_extraction_prompt(chunk, prompt_type)
+        prompt = format_extraction_prompt(chunk, prompt_type, domain_id)
 
         logger.debug(
             "extracting_concepts_instructor",
             chunk_length=len(chunk),
             prompt_type=prompt_type,
+            domain_id=domain_id,
         )
 
         try:

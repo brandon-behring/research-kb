@@ -141,6 +141,11 @@ research-kb cites <source>                            # Find sources this one ci
 research-kb citation-stats                            # Corpus citation statistics
 research-kb biblio-similar <source>                   # Find similar sources (shared refs)
 
+# Assumption auditing (North Star feature)
+research-kb audit-assumptions "double machine learning"  # Get required assumptions
+research-kb audit-assumptions "IV" --no-ollama           # Graph only, no LLM fallback
+research-kb audit-assumptions "DML" --format json        # JSON output
+
 # Semantic Scholar discovery (s2-client)
 research-kb discover search "double machine learning"  # Search S2 for papers
 research-kb discover topics                            # Browse by topic
@@ -190,6 +195,7 @@ common (logging, retry, instrumentation)
 
 **Core tables:** `sources`, `chunks`, `citations`
 **Knowledge graph:** `concepts`, `concept_relationships`, `chunk_concepts`, `methods`, `assumptions`
+**Assumption auditing:** `method_assumption_cache`, `method_aliases` (Phase 4.1)
 
 Key enums:
 - `ConceptType`: METHOD, ASSUMPTION, PROBLEM, DEFINITION, THEOREM, CONCEPT, PRINCIPLE, TECHNIQUE, MODEL
@@ -385,6 +391,7 @@ The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 | `research_kb_chunk_concepts` | Get concepts linked to a chunk |
 | `research_kb_graph_neighborhood` | Explore concept neighborhood |
 | `research_kb_graph_path` | Find path between concepts |
+| `research_kb_audit_assumptions` | Get required assumptions for a method (North Star) |
 | `research_kb_stats` | Database statistics |
 | `research_kb_health` | Health check |
 

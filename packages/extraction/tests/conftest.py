@@ -4,9 +4,6 @@ import pytest
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-# NOTE: --run-neo4j option is defined in root conftest.py
-# Do not duplicate here to avoid pytest registration conflicts
-
 from research_kb_extraction.models import (
     ChunkExtraction,
     ExtractedConcept,

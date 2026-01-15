@@ -52,16 +52,6 @@ def _verify_not_production(database_name: str) -> None:
         )
 
 
-def pytest_addoption(parser):
-    """Add custom command line options."""
-    parser.addoption(
-        "--run-neo4j",
-        action="store_true",
-        default=False,
-        help="Run tests that require Neo4j server",
-    )
-
-
 @pytest_asyncio.fixture(scope="function")
 async def test_db() -> AsyncGenerator:
     """Provide clean test database for each test.

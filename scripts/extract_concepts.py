@@ -59,7 +59,6 @@ from research_kb_extraction import (
     ConceptExtractor,
     Deduplicator,
     ExtractionMetrics,
-    GraphSyncService,
     LLMClient,
     OllamaClient,
     get_llm_client,
@@ -145,10 +144,10 @@ class ExtractionPipeline:
         batch_size: int = 10,
         checkpoint_interval: int = 10,  # Reduced from 50 to minimize data loss on crash
         dry_run: bool = False,
-        sync_neo4j: bool = True,
         skip_backup: bool = False,
         concurrency: int = 1,
         num_ctx: int = 2048,
+        domain_id: str = "causal_inference",
     ):
         self.backend = backend
         self.model = model  # None means use backend's default
@@ -156,10 +155,10 @@ class ExtractionPipeline:
         self.batch_size = batch_size
         self.checkpoint_interval = checkpoint_interval
         self.dry_run = dry_run
-        self.sync_neo4j = sync_neo4j
         self.skip_backup = skip_backup
         self.concurrency = max(1, concurrency)
         self.num_ctx = num_ctx
+        self.domain_id = domain_id
         self.backup_path: Optional[str] = None
 
         # Semaphore to limit concurrent LLM requests
@@ -168,7 +167,6 @@ class ExtractionPipeline:
         self.llm_client: Optional[LLMClient] = None
         self.extractor: Optional[ConceptExtractor] = None
         self.deduplicator: Optional[Deduplicator] = None
-        self.graph_sync: Optional[GraphSyncService] = None
 
         self.stats = ExtractionStats()
         self.processed_chunk_ids: set[UUID] = set()
@@ -239,6 +237,7 @@ class ExtractionPipeline:
             "llm_client_connected",
             backend=self.backend,
             extraction_method=self.llm_client.extraction_method,
+            domain_id=self.domain_id,
         )
 
         # Create pre-extraction backup (HARD REQUIREMENT)
@@ -266,22 +265,14 @@ class ExtractionPipeline:
                     f"Use --skip-backup to bypass (NOT recommended)"
                 )
 
-        # Initialize extractor and deduplicator
-        self.deduplicator = Deduplicator()
+        # Initialize extractor and deduplicator (domain-aware)
+        self.deduplicator = Deduplicator(domain_id=self.domain_id)
         self.extractor = ConceptExtractor(
             ollama_client=self.llm_client,  # Still called ollama_client internally
             deduplicator=self.deduplicator,
             confidence_threshold=self.confidence_threshold,
+            domain_id=self.domain_id,
         )
-
-        # Initialize Neo4j sync if enabled
-        if self.sync_neo4j:
-            self.graph_sync = GraphSyncService()
-            if await self.graph_sync.is_available():
-                logger.info("neo4j_connected")
-            else:
-                logger.warning("neo4j_unavailable", message="Graph sync disabled")
-                self.graph_sync = None
 
         # Load existing concepts into deduplicator cache
         await self._load_existing_concepts()
@@ -299,8 +290,6 @@ class ExtractionPipeline:
         """Clean up resources."""
         if self.extractor:
             await self.extractor.close()
-        if self.graph_sync:
-            await self.graph_sync.close()
 
     def load_checkpoint(self) -> set[UUID]:
         """Load processed chunk IDs from checkpoint."""
@@ -477,7 +466,7 @@ class ExtractionPipeline:
                 concept_id = self._concept_cache[canonical]
                 concept_name_to_id[extracted.name.lower()] = concept_id
             else:
-                # Create new concept
+                # Create new concept (with domain)
                 try:
                     concept = await ConceptStore.create(
                         name=extracted.name,
@@ -487,20 +476,11 @@ class ExtractionPipeline:
                         definition=extracted.definition,
                         extraction_method=self.llm_client.extraction_method,
                         confidence_score=extracted.confidence,
+                        domain_id=self.domain_id,
                     )
                     self._concept_cache[canonical] = concept.id
                     concept_name_to_id[extracted.name.lower()] = concept.id
                     new_concepts += 1
-
-                    # Sync to Neo4j
-                    if self.graph_sync:
-                        await self.graph_sync.sync_concept(
-                            concept_id=concept.id,
-                            name=concept.name,
-                            canonical_name=concept.canonical_name,
-                            concept_type=concept.concept_type.value,
-                            definition=concept.definition,
-                        )
 
                 except Exception as e:
                     logger.warning(
@@ -552,16 +532,6 @@ class ExtractionPipeline:
                         confidence_score=rel.confidence,
                     )
                     relationships_stored += 1
-
-                    # Sync to Neo4j
-                    if self.graph_sync:
-                        await self.graph_sync.sync_relationship(
-                            relationship_id=relationship.id,
-                            source_concept_id=source_id,
-                            target_concept_id=target_id,
-                            relationship_type=rel.relationship_type,
-                            strength=relationship.strength,
-                        )
 
                 except Exception as e:
                     # Relationship may already exist
@@ -707,6 +677,12 @@ async def main():
     parser.add_argument("--source-id", type=str, help="Process only chunks from this source")
     parser.add_argument("--limit", type=int, help="Limit number of chunks to process")
     parser.add_argument(
+        "--domain",
+        type=str,
+        default="causal_inference",
+        help="Knowledge domain for extraction (causal_inference, time_series)"
+    )
+    parser.add_argument(
         "--backend",
         type=str,
         default="ollama",
@@ -730,7 +706,6 @@ async def main():
     parser.add_argument("--dry-run", action="store_true", help="Run without storing results")
     parser.add_argument("--resume", action="store_true", help="Resume from checkpoint")
     parser.add_argument("--clear-checkpoint", action="store_true", help="Clear checkpoint and start fresh")
-    parser.add_argument("--no-neo4j", action="store_true", help="Disable Neo4j sync")
     parser.add_argument(
         "--skip-backup",
         action="store_true",
@@ -769,9 +744,9 @@ async def main():
         batch_size=args.batch_size,
         concurrency=args.concurrency,
         dry_run=args.dry_run,
-        sync_neo4j=not args.no_neo4j,
         skip_backup=args.skip_backup,
         num_ctx=args.num_ctx,
+        domain_id=args.domain,
     )
 
     try:

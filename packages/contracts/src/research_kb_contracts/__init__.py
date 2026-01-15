@@ -22,6 +22,10 @@ from research_kb_contracts.models import (
     RelationshipType,
     Method,
     Assumption,
+    # Multi-domain support (Migration 010)
+    Domain,
+    CrossDomainLink,
+    CrossDomainLinkType,
     # Ingestion
     IngestionStage,
     IngestionStatus,
@@ -29,7 +33,7 @@ from research_kb_contracts.models import (
     SearchResult,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"  # Bumped for multi-domain support
 
 __all__ = [
     # Core entities
@@ -47,6 +51,10 @@ __all__ = [
     "RelationshipType",
     "Method",
     "Assumption",
+    # Multi-domain support (Migration 010)
+    "Domain",
+    "CrossDomainLink",
+    "CrossDomainLinkType",
     # Ingestion
     "IngestionStage",
     "IngestionStatus",

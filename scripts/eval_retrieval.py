@@ -10,6 +10,8 @@ Metrics:
 - NDCG@K (Normalized Discounted Cumulative Gain): standard ranking metric
   - Accounts for position of relevant results (earlier = better)
   - Range 0-1, where 1.0 is perfect ranking
+- Concept Recall: % of expected concepts found in search results (target: 70%)
+  - Measures whether relevant concepts are surfaced alongside sources
 
 Note: True Precision@K requires graded relevance labels for ALL retrieved
 results. Since we only label expected sources, we use Hit Rate, MRR, and NDCG.
@@ -18,14 +20,17 @@ Usage:
     python scripts/eval_retrieval.py
     python scripts/eval_retrieval.py --verbose
     python scripts/eval_retrieval.py --tag core
+    python scripts/eval_retrieval.py --output metrics.json  # For CI
 """
 
 import asyncio
+import json
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
+from uuid import UUID
 
 import numpy as np
 import yaml
@@ -50,6 +55,8 @@ class TestCase:
     expected_in_top_k: int
     expected_page_range: Optional[tuple[int, int]] = None
     expect_mixed_sources: bool = False
+    expected_concepts: list[str] = field(default_factory=list)  # Phase 2: concept recall
+    relevance_grade: int = 3  # 0=irrelevant, 1=related, 2=relevant, 3=exact
     tags: list[str] = None
     notes: Optional[str] = None
 
@@ -63,7 +70,35 @@ class TestResult:
     matched_rank: Optional[int] = None
     matched_source: Optional[str] = None
     matched_page: Optional[int] = None
+    concept_recall: Optional[float] = None  # Phase 2: concept recall score
+    found_concepts: list[str] = field(default_factory=list)  # Concepts found in results
     error: Optional[str] = None
+
+
+async def get_concepts_for_chunks(chunk_ids: list[UUID]) -> set[str]:
+    """Get all concept names linked to a list of chunks.
+
+    Args:
+        chunk_ids: List of chunk UUIDs
+
+    Returns:
+        Set of concept names (lowercase for matching)
+    """
+    if not chunk_ids:
+        return set()
+
+    pool = await get_connection_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT DISTINCT LOWER(c.name) as name
+            FROM chunk_concepts cc
+            JOIN concepts c ON cc.concept_id = c.id
+            WHERE cc.chunk_id = ANY($1::uuid[])
+            """,
+            chunk_ids,
+        )
+        return {row["name"] for row in rows}
 
 
 def load_test_cases(yaml_path: Path, tag_filter: Optional[str] = None) -> list[TestCase]:
@@ -93,6 +128,8 @@ def load_test_cases(yaml_path: Path, tag_filter: Optional[str] = None) -> list[T
             expected_in_top_k=tc.get("expected_in_top_k", 5),
             expected_page_range=tuple(tc["expected_page_range"]) if tc.get("expected_page_range") else None,
             expect_mixed_sources=tc.get("expect_mixed_sources", False),
+            expected_concepts=tc.get("expected_concepts", []),  # Phase 2
+            relevance_grade=tc.get("relevance_grade", 3),  # Phase 2
             tags=tags,
             notes=tc.get("notes"),
         ))
@@ -103,12 +140,14 @@ def load_test_cases(yaml_path: Path, tag_filter: Optional[str] = None) -> list[T
 async def run_test_case(
     test_case: TestCase,
     embed_client: EmbeddingClient,
+    scoring_method: str = "weighted",
 ) -> TestResult:
     """Run a single test case.
 
     Args:
         test_case: The test case to run
         embed_client: Embedding client for query embedding
+        scoring_method: Score combination method - "weighted" or "rrf"
 
     Returns:
         TestResult with pass/fail and details
@@ -124,6 +163,7 @@ async def run_test_case(
             fts_weight=0.3,
             vector_weight=0.7,
             limit=test_case.expected_in_top_k,
+            scoring_method=scoring_method,
         )
 
         results = await search_hybrid(query)
@@ -134,6 +174,24 @@ async def run_test_case(
                 passed=False,
                 error="No results returned",
             )
+
+        # Phase 2: Compute concept recall if expected_concepts specified
+        concept_recall = None
+        found_concepts = []
+        if test_case.expected_concepts:
+            chunk_ids = [r.chunk.id for r in results]
+            all_concepts = await get_concepts_for_chunks(chunk_ids)
+            found_concepts = list(all_concepts)
+
+            # Match expected concepts (case-insensitive, partial match)
+            expected_lower = {c.lower() for c in test_case.expected_concepts}
+            matched = 0
+            for expected in expected_lower:
+                # Check for exact or partial match
+                if any(expected in found or found in expected for found in all_concepts):
+                    matched += 1
+
+            concept_recall = matched / len(expected_lower) if expected_lower else 1.0
 
         # Check if expected source appears in top-K
         pattern = re.compile(test_case.expected_source_pattern, re.IGNORECASE)
@@ -155,6 +213,8 @@ async def run_test_case(
                     matched_rank=result.rank,
                     matched_source=result.source.title,
                     matched_page=result.chunk.page_start,
+                    concept_recall=concept_recall,
+                    found_concepts=found_concepts[:10],  # Limit for display
                     error=None if page_valid else f"Page {result.chunk.page_start} outside expected range {test_case.expected_page_range}",
                 )
 
@@ -163,6 +223,8 @@ async def run_test_case(
         return TestResult(
             test_case=test_case,
             passed=False,
+            concept_recall=concept_recall,
+            found_concepts=found_concepts[:10],
             error=f"Pattern '{test_case.expected_source_pattern}' not found. Top sources: {top_sources}",
         )
 
@@ -178,6 +240,7 @@ async def run_eval(
     yaml_path: Path,
     tag_filter: Optional[str] = None,
     verbose: bool = False,
+    scoring_method: str = "weighted",
 ) -> tuple[list[TestResult], dict]:
     """Run full evaluation suite.
 
@@ -185,6 +248,7 @@ async def run_eval(
         yaml_path: Path to test cases YAML
         tag_filter: Optional tag to filter by
         verbose: Print detailed output
+        scoring_method: Score combination method - "weighted" or "rrf"
 
     Returns:
         Tuple of (results list, metrics dict)
@@ -209,7 +273,7 @@ async def run_eval(
         if verbose:
             print(f"  Testing: {tc.query}")
 
-        result = await run_test_case(tc, embed_client)
+        result = await run_test_case(tc, embed_client, scoring_method=scoring_method)
         results.append(result)
 
         if verbose:
@@ -254,6 +318,16 @@ async def run_eval(
     ndcg_5 = compute_ndcg_at_k(results, 5)
     ndcg_10 = compute_ndcg_at_k(results, 10)
 
+    # Phase 2: Compute average concept recall
+    concept_recalls = [
+        r.concept_recall for r in results
+        if r.concept_recall is not None
+    ]
+    avg_concept_recall = (
+        sum(concept_recalls) / len(concept_recalls)
+        if concept_recalls else None
+    )
+
     metrics = {
         "total": total,
         "passed": passed,
@@ -267,6 +341,9 @@ async def run_eval(
         # NDCG: accounts for position (earlier = better), range 0-1
         "ndcg_5": ndcg_5,
         "ndcg_10": ndcg_10,
+        # Phase 2: Concept Recall - % of expected concepts found
+        "concept_recall": avg_concept_recall,
+        "concept_recall_tests": len(concept_recalls),
     }
 
     return results, metrics
@@ -303,6 +380,17 @@ def print_summary(results: list[TestResult], metrics: dict):
     print(f"    NDCG@10: {ndcg_10:.3f}")
     print(f"      (Position-weighted: 1.0=perfect, 0.5=avg rank 3)")
 
+    # Phase 2: Concept Recall metrics
+    concept_recall = metrics.get('concept_recall')
+    concept_tests = metrics.get('concept_recall_tests', 0)
+    if concept_recall is not None:
+        target_concept_recall = 0.70
+        cr_status = "✓" if concept_recall >= target_concept_recall else "✗"
+        print(f"  {cr_status} Concept Recall: {concept_recall:.1%} (target: ≥{target_concept_recall:.0%})")
+        print(f"      ({concept_tests} tests with expected_concepts)")
+    else:
+        print(f"  ⊘ Concept Recall: N/A (no tests have expected_concepts defined)")
+
     # List failures
     failures = [r for r in results if not r.passed]
     if failures:
@@ -321,6 +409,13 @@ async def main():
     parser = argparse.ArgumentParser(description="Evaluate retrieval quality")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument("--tag", "-t", help="Filter by tag (e.g., 'core')")
+    parser.add_argument("--output", "-o", help="Output JSON file for CI (e.g., metrics.json)")
+    parser.add_argument(
+        "--scoring", "-s",
+        choices=["weighted", "rrf"],
+        default="weighted",
+        help="Scoring method: 'weighted' (default) or 'rrf' (Reciprocal Rank Fusion)"
+    )
     args = parser.parse_args()
 
     yaml_path = Path(__file__).parent.parent / "fixtures" / "eval" / "retrieval_test_cases.yaml"
@@ -329,9 +424,22 @@ async def main():
         print(f"Error: Test cases not found at {yaml_path}")
         sys.exit(1)
 
-    results, metrics = await run_eval(yaml_path, tag_filter=args.tag, verbose=args.verbose)
+    print(f"Scoring method: {args.scoring}")
+    results, metrics = await run_eval(
+        yaml_path,
+        tag_filter=args.tag,
+        verbose=args.verbose,
+        scoring_method=args.scoring,
+    )
 
     print_summary(results, metrics)
+
+    # Phase 2: Output JSON for CI quality gate
+    if args.output:
+        output_path = Path(args.output)
+        with open(output_path, "w") as f:
+            json.dump(metrics, f, indent=2)
+        print(f"\nMetrics written to: {output_path}")
 
     # Exit with error code if tests failed
     if metrics.get("failed", 0) > 0:

@@ -2,8 +2,13 @@
 
 Provides:
 - Canonical name normalization (e.g., "IV" -> "instrumental variables")
+- Domain-specific abbreviation expansion
 - Embedding-based similarity matching
 - Merge decisions for near-duplicate concepts
+
+Domain support:
+- Pass domain_id to Deduplicator to use domain-specific abbreviations
+- Uses causal_inference abbreviations by default for backward compatibility
 """
 
 import re
@@ -17,7 +22,8 @@ from research_kb_extraction.models import ConceptMatch, ExtractedConcept
 logger = get_logger(__name__)
 
 
-# Common abbreviation expansions for causal inference domain
+# Legacy abbreviation map for backward compatibility (causal inference)
+# New code should use Deduplicator(domain_id="...") instead
 ABBREVIATION_MAP = {
     "iv": "instrumental variables",
     "ivs": "instrumental variables",
@@ -71,29 +77,46 @@ class Deduplicator:
         >>> dedup = Deduplicator()
         >>> canonical = dedup.to_canonical_name("IV")
         >>> print(canonical)  # "instrumental variables"
+
+        >>> # Domain-specific deduplication
+        >>> dedup = Deduplicator(domain_id="time_series")
+        >>> canonical = dedup.to_canonical_name("ARIMA")
+        >>> print(canonical)  # "autoregressive integrated moving average"
     """
 
     def __init__(
         self,
         similarity_threshold: float = 0.95,
         embed_client: Optional[object] = None,
+        domain_id: str = "causal_inference",
     ):
         """Initialize deduplicator.
 
         Args:
             similarity_threshold: Embedding similarity threshold for merge
             embed_client: Optional embedding client for similarity
+            domain_id: Domain for abbreviation expansion (default: causal_inference)
         """
         self.similarity_threshold = similarity_threshold
         self.embed_client = embed_client
+        self.domain_id = domain_id
         self._known_concepts: dict[str, UUID] = {}  # canonical_name -> id
+
+        # Load domain-specific abbreviations
+        try:
+            from research_kb_extraction.domain_prompts import get_domain_abbreviations
+            self._abbreviation_map = get_domain_abbreviations(domain_id)
+        except ImportError:
+            # Fallback to legacy map if domain_prompts not available
+            self._abbreviation_map = ABBREVIATION_MAP
+            logger.warning("domain_prompts_import_failed", using_legacy=True)
 
     def to_canonical_name(self, name: str) -> str:
         """Convert a concept name to its canonical form.
 
         Steps:
         1. Lowercase and strip
-        2. Expand known abbreviations
+        2. Expand known abbreviations (domain-specific)
         3. Normalize whitespace
         4. Remove special characters
 
@@ -106,9 +129,9 @@ class Deduplicator:
         # Lowercase and strip
         canonical = name.lower().strip()
 
-        # Check for direct abbreviation match
-        if canonical in ABBREVIATION_MAP:
-            canonical = ABBREVIATION_MAP[canonical]
+        # Check for direct abbreviation match (using domain-specific map)
+        if canonical in self._abbreviation_map:
+            canonical = self._abbreviation_map[canonical]
 
         # Normalize whitespace
         canonical = re.sub(r"\s+", " ", canonical)
@@ -311,9 +334,9 @@ class Deduplicator:
         aliases = {self.to_canonical_name(concept.name)}
         aliases.update(self.to_canonical_name(a) for a in concept.aliases)
 
-        # Check reverse abbreviation map
+        # Check reverse abbreviation map (using domain-specific map)
         canonical = self.to_canonical_name(concept.name)
-        for abbrev, expansion in ABBREVIATION_MAP.items():
+        for abbrev, expansion in self._abbreviation_map.items():
             if expansion == canonical:
                 aliases.add(abbrev)
 

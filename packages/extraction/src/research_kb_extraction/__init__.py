@@ -9,7 +9,6 @@ This package provides:
 - BatchClient: Anthropic Message Batches API for 50% cost savings
 - ConceptExtractor: Extract concepts and relationships from text chunks
 - Deduplicator: Canonical name normalization and embedding-based deduplication
-- GraphSyncService: Sync concepts to Neo4j graph database
 - get_llm_client: Factory function for backend selection
 - get_batch_client: Factory for batch extraction
 """
@@ -27,8 +26,15 @@ from research_kb_extraction.base_client import LLMClient
 from research_kb_extraction.ollama_client import OllamaClient, OllamaError
 from research_kb_extraction.concept_extractor import ConceptExtractor
 from research_kb_extraction.deduplicator import Deduplicator, ABBREVIATION_MAP
-from research_kb_extraction.graph_sync import GraphSyncService, GraphSyncError
 from research_kb_extraction.metrics import ExtractionMetrics
+from research_kb_extraction.domain_prompts import (
+    DOMAIN_PROMPTS,
+    get_domain_prompt_section,
+    get_domain_abbreviations,
+    get_domain_config,
+    list_domains,
+    get_all_abbreviations,
+)
 
 
 def get_llm_client(
@@ -140,8 +146,13 @@ __all__ = [
     "ConceptExtractor",
     "Deduplicator",
     "ABBREVIATION_MAP",
-    "GraphSyncService",
-    "GraphSyncError",
+    # Domain Prompts
+    "DOMAIN_PROMPTS",
+    "get_domain_prompt_section",
+    "get_domain_abbreviations",
+    "get_domain_config",
+    "list_domains",
+    "get_all_abbreviations",
     # Metrics
     "ExtractionMetrics",
     # Factory

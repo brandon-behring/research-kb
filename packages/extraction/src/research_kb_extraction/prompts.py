@@ -3,6 +3,11 @@
 These prompts are designed to work with structured output (tool_use).
 They guide the LLM to extract concepts and relationships from
 academic text across multiple domains.
+
+Domain-aware extraction:
+- Use format_extraction_prompt(chunk, domain_id="time_series") for domain-specific guidance
+- Domain prompts are defined in domain_prompts.py
+- Falls back to causal_inference for unknown domains
 """
 
 # System prompt establishing the extraction task
@@ -179,18 +184,38 @@ TEXT: {chunk}
 }}"""
 
 
-def format_extraction_prompt(chunk: str, prompt_type: str = "full") -> str:
-    """Format the appropriate prompt with the chunk text.
+def format_extraction_prompt(
+    chunk: str,
+    prompt_type: str = "full",
+    domain_id: str = "causal_inference",
+) -> str:
+    """Format the appropriate prompt with the chunk text and domain guidance.
 
     Args:
         chunk: Text chunk to analyze
         prompt_type: One of "full", "definition", "relationship", "quick"
+        domain_id: Domain for extraction (e.g., "causal_inference", "time_series")
 
     Returns:
-        Formatted prompt string
+        Formatted prompt string with domain-specific concept type guidance
+
+    Example:
+        >>> prompt = format_extraction_prompt("ARIMA model...", domain_id="time_series")
+        >>> "forecasting" in prompt.lower()
+        True
     """
+    # Import here to avoid circular imports
+    from research_kb_extraction.domain_prompts import get_domain_prompt_section
+
+    # Get domain-specific concept type guidance
+    concept_guidance = get_domain_prompt_section(domain_id)
+
+    # For full extraction, inject domain-specific guidance
+    if prompt_type == "full":
+        return _format_domain_aware_prompt(chunk, concept_guidance)
+
+    # Other prompt types use their existing templates
     prompts = {
-        "full": EXTRACTION_PROMPT,
         "definition": DEFINITION_EXTRACTION_PROMPT,
         "relationship": METHOD_RELATIONSHIP_PROMPT,
         "quick": QUICK_EXTRACTION_PROMPT,
@@ -198,3 +223,85 @@ def format_extraction_prompt(chunk: str, prompt_type: str = "full") -> str:
 
     template = prompts.get(prompt_type, EXTRACTION_PROMPT)
     return template.format(chunk=chunk)
+
+
+def _format_domain_aware_prompt(chunk: str, concept_type_guidance: str) -> str:
+    """Format the full extraction prompt with domain-specific concept types.
+
+    Args:
+        chunk: Text chunk to analyze
+        concept_type_guidance: Domain-specific concept type section
+
+    Returns:
+        Formatted prompt with injected domain guidance
+    """
+    return f"""Analyze the following text chunk from an academic paper or textbook.
+
+Extract:
+1. All concepts mentioned (methods, assumptions, problems, definitions, theorems)
+2. Relationships between concepts
+
+TEXT CHUNK:
+---
+{chunk}
+---
+
+CONCEPT TYPES (USE ONLY THESE):
+You MUST use ONLY one of these exact values for concept_type:
+
+{concept_type_guidance}
+
+TYPE DISTRIBUTION GUIDANCE:
+- Avoid defaulting to "method" - only ~30-35% of concepts should be methods
+- Use "technique" for smaller procedural steps within methods
+- Use "concept" for abstract ideas that don't fit specific categories
+- Use "model" for formal structures and architectures
+- Reserve "theorem" for proven mathematical statements
+- Reserve "assumption" for conditions that must hold for validity
+
+RELATIONSHIP TYPES (USE ONLY THESE):
+You MUST use ONLY one of these exact values for relationship_type:
+1. REQUIRES: Method requires an assumption to be valid
+2. USES: Method uses another technique/concept
+3. ADDRESSES: Method solves or mitigates a problem
+4. GENERALIZES: Concept is broader than another (parent)
+5. SPECIALIZES: Concept is narrower than another (child)
+6. ALTERNATIVE_TO: Concepts are competing approaches
+7. EXTENDS: Concept builds upon another
+
+CRITICAL: Do NOT use ANY other relationship_type values like "OUTPUTS", "CONTRIBUTES_TO", "DETERMINES", "SPECIFIES", "DRIVES", etc.
+Only use: REQUIRES, USES, ADDRESSES, GENERALIZES, SPECIALIZES, ALTERNATIVE_TO, EXTENDS
+
+OUTPUT FORMAT (JSON):
+{{
+  "concepts": [
+    {{
+      "name": "concept name as in text",
+      "concept_type": "method",
+      "definition": "brief definition if provided, null otherwise",
+      "aliases": ["alternative names", "abbreviations"],
+      "confidence": 0.0-1.0
+    }}
+  ],
+  "relationships": [
+    {{
+      "source_concept": "concept name",
+      "target_concept": "concept name",
+      "relationship_type": "REQUIRES",
+      "evidence": "quote from text supporting this relationship",
+      "confidence": 0.0-1.0
+    }}
+  ]
+}}
+
+GUIDELINES:
+- Only extract concepts that are substantively discussed, not just mentioned in passing
+- Confidence should reflect how clearly the concept/relationship is defined in the text
+- Include aliases like abbreviations (IV, DiD, DML) when mentioned
+- Relationships should be supported by evidence in the text
+- If no concepts or relationships are found, return empty arrays
+- Aim for type diversity: avoid assigning "method" to everything
+- ALWAYS verify your concept_type values match the allowed types above
+- ALWAYS verify your relationship_type values are one of: REQUIRES, USES, ADDRESSES, GENERALIZES, SPECIALIZES, ALTERNATIVE_TO, EXTENDS
+
+Return ONLY valid JSON, no additional text."""

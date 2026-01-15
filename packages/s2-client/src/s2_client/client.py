@@ -19,7 +19,14 @@ from research_kb_common import get_logger, retry_on_exception
 
 from s2_client.cache import S2Cache
 from s2_client.errors import S2APIError, S2NotFoundError, S2RateLimitError
-from s2_client.models import S2Author, S2AuthorPapersResult, S2Paper, S2SearchResult
+from s2_client.models import (
+    S2Author,
+    S2AuthorPapersResult,
+    S2CitationsResult,
+    S2Paper,
+    S2ReferencesResult,
+    S2SearchResult,
+)
 from s2_client.rate_limiter import RateLimiter
 
 logger = get_logger(__name__)
@@ -267,6 +274,78 @@ class S2Client:
                     results.append(S2Paper(**paper_data))
 
         return results
+
+    async def get_paper_citations(
+        self,
+        paper_id: str,
+        limit: int = 100,
+        offset: int = 0,
+        fields: str = DEFAULT_PAPER_FIELDS,
+    ) -> S2CitationsResult:
+        """Get papers that cite this paper.
+
+        Args:
+            paper_id: S2 paper ID or identifier (DOI:..., arXiv:...)
+            limit: Max citations to return per request (max 1000)
+            offset: Pagination offset
+            fields: Fields to include for each citing paper
+
+        Returns:
+            S2CitationsResult with citing papers accessible via .papers property
+
+        Example:
+            >>> result = await client.get_paper_citations(
+            ...     "649def34f8be52c8b66281af98ae884c09aef38b",
+            ...     limit=50
+            ... )
+            >>> for paper in result.papers:
+            ...     print(f"Cited by: {paper.title}")
+        """
+        endpoint = f"/graph/v1/paper/{paper_id}/citations"
+        params = {
+            "limit": min(limit, 1000),
+            "offset": offset,
+            "fields": fields,
+        }
+
+        response = await self._request("GET", endpoint, params=params)
+        return S2CitationsResult(**response)
+
+    async def get_paper_references(
+        self,
+        paper_id: str,
+        limit: int = 100,
+        offset: int = 0,
+        fields: str = DEFAULT_PAPER_FIELDS,
+    ) -> S2ReferencesResult:
+        """Get papers that this paper cites (references).
+
+        Args:
+            paper_id: S2 paper ID or identifier
+            limit: Max references to return per request (max 1000)
+            offset: Pagination offset
+            fields: Fields to include for each referenced paper
+
+        Returns:
+            S2ReferencesResult with referenced papers accessible via .papers property
+
+        Example:
+            >>> result = await client.get_paper_references(
+            ...     "649def34f8be52c8b66281af98ae884c09aef38b",
+            ...     limit=50
+            ... )
+            >>> for paper in result.papers:
+            ...     print(f"Cites: {paper.title}")
+        """
+        endpoint = f"/graph/v1/paper/{paper_id}/references"
+        params = {
+            "limit": min(limit, 1000),
+            "offset": offset,
+            "fields": fields,
+        }
+
+        response = await self._request("GET", endpoint, params=params)
+        return S2ReferencesResult(**response)
 
     # -------------------------------------------------------------------------
     # Author Methods

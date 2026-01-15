@@ -44,11 +44,14 @@ from s2_client.errors import (
 from s2_client.models import (
     OpenAccessPdf,
     S2Author,
+    S2CitationsResult,
     S2Paper,
+    S2ReferencesResult,
     S2SearchResult,
 )
 from s2_client.rate_limiter import RateLimiter
 from s2_client.search import DiscoveryTopic, SearchFilters, TopicDiscovery
+from s2_client.traversal import CitationTraversal, TraversalResult
 
 __version__ = "1.0.0"
 
@@ -59,11 +62,16 @@ __all__ = [
     "S2Paper",
     "S2Author",
     "S2SearchResult",
+    "S2CitationsResult",
+    "S2ReferencesResult",
     "OpenAccessPdf",
     # Search
     "SearchFilters",
     "TopicDiscovery",
     "DiscoveryTopic",
+    # Traversal (Phase 8.4)
+    "CitationTraversal",
+    "TraversalResult",
     # Acquisition
     "PaperAcquisition",
     "AcquisitionResult",

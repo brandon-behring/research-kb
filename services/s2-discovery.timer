@@ -1,0 +1,22 @@
+[Unit]
+Description=Weekly S2 Paper Discovery Timer
+Documentation=https://github.com/brandon-behring/research-kb
+
+[Timer]
+# Run every Sunday at 3:00 AM (low-usage time)
+OnCalendar=Sun *-*-* 03:00:00
+
+# Randomize start within 1 hour to avoid API thundering herd
+RandomizedDelaySec=3600
+
+# Persist timer across reboots - run if missed
+Persistent=true
+
+# Don't wake system from suspend
+WakeSystem=false
+
+# Accuracy: within 15 minutes is fine
+AccuracySec=15min
+
+[Install]
+WantedBy=timers.target

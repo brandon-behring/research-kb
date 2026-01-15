@@ -1,0 +1,244 @@
+{
+  "_comment": "Golden dataset for assumption auditing evaluation (Phase 4.1c)",
+  "_version": "1.0.0",
+  "_created": "2026-01-08",
+  "_description": "Expected assumptions for core causal inference methods. Used by scripts/eval_assumptions.py",
+
+  "methods": [
+    {
+      "name": "double machine learning",
+      "aliases": ["DML", "debiased machine learning"],
+      "expected_assumptions": [
+        {"name": "unconfoundedness", "importance": "critical", "aliases": ["selection on observables", "conditional independence"]},
+        {"name": "overlap", "importance": "critical", "aliases": ["common support", "positivity"]},
+        {"name": "neyman orthogonality", "importance": "standard", "aliases": ["orthogonality condition"]},
+        {"name": "donsker class", "importance": "technical", "aliases": ["complexity condition"]}
+      ],
+      "min_expected": 3,
+      "source_reference": "Chernozhukov et al. (2018)"
+    },
+    {
+      "name": "instrumental variables",
+      "aliases": ["IV", "instrumental variable"],
+      "expected_assumptions": [
+        {"name": "relevance", "importance": "critical", "aliases": ["instrument relevance", "first stage"]},
+        {"name": "exclusion restriction", "importance": "critical", "aliases": ["exclusion", "exogeneity"]},
+        {"name": "independence", "importance": "critical", "aliases": ["instrument independence", "exogeneity"]},
+        {"name": "monotonicity", "importance": "standard", "aliases": ["no defiers"]}
+      ],
+      "min_expected": 3,
+      "source_reference": "Angrist & Imbens (1994)"
+    },
+    {
+      "name": "difference-in-differences",
+      "aliases": ["DiD", "diff-in-diff", "difference in differences"],
+      "expected_assumptions": [
+        {"name": "parallel trends", "importance": "critical", "aliases": ["parallel trends assumption", "common trends"]},
+        {"name": "no anticipation", "importance": "standard", "aliases": ["no anticipatory effects"]},
+        {"name": "sutva", "importance": "standard", "aliases": ["stable unit treatment value assumption", "no interference"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Angrist & Pischke (2009)"
+    },
+    {
+      "name": "regression discontinuity",
+      "aliases": ["RD", "RDD", "regression discontinuity design"],
+      "expected_assumptions": [
+        {"name": "continuity", "importance": "critical", "aliases": ["continuity assumption", "smooth potential outcomes"]},
+        {"name": "no manipulation", "importance": "critical", "aliases": ["no sorting", "no bunching"]},
+        {"name": "local randomization", "importance": "standard", "aliases": ["as-if random"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Lee & Lemieux (2010)"
+    },
+    {
+      "name": "propensity score matching",
+      "aliases": ["PSM", "matching"],
+      "expected_assumptions": [
+        {"name": "unconfoundedness", "importance": "critical", "aliases": ["selection on observables", "ignorability"]},
+        {"name": "overlap", "importance": "critical", "aliases": ["common support", "positivity"]},
+        {"name": "sutva", "importance": "standard", "aliases": ["stable unit treatment value assumption"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Rosenbaum & Rubin (1983)"
+    },
+    {
+      "name": "synthetic control",
+      "aliases": ["synthetic control method", "SCM"],
+      "expected_assumptions": [
+        {"name": "parallel trends", "importance": "critical", "aliases": ["common trends"]},
+        {"name": "no spillovers", "importance": "critical", "aliases": ["sutva", "no interference"]},
+        {"name": "convex hull", "importance": "standard", "aliases": ["treated in convex hull"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Abadie et al. (2010)"
+    },
+    {
+      "name": "inverse probability weighting",
+      "aliases": ["IPW", "IPTW"],
+      "expected_assumptions": [
+        {"name": "positivity", "importance": "critical", "aliases": ["overlap", "common support"]},
+        {"name": "correct model", "importance": "critical", "aliases": ["correct propensity model"]},
+        {"name": "unconfoundedness", "importance": "critical", "aliases": ["no unmeasured confounding"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Horvitz & Thompson (1952)"
+    },
+    {
+      "name": "two-stage least squares",
+      "aliases": ["2SLS", "TSLS"],
+      "expected_assumptions": [
+        {"name": "relevance", "importance": "critical", "aliases": ["instrument relevance", "strong instrument"]},
+        {"name": "exclusion restriction", "importance": "critical", "aliases": ["exogeneity"]},
+        {"name": "linearity", "importance": "standard", "aliases": ["linear model"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Angrist & Krueger (2001)"
+    },
+    {
+      "name": "causal forest",
+      "aliases": ["generalized random forest", "GRF"],
+      "expected_assumptions": [
+        {"name": "unconfoundedness", "importance": "critical", "aliases": ["selection on observables"]},
+        {"name": "overlap", "importance": "critical", "aliases": ["positivity"]},
+        {"name": "honesty", "importance": "standard", "aliases": ["sample splitting"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Wager & Athey (2018)"
+    },
+    {
+      "name": "doubly robust estimation",
+      "aliases": ["DR", "AIPW", "augmented IPW"],
+      "expected_assumptions": [
+        {"name": "unconfoundedness", "importance": "critical", "aliases": ["no unmeasured confounding"]},
+        {"name": "overlap", "importance": "critical", "aliases": ["positivity"]},
+        {"name": "correct specification", "importance": "standard", "aliases": ["at least one model correct"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Bang & Robins (2005)"
+    },
+    {
+      "name": "randomized controlled trial",
+      "aliases": ["RCT", "randomized experiment"],
+      "expected_assumptions": [
+        {"name": "sutva", "importance": "critical", "aliases": ["no interference", "stable unit treatment value"]},
+        {"name": "compliance", "importance": "standard", "aliases": ["perfect compliance"]},
+        {"name": "no attrition", "importance": "standard", "aliases": ["no dropout"]}
+      ],
+      "min_expected": 1,
+      "source_reference": "Fisher (1935)"
+    },
+    {
+      "name": "ordinary least squares",
+      "aliases": ["OLS", "linear regression"],
+      "expected_assumptions": [
+        {"name": "exogeneity", "importance": "critical", "aliases": ["strict exogeneity", "zero conditional mean"]},
+        {"name": "homoscedasticity", "importance": "standard", "aliases": ["constant variance"]},
+        {"name": "no multicollinearity", "importance": "standard", "aliases": ["full rank"]},
+        {"name": "linearity", "importance": "critical", "aliases": ["linear model"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Gauss-Markov theorem"
+    },
+    {
+      "name": "maximum likelihood estimation",
+      "aliases": ["MLE"],
+      "expected_assumptions": [
+        {"name": "correct specification", "importance": "critical", "aliases": ["correct model"]},
+        {"name": "regularity conditions", "importance": "technical", "aliases": ["regularity"]},
+        {"name": "identification", "importance": "critical", "aliases": ["identifiability"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Fisher (1922)"
+    },
+    {
+      "name": "generalized method of moments",
+      "aliases": ["GMM"],
+      "expected_assumptions": [
+        {"name": "moment conditions", "importance": "critical", "aliases": ["valid moments"]},
+        {"name": "identification", "importance": "critical", "aliases": ["identifiability"]},
+        {"name": "regularity conditions", "importance": "technical", "aliases": ["regularity"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Hansen (1982)"
+    },
+    {
+      "name": "local average treatment effect",
+      "aliases": ["LATE", "complier average causal effect"],
+      "expected_assumptions": [
+        {"name": "monotonicity", "importance": "critical", "aliases": ["no defiers"]},
+        {"name": "exclusion restriction", "importance": "critical", "aliases": ["exclusion"]},
+        {"name": "relevance", "importance": "critical", "aliases": ["instrument relevance"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Imbens & Angrist (1994)"
+    },
+    {
+      "name": "bunching estimator",
+      "aliases": ["bunching"],
+      "expected_assumptions": [
+        {"name": "smooth counterfactual", "importance": "critical", "aliases": ["smoothness"]},
+        {"name": "no optimization frictions", "importance": "standard", "aliases": ["frictionless optimization"]},
+        {"name": "quasi-linear utility", "importance": "standard", "aliases": ["utility assumption"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Saez (2010)"
+    },
+    {
+      "name": "event study",
+      "aliases": ["event study design"],
+      "expected_assumptions": [
+        {"name": "parallel trends", "importance": "critical", "aliases": ["common trends"]},
+        {"name": "no anticipation", "importance": "standard", "aliases": ["no anticipatory effects"]},
+        {"name": "exogeneity of timing", "importance": "critical", "aliases": ["exogenous timing"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Sun & Abraham (2021)"
+    },
+    {
+      "name": "mediation analysis",
+      "aliases": ["causal mediation"],
+      "expected_assumptions": [
+        {"name": "sequential ignorability", "importance": "critical", "aliases": ["sequential unconfoundedness"]},
+        {"name": "no unmeasured confounding", "importance": "critical", "aliases": ["unconfoundedness"]},
+        {"name": "consistency", "importance": "standard", "aliases": ["sutva"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Imai et al. (2010)"
+    },
+    {
+      "name": "bayesian inference",
+      "aliases": ["Bayesian estimation"],
+      "expected_assumptions": [
+        {"name": "prior specification", "importance": "critical", "aliases": ["prior assumption"]},
+        {"name": "likelihood specification", "importance": "critical", "aliases": ["model specification"]},
+        {"name": "exchangeability", "importance": "standard", "aliases": ["iid assumption"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Gelman et al. (2013)"
+    },
+    {
+      "name": "panel data methods",
+      "aliases": ["fixed effects", "panel regression"],
+      "expected_assumptions": [
+        {"name": "strict exogeneity", "importance": "critical", "aliases": ["exogeneity"]},
+        {"name": "no serial correlation", "importance": "standard", "aliases": ["independence over time"]},
+        {"name": "time-invariant confounders", "importance": "critical", "aliases": ["fixed effects assumption"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Wooldridge (2010)"
+    }
+  ],
+
+  "evaluation_config": {
+    "fuzzy_match_threshold": 0.7,
+    "min_recall_threshold": 0.6,
+    "min_precision_threshold": 0.1,
+    "_note": "Precision is low because system returns ALL assumptions, not just core ones. This is intentional - auditing is recall-focused.",
+    "importance_weights": {
+      "critical": 2.0,
+      "standard": 1.0,
+      "technical": 0.5
+    }
+  }
+}

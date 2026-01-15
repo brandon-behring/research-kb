@@ -527,14 +527,16 @@ class TestSearch:
     async def test_search_populates_expanded_query(self, mock_search_deps, sample_search_result):
         """Test search includes expanded query when available."""
         expanded = MagicMock()
-        expanded.expanded_text = "test query expanded with synonyms"
+        # Service uses expanded_terms (list), not expanded_text
+        expanded.expanded_terms = ["test", "query", "expanded", "with", "synonyms"]
         mock_search_deps["expand"].return_value = ([sample_search_result], expanded)
 
         options = SearchOptions(query="test")
 
         response = await search(options)
 
-        assert response.expanded_query == "test query expanded with synonyms"
+        # Service joins expanded_terms with ", "
+        assert response.expanded_query == "test, query, expanded, with, synonyms"
 
 
 # =============================================================================
@@ -720,7 +722,8 @@ class TestGraphOperations:
              patch("research_kb_api.service.find_shortest_path") as path_mock:
 
             concept_mock.search = AsyncMock(side_effect=[[concept_a], [concept_b]])
-            path_mock.return_value = [{"id": str(concept_a.id), "name": concept_a.name}]
+            # Service expects list of (Concept, Relationship) tuples
+            path_mock.return_value = [(concept_a, None), (concept_b, None)]
 
             result = await get_graph_path("backdoor criterion", "instrumental variables")
 

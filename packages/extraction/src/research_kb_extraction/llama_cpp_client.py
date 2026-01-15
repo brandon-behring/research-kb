@@ -239,22 +239,25 @@ class LlamaCppClient(LLMClient):
         self,
         chunk: str,
         prompt_type: str = "full",
+        domain_id: str = "causal_inference",
     ) -> ChunkExtraction:
         """Extract concepts and relationships from a text chunk.
 
         Args:
             chunk: Text chunk to analyze
             prompt_type: Prompt type ("full", "definition", "relationship", "quick")
+            domain_id: Knowledge domain (e.g., "causal_inference", "time_series")
 
         Returns:
             ChunkExtraction with concepts and relationships
         """
-        prompt = format_extraction_prompt(chunk, prompt_type)
+        prompt = format_extraction_prompt(chunk, prompt_type, domain_id)
 
         logger.debug(
             "extracting_concepts_llamacpp",
             chunk_length=len(chunk),
             prompt_type=prompt_type,
+            domain_id=domain_id,
         )
 
         # Note: llama-cpp-python is synchronous, but we wrap in async interface

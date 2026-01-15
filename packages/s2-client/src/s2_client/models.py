@@ -136,3 +136,47 @@ class S2AuthorPapersResult(BaseModel):
     data: list[S2Paper] = Field(default_factory=list)
 
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+
+class S2CitationsResult(BaseModel):
+    """Result from paper citations endpoint.
+
+    Each item wraps the citing paper in {"citingPaper": {...}}.
+    """
+
+    offset: int = 0
+    next_offset: int | None = Field(None, alias="next")
+    data: list[dict[str, Any]] = Field(default_factory=list)
+
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+    @property
+    def papers(self) -> list[S2Paper]:
+        """Extract S2Paper objects from wrapped response."""
+        return [
+            S2Paper(**item["citingPaper"])
+            for item in self.data
+            if item.get("citingPaper")
+        ]
+
+
+class S2ReferencesResult(BaseModel):
+    """Result from paper references endpoint.
+
+    Each item wraps the cited paper in {"citedPaper": {...}}.
+    """
+
+    offset: int = 0
+    next_offset: int | None = Field(None, alias="next")
+    data: list[dict[str, Any]] = Field(default_factory=list)
+
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+
+    @property
+    def papers(self) -> list[S2Paper]:
+        """Extract S2Paper objects from wrapped response."""
+        return [
+            S2Paper(**item["citedPaper"])
+            for item in self.data
+            if item.get("citedPaper")
+        ]

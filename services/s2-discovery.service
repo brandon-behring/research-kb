@@ -1,0 +1,62 @@
+[Unit]
+Description=S2 Auto-Discovery - Weekly paper discovery via Semantic Scholar
+Documentation=https://github.com/brandon-behring/research-kb
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=<PROJECT_ROOT>
+
+# Run discovery pipeline with multiple strategies
+# 1. Topics discovery (pre-configured causal inference topics)
+# 2. Citation traversal (expand from existing corpus)
+ExecStart=/bin/bash -c '\
+    cd <PROJECT_ROOT> && \
+    source venv/bin/activate && \
+    echo "=== S2 Discovery Run: $(date -Iseconds) ===" && \
+    echo "--- Topics Discovery ---" && \
+    python scripts/s2_auto_discover.py topics \
+        --year-from 2023 \
+        --min-citations 30 \
+        --open-access-only \
+        --domain causal_inference && \
+    echo "--- Citation Traversal ---" && \
+    python scripts/s2_auto_discover.py traverse \
+        --seed-from-corpus \
+        --depth 1 \
+        --direction both \
+        --min-citations 20 \
+        --limit 50 && \
+    echo "--- Queue Status ---" && \
+    python scripts/s2_auto_discover.py queue-status && \
+    echo "=== Discovery Complete ===" \
+'
+
+# Environment
+Environment=PYTHONUNBUFFERED=1
+Environment=HOME=$HOME
+
+# Timeouts - discovery can take a while
+TimeoutStartSec=600
+TimeoutStopSec=30
+
+# Resource limits
+MemoryMax=1G
+CPUQuota=75%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=s2-discovery
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+# Allow write to project directory for cache/logs
+ReadWritePaths=<PROJECT_ROOT>
+
+[Install]
+WantedBy=default.target

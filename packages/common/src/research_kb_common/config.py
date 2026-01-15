@@ -13,6 +13,7 @@ Usage:
 
 from functools import lru_cache
 from typing import Optional
+import os
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -95,7 +96,7 @@ class Settings(BaseSettings):
 
     # Daemon
     daemon_socket_path: str = Field(
-        default="/tmp/research_kb_daemon.sock",
+        default_factory=lambda: f"/tmp/research_kb_daemon_{os.environ.get('USER', 'unknown')}.sock",
         description="Unix socket path for daemon",
     )
 

@@ -37,6 +37,7 @@ class SourceStore:
         year: Optional[int] = None,
         file_path: Optional[str] = None,
         metadata: Optional[SourceMetadata] = None,
+        domain_id: str = "causal_inference",
     ) -> Source:
         """Create a new source record.
 
@@ -48,6 +49,7 @@ class SourceStore:
             year: Publication year
             file_path: Path to source file
             metadata: Extensible JSONB metadata
+            domain_id: Knowledge domain (default: causal_inference)
 
         Returns:
             Created Source
@@ -61,7 +63,8 @@ class SourceStore:
             ...     title="Causality",
             ...     file_hash="sha256:abc123",
             ...     authors=["Judea Pearl"],
-            ...     metadata={"isbn": "978-0521895606"}
+            ...     metadata={"isbn": "978-0521895606"},
+            ...     domain_id="causal_inference",
             ... )
         """
         pool = await get_connection_pool()
@@ -82,9 +85,9 @@ class SourceStore:
                     """
                     INSERT INTO sources (
                         id, source_type, title, authors, year,
-                        file_path, file_hash, metadata,
+                        file_path, file_hash, metadata, domain_id,
                         created_at, updated_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                     RETURNING *
                     """,
                     source_id,
@@ -95,6 +98,7 @@ class SourceStore:
                     file_path,
                     file_hash,
                     metadata or {},  # Pass dict directly - asyncpg will encode
+                    domain_id,
                     now,
                     now,
                 )
@@ -104,6 +108,7 @@ class SourceStore:
                     source_id=str(source_id),
                     source_type=source_type.value,
                     title=title,
+                    domain_id=domain_id,
                 )
 
                 return _row_to_source(row)
@@ -192,6 +197,193 @@ class SourceStore:
         except Exception as e:
             logger.error("source_get_by_hash_failed", file_hash=file_hash, error=str(e))
             raise StorageError(f"Failed to retrieve source by hash: {e}") from e
+
+    @staticmethod
+    async def get_by_s2_paper_id(s2_paper_id: str) -> Optional[Source]:
+        """Retrieve source by Semantic Scholar paper ID.
+
+        Uses the indexed metadata->>'s2_paper_id' for fast lookup.
+
+        Args:
+            s2_paper_id: Semantic Scholar paper ID
+
+        Returns:
+            Source if found, None otherwise
+
+        Example:
+            >>> source = await SourceStore.get_by_s2_paper_id("649def34f8be52c8b66281af98ae884c09aef38b")
+            >>> if source:
+            ...     print(f"Paper already ingested: {source.title}")
+        """
+        pool = await get_connection_pool()
+
+        try:
+            async with pool.acquire() as conn:
+                await conn.set_type_codec(
+                    "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+                )
+
+                row = await conn.fetchrow(
+                    "SELECT * FROM sources WHERE metadata->>'s2_paper_id' = $1",
+                    s2_paper_id,
+                )
+
+                if row is None:
+                    return None
+
+                return _row_to_source(row)
+
+        except Exception as e:
+            logger.error("source_get_by_s2_id_failed", s2_paper_id=s2_paper_id, error=str(e))
+            raise StorageError(f"Failed to retrieve source by S2 ID: {e}") from e
+
+    @staticmethod
+    async def get_by_doi(doi: str) -> Optional[Source]:
+        """Retrieve source by DOI.
+
+        Uses the indexed metadata->>'doi' for fast lookup.
+
+        Args:
+            doi: Digital Object Identifier
+
+        Returns:
+            Source if found, None otherwise
+
+        Example:
+            >>> source = await SourceStore.get_by_doi("10.1111/ectj.12097")
+        """
+        pool = await get_connection_pool()
+
+        try:
+            async with pool.acquire() as conn:
+                await conn.set_type_codec(
+                    "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+                )
+
+                row = await conn.fetchrow(
+                    "SELECT * FROM sources WHERE metadata->>'doi' = $1",
+                    doi,
+                )
+
+                if row is None:
+                    return None
+
+                return _row_to_source(row)
+
+        except Exception as e:
+            logger.error("source_get_by_doi_failed", doi=doi, error=str(e))
+            raise StorageError(f"Failed to retrieve source by DOI: {e}") from e
+
+    @staticmethod
+    async def get_by_arxiv_id(arxiv_id: str) -> Optional[Source]:
+        """Retrieve source by arXiv ID.
+
+        Uses the indexed metadata->>'arxiv_id' for fast lookup.
+
+        Args:
+            arxiv_id: arXiv identifier (e.g., "1607.00698")
+
+        Returns:
+            Source if found, None otherwise
+
+        Example:
+            >>> source = await SourceStore.get_by_arxiv_id("1607.00698")
+        """
+        pool = await get_connection_pool()
+
+        try:
+            async with pool.acquire() as conn:
+                await conn.set_type_codec(
+                    "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+                )
+
+                row = await conn.fetchrow(
+                    "SELECT * FROM sources WHERE metadata->>'arxiv_id' = $1",
+                    arxiv_id,
+                )
+
+                if row is None:
+                    return None
+
+                return _row_to_source(row)
+
+        except Exception as e:
+            logger.error("source_get_by_arxiv_failed", arxiv_id=arxiv_id, error=str(e))
+            raise StorageError(f"Failed to retrieve source by arXiv ID: {e}") from e
+
+    @staticmethod
+    async def get_existing_identifiers(
+        domain_id: Optional[str] = None,
+    ) -> dict[str, set[str]]:
+        """Get all existing identifiers for fast deduplication.
+
+        Returns sets of S2 paper IDs, DOIs, and arXiv IDs that are already
+        in the corpus. Use this for batch deduplication when discovering
+        new papers.
+
+        Args:
+            domain_id: Optional filter by domain (None = all domains)
+
+        Returns:
+            Dict with keys 's2_ids', 'dois', 'arxiv_ids', each a set of strings
+
+        Example:
+            >>> existing = await SourceStore.get_existing_identifiers("causal_inference")
+            >>> new_papers = [p for p in discovered if p.s2_id not in existing['s2_ids']]
+        """
+        pool = await get_connection_pool()
+
+        try:
+            async with pool.acquire() as conn:
+                # Build query with optional domain filter
+                domain_filter = ""
+                params: list = []
+                if domain_id:
+                    domain_filter = "AND domain_id = $1"
+                    params.append(domain_id)
+
+                # Get all S2 paper IDs
+                s2_rows = await conn.fetch(
+                    f"""
+                    SELECT metadata->>'s2_paper_id' as s2_id
+                    FROM sources
+                    WHERE metadata->>'s2_paper_id' IS NOT NULL
+                    {domain_filter}
+                    """,
+                    *params,
+                )
+
+                # Get all DOIs
+                doi_rows = await conn.fetch(
+                    f"""
+                    SELECT metadata->>'doi' as doi
+                    FROM sources
+                    WHERE metadata->>'doi' IS NOT NULL
+                    {domain_filter}
+                    """,
+                    *params,
+                )
+
+                # Get all arXiv IDs
+                arxiv_rows = await conn.fetch(
+                    f"""
+                    SELECT metadata->>'arxiv_id' as arxiv_id
+                    FROM sources
+                    WHERE metadata->>'arxiv_id' IS NOT NULL
+                    {domain_filter}
+                    """,
+                    *params,
+                )
+
+                return {
+                    "s2_ids": {row["s2_id"] for row in s2_rows},
+                    "dois": {row["doi"] for row in doi_rows},
+                    "arxiv_ids": {row["arxiv_id"] for row in arxiv_rows},
+                }
+
+        except Exception as e:
+            logger.error("source_get_identifiers_failed", domain_id=domain_id, error=str(e))
+            raise StorageError(f"Failed to get existing identifiers: {e}") from e
 
     @staticmethod
     async def update_metadata(source_id: UUID, metadata: SourceMetadata) -> Source:
@@ -289,6 +481,7 @@ class SourceStore:
         limit: int = 100,
         offset: int = 0,
         source_type: Optional[SourceType] = None,
+        domain_id: Optional[str] = None,
     ) -> list[Source]:
         """List all sources with optional filtering and pagination.
 
@@ -296,6 +489,7 @@ class SourceStore:
             limit: Maximum number of results (default: 100)
             offset: Number of results to skip (default: 0)
             source_type: Optional filter by source type
+            domain_id: Optional filter by domain (None = all domains)
 
         Returns:
             List of sources
@@ -303,6 +497,7 @@ class SourceStore:
         Example:
             >>> sources = await SourceStore.list_all(limit=50)
             >>> papers = await SourceStore.list_all(source_type=SourceType.PAPER)
+            >>> ts_sources = await SourceStore.list_all(domain_id="time_series")
         """
         pool = await get_connection_pool()
 
@@ -312,29 +507,32 @@ class SourceStore:
                     "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
                 )
 
-                if source_type:
-                    rows = await conn.fetch(
-                        """
-                        SELECT * FROM sources
-                        WHERE source_type = $1
-                        ORDER BY created_at DESC
-                        LIMIT $2 OFFSET $3
-                        """,
-                        source_type.value,
-                        limit,
-                        offset,
-                    )
-                else:
-                    rows = await conn.fetch(
-                        """
-                        SELECT * FROM sources
-                        ORDER BY created_at DESC
-                        LIMIT $1 OFFSET $2
-                        """,
-                        limit,
-                        offset,
-                    )
+                # Build query with optional filters
+                conditions = []
+                params = []
+                param_idx = 1
 
+                if source_type:
+                    conditions.append(f"source_type = ${param_idx}")
+                    params.append(source_type.value)
+                    param_idx += 1
+
+                if domain_id:
+                    conditions.append(f"domain_id = ${param_idx}")
+                    params.append(domain_id)
+                    param_idx += 1
+
+                where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+                params.extend([limit, offset])
+                query = f"""
+                    SELECT * FROM sources
+                    {where_clause}
+                    ORDER BY created_at DESC
+                    LIMIT ${param_idx} OFFSET ${param_idx + 1}
+                """
+
+                rows = await conn.fetch(query, *params)
                 return [_row_to_source(row) for row in rows]
 
         except Exception as e:
@@ -407,6 +605,7 @@ def _row_to_source(row: asyncpg.Record) -> Source:
         title=row["title"],
         authors=row["authors"],
         year=row["year"],
+        domain_id=row.get("domain_id", "causal_inference"),
         file_path=row["file_path"],
         file_hash=row["file_hash"],
         metadata=row["metadata"],

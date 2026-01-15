@@ -8,7 +8,11 @@ from __future__ import annotations
 from fastmcp import FastMCP
 
 from research_kb_api.service import get_stats
-from research_kb_mcp.formatters import format_stats, format_health
+from research_kb_storage import DomainStore
+from research_kb_mcp.formatters import format_stats, format_health, format_domains
+from research_kb_common import get_logger
+
+logger = get_logger(__name__)
 
 
 def register_health_tools(mcp: FastMCP) -> None:
@@ -62,3 +66,29 @@ def register_health_tools(mcp: FastMCP) -> None:
                 healthy=False,
                 details={"error": str(e)},
             )
+
+    @mcp.tool()
+    async def research_kb_list_domains() -> str:
+        """List available knowledge domains and their statistics.
+
+        Returns information about all configured domains in the knowledge base,
+        including content counts for each domain.
+
+        Returns:
+            Markdown-formatted table with:
+            - Domain ID (used in search queries)
+            - Domain name
+            - Number of sources (papers, textbooks)
+            - Number of chunks (text segments)
+            - Number of concepts (knowledge graph nodes)
+
+        Example use cases:
+            - Discover what domains are available for searching
+            - Check content coverage per domain
+            - Verify domain-specific ingestion completed
+        """
+        try:
+            domain_stats = await DomainStore.get_all_stats()
+            return format_domains(domain_stats)
+        except Exception as e:
+            return f"❌ **Error listing domains:** {e}"

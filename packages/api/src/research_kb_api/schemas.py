@@ -303,3 +303,23 @@ class HealthDetail(BaseModel):
     version: str
     components: dict[str, str]
     stats: Optional[DatabaseStats] = None
+
+
+# === Domain Models ===
+
+
+class DomainStats(BaseModel):
+    """Statistics for a knowledge domain."""
+
+    domain_id: str = Field(..., description="Domain identifier")
+    name: str = Field(..., description="Human-readable domain name")
+    source_count: int = Field(0, description="Number of sources in domain")
+    chunk_count: int = Field(0, description="Number of chunks in domain")
+    concept_count: int = Field(0, description="Number of concepts in domain")
+
+
+class DomainListResponse(BaseModel):
+    """List of all knowledge domains."""
+
+    domains: list[DomainStats]
+    total: int

@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-01-08 13:49:01
+**Auto-generated**: 2026-01-15 18:40:28
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,8 +9,8 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 318 |
-| chunks | 145,248 |
+| sources | 324 |
+| chunks | 145,609 |
 | concepts | 284,314 |
 | concept_relationships | 726,009 |
 | chunk_concepts | 1,146,727 |
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 145,248 | 145,248 | 100.0% |
+| Chunks | 145,609 | 145,609 | 100.0% |
 | Concepts | 283,714 | 284,314 | 99.8% |
 
 ---
@@ -43,7 +43,7 @@
 | Type | Count |
 |------|------:|
 | textbook | 185 |
-| paper | 133 |
+| paper | 139 |
 
 ---
 
@@ -85,7 +85,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 318 sources, 145,248 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 324 sources, 145,609 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 284,314 concepts, 726,009 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |

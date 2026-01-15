@@ -39,6 +39,7 @@ class ChunkStore:
         page_end: Optional[int] = None,
         embedding: Optional[list[float]] = None,
         metadata: Optional[ChunkMetadata] = None,
+        domain_id: str = "causal_inference",
     ) -> Chunk:
         """Create a new chunk record.
 
@@ -51,6 +52,7 @@ class ChunkStore:
             page_end: Ending page number
             embedding: 1024-dim BGE-large-en-v1.5 embedding vector
             metadata: Extensible JSONB metadata
+            domain_id: Knowledge domain (inherited from source)
 
         Returns:
             Created Chunk
@@ -65,7 +67,8 @@ class ChunkStore:
             ...     content_hash="sha256:chunk123",
             ...     location="Chapter 3, p. 73",
             ...     embedding=[0.1] * 384,
-            ...     metadata={"chunk_type": "theorem"}
+            ...     metadata={"chunk_type": "theorem"},
+            ...     domain_id="causal_inference",
             ... )
         """
         pool = await get_connection_pool()
@@ -85,8 +88,8 @@ class ChunkStore:
                     INSERT INTO chunks (
                         id, source_id, content, content_hash,
                         location, page_start, page_end,
-                        embedding, metadata, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                        embedding, metadata, domain_id, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                     RETURNING *
                     """,
                     chunk_id,
@@ -98,6 +101,7 @@ class ChunkStore:
                     page_end,
                     embedding,  # pgvector handles conversion
                     metadata or {},  # Pass dict directly
+                    domain_id,
                     now,
                 )
 
@@ -107,6 +111,7 @@ class ChunkStore:
                     source_id=str(source_id),
                     content_length=len(content),
                     has_embedding=embedding is not None,
+                    domain_id=domain_id,
                 )
 
                 return await _row_to_chunk(row, conn)
@@ -198,12 +203,14 @@ class ChunkStore:
     async def list_all(
         limit: int = 10000,
         offset: int = 0,
+        domain_id: Optional[str] = None,
     ) -> list[Chunk]:
         """List all chunks with pagination.
 
         Args:
             limit: Maximum number of results (default: 10000)
             offset: Number of results to skip (default: 0)
+            domain_id: Optional filter by domain (None = all domains)
 
         Returns:
             List of chunks ordered by creation time
@@ -217,15 +224,28 @@ class ChunkStore:
                     "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
                 )
 
-                rows = await conn.fetch(
-                    """
-                    SELECT * FROM chunks
-                    ORDER BY created_at ASC
-                    LIMIT $1 OFFSET $2
-                    """,
-                    limit,
-                    offset,
-                )
+                if domain_id:
+                    rows = await conn.fetch(
+                        """
+                        SELECT * FROM chunks
+                        WHERE domain_id = $1
+                        ORDER BY created_at ASC
+                        LIMIT $2 OFFSET $3
+                        """,
+                        domain_id,
+                        limit,
+                        offset,
+                    )
+                else:
+                    rows = await conn.fetch(
+                        """
+                        SELECT * FROM chunks
+                        ORDER BY created_at ASC
+                        LIMIT $1 OFFSET $2
+                        """,
+                        limit,
+                        offset,
+                    )
 
                 return [await _row_to_chunk(row, conn) for row in rows]
 
@@ -327,8 +347,8 @@ class ChunkStore:
                             INSERT INTO chunks (
                                 id, source_id, content, content_hash,
                                 location, page_start, page_end,
-                                embedding, metadata, created_at
-                            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                                embedding, metadata, domain_id, created_at
+                            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                             RETURNING *
                             """,
                             chunk_id,
@@ -340,6 +360,7 @@ class ChunkStore:
                             chunk_dict.get("page_end"),
                             chunk_dict.get("embedding"),
                             chunk_dict.get("metadata", {}),  # Pass dict directly
+                            chunk_dict.get("domain_id", "causal_inference"),
                             now,
                         )
 
@@ -436,6 +457,7 @@ async def _row_to_chunk(row: asyncpg.Record, conn: asyncpg.Connection) -> Chunk:
     return Chunk(
         id=row["id"],
         source_id=row["source_id"],
+        domain_id=row.get("domain_id", "causal_inference"),
         content=row["content"],
         content_hash=row["content_hash"],
         location=row["location"],

@@ -25,12 +25,14 @@ class LLMClient(ABC):
         self,
         chunk: str,
         prompt_type: str = "full",
+        domain_id: str = "causal_inference",
     ) -> ChunkExtraction:
         """Extract structured concepts from a text chunk.
 
         Args:
             chunk: Text chunk to analyze
             prompt_type: Prompt variant ("full", "definition", "relationship", "quick")
+            domain_id: Knowledge domain for extraction (e.g., "causal_inference", "time_series")
 
         Returns:
             ChunkExtraction with concepts and relationships
@@ -69,6 +71,7 @@ class LLMClient(ABC):
         self,
         chunks: list[str],
         prompt_type: str = "full",
+        domain_id: str = "causal_inference",
         on_progress: Optional[callable] = None,
     ) -> list[ChunkExtraction]:
         """Extract concepts from multiple chunks.
@@ -79,6 +82,7 @@ class LLMClient(ABC):
         Args:
             chunks: List of text chunks
             prompt_type: Prompt type for all extractions
+            domain_id: Knowledge domain for extraction
             on_progress: Optional callback(index, total) for progress
 
         Returns:
@@ -88,7 +92,7 @@ class LLMClient(ABC):
         total = len(chunks)
 
         for i, chunk in enumerate(chunks):
-            result = await self.extract_concepts(chunk, prompt_type)
+            result = await self.extract_concepts(chunk, prompt_type, domain_id)
             results.append(result)
 
             if on_progress:

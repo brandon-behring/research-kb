@@ -25,6 +25,7 @@ from research_kb_storage import (
     SearchQuery,
     search_hybrid,
     search_hybrid_v2,
+    search_vector_only,
     search_with_rerank,
     search_with_expansion,
     find_shortest_path,
@@ -62,6 +63,8 @@ class SearchOptions:
     use_llm_expand: bool = False
     use_citations: bool = True
     citation_weight: float = 0.15
+    domain_id: Optional[str] = None  # Filter by knowledge domain (None = all domains)
+    fast_mode: bool = False  # Vector-only search for low latency (~200ms vs ~3s)
 
 
 @dataclass
@@ -191,6 +194,62 @@ async def search(options: SearchOptions) -> SearchResponse:
     query_embedding = await get_cached_embedding(options.query)
     response.embedding_time_ms = (time.perf_counter() - embed_start) * 1000
 
+    # Fast mode: vector-only search (skips FTS, graph, rerank, expansion)
+    # ~200ms total vs ~3s for full hybrid search
+    if options.fast_mode:
+        search_start = time.perf_counter()
+        search_query = SearchQuery(
+            text=options.query,
+            embedding=query_embedding,
+            fts_weight=0.0,
+            vector_weight=1.0,
+            limit=options.limit,
+            use_graph=False,
+            graph_weight=0.0,
+            use_citations=False,
+            citation_weight=0.0,
+            domain_id=options.domain_id,
+        )
+        results = await search_vector_only(search_query)
+        response.search_time_ms = (time.perf_counter() - search_start) * 1000
+
+        # Convert results to response format
+        for result in results:
+            detail = SearchResultDetail(
+                source=SourceSummary(
+                    id=str(result.source.id),
+                    title=result.source.title,
+                    authors=result.source.authors or [],
+                    year=result.source.year,
+                    source_type=result.source.source_type.value if result.source.source_type else None,
+                ),
+                chunk=ChunkSummary(
+                    id=str(result.chunk.id),
+                    content=result.chunk.content,
+                    page_start=result.chunk.page_start,
+                    page_end=result.chunk.page_end,
+                    section=result.chunk.metadata.get("section_header") if result.chunk.metadata else None,
+                ),
+                scores=ScoreBreakdown(
+                    fts=0.0,
+                    vector=result.vector_score or 0.0,
+                    graph=0.0,
+                    citation=0.0,
+                    combined=result.vector_score or 0.0,
+                ),
+                combined_score=result.vector_score or 0.0,
+            )
+            response.results.append(detail)
+
+        response.execution_time_ms = (time.perf_counter() - start_time) * 1000
+        logger.info(
+            "fast_search_complete",
+            query=options.query[:50],
+            results=len(response.results),
+            execution_ms=response.execution_time_ms,
+        )
+        return response
+
     # Check if concepts exist when graph search requested
     use_graph = options.use_graph
     if use_graph:
@@ -219,6 +278,7 @@ async def search(options: SearchOptions) -> SearchResponse:
             max_hops=2,
             limit=options.limit,
             source_filter=options.source_filter,
+            domain_id=options.domain_id,
         )
     else:
         search_query = SearchQuery(
@@ -228,6 +288,7 @@ async def search(options: SearchOptions) -> SearchResponse:
             vector_weight=vector_weight,
             limit=options.limit,
             source_filter=options.source_filter,
+            domain_id=options.domain_id,
         )
 
     # Execute search
@@ -372,8 +433,27 @@ async def get_graph_neighborhood(
     }
 
 
-async def get_graph_path(concept_a: str, concept_b: str) -> dict:
-    """Find shortest path between two concepts."""
+async def get_graph_path(
+    concept_a: str,
+    concept_b: str,
+    include_definitions: bool = False,
+    include_synthesis: bool = False,
+    synthesis_style: str = "educational",
+) -> dict:
+    """Find shortest path between two concepts.
+
+    Args:
+        concept_a: Name of the first concept (fuzzy matched)
+        concept_b: Name of the second concept (fuzzy matched)
+        include_definitions: Include concept definitions in output
+        include_synthesis: Include synthesis prompt for LLM consumption
+        synthesis_style: One of "educational", "research", "implementation"
+
+    Returns:
+        Dict with path data, optionally including definitions and synthesis prompt
+    """
+    from research_kb_storage import generate_synthesis_prompt, explain_path
+
     # Find concepts by name
     concepts_a = await ConceptStore.search(concept_a, limit=1)
     concepts_b = await ConceptStore.search(concept_b, limit=1)
@@ -383,13 +463,52 @@ async def get_graph_path(concept_a: str, concept_b: str) -> dict:
     if not concepts_b:
         return {"error": f"Concept '{concept_b}' not found"}
 
-    path = await find_shortest_path(str(concepts_a[0].id), str(concepts_b[0].id))
+    # find_shortest_path expects UUIDs
+    path = await find_shortest_path(concepts_a[0].id, concepts_b[0].id)
 
-    return {
+    if not path:
+        return {
+            "from": concept_a,
+            "to": concept_b,
+            "path": [],
+            "explanation": f"No path found between '{concept_a}' and '{concept_b}'",
+        }
+
+    # Serialize path to JSON-friendly format
+    serialized_path = []
+    relationships = []
+
+    for i, (concept, relationship) in enumerate(path):
+        concept_data = {
+            "id": str(concept.id),
+            "name": concept.canonical_name or concept.name,
+            "type": concept.concept_type.value if hasattr(concept.concept_type, "value") else str(concept.concept_type),
+        }
+        if include_definitions and concept.definition:
+            concept_data["definition"] = concept.definition
+
+        serialized_path.append(concept_data)
+
+        # Collect relationship types (skip first - no incoming edge)
+        if i > 0 and relationship:
+            rel_type = relationship.relationship_type.value if hasattr(relationship.relationship_type, "value") else str(relationship.relationship_type)
+            relationships.append(rel_type)
+
+    result = {
         "from": concept_a,
         "to": concept_b,
-        "path": path,
+        "path": serialized_path,
+        "relationships": relationships,
+        "explanation": explain_path(path),
+        "path_length": len(path) - 1,  # Number of edges
     }
+
+    # Add synthesis prompt if requested
+    if include_synthesis:
+        result["synthesis_prompt"] = generate_synthesis_prompt(path, style=synthesis_style)
+        result["synthesis_style"] = synthesis_style
+
+    return result
 
 
 async def get_stats() -> dict:

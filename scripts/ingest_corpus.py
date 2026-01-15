@@ -1545,6 +1545,168 @@ PAPERS = [
     },
 ]
 
+# ============================================================================
+# TIME SERIES DOMAIN SOURCES
+# Use with: python scripts/ingest_corpus.py --domain time_series
+# ============================================================================
+TIME_SERIES_TEXTBOOKS = [
+    {
+        "file": "fixtures/textbooks/hamilton_time_series_analysis_1994.pdf",
+        "title": "Time Series Analysis",
+        "authors": ["Hamilton, James D."],
+        "year": 1994,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Princeton University Press",
+            "domain": "time_series",
+            "authority": "canonical",
+            "key_concepts": "VAR, state-space models, Kalman filter, unit roots",
+        },
+    },
+    {
+        "file": "fixtures/textbooks/box_jenkins_time_series_2015.pdf",
+        "title": "Time Series Analysis: Forecasting and Control",
+        "authors": ["Box, George E.P.", "Jenkins, Gwilym M.", "Reinsel, Gregory C.", "Ljung, Greta M."],
+        "year": 2015,
+        "source_type": SourceType.TEXTBOOK,
+        "metadata": {
+            "publisher": "Wiley",
+            "edition": "5th",
+            "domain": "time_series",
+            "authority": "canonical",
+            "key_concepts": "ARIMA, Box-Jenkins methodology, seasonal adjustment",
+        },
+    },
+]
+
+TIME_SERIES_PAPERS = [
+    {
+        "file": "fixtures/papers/lim_tft_2021.pdf",
+        "title": "Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting",
+        "authors": ["Lim, Bryan", "Arık, Sercan Ö.", "Loeff, Nicolas", "Pfister, Tomas"],
+        "year": 2021,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "time_series", "key_concept": "TFT"},
+    },
+    {
+        "file": "fixtures/papers/oreshkin_nbeats_2020.pdf",
+        "title": "N-BEATS: Neural Basis Expansion Analysis for Interpretable Time Series Forecasting",
+        "authors": ["Oreshkin, Boris N.", "Carpov, Dmitri", "Chapados, Nicolas", "Bengio, Yoshua"],
+        "year": 2020,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "time_series", "key_concept": "N-BEATS"},
+    },
+    {
+        "file": "fixtures/papers/salinas_deepar_2019.pdf",
+        "title": "DeepAR: Probabilistic Forecasting with Autoregressive Recurrent Networks",
+        "authors": ["Salinas, David", "Flunkert, Valentin", "Gasthaus, Jan", "Januschowski, Tim"],
+        "year": 2019,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "time_series", "key_concept": "DeepAR"},
+    },
+    {
+        "file": "fixtures/papers/zhou_informer_2021.pdf",
+        "title": "Informer: Beyond Efficient Transformer for Long Sequence Time-Series Forecasting",
+        "authors": ["Zhou, Haoyi", "Zhang, Shanghang", "Peng, Jieqi", "Zhang, Shuai", "Li, Jianxin", "Xiong, Hui", "Zhang, Wancai"],
+        "year": 2021,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "time_series", "key_concept": "Informer"},
+    },
+    {
+        "file": "fixtures/papers/bojinov_timeseries_experiments_2019.pdf",
+        "title": "Time Series Experiments and Causal Estimands",
+        "authors": ["Bojinov, Iavor", "Shephard, Neil"],
+        "year": 2019,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "time_series", "key_concept": "timeseries_experiments", "cross_domain": "causal_inference"},
+    },
+]
+
+# ============================================================================
+# RAG/LLM DOMAIN SOURCES
+# Use with: python scripts/ingest_corpus.py --domain rag_llm
+# ============================================================================
+RAG_LLM_PAPERS = [
+    # Foundational Architecture
+    {
+        "file": "fixtures/papers/vaswani_attention_2017.pdf",
+        "title": "Attention Is All You Need",
+        "authors": ["Vaswani, Ashish", "Shazeer, Noam", "Parmar, Niki", "Uszkoreit, Jakob", "Jones, Llion", "Gomez, Aidan N.", "Kaiser, Lukasz", "Polosukhin, Illia"],
+        "year": 2017,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "transformer", "arxiv": "1706.03762"},
+    },
+    {
+        "file": "fixtures/papers/devlin_bert_2018.pdf",
+        "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+        "authors": ["Devlin, Jacob", "Chang, Ming-Wei", "Lee, Kenton", "Toutanova, Kristina"],
+        "year": 2018,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "bert", "arxiv": "1810.04805"},
+    },
+    # In-Context Learning
+    {
+        "file": "fixtures/papers/brown_gpt3_2020.pdf",
+        "title": "Language Models are Few-Shot Learners",
+        "authors": ["Brown, Tom B.", "Mann, Benjamin", "Ryder, Nick", "Subbiah, Melanie"],
+        "year": 2020,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "gpt3", "arxiv": "2005.14165"},
+    },
+    # RAG Foundation
+    {
+        "file": "fixtures/papers/lewis_rag_2020.pdf",
+        "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+        "authors": ["Lewis, Patrick", "Perez, Ethan", "Piktus, Aleksandra", "Petroni, Fabio", "Karpukhin, Vladimir"],
+        "year": 2020,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "rag", "arxiv": "2005.11401"},
+    },
+    # Prompting Techniques
+    {
+        "file": "fixtures/papers/wei_cot_2022.pdf",
+        "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+        "authors": ["Wei, Jason", "Wang, Xuezhi", "Schuurmans, Dale", "Bosma, Maarten", "Ichter, Brian", "Xia, Fei", "Chi, Ed", "Le, Quoc", "Zhou, Denny"],
+        "year": 2022,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "chain_of_thought", "arxiv": "2201.11903"},
+    },
+    {
+        "file": "fixtures/papers/wang_selfconsistency_2022.pdf",
+        "title": "Self-Consistency Improves Chain of Thought Reasoning in Language Models",
+        "authors": ["Wang, Xuezhi", "Wei, Jason", "Schuurmans, Dale", "Le, Quoc", "Chi, Ed", "Narang, Sharan", "Chowdhery, Aakanksha", "Zhou, Denny"],
+        "year": 2022,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "self_consistency", "arxiv": "2203.11171"},
+    },
+    # Alignment
+    {
+        "file": "fixtures/papers/ouyang_instructgpt_2022.pdf",
+        "title": "Training language models to follow instructions with human feedback",
+        "authors": ["Ouyang, Long", "Wu, Jeff", "Jiang, Xu", "Almeida, Diogo"],
+        "year": 2022,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "instructgpt", "arxiv": "2203.02155"},
+    },
+    {
+        "file": "fixtures/papers/rafailov_dpo_2023.pdf",
+        "title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
+        "authors": ["Rafailov, Rafael", "Sharma, Archit", "Mitchell, Eric", "Ermon, Stefano", "Manning, Christopher D.", "Finn, Chelsea"],
+        "year": 2023,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "dpo", "arxiv": "2305.18290"},
+    },
+    # Open Models
+    {
+        "file": "fixtures/papers/touvron_llama_2023.pdf",
+        "title": "LLaMA: Open and Efficient Foundation Language Models",
+        "authors": ["Touvron, Hugo", "Lavril, Thibaut", "Izacard, Gautier", "Martinet, Xavier"],
+        "year": 2023,
+        "source_type": SourceType.PAPER,
+        "metadata": {"domain": "rag_llm", "key_concept": "llama", "arxiv": "2302.13971"},
+    },
+]
+
 
 async def ingest_pdf(
     pdf_path: str,
@@ -1553,6 +1715,7 @@ async def ingest_pdf(
     year: int,
     source_type: SourceType,
     metadata: dict,
+    domain_id: str = "causal_inference",
 ) -> tuple[str, int, int]:
     """Ingest a single PDF through full pipeline.
 
@@ -1563,6 +1726,7 @@ async def ingest_pdf(
         year: Publication year
         source_type: Type of source
         metadata: Additional metadata
+        domain_id: Knowledge domain (default: causal_inference)
 
     Returns:
         Tuple of (source_id, num_chunks, num_headings)
@@ -1594,7 +1758,7 @@ async def ingest_pdf(
     file_hash = sha256_hash.hexdigest()
 
     # 4. Create Source record
-    logger.info("creating_source", title=title)
+    logger.info("creating_source", title=title, domain=domain_id)
     source = await SourceStore.create(
         source_type=source_type,
         title=title,
@@ -1602,6 +1766,7 @@ async def ingest_pdf(
         year=year,
         file_path=str(pdf_path),
         file_hash=file_hash,
+        domain_id=domain_id,
         metadata={
             **metadata,
             "extraction_method": "pymupdf",
@@ -1638,6 +1803,7 @@ async def ingest_pdf(
             page_end=chunk.end_page,
             embedding=embedding,
             metadata=chunk.metadata,
+            domain_id=domain_id,
         )
         chunks_created += 1
 
@@ -1665,6 +1831,11 @@ def parse_args():
         action="store_true",
         help="Minimal output (errors + final summary only)"
     )
+    parser.add_argument(
+        "-d", "--domain",
+        default="causal_inference",
+        help="Knowledge domain for ingested sources (default: causal_inference)"
+    )
     return parser.parse_args()
 
 
@@ -1672,23 +1843,38 @@ async def main():
     """Ingest all textbooks and papers, report results."""
     args = parse_args()
     quiet = args.quiet
+    domain_id = args.domain
 
-    # Full corpus ingestion - all textbooks and papers
-    all_textbooks = (
-        TEXTBOOKS
-        + TRAIN_CHAPTERS
-        + CFA_TEXTBOOKS
-        + CFA_L2_TEXTBOOKS
-        + CFA_L3_SCHWESER
-        + TIER1_BOOKS
-        + TIER2_BOOKS
-        + MANNING_BOOKS
-    )
-    all_docs = all_textbooks + PAPERS
+    # Select sources based on domain
+    if domain_id == "time_series":
+        # Time series domain sources
+        all_textbooks = TIME_SERIES_TEXTBOOKS
+        all_papers = TIME_SERIES_PAPERS
+        all_docs = all_textbooks + all_papers
+    elif domain_id == "rag_llm":
+        # RAG/LLM domain sources (papers only)
+        all_textbooks = []
+        all_papers = RAG_LLM_PAPERS
+        all_docs = all_papers
+    else:
+        # Default: causal inference domain sources
+        all_textbooks = (
+            TEXTBOOKS
+            + TRAIN_CHAPTERS
+            + CFA_TEXTBOOKS
+            + CFA_L2_TEXTBOOKS
+            + CFA_L3_SCHWESER
+            + TIER1_BOOKS
+            + TIER2_BOOKS
+            + MANNING_BOOKS
+        )
+        all_papers = PAPERS
+        all_docs = all_textbooks + all_papers
+
     total_textbooks = len(all_textbooks)
 
     if not quiet:
-        logger.info("starting_corpus_ingestion", textbooks=total_textbooks, papers=len(PAPERS))
+        logger.info("starting_corpus_ingestion", textbooks=total_textbooks, papers=len(all_papers), domain=domain_id)
 
     # Initialize database connection pool
     config = DatabaseConfig()
@@ -1719,6 +1905,7 @@ async def main():
                 year=doc_data["year"],
                 source_type=doc_data["source_type"],
                 metadata=doc_data["metadata"],
+                domain_id=domain_id,
             )
 
             results[category].append({
@@ -1778,7 +1965,7 @@ async def main():
             print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
         print(f"  Subtotal: {textbook_chunks} chunks")
 
-        print(f"\nPAPERS: {len(paper_success)}/{len(PAPERS)}")
+        print(f"\nPAPERS: {len(paper_success)}/{len(all_papers)}")
         for r in paper_success:
             print(f"  {r['title'][:45]:45} | {r['chunks']:4} chunks")
         print(f"  Subtotal: {paper_chunks} chunks")

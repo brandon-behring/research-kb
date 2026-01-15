@@ -16,7 +16,7 @@ Complete technical reference for integrating research-kb with lever_of_archimede
 
 ### Socket Protocol
 
-**Location**: `/tmp/research_kb_daemon.sock`
+**Location**: `/tmp/research_kb_daemon_${USER}.sock`
 **Format**: Newline-delimited JSON
 
 #### Request Actions
@@ -255,7 +255,7 @@ Health results appear in lever_of_archimedes morning reports:
 
 ```bash
 # Check if socket exists
-ls -la /tmp/research_kb_daemon.sock
+ls -la /tmp/research_kb_daemon_${USER}.sock
 
 # Check daemon process
 pgrep -f research_kb_daemon
@@ -277,7 +277,7 @@ python -m research_kb.daemon &
 research-kb query "instrumental variables" --format agent
 
 # Via daemon (if running)
-echo '{"action": "ping"}' | nc -U /tmp/research_kb_daemon.sock
+echo '{"action": "ping"}' | nc -U /tmp/research_kb_daemon_${USER}.sock
 ```
 
 ## Related Documentation

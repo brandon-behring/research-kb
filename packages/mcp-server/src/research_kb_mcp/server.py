@@ -11,13 +11,12 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+# Configure logging IMMEDIATELY to ensure stderr usage
+from research_kb_common import get_logger, configure_logging
+configure_logging()
+
 from fastmcp import FastMCP
-
-from research_kb_common import get_logger
 from research_kb_storage import get_connection_pool, close_connection_pool, DatabaseConfig
-
-if TYPE_CHECKING:
-    from asyncpg import Pool
 
 logger = get_logger(__name__)
 
@@ -67,6 +66,7 @@ from research_kb_mcp.tools import (  # noqa: E402
     register_graph_tools,
     register_health_tools,
     register_citation_tools,
+    register_assumption_tools,
 )
 
 register_search_tools(mcp)
@@ -75,6 +75,7 @@ register_concept_tools(mcp)
 register_graph_tools(mcp)
 register_health_tools(mcp)
 register_citation_tools(mcp)
+register_assumption_tools(mcp)
 
 
 def main():

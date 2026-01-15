@@ -4,10 +4,11 @@ MCP (Model Context Protocol) server exposing the research-kb causal inference kn
 
 ## Overview
 
-This package provides 15 MCP tools for:
+This package provides 16 MCP tools for:
 - **Hybrid search** combining full-text, vector similarity, knowledge graph, and citation signals
 - **Source browsing** with citation network exploration
 - **Concept discovery** via knowledge graph traversal
+- **Assumption auditing** for method implementation guidance
 - **Health monitoring** and corpus statistics
 
 ## Installation
@@ -193,6 +194,61 @@ Get all concepts linked to a specific text chunk.
 
 ---
 
+### Assumptions
+
+#### `research_kb_audit_assumptions`
+
+**North Star Feature**: Get required assumptions for a statistical/ML method to guide implementation.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `method_name` | str | required | Method name, abbreviation, or alias |
+| `include_docstring` | bool | True | Include ready-to-paste code docstring |
+
+**Example queries:**
+- "double machine learning" or "DML"
+- "instrumental variables" or "IV"
+- "difference in differences" or "DiD"
+- "regression discontinuity" or "RDD"
+- "propensity score matching"
+
+**Returns:**
+- Method name and aliases (for code comments)
+- Required assumptions with:
+  - Formal mathematical statement (for documentation)
+  - Plain English explanation (for comments)
+  - Importance level: critical/standard/technical
+  - Verification approaches (what to check)
+  - Source citations (for references)
+- Ready-to-paste docstring snippet
+
+**Use case:** When implementing a method like DML, call this tool to understand what assumptions must hold for valid inference. Paste the docstring snippet into your implementation.
+
+**Example output structure:**
+```markdown
+## Assumptions for: double machine learning
+**Aliases**: DML, debiased ML
+
+### Required Assumptions (8 found)
+
+#### Critical (identification fails if violated)
+
+**1. Unconfoundedness** [CRITICAL]
+   - **Formal**: `Y(t) ⊥ T | X for all t`
+   - **Plain English**: No unmeasured confounders
+   - **Verify**: DAG review, sensitivity analysis
+   - **Citation**: Chernozhukov et al. (2018), Section 2.1
+
+### Code Docstring Snippet
+```python
+Assumptions:
+    [CRITICAL] - unconfoundedness: No unmeasured confounders
+    - overlap: Treatment probability bounded away from 0,1
+```
+```
+
+---
+
 ### Graph
 
 #### `research_kb_graph_neighborhood`
@@ -352,9 +408,10 @@ research_kb_mcp/
 └── tools/
     ├── search.py      # Hybrid search (1 tool)
     ├── sources.py     # Source management (5 tools)
-    ├── concepts.py    # Concept exploration (3 tools)
+    ├── concepts.py    # Concept exploration (4 tools)
     ├── graph.py       # Knowledge graph (2 tools)
     ├── citations.py   # Citation network (2 tools)
+    ├── assumptions.py # Assumption auditing (1 tool)
     └── health.py      # Health & stats (2 tools)
 ```
 

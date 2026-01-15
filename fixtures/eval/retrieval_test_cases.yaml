@@ -29,6 +29,8 @@ test_cases:
     expected_source_pattern: "mostly harmless|instrumental|econometric|panel.*data|effect"
     expected_in_top_k: 5
     expect_mixed_sources: true
+    expected_concepts: ["instrumental variables", "LATE", "exclusion restriction", "relevance"]
+    relevance_grade: 3
     tags: [core, iv, econometrics]
     notes: "Master Plan Line 610: IV should return mixed sources"
 
@@ -42,11 +44,13 @@ test_cases:
   - query: "propensity score matching"
     expected_source_pattern: "matching|propensity"
     expected_in_top_k: 5
+    expected_concepts: ["propensity score", "matching", "selection bias", "common support"]
+    relevance_grade: 3
     tags: [core, matching]
 
   # LATE / Local Average Treatment Effect
   - query: "local average treatment effect"
-    expected_source_pattern: "mostly harmless|econometrics|nobel|treatment"
+    expected_source_pattern: "mostly harmless|econometrics|nobel|treatment|effect|mediation"
     expected_in_top_k: 5
     tags: [core, iv]
 
@@ -60,6 +64,8 @@ test_cases:
   - query: "double machine learning"
     expected_source_pattern: "double.*debiased|machine learning|causal|effect|ai"
     expected_in_top_k: 5
+    expected_concepts: ["double machine learning", "cross-fitting", "Neyman orthogonality", "nuisance"]
+    relevance_grade: 3
     tags: [core, dml, ml]
 
   # Heterogeneous treatment effects
@@ -104,6 +110,155 @@ test_cases:
     expected_in_top_k: 5
     tags: [core, staggered_did]
     notes: "Phase 1 cleanup: Callaway/Sant'Anna 2021"
+
+  # ===== Phase 2: Expanded Golden Dataset (2026-01-15) =====
+  # LLM-generated candidates (curated) + manual additions
+
+  # Bayesian networks for causal inference
+  - query: "bayesian networks for causal inference"
+    expected_source_pattern: "koller|friedman|pgm|graphical|causality.*models|elements.*causal"
+    expected_in_top_k: 5
+    expected_concepts: ["bayesian network", "causal graph", "probabilistic inference"]
+    relevance_grade: 3
+    tags: [phase2, bayesian, graphs]
+    notes: "Phase 2 expansion: Pearl or Koller/Friedman books"
+
+  # Effect size
+  - query: "effect size statistical power sample"
+    expected_source_pattern: "statistical|power|analysis|behavioral"
+    expected_in_top_k: 5
+    expected_concepts: ["effect size", "statistical power", "sample size"]
+    relevance_grade: 3
+    tags: [phase2, power_analysis]
+    notes: "Phase 2 expansion: Cohen's Statistical Power Analysis"
+
+  # Endogeneity
+  - query: "endogeneity regression bias"
+    expected_source_pattern: "econometric|analysis|wooldridge|panel"
+    expected_in_top_k: 5
+    expected_concepts: ["endogeneity", "omitted variable bias", "instrumental variables"]
+    relevance_grade: 3
+    tags: [phase2, econometrics, endogeneity]
+    notes: "Phase 2 expansion: Wooldridge Econometric Analysis"
+
+  # Confounding
+  - query: "confounding variables observational studies adjustment"
+    expected_source_pattern: "causal|inference|what|hernan|robins"
+    expected_in_top_k: 5
+    expected_concepts: ["confounding", "adjustment", "backdoor path"]
+    relevance_grade: 3
+    tags: [phase2, confounding, causal_inference]
+    notes: "Phase 2 expansion: Hernan & Robins What If"
+
+  # Natural indirect effect
+  - query: "natural indirect effect mediation"
+    expected_source_pattern: "explanation|causal|mediation|interaction|vanderweele"
+    expected_in_top_k: 5
+    expected_concepts: ["natural indirect effect", "mediation", "direct effect"]
+    relevance_grade: 3
+    tags: [phase2, mediation, effects]
+    notes: "Phase 2 expansion: VanderWeele mediation book"
+
+  # Natural direct effect
+  - query: "controlled direct effect causal"
+    expected_source_pattern: "explanation|causal|mediation|interaction|vanderweele"
+    expected_in_top_k: 5
+    expected_concepts: ["controlled direct effect", "direct effect", "mediation"]
+    relevance_grade: 3
+    tags: [phase2, mediation, effects]
+    notes: "Phase 2 expansion: VanderWeele mediation book"
+
+  # Consistency assumption
+  - query: "consistency assumption potential outcomes"
+    expected_source_pattern: "econometric|causal|what|treatment"
+    expected_in_top_k: 5
+    expected_concepts: ["consistency", "SUTVA", "potential outcomes"]
+    relevance_grade: 3
+    tags: [phase2, assumptions]
+    notes: "Phase 2 expansion: Fundamental causal assumption"
+
+  # Sensitivity analysis
+  - query: "sensitivity analysis unmeasured confounding"
+    expected_source_pattern: "explanation|causal|sensitivity|rosenbaum"
+    expected_in_top_k: 5
+    expected_concepts: ["sensitivity analysis", "unmeasured confounding", "robustness"]
+    relevance_grade: 3
+    tags: [phase2, sensitivity, robustness]
+    notes: "Phase 2 expansion: VanderWeele or Rosenbaum sensitivity methods"
+
+  # Power analysis
+  - query: "sample size power calculation"
+    expected_source_pattern: "statistical|power|analysis|behavioral|cohen|mediation|openintro"
+    expected_in_top_k: 5
+    expected_concepts: ["power analysis", "effect size", "sample size", "Type II error"]
+    relevance_grade: 3
+    tags: [phase2, power_analysis, experimental_design]
+    notes: "Phase 2 expansion: Cohen's Power Analysis or stats textbooks"
+
+  # ===== Manual additions for methodological coverage =====
+
+  # Regression discontinuity design
+  - query: "regression discontinuity design sharp fuzzy"
+    expected_source_pattern: "mostly harmless|econometrics|causal|angrist"
+    expected_in_top_k: 5
+    expected_concepts: ["regression discontinuity", "running variable", "bandwidth"]
+    relevance_grade: 3
+    tags: [phase2, rdd, quasi_experimental]
+    notes: "Phase 2 manual: Angrist & Pischke RDD coverage"
+
+  # Inverse probability weighting
+  - query: "inverse probability weighting treatment effects"
+    expected_source_pattern: "causal|inference|what|hernan|propensity"
+    expected_in_top_k: 5
+    expected_concepts: ["inverse probability weighting", "propensity score", "weighting"]
+    relevance_grade: 3
+    tags: [phase2, ipw, weighting]
+    notes: "Phase 2 manual: Hernan & Robins IPW methods"
+
+  # Doubly robust estimation
+  - query: "doubly robust estimation AIPW"
+    expected_source_pattern: "causal|inference|double|debiased|treatment"
+    expected_in_top_k: 5
+    expected_concepts: ["doubly robust", "AIPW", "augmented IPW"]
+    relevance_grade: 3
+    tags: [phase2, doubly_robust, ml]
+    notes: "Phase 2 manual: Doubly robust / AIPW estimators"
+
+  # Two-stage least squares
+  - query: "two stage least squares IV estimation"
+    expected_source_pattern: "mostly harmless|econometric|instrumental|wooldridge"
+    expected_in_top_k: 5
+    expected_concepts: ["two-stage least squares", "2SLS", "first stage", "instrumental variables"]
+    relevance_grade: 3
+    tags: [phase2, iv, 2sls]
+    notes: "Phase 2 manual: Core IV estimation method"
+
+  # Overlap/positivity assumption
+  - query: "overlap assumption positivity propensity"
+    expected_source_pattern: "causal|inference|what|propensity|treatment"
+    expected_in_top_k: 5
+    expected_concepts: ["overlap", "positivity", "propensity score", "common support"]
+    relevance_grade: 3
+    tags: [phase2, assumptions, propensity]
+    notes: "Phase 2 manual: Key identifiability assumption"
+
+  # Bunching estimator
+  - query: "bunching estimator kink threshold"
+    expected_source_pattern: "bunching|public|economics|kleven|state.*applied|effect"
+    expected_in_top_k: 5
+    expected_concepts: ["bunching estimator", "notch", "kink", "elasticity"]
+    relevance_grade: 3
+    tags: [phase2, bunching, public_economics]
+    notes: "Phase 2 manual: Bunching in applied econ sources"
+
+  # Weak instruments
+  - query: "weak instruments bias IV"
+    expected_source_pattern: "mostly harmless|econometric|instrumental|weak"
+    expected_in_top_k: 5
+    expected_concepts: ["weak instruments", "F-statistic", "bias", "2SLS"]
+    relevance_grade: 3
+    tags: [phase2, iv, weak_instruments]
+    notes: "Phase 2 manual: IV robustness concern"
 
 # Metrics targets (Master Plan Lines 1382-1383)
 metrics:

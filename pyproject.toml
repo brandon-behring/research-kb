@@ -25,3 +25,15 @@ build-backend = "poetry.core.masonry.api"
 # Packages are managed independently in packages/* subdirectories
 # Install all packages: poetry install
 # Install with specific groups: poetry install --with dev
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["packages/*/tests", "tests"]
+markers = [
+    "unit: Unit tests (fast, isolated)",
+    "integration: Integration tests (multi-component)",
+    "e2e: End-to-end tests (full pipeline, real database)",
+    "slow: Slow tests (may take >10s)",
+    "requires_reranker: Tests that require the reranker service",
+    "requires_ollama: Tests that require Ollama running",
+]
