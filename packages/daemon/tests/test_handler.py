@@ -94,9 +94,10 @@ class TestHandleSearch:
 
         mock_results = []  # Empty results for simplicity
 
+        # Default search uses search_hybrid (not v2) when use_graph=False and use_citations=False
         with (
             patch("research_kb_daemon.handler.get_embed_client", return_value=mock_embed_client),
-            patch("research_kb_daemon.handler.search_hybrid_v2", new_callable=AsyncMock) as mock_search,
+            patch("research_kb_daemon.handler.search_hybrid", new_callable=AsyncMock) as mock_search,
         ):
             mock_search.return_value = mock_results
 
@@ -120,9 +121,10 @@ class TestHandleSearch:
         mock_embed_client = AsyncMock()
         mock_embed_client.embed_query = AsyncMock(return_value=[0.1] * 1024)
 
+        # Default search uses search_hybrid (not v2) when use_graph=False and use_citations=False
         with (
             patch("research_kb_daemon.handler.get_embed_client", return_value=mock_embed_client),
-            patch("research_kb_daemon.handler.search_hybrid_v2", new_callable=AsyncMock) as mock_search,
+            patch("research_kb_daemon.handler.search_hybrid", new_callable=AsyncMock) as mock_search,
         ):
             mock_search.return_value = []
 

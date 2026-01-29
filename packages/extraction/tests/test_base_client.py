@@ -49,7 +49,9 @@ class ConcreteClient(LLMClient):
         self._available = True
         self._extract_result = ChunkExtraction(concepts=[], relationships=[])
 
-    async def extract_concepts(self, chunk: str, prompt_type: str = "full") -> ChunkExtraction:
+    async def extract_concepts(
+        self, chunk: str, prompt_type: str = "full", domain_id: str = "causal_inference"
+    ) -> ChunkExtraction:
         """Extract concepts from text."""
         return self._extract_result
 
@@ -148,10 +150,10 @@ class TestExtractBatch:
         call_count = 0
         original_extract = client.extract_concepts
 
-        async def counting_extract(chunk, prompt_type="full"):
+        async def counting_extract(chunk, prompt_type="full", domain_id="causal_inference"):
             nonlocal call_count
             call_count += 1
-            return await original_extract(chunk, prompt_type)
+            return await original_extract(chunk, prompt_type, domain_id)
 
         client.extract_concepts = counting_extract
 
@@ -166,7 +168,9 @@ class TestExtractBatch:
         captured_prompt_types = []
 
         class CapturingClient(ConcreteClient):
-            async def extract_concepts(self, chunk: str, prompt_type: str = "full"):
+            async def extract_concepts(
+                self, chunk: str, prompt_type: str = "full", domain_id: str = "causal_inference"
+            ):
                 captured_prompt_types.append(prompt_type)
                 return ChunkExtraction(concepts=[], relationships=[])
 
@@ -351,7 +355,9 @@ class TestPromptTypes:
         captured_prompt_type = None
 
         class CapturingClient(ConcreteClient):
-            async def extract_concepts(self, chunk: str, prompt_type: str = "full"):
+            async def extract_concepts(
+                self, chunk: str, prompt_type: str = "full", domain_id: str = "causal_inference"
+            ):
                 nonlocal captured_prompt_type
                 captured_prompt_type = prompt_type
                 return ChunkExtraction(concepts=[], relationships=[])
@@ -368,7 +374,9 @@ class TestPromptTypes:
             captured = None
 
             class CapturingClient(ConcreteClient):
-                async def extract_concepts(self, chunk: str, prompt_type: str = "full"):
+                async def extract_concepts(
+                    self, chunk: str, prompt_type: str = "full", domain_id: str = "causal_inference"
+                ):
                     nonlocal captured
                     captured = prompt_type
                     return ChunkExtraction(concepts=[], relationships=[])

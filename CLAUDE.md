@@ -358,7 +358,10 @@ systemctl --user status research-kb-daemon
 | Method | Description |
 |--------|-------------|
 | `search` | Hybrid search with optional graph/citation boosting |
-| `health` | System health check (database, embed server, uptime) |
+| `fast_search` | Vector-only search for low latency (~200ms) |
+| `graph_path` | Find path between concepts (KuzuDB accelerated) |
+| `citation_info` | Get citation authority for sources |
+| `health` | System health check (database, embed server, Kuzu, uptime) |
 | `stats` | Database statistics |
 
 **Example request:**
@@ -375,7 +378,7 @@ echo '{"jsonrpc":"2.0","method":"health","id":1}' | nc -U /tmp/research_kb_daemo
 
 The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 
-**Available Tools:**
+**Available Tools (19 total):**
 | Tool | Description |
 |------|-------------|
 | `research_kb_search` | Hybrid search (FTS + vector + graph + citation) |
@@ -389,11 +392,14 @@ The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 | `research_kb_list_concepts` | List/search concepts |
 | `research_kb_get_concept` | Get concept with relationships |
 | `research_kb_chunk_concepts` | Get concepts linked to a chunk |
+| `research_kb_find_similar_concepts` | Find semantically similar concepts |
+| `research_kb_cross_domain_concepts` | Find concepts spanning multiple domains |
 | `research_kb_graph_neighborhood` | Explore concept neighborhood |
-| `research_kb_graph_path` | Find path between concepts |
+| `research_kb_graph_path` | Find path between concepts (KuzuDB-accelerated) |
+| `research_kb_list_domains` | List available knowledge domains |
 | `research_kb_audit_assumptions` | Get required assumptions for a method (North Star) |
 | `research_kb_stats` | Database statistics |
-| `research_kb_health` | Health check |
+| `research_kb_health` | Health check (includes KuzuDB status) |
 
 **Installation in Claude Code:**
 ```json

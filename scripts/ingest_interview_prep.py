@@ -148,6 +148,7 @@ async def ingest_volume(
         title=f"Interview Prep: {volume_name}",
         file_hash=dir_hash,
         file_path=str(cards_dir),
+        domain_id=DOMAIN_ID,  # Explicit domain assignment
         metadata={
             "domain": DOMAIN_ID,
             "volume": volume_name,

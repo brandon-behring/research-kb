@@ -870,6 +870,11 @@ def audit_assumptions(
         "-o/-O",
         help="Use Ollama LLM fallback if graph returns <3 assumptions",
     ),
+    filter_domain: bool = typer.Option(
+        True,
+        "--filter-domain/--no-filter-domain",
+        help="Filter assumptions to same domain as method (prevents cross-domain contamination)",
+    ),
 ):
     """Get required assumptions for a statistical/ML method.
 
@@ -902,6 +907,7 @@ def audit_assumptions(
         return await MethodAssumptionAuditor.audit_assumptions(
             method_name,
             use_ollama_fallback=use_ollama,
+            filter_by_domain=filter_domain,
         )
 
     try:

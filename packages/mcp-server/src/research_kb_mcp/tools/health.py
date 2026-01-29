@@ -8,7 +8,7 @@ from __future__ import annotations
 from fastmcp import FastMCP
 
 from research_kb_api.service import get_stats
-from research_kb_storage import DomainStore
+from research_kb_storage import DomainStore, is_kuzu_ready
 from research_kb_mcp.formatters import format_stats, format_health, format_domains
 from research_kb_common import get_logger
 
@@ -45,19 +45,27 @@ def register_health_tools(mcp: FastMCP) -> None:
 
         Returns:
             Health status with:
-            - Overall status (Healthy/Unhealthy)
-            - Component status details
+            - Overall status (Healthy/Unhealthy/Degraded)
+            - Component status details (database, kuzu_graph)
         """
         try:
             # Basic health check: can we get stats?
             stats = await get_stats()
 
+            # Check KuzuDB graph database
+            kuzu_healthy = is_kuzu_ready()
+
             details = {
                 "database": "connected",
+                "kuzu_graph": "healthy" if kuzu_healthy else "unhealthy (using slow PostgreSQL fallback)",
                 "sources": f"{stats.get('sources', 0):,} indexed",
                 "chunks": f"{stats.get('chunks', 0):,} indexed",
                 "concepts": f"{stats.get('concepts', 0):,} extracted",
             }
+
+            # Degraded if database works but Kuzu doesn't
+            if not kuzu_healthy:
+                return format_health(healthy=True, details=details, degraded=True)
 
             return format_health(healthy=True, details=details)
 

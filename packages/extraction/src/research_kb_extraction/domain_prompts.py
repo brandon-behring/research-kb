@@ -295,6 +295,76 @@ Broader concepts (use when more appropriate):
             "sim": "similarity",
         },
     },
+    "interview_prep": {
+        "name": "Interview Preparation",
+        "description": "ML/DS interview questions, solutions, and study materials",
+        "concept_type_guidance": """Interview Prep (uses ML and data science foundations):
+1. problem: Interview questions or design challenges (e.g., "Design a recommendation system")
+2. solution: Approaches or solution frameworks (e.g., "Start with user-item matrix")
+3. technique: Specific methods or approaches (e.g., A/B testing, feature engineering)
+4. concept: General concepts relevant to interviews (e.g., trade-offs, scalability)
+5. definition: Definitions of key terms (e.g., precision, recall, F1 score)
+6. redflag: Common mistakes to avoid (e.g., "Don't forget to handle class imbalance")
+7. principle: Best practices (e.g., "Always clarify requirements first")
+
+Broader concepts (use when more appropriate):
+8. method: Statistical/ML methods when they're the focus
+9. model: Model architectures when discussing specifics""",
+        "examples": [
+            "system design REQUIRES scalability considerations",
+            "A/B testing USES randomization",
+            "feature engineering ADDRESSES data quality",
+            "precision-recall tradeoff REQUIRES understanding class imbalance",
+            "clarifying requirements PREVENTS scope creep",
+            "edge case handling DEMONSTRATES thoroughness",
+        ],
+        "abbreviations": {
+            # ML basics
+            "ml": "machine learning",
+            "dl": "deep learning",
+            "nn": "neural network",
+            "dnn": "deep neural network",
+            "cnn": "convolutional neural network",
+            "rnn": "recurrent neural network",
+            "lstm": "long short-term memory",
+            "gru": "gated recurrent unit",
+            # Metrics
+            "auc": "area under the curve",
+            "roc": "receiver operating characteristic",
+            "pr": "precision-recall",
+            "f1": "f1 score",
+            "mae": "mean absolute error",
+            "mse": "mean squared error",
+            "rmse": "root mean squared error",
+            "mape": "mean absolute percentage error",
+            "ndcg": "normalized discounted cumulative gain",
+            "mrr": "mean reciprocal rank",
+            # Systems
+            "api": "application programming interface",
+            "etl": "extract transform load",
+            "dag": "directed acyclic graph",
+            "sql": "structured query language",
+            "nosql": "not only sql",
+            "olap": "online analytical processing",
+            "oltp": "online transaction processing",
+            # A/B testing
+            "ab": "a/b testing",
+            "mde": "minimum detectable effect",
+            "aa": "a/a test",
+            "cuped": "controlled-experiment using pre-experiment data",
+            # Recommendation
+            "cf": "collaborative filtering",
+            "mf": "matrix factorization",
+            "als": "alternating least squares",
+            "bpr": "bayesian personalized ranking",
+            # Interview specific
+            "ds": "data science",
+            "mle": "machine learning engineer",
+            "swe": "software engineer",
+            "pm": "product manager",
+            "tpm": "technical program manager",
+        },
+    },
 }
 
 

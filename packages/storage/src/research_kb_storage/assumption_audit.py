@@ -277,6 +277,7 @@ class MethodAssumptionAuditor:
     @staticmethod
     async def get_assumptions_from_graph(
         method_id: UUID,
+        filter_by_domain: bool = True,
     ) -> list[AssumptionDetail]:
         """Query knowledge graph for method assumptions.
 
@@ -285,6 +286,9 @@ class MethodAssumptionAuditor:
 
         Args:
             method_id: UUID of the method concept
+            filter_by_domain: If True, only return assumptions from the same domain
+                            as the method (prevents cross-domain contamination).
+                            Default True to avoid physics concepts in causal methods.
 
         Returns:
             List of AssumptionDetail objects from graph
@@ -293,8 +297,35 @@ class MethodAssumptionAuditor:
 
         try:
             async with pool.acquire() as conn:
-                rows = await conn.fetch(
+                # Build query with optional domain filtering
+                # This prevents cross-domain contamination (e.g., physics in DML)
+                if filter_by_domain:
+                    query = """
+                    SELECT
+                        c.id AS assumption_id,
+                        c.name AS assumption_name,
+                        c.canonical_name,
+                        c.definition,
+                        cr.relationship_type,
+                        cr.strength,
+                        cr.confidence_score,
+                        cr.evidence_chunk_ids
+                    FROM concept_relationships cr
+                    JOIN concepts c ON c.id = cr.target_concept_id
+                    JOIN concepts method ON method.id = cr.source_concept_id
+                    WHERE cr.source_concept_id = $1
+                      AND cr.relationship_type IN ('REQUIRES', 'USES')
+                      AND c.concept_type = 'assumption'
+                      AND (c.domain_id IS NULL OR method.domain_id IS NULL OR c.domain_id = method.domain_id)
+                    ORDER BY
+                        CASE cr.relationship_type
+                            WHEN 'REQUIRES' THEN 1
+                            WHEN 'USES' THEN 2
+                        END,
+                        cr.strength DESC
                     """
+                else:
+                    query = """
                     SELECT
                         c.id AS assumption_id,
                         c.name AS assumption_name,
@@ -315,9 +346,8 @@ class MethodAssumptionAuditor:
                             WHEN 'USES' THEN 2
                         END,
                         cr.strength DESC
-                    """,
-                    method_id,
-                )
+                    """
+                rows = await conn.fetch(query, method_id)
 
                 assumptions = []
                 for row in rows:
@@ -641,12 +671,13 @@ class MethodAssumptionAuditor:
     async def audit_assumptions(
         method_name: str,
         use_ollama_fallback: bool = True,
+        filter_by_domain: bool = True,
     ) -> MethodAssumptions:
         """Main entry point: Get assumptions for a method.
 
         Query flow:
         1. Find method concept by name/alias
-        2. Query graph for REQUIRES/USES → ASSUMPTION
+        2. Query graph for REQUIRES/USES → ASSUMPTION (with domain filtering)
         3. Enrich with cached details if available
         4. If <3 assumptions and use_ollama_fallback: extract via Ollama + cache
         5. Generate code_docstring_snippet
@@ -654,6 +685,9 @@ class MethodAssumptionAuditor:
         Args:
             method_name: Method name, abbreviation, or alias
             use_ollama_fallback: Enable Ollama extraction for sparse results
+            filter_by_domain: If True (default), only return assumptions from the
+                            same domain as the method. This prevents cross-domain
+                            contamination (e.g., physics concepts in causal methods).
 
         Returns:
             MethodAssumptions with full audit data
@@ -673,8 +707,11 @@ class MethodAssumptionAuditor:
                 code_docstring_snippet=f"# Method '{method_name}' not found in knowledge base",
             )
 
-        # Step 2: Get assumptions from graph
-        graph_assumptions = await MethodAssumptionAuditor.get_assumptions_from_graph(method.id)
+        # Step 2: Get assumptions from graph (with domain filtering)
+        graph_assumptions = await MethodAssumptionAuditor.get_assumptions_from_graph(
+            method.id,
+            filter_by_domain=filter_by_domain,
+        )
 
         # Step 3: Try to enrich with cached details
         cached_assumptions = await MethodAssumptionAuditor.get_cached_assumptions(method.id)

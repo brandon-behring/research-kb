@@ -408,9 +408,25 @@ def format_stats(stats: dict) -> str:
     return "\n".join(lines)
 
 
-def format_health(healthy: bool, details: Optional[dict] = None) -> str:
-    """Format health check result."""
-    status = "Healthy" if healthy else "Unhealthy"
+def format_health(
+    healthy: bool,
+    details: Optional[dict] = None,
+    degraded: bool = False,
+) -> str:
+    """Format health check result.
+
+    Args:
+        healthy: Whether core services (database, embed) are working
+        details: Additional status information
+        degraded: Whether optional services (kuzu, reranker) are down
+    """
+    if not healthy:
+        status = "❌ Unhealthy"
+    elif degraded:
+        status = "⚠️ Degraded"
+    else:
+        status = "✅ Healthy"
+
     lines = [f"## Research KB Health: {status}"]
 
     if details:

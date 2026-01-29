@@ -15,6 +15,7 @@ Architecture (KuzuDB Migration):
 Master Plan Reference: Lines 616-673 (Phase 2 knowledge graph)
 """
 
+import asyncio
 import json
 from typing import Optional
 from uuid import UUID
@@ -44,14 +45,28 @@ except ImportError:
 
 logger = get_logger(__name__)
 
+# Timeout protection for PostgreSQL fallback paths
+# These prevent hangs when KuzuDB is unavailable and PostgreSQL CTEs are slow
+GRAPH_SCORE_TIMEOUT = 2.0  # seconds - timeout for graph scoring
+PATH_QUERY_TIMEOUT = 0.5  # seconds - timeout for individual path queries
+
 
 def is_kuzu_ready() -> bool:
     """Check if KuzuDB is available and ready for queries.
 
     Returns:
         True if KuzuDB can be used for graph queries
+
+    Note:
+        This function logs at ERROR level when Kuzu is unavailable because
+        Kuzu is the primary graph database. PostgreSQL fallback is much slower.
     """
     if not KUZU_AVAILABLE:
+        logger.error(
+            "kuzu_import_failed",
+            reason="kuzu module not available",
+            impact="graph queries will use slow PostgreSQL fallback",
+        )
         return False
 
     try:
@@ -60,31 +75,55 @@ def is_kuzu_ready() -> bool:
         # Verify tables exist with data
         result = conn.execute("MATCH (c:Concept) RETURN count(c) AS cnt LIMIT 1")
         df = result.get_as_df()
-        return not df.empty and df.iloc[0]["cnt"] > 0
-    except Exception:
+        if df.empty or df.iloc[0]["cnt"] == 0:
+            logger.error(
+                "kuzu_empty_database",
+                path=str(DEFAULT_KUZU_PATH),
+                reason="KuzuDB has no concepts - run 'python scripts/sync_kuzu.py'",
+                impact="graph queries will use slow PostgreSQL fallback",
+            )
+            return False
+        return True
+    except Exception as e:
+        logger.error(
+            "kuzu_init_failed",
+            path=str(DEFAULT_KUZU_PATH),
+            error=str(e),
+            impact="graph queries will use slow PostgreSQL fallback (~94s vs <100ms)",
+            fix="Check KuzuDB installation or run 'python scripts/sync_kuzu.py'",
+        )
         return False
 
 
 # Cache the result to avoid repeated checks
 _kuzu_ready_cache: Optional[bool] = None
+# Track if we've already warned about Kuzu unavailability
+_kuzu_warned: bool = False
 
 
 def _check_kuzu_ready() -> bool:
-    """Cached check for KuzuDB availability."""
-    global _kuzu_ready_cache
+    """Cached check for KuzuDB availability.
+
+    Logs loudly (ERROR level) on first unavailability detection.
+    Subsequent checks are silent to avoid log spam.
+    """
+    global _kuzu_ready_cache, _kuzu_warned
     if _kuzu_ready_cache is None:
         _kuzu_ready_cache = is_kuzu_ready()
         if _kuzu_ready_cache:
             logger.info("kuzu_enabled", path=str(DEFAULT_KUZU_PATH))
-        else:
-            logger.debug("kuzu_not_available_using_postgres")
+        elif not _kuzu_warned:
+            # Already logged at ERROR level in is_kuzu_ready()
+            # Just set the flag to avoid repeated errors on subsequent calls
+            _kuzu_warned = True
     return _kuzu_ready_cache
 
 
 def reset_kuzu_cache() -> None:
     """Reset KuzuDB availability cache (for testing or after sync)."""
-    global _kuzu_ready_cache
+    global _kuzu_ready_cache, _kuzu_warned
     _kuzu_ready_cache = None
+    _kuzu_warned = False
 
 
 # Relationship weights for graph scoring (Phase 3)
@@ -254,6 +293,14 @@ async def find_shortest_path(
         # KuzuDB returned None - could be no path or error, fall through
 
     # Fallback: PostgreSQL recursive CTE
+    # WARNING: This is significantly slower than KuzuDB
+    logger.warning(
+        "using_postgres_fallback_for_path",
+        start_id=str(start_concept_id),
+        end_id=str(end_concept_id),
+        reason="KuzuDB unavailable or returned no path",
+        expected_latency="~2900ms vs ~74ms with Kuzu",
+    )
     pool = await get_connection_pool()
 
     try:
@@ -727,20 +774,31 @@ async def compute_graph_score(
             logger.warning("kuzu_graph_score_fallback", error=str(e))
             # Fall through to PostgreSQL
 
-    # Fallback: PostgreSQL with individual path queries
+    # Fallback: PostgreSQL with individual path queries (slow O(N×M) CTEs)
+    # Protected by timeout to prevent hangs when KuzuDB is unavailable
     total_score = 0.0
     max_pairs = len(query_concept_ids) * len(chunk_concept_ids)
 
     try:
-        for q_id in query_concept_ids:
-            for c_id in chunk_concept_ids:
-                path_len = await find_shortest_path_length(q_id, c_id, max_hops)
-                if path_len is not None:
-                    # Direct link = 1.0, 1-hop = 0.5, 2-hop = 0.33
-                    total_score += 1.0 / (path_len + 1)
+        async with asyncio.timeout(GRAPH_SCORE_TIMEOUT):
+            for q_id in query_concept_ids:
+                for c_id in chunk_concept_ids:
+                    path_len = await find_shortest_path_length(q_id, c_id, max_hops)
+                    if path_len is not None:
+                        # Direct link = 1.0, 1-hop = 0.5, 2-hop = 0.33
+                        total_score += 1.0 / (path_len + 1)
 
         return min(total_score / max_pairs, 1.0)
 
+    except asyncio.TimeoutError:
+        logger.warning(
+            "graph_score_timeout",
+            timeout=GRAPH_SCORE_TIMEOUT,
+            query_concepts=len(query_concept_ids),
+            chunk_concepts=len(chunk_concept_ids),
+        )
+        # Return 0.0 on timeout (fall back to non-graph search)
+        return 0.0
     except Exception as e:
         logger.error("graph_score_failed", error=str(e))
         # Return 0.0 on error (fail gracefully)
@@ -956,47 +1014,49 @@ async def compute_weighted_graph_score(
             logger.warning("kuzu_weighted_score_fallback", error=str(e))
             # Fall through to PostgreSQL
 
-    # Fallback: PostgreSQL with individual path queries
+    # Fallback: PostgreSQL with individual path queries (slow O(N×M) CTEs)
+    # Protected by timeout to prevent hangs when KuzuDB is unavailable
     total_score = 0.0
     max_pairs = len(query_concept_ids) * len(chunk_concept_ids)
     path_scores: list[tuple[float, str]] = []
 
     try:
-        for q_id in query_concept_ids:
-            for c_id in chunk_concept_ids:
-                # Get full path (not just length) for weighted scoring
-                path = await find_shortest_path(q_id, c_id, max_hops)
+        async with asyncio.timeout(GRAPH_SCORE_TIMEOUT):
+            for q_id in query_concept_ids:
+                for c_id in chunk_concept_ids:
+                    # Get full path (not just length) for weighted scoring
+                    path = await find_shortest_path(q_id, c_id, max_hops)
 
-                if path:
-                    path_len = len(path) - 1  # Number of edges
+                    if path:
+                        path_len = len(path) - 1  # Number of edges
 
-                    # Compute weighted score based on relationship types
-                    if path_len == 0:
-                        # Same concept (direct match)
-                        path_weight = 1.0
-                    else:
-                        # Product of relationship weights along path
-                        path_weight = 1.0
-                        for concept, rel in path:
-                            if rel:
-                                path_weight *= get_relationship_weight(rel.relationship_type)
+                        # Compute weighted score based on relationship types
+                        if path_len == 0:
+                            # Same concept (direct match)
+                            path_weight = 1.0
+                        else:
+                            # Product of relationship weights along path
+                            path_weight = 1.0
+                            for concept, rel in path:
+                                if rel:
+                                    path_weight *= get_relationship_weight(rel.relationship_type)
 
-                    # Apply mention weight if info provided
-                    mention_weight = 1.0
-                    if chunk_mention_info and c_id in chunk_mention_info:
-                        mention_type, relevance = chunk_mention_info[c_id]
-                        mention_weight = get_mention_weight(mention_type)
-                        # Multiply by relevance_score if available
-                        if relevance is not None:
-                            mention_weight *= relevance
+                        # Apply mention weight if info provided
+                        mention_weight = 1.0
+                        if chunk_mention_info and c_id in chunk_mention_info:
+                            mention_type, relevance = chunk_mention_info[c_id]
+                            mention_weight = get_mention_weight(mention_type)
+                            # Multiply by relevance_score if available
+                            if relevance is not None:
+                                mention_weight *= relevance
 
-                    # Score contribution: (path_weight * mention_weight) / (path_length + 1)
-                    score_contribution = (path_weight * mention_weight) / (path_len + 1)
-                    total_score += score_contribution
+                        # Score contribution: (path_weight * mention_weight) / (path_length + 1)
+                        score_contribution = (path_weight * mention_weight) / (path_len + 1)
+                        total_score += score_contribution
 
-                    # Generate explanation
-                    explanation = explain_path(path)
-                    path_scores.append((score_contribution, explanation))
+                        # Generate explanation
+                        explanation = explain_path(path)
+                        path_scores.append((score_contribution, explanation))
 
         # Normalize score
         normalized_score = min(total_score / max_pairs, 1.0) if max_pairs > 0 else 0.0
@@ -1007,6 +1067,15 @@ async def compute_weighted_graph_score(
 
         return normalized_score, top_explanations
 
+    except asyncio.TimeoutError:
+        logger.warning(
+            "weighted_graph_score_timeout",
+            timeout=GRAPH_SCORE_TIMEOUT,
+            query_concepts=len(query_concept_ids),
+            chunk_concepts=len(chunk_concept_ids),
+        )
+        # Return 0.0 on timeout (fall back to non-graph search)
+        return 0.0, []
     except Exception as e:
         logger.error("weighted_graph_score_failed", error=str(e))
         return 0.0, []
