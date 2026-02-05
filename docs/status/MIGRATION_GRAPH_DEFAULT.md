@@ -86,7 +86,7 @@ async def run_query(..., use_graph: bool = True):
 
 **⚠️ Considerations**:
 - Users without extracted concepts see warning message
-- Slight performance overhead (~10-20ms per query)
+- Performance overhead: ~150ms with KuzuDB, max 2s with PostgreSQL fallback (see `docs/design/latency_analysis.md`)
 - Users explicitly wanting non-graph search must use `--no-graph`
 
 ### Backward Compatibility
@@ -242,9 +242,9 @@ research-kb query "test"  # Uses FTS+vector only
 
 ### Expected Impact
 
-- **Latency**: +10-20ms per query (graph score computation)
-- **Database Load**: +1-2 additional queries (concept lookups)
-- **Memory**: Minimal (concepts cached)
+- **Latency**: ~150ms via KuzuDB (primary path), max 2s via PostgreSQL fallback (see `docs/design/latency_analysis.md`)
+- **Database Load**: KuzuDB handles graph queries; PostgreSQL only for FTS/vector + fallback
+- **Memory**: KuzuDB database ~110MB on disk, in-process embedding
 
 ### Monitoring
 
@@ -255,9 +255,9 @@ research-kb query "test"  # Uses FTS+vector only
 - User complaints/feedback
 
 **Thresholds**:
-- ❌ **Rollback if**: Latency p95 > 500ms (vs 200ms baseline)
+- ❌ **Rollback if**: Latency p95 > 5s (graph query + timeout)
 - ❌ **Rollback if**: Error rate > 1%
-- ⚠️ **Investigate if**: Latency p95 > 300ms
+- ⚠️ **Investigate if**: Latency p95 > 2s (suggests KuzuDB not serving, hitting PostgreSQL fallback)
 
 ## Validation Checklist
 

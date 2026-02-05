@@ -1,17 +1,22 @@
 # Latency Analysis: Graph Signal Bottleneck
 
-**Date**: 2026-01-15
+**Date**: 2026-01-15 (original benchmarks)
+**Updated**: 2026-02-05 (post-KuzuDB migration)
 **Author**: Audit remediation (Phase C)
 
 ---
 
 ## Executive Summary
 
-Graph-boosted search adds **85+ seconds** to query latency due to O(N×M) recursive CTE queries in `compute_weighted_graph_score()`. The root cause is per-pair shortest path computation.
+**Pre-KuzuDB** (Jan 2026): Graph-boosted search added **85+ seconds** to query latency due to O(N×M) recursive CTE queries in `compute_weighted_graph_score()`.
+
+**Post-KuzuDB** (current): KuzuDB serves as the primary graph engine with ~150ms batch scoring. PostgreSQL recursive CTEs remain as fallback with a 2-second timeout (`GRAPH_SCORE_TIMEOUT = 2.0`). This reduces worst-case graph overhead from 85s to 2s.
 
 ---
 
 ## Benchmark Results
+
+### Pre-KuzuDB (January 2026 — Historical)
 
 | Configuration | Latency | Delta |
 |--------------|---------|-------|
@@ -20,7 +25,18 @@ Graph-boosted search adds **85+ seconds** to query latency due to O(N×M) recurs
 | + Graph only | **96.6s** | +85.8s |
 | Full (all signals) | **94.5s** | +83.7s |
 
-**Key finding**: Citations add negligible overhead. Graph signal is the sole bottleneck.
+### Post-KuzuDB Architecture (Current)
+
+| Component | Expected Latency | Source |
+|-----------|-----------------|--------|
+| KuzuDB batch graph scoring | ~129-150ms | `graph_queries.py:762` comment |
+| KuzuDB path finding | ~74ms | `graph_queries.py:194` comment |
+| KuzuDB neighborhood | ~20ms | `graph_queries.py:469` comment |
+| PostgreSQL fallback (timeout) | max 2.0s | `GRAPH_SCORE_TIMEOUT` at line 50 |
+
+**Note**: These are code-documented estimates from development. Run Phase D benchmarking for validated production numbers.
+
+**Key finding**: KuzuDB migration (Option 3 from original analysis) was implemented, reducing graph signal from the sole bottleneck to a minor contributor.
 
 ---
 
@@ -56,77 +72,56 @@ This is O(1) with respect to result count — one query returns all authority sc
 
 ---
 
-## Proposed Optimizations (Future Phases)
+## Optimization Options (Status as of 2026-02-05)
 
-### Option 1: Batch Path Queries (Medium Effort)
+### Option 1: Batch Path Queries — Not Implemented
 
-Replace per-pair calls with a single batch CTE:
+Replace per-pair calls with a single batch CTE. Superseded by KuzuDB migration.
 
-```sql
-WITH RECURSIVE paths AS (
-    -- Start from ALL query concepts at once
-    SELECT source_id, target_id, depth, path
-    FROM query_concepts, target_concepts
-    ...
-)
-SELECT source_id, target_id, MIN(depth), path_weight
-FROM paths
-GROUP BY source_id, target_id;
-```
+**Expected improvement**: 60-80% latency reduction (PostgreSQL-only path)
 
-**Expected improvement**: 60-80% latency reduction
+### Option 2: Precompute Co-occurrence Matrix — Not Implemented
 
-### Option 2: Precompute Co-occurrence Matrix (High Effort)
+Materialize concept → concept distances. Superseded by KuzuDB.
 
-Materialize concept → concept distances for frequent pairs:
+### Option 3: Graph-Native Engine — IMPLEMENTED (KuzuDB)
 
-```sql
-CREATE MATERIALIZED VIEW concept_distances AS
-SELECT
-    c1.id AS source_id,
-    c2.id AS target_id,
-    compute_shortest_path_length(c1.id, c2.id, 2) AS distance
-FROM concepts c1, concepts c2
-WHERE c1.id != c2.id;
-```
+KuzuDB embedded graph database serves as primary graph engine:
 
-**Expected improvement**: 95%+ latency reduction
-**Tradeoff**: High storage cost, refresh complexity
+- `graph_queries.py:31-44` — Optional KuzuDB imports
+- `graph_queries.py:54-126` — KuzuDB readiness checks with caching
+- `graph_queries.py:762-774` — Batch graph scoring via KuzuDB (~129ms)
+- `graph_queries.py:984-1014` — Weighted scoring via KuzuDB (~150ms)
+- `scripts/sync_kuzu.py` — Syncs PostgreSQL → KuzuDB
 
-### Option 3: Graph-Native Engine (Strategic)
+Data lives at `~/.research_kb/kuzu/research_kb.kuzu` (~110MB).
 
-Migrate graph traversal to KuzuDB or NetworkX (in-memory):
+### Option 4: Timeout with Partial Results — IMPLEMENTED
 
-- **KuzuDB**: Embedded graph DB, ~10ms for 4-hop queries
-- **NetworkX**: In-memory Python, <1ms for 4-hop on 726K edges
-
-**Expected improvement**: 99%+ latency reduction
-**Tradeoff**: Architectural complexity, sync with PostgreSQL
-
-### Option 4: Timeout with Partial Results (Quick Fix)
-
-Add timeout to graph scoring with graceful fallback:
+Timeout fallback protects against KuzuDB unavailability:
 
 ```python
-try:
-    async with asyncio.timeout(5.0):  # 5 second budget
-        graph_score = await compute_weighted_graph_score(...)
-except TimeoutError:
-    graph_score = 0.0  # Fall back to FTS+vector only
+GRAPH_SCORE_TIMEOUT = 2.0  # seconds (graph_queries.py:50)
+PATH_QUERY_TIMEOUT = 0.5   # seconds (graph_queries.py:51)
 ```
 
-**Expected improvement**: Predictable worst-case latency
-**Tradeoff**: May miss graph signal on complex queries
+PostgreSQL recursive CTEs fire only when KuzuDB is unavailable, capped at 2s.
 
 ---
 
-## Recommendation
+## Current Architecture
 
-**Immediate (Phase 3.1)**: Implement Option 4 (timeout fallback) for usability.
+```
+Query → KuzuDB batch scoring (~150ms)
+         ↓ (on failure)
+       PostgreSQL recursive CTEs (2s timeout → score=0.0)
+```
 
-**Short-term (Phase 3.2)**: Implement Option 1 (batch CTE) for 60-80% improvement.
+## Remaining Optimization Opportunities
 
-**Strategic (Phase 5)**: Evaluate KuzuDB migration per Gemini audit recommendation.
+1. **Validate production latency** — Run Phase D benchmarks to get real p50/p95/p99 numbers
+2. **KuzuDB sync freshness** — Ensure nightly sync after ingestion runs
+3. **Consider Option 1 (batch CTE)** as improved PostgreSQL fallback path
 
 ---
 
@@ -134,8 +129,10 @@ except TimeoutError:
 
 | File | Role |
 |------|------|
-| `packages/storage/src/research_kb_storage/graph_queries.py` | Bottleneck location |
-| `packages/storage/src/research_kb_storage/search.py:366-391` | Graph score integration |
+| `packages/storage/src/research_kb_storage/graph_queries.py` | Graph scoring + KuzuDB integration |
+| `packages/storage/src/research_kb_storage/kuzu_store.py` | KuzuDB operations (749 lines) |
+| `packages/storage/src/research_kb_storage/search.py` | Search orchestration |
+| `scripts/sync_kuzu.py` | PostgreSQL → KuzuDB sync |
 | `docs/archive/gemini_audit_report_2026-01-08.md` | Strategic recommendations |
 
 ---

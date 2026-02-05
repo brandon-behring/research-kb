@@ -162,14 +162,15 @@ research-kb enrich status                              # Show enrichment status
 contracts (pure Pydantic models)
     ↓
 common (logging, retry, instrumentation)
-    ├─→ storage (PostgreSQL + pgvector)
+    ├─→ storage (PostgreSQL + pgvector + KuzuDB)
     │     ├─→ cli
     │     ├─→ pdf-tools
     │     ├─→ extraction
     │     ├─→ api
     │     ├─→ dashboard
     │     ├─→ daemon
-    │     └─→ mcp-server
+    │     ├─→ mcp-server
+    │     └─→ client
     ├─→ pdf-tools
     ├─→ extraction
     └─→ s2-client
@@ -190,12 +191,24 @@ common (logging, retry, instrumentation)
 | **s2-client** | Semantic Scholar API client with rate limiting and caching |
 | **daemon** | Low-latency query service via Unix socket (JSON-RPC 2.0) |
 | **mcp-server** | Model Context Protocol server for Claude Code integration |
+| **client** | DaemonClient SDK (JSON-RPC 2.0) with CLI fallback |
 
 ### Database Schema
 
 **Core tables:** `sources`, `chunks`, `citations`
 **Knowledge graph:** `concepts`, `concept_relationships`, `chunk_concepts`, `methods`, `assumptions`
 **Assumption auditing:** `method_assumption_cache`, `method_aliases` (Phase 4.1)
+
+### KuzuDB Graph Engine
+
+KuzuDB serves as the primary graph traversal engine, with PostgreSQL recursive CTEs as fallback:
+
+- **Data**: `~/.research_kb/kuzu/research_kb.kuzu` (~110MB, mirrors PostgreSQL concepts/relationships)
+- **Sync**: `python scripts/sync_kuzu.py` (run after ingestion/extraction)
+- **Performance**: ~150ms batch scoring vs ~96s PostgreSQL CTEs
+- **Fallback**: 2-second timeout on PostgreSQL path (`GRAPH_SCORE_TIMEOUT = 2.0`)
+- **Code**: `packages/storage/src/research_kb_storage/kuzu_store.py` (749 lines)
+- **Integration**: `graph_queries.py` tries KuzuDB first, PostgreSQL on failure
 
 Key enums:
 - `ConceptType`: METHOD, ASSUMPTION, PROBLEM, DEFINITION, THEOREM, CONCEPT, PRINCIPLE, TECHNIQUE, MODEL

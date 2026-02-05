@@ -53,7 +53,7 @@ Tracking progress on audit remediation (Jan 2026).
 
 **Goal**: Profile full-signal query latency and document findings.
 
-**Findings** (see `docs/design/latency_analysis.md`):
+**Pre-KuzuDB Findings** (see `docs/design/latency_analysis.md`):
 
 | Configuration | Latency |
 |--------------|---------|
@@ -63,12 +63,13 @@ Tracking progress on audit remediation (Jan 2026).
 | Full (all signals) | **94.5s** |
 
 **Root cause**: O(N×M) recursive CTE queries in `compute_weighted_graph_score()`.
-Each (query_concept, chunk_concept) pair runs 2 recursive CTEs.
 
-**Recommended optimizations** (future phases):
-1. Timeout fallback (quick fix)
-2. Batch CTE queries (60-80% improvement)
-3. KuzuDB migration (strategic, 99%+ improvement)
+**Mitigations implemented**:
+1. ✅ Timeout fallback: `GRAPH_SCORE_TIMEOUT = 2.0s` (`graph_queries.py:50`)
+2. ✅ KuzuDB migration: Primary graph engine (~150ms batch scoring, `graph_queries.py:984`)
+3. PostgreSQL CTEs retained as fallback only, capped at 2s
+
+**Remaining**: Run Phase D production benchmarks to validate latency improvements.
 
 ## Phase 4.3: ProactiveContext Integration (📋 Planned)
 

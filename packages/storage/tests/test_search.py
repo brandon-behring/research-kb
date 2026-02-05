@@ -1,4 +1,4 @@
-"""Tests for hybrid search (FTS + vector similarity)."""
+"""Tests for hybrid search (FTS + vector similarity + graph + citation + RRF)."""
 
 import pytest
 
@@ -12,6 +12,10 @@ from research_kb_storage import (
     get_connection_pool,
     close_connection_pool,
     search_hybrid,
+)
+from research_kb_storage.search import (
+    compute_rrf_score,
+    _compute_ranks_by_signal,
 )
 
 
@@ -268,3 +272,164 @@ class TestSearchErrors:
         # Restore good connection for other tests
         good_config = DatabaseConfig()
         await get_connection_pool(good_config)
+
+
+class TestRRFScoring:
+    """Test Reciprocal Rank Fusion score computation."""
+
+    def test_rrf_single_signal(self):
+        """Test RRF with one signal, rank 1."""
+        score = compute_rrf_score({"fts": 1})
+        # 1 / (60 + 1) = 0.016393...
+        assert score == pytest.approx(1.0 / 61, rel=1e-5)
+
+    def test_rrf_two_signals_rank_1(self):
+        """Test RRF with two signals both rank 1."""
+        score = compute_rrf_score({"fts": 1, "vector": 1})
+        # 2 * (1 / 61) = 0.032786...
+        assert score == pytest.approx(2.0 / 61, rel=1e-5)
+
+    def test_rrf_four_signals_all_rank_1(self):
+        """Test theoretical max with all signals rank 1."""
+        score = compute_rrf_score({"fts": 1, "vector": 1, "graph": 1, "citation": 1})
+        assert score == pytest.approx(4.0 / 61, rel=1e-5)
+
+    def test_rrf_higher_rank_lower_score(self):
+        """Test that higher rank produces lower contribution."""
+        score_rank1 = compute_rrf_score({"fts": 1})
+        score_rank10 = compute_rrf_score({"fts": 10})
+        assert score_rank1 > score_rank10
+
+    def test_rrf_mixed_ranks(self):
+        """Test RRF with diverse ranks."""
+        score = compute_rrf_score({"fts": 3, "vector": 1, "graph": 5})
+        # 1/63 + 1/61 + 1/65
+        expected = 1.0 / 63 + 1.0 / 61 + 1.0 / 65
+        assert score == pytest.approx(expected, rel=1e-5)
+
+    def test_rrf_empty_rankings(self):
+        """Test RRF with no signals returns 0."""
+        assert compute_rrf_score({}) == 0.0
+
+    def test_rrf_none_rank_skipped(self):
+        """Test that None ranks are skipped."""
+        score = compute_rrf_score({"fts": 1, "vector": None})
+        assert score == pytest.approx(1.0 / 61, rel=1e-5)
+
+    def test_rrf_custom_k(self):
+        """Test RRF with non-default k parameter."""
+        # k=0: 1/(0+1) = 1.0 for rank 1
+        score = compute_rrf_score({"fts": 1}, k=0)
+        assert score == pytest.approx(1.0, rel=1e-5)
+
+    def test_rrf_large_k_diminishes_all(self):
+        """Test that very large k diminishes all contributions."""
+        score = compute_rrf_score({"fts": 1, "vector": 1}, k=10000)
+        # Each contribution is ~1/10001, very small
+        assert score < 0.001
+
+
+class TestSearchQueryGraphCitation:
+    """Test SearchQuery with graph and citation parameters."""
+
+    def test_graph_enabled_weights_normalized(self):
+        """Test that enabling graph normalizes all 3 weights."""
+        query = SearchQuery(
+            text="test",
+            fts_weight=0.3,
+            vector_weight=0.5,
+            graph_weight=0.2,
+            use_graph=True,
+        )
+        total = query.fts_weight + query.vector_weight + query.graph_weight
+        assert abs(total - 1.0) < 0.001
+
+    def test_citation_enabled_weights_normalized(self):
+        """Test that enabling citations normalizes all 3 weights."""
+        query = SearchQuery(
+            text="test",
+            fts_weight=0.3,
+            vector_weight=0.5,
+            citation_weight=0.2,
+            use_citations=True,
+        )
+        total = query.fts_weight + query.vector_weight + query.citation_weight
+        assert abs(total - 1.0) < 0.001
+
+    def test_four_way_weights_normalized(self):
+        """Test full 4-way weight normalization."""
+        query = SearchQuery(
+            text="test",
+            embedding=[0.1] * 1024,
+            fts_weight=0.2,
+            vector_weight=0.4,
+            graph_weight=0.2,
+            citation_weight=0.2,
+            use_graph=True,
+            use_citations=True,
+        )
+        total = (
+            query.fts_weight
+            + query.vector_weight
+            + query.graph_weight
+            + query.citation_weight
+        )
+        assert abs(total - 1.0) < 0.001
+
+    def test_graph_disabled_weight_not_normalized(self):
+        """Test that graph weight is NOT included in normalization when use_graph=False."""
+        query = SearchQuery(
+            text="test",
+            fts_weight=0.3,
+            vector_weight=0.7,
+            graph_weight=0.5,  # This should be ignored in normalization
+            use_graph=False,
+        )
+        # Only fts + vector normalized
+        assert abs(query.fts_weight + query.vector_weight - 1.0) < 0.001
+
+    def test_scoring_method_rrf(self):
+        """Test RRF scoring method accepted."""
+        query = SearchQuery(text="test", scoring_method="rrf")
+        assert query.scoring_method == "rrf"
+
+    def test_scoring_method_weighted(self):
+        """Test default weighted scoring method."""
+        query = SearchQuery(text="test")
+        assert query.scoring_method == "weighted"
+
+    def test_scoring_method_invalid_rejected(self):
+        """Test invalid scoring method rejected."""
+        with pytest.raises(ValueError, match="scoring_method"):
+            SearchQuery(text="test", scoring_method="unknown")
+
+    def test_max_hops_default(self):
+        """Test default max_hops is 2."""
+        query = SearchQuery(text="test")
+        assert query.max_hops == 2
+
+    def test_domain_id_filter(self):
+        """Test domain_id parameter accepted."""
+        query = SearchQuery(text="test", domain_id="causal_inference")
+        assert query.domain_id == "causal_inference"
+
+    def test_source_filter_parameter(self):
+        """Test source_filter parameter accepted."""
+        query = SearchQuery(text="test", source_filter="paper")
+        assert query.source_filter == "paper"
+
+
+class TestSearchHybridV2Validation:
+    """Test search_hybrid_v2 input validation (no DB needed)."""
+
+    async def test_v2_requires_graph_or_citations(self, db_pool):
+        """Test search_hybrid_v2 rejects query without graph or citations."""
+        from research_kb_storage.search import search_hybrid_v2
+
+        query = SearchQuery(
+            text="test",
+            use_graph=False,
+            use_citations=False,
+        )
+        with pytest.raises(ValueError, match="use_graph"):
+            await search_hybrid_v2(query)
