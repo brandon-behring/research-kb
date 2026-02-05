@@ -26,9 +26,11 @@ import signal
 import sys
 from typing import Any, Optional
 
+from prometheus_client import start_http_server as start_prometheus_server
 from research_kb_common import get_logger
 
 from research_kb_daemon.handler import dispatch
+from research_kb_daemon.metrics import ACTIVE_CONNECTIONS
 from research_kb_daemon.pool import init_pool, close_pool
 
 logger = get_logger(__name__)
@@ -185,6 +187,7 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
         return
 
     _active_connections += 1
+    ACTIVE_CONNECTIONS.set(_active_connections)
     logger.debug("connection_opened", active=_active_connections)
 
     try:
@@ -211,6 +214,7 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
 
     finally:
         _active_connections -= 1
+        ACTIVE_CONNECTIONS.set(_active_connections)
         _connection_semaphore.release()
         logger.debug("connection_closed", active=_active_connections)
         writer.close()
@@ -232,6 +236,15 @@ async def run_server(socket_path: str) -> None:
         max_connections=MAX_CONCURRENT_CONNECTIONS,
         timeout=CONNECTION_TIMEOUT,
     )
+
+    # Start Prometheus metrics HTTP server on port 9001
+    # Scraped by Prometheus (monitoring/prometheus/prometheus.yml)
+    try:
+        start_prometheus_server(9001)
+        logger.info("prometheus_metrics_started", port=9001)
+    except OSError as e:
+        # Port already in use — non-fatal, log and continue
+        logger.warning("prometheus_metrics_port_busy", port=9001, error=str(e))
 
     # Remove existing socket
     if os.path.exists(socket_path):

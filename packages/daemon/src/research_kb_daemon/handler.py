@@ -15,6 +15,12 @@ from uuid import UUID
 
 from research_kb_common import get_logger
 from research_kb_contracts import SearchResult
+from research_kb_daemon.metrics import (
+    ACTIVE_CONNECTIONS,
+    DAEMON_UPTIME,
+    REQUEST_COUNT,
+    REQUEST_DURATION,
+)
 from research_kb_storage import (
     SearchQuery,
     search_hybrid,
@@ -477,7 +483,12 @@ METHODS = {
 
 
 async def dispatch(method: str, params: Optional[dict[str, Any]] = None) -> Any:
-    """Dispatch JSON-RPC method call.
+    """Dispatch JSON-RPC method call with Prometheus instrumentation.
+
+    Records:
+    - Request count by method and status (success/error)
+    - Request duration histogram by method and status
+    - Daemon uptime gauge
 
     Args:
         method: Method name
@@ -491,6 +502,21 @@ async def dispatch(method: str, params: Optional[dict[str, Any]] = None) -> Any:
     """
     handler = METHODS.get(method)
     if handler is None:
+        REQUEST_COUNT.labels(method=method, status="not_found").inc()
         raise ValueError(f"Method not found: {method}")
 
-    return await handler(params or {})
+    # Update uptime gauge on every request
+    DAEMON_UPTIME.set(time.time() - _start_time)
+
+    start = time.monotonic()
+    try:
+        result = await handler(params or {})
+        duration = time.monotonic() - start
+        REQUEST_DURATION.labels(method=method, status="success").observe(duration)
+        REQUEST_COUNT.labels(method=method, status="success").inc()
+        return result
+    except Exception:
+        duration = time.monotonic() - start
+        REQUEST_DURATION.labels(method=method, status="error").observe(duration)
+        REQUEST_COUNT.labels(method=method, status="error").inc()
+        raise

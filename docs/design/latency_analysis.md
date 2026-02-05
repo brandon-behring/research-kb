@@ -25,18 +25,28 @@
 | + Graph only | **96.6s** | +85.8s |
 | Full (all signals) | **94.5s** | +83.7s |
 
-### Post-KuzuDB Architecture (Current)
+### Post-KuzuDB Architecture — Measured (Phase D, 2026-02-05)
 
-| Component | Expected Latency | Source |
-|-----------|-----------------|--------|
-| KuzuDB batch graph scoring | ~129-150ms | `graph_queries.py:762` comment |
-| KuzuDB path finding | ~74ms | `graph_queries.py:194` comment |
-| KuzuDB neighborhood | ~20ms | `graph_queries.py:469` comment |
-| PostgreSQL fallback (timeout) | max 2.0s | `GRAPH_SCORE_TIMEOUT` at line 50 |
+**Corpus**: 439 sources, 170K chunks, 284K concepts, 726K relationships
 
-**Note**: These are code-documented estimates from development. Run Phase D benchmarking for validated production numbers.
+| Operation | p50 | p95 | Notes |
+|-----------|-----|-----|-------|
+| Health check (baseline) | 20ms | 22ms | Socket round-trip + DB ping |
+| `fast_search` (vector-only) | 208ms | 212ms | ~150ms embed + ~30ms pgvector |
+| Hybrid search (FTS + vector) | 3.4s | 3.4s | Normalization overhead dominates |
+| Graph path (KuzuDB) | 3.1s | 5.8s | Concept resolution (ILIKE) adds variance; warm cache ~1.7s |
+| Graph-boosted search (warm) | **2.1s** | — | After first query warms KuzuDB |
+| Graph-boosted search (cold) | **60s** | 60s | First query after daemon restart; primary optimization target |
 
-**Key finding**: KuzuDB migration (Option 3 from original analysis) was implemented, reducing graph signal from the sole bottleneck to a minor contributor.
+**Source**: `fixtures/benchmarks/graph_latency_2026-02-05.json`
+
+### Key Findings
+
+1. **`fast_search` meets target**: 208ms p50 vs 500ms target — 2.4x margin
+2. **Hybrid search bottleneck**: 3.4s is dominated by FTS+vector normalization, not graph
+3. **Graph-boosted cold start**: 60s first query is the main pain point — KuzuDB graph scoring across 170K chunks needs warm cache
+4. **Warm graph queries**: 2.1s when KuzuDB cache is hot — within acceptable range for interactive use
+5. **Graph path variance**: Concept resolution via ILIKE adds 1-4s overhead; indexed exact-match lookups would help
 
 ---
 
@@ -119,9 +129,12 @@ Query → KuzuDB batch scoring (~150ms)
 
 ## Remaining Optimization Opportunities
 
-1. **Validate production latency** — Run Phase D benchmarks to get real p50/p95/p99 numbers
-2. **KuzuDB sync freshness** — Ensure nightly sync after ingestion runs
-3. **Consider Option 1 (batch CTE)** as improved PostgreSQL fallback path
+1. ~~**Validate production latency**~~ — DONE (Phase D, 2026-02-05). See table above.
+2. **KuzuDB sync freshness** — Nightly sync timer installed (`scripts/systemd/research-kb-sync.timer`)
+3. **Cold-start optimization** — Pre-warm KuzuDB cache on daemon start by running a dummy graph query
+4. **Concept resolution** — Add index on `concepts.canonical_name` for faster ILIKE resolution
+5. **Normalization overhead** — Profile the 3.4s hybrid search to identify FTS/vector normalization bottleneck
+6. **Prometheus observability** — `daemon_request_duration_seconds` histogram now tracks per-method latency
 
 ---
 

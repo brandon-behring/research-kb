@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-02-05T18:40:00",
+  "socket_path": "/tmp/research_kb_daemon_$USER.sock",
+  "notes": "Manual benchmarks via nc. Automated script caused daemon restart cascade on graph-boosted queries (sequential requests after OOM). Graph-boosted search with 170K chunks + 284K concepts is CPU-bound.",
+  "environment": {
+    "platform": "Linux 6.17.0 / AMD Threadripper",
+    "corpus": "439 sources, 170K chunks, 284K concepts, 726K relationships",
+    "kuzu_db_size_mb": 110,
+    "embed_model": "BAAI/bge-large-en-v1.5 (CPU)",
+    "rerank_model": "BAAI/bge-reranker-v2-m3 (CUDA)"
+  },
+  "results": {
+    "health_check": {
+      "description": "Health check (baseline)",
+      "method": "health",
+      "runs": 3,
+      "errors": 0,
+      "p50_ms": 20,
+      "p95_ms": 22,
+      "p99_ms": 22,
+      "min_ms": 18,
+      "max_ms": 22,
+      "mean_ms": 20,
+      "stddev_ms": 2,
+      "raw_ms": [22, 20, 18]
+    },
+    "fast_search_terse": {
+      "description": "Vector-only search (terse query: 'IV')",
+      "method": "fast_search",
+      "runs": 3,
+      "errors": 0,
+      "p50_ms": 208,
+      "p95_ms": 212,
+      "p99_ms": 212,
+      "min_ms": 205,
+      "max_ms": 212,
+      "mean_ms": 208,
+      "stddev_ms": 4,
+      "raw_ms": [208, 205, 212]
+    },
+    "hybrid_search_no_graph": {
+      "description": "Hybrid search without graph ('instrumental variables')",
+      "method": "search",
+      "runs": 3,
+      "errors": 0,
+      "p50_ms": 3436,
+      "p95_ms": 3443,
+      "p99_ms": 3443,
+      "min_ms": 3340,
+      "max_ms": 3443,
+      "mean_ms": 3406,
+      "stddev_ms": 58,
+      "raw_ms": [3443, 3436, 3340]
+    },
+    "graph_path": {
+      "description": "Graph path finding (IV → endogeneity, KuzuDB)",
+      "method": "graph_path",
+      "runs": 3,
+      "errors": 0,
+      "p50_ms": 3085,
+      "p95_ms": 5781,
+      "p99_ms": 5781,
+      "min_ms": 1694,
+      "max_ms": 5781,
+      "mean_ms": 3520,
+      "stddev_ms": 2058,
+      "raw_ms": [3085, 5781, 1694],
+      "notes": "High variance due to concept resolution overhead (ILIKE queries). Warm cache ~1.7s."
+    },
+    "graph_boosted_search": {
+      "description": "Graph-boosted search ('propensity score matching')",
+      "method": "search",
+      "runs": 3,
+      "errors": 0,
+      "p50_ms": 60067,
+      "p95_ms": 60067,
+      "p99_ms": 60067,
+      "min_ms": 2057,
+      "max_ms": 60067,
+      "mean_ms": 40730,
+      "stddev_ms": 33448,
+      "raw_ms": [60067, 60067, 2057],
+      "notes": "Cold start (first query after daemon restart) triggers heavy graph scoring across 170K chunks. Warm third run only 2s. This is the primary optimization target."
+    }
+  }
+}

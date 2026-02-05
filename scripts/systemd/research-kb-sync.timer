@@ -1,0 +1,14 @@
+[Unit]
+Description=Nightly KuzuDB Sync for Research-KB
+Documentation=https://github.com/brandon-behring/research-kb
+
+[Timer]
+# Run at 3am daily
+OnCalendar=*-*-* 03:00:00
+# Randomize start within 15 minutes to avoid thundering herd
+RandomizedDelaySec=900
+# Run immediately if last run was missed (e.g., machine was off)
+Persistent=true
+
+[Install]
+WantedBy=timers.target

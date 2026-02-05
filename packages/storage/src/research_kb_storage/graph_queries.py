@@ -17,12 +17,21 @@ Master Plan Reference: Lines 616-673 (Phase 2 knowledge graph)
 
 import asyncio
 import json
+import time
 from typing import Optional
 from uuid import UUID
 
 from pgvector.asyncpg import register_vector
 from research_kb_common import StorageError, get_logger
 from research_kb_contracts import Concept, ConceptRelationship, RelationshipType
+
+# Optional Prometheus metrics — only available when daemon is running
+try:
+    from research_kb_daemon.metrics import GRAPH_ENGINE_SELECTION, GRAPH_QUERY_DURATION
+
+    _HAS_DAEMON_METRICS = True
+except ImportError:
+    _HAS_DAEMON_METRICS = False
 
 from research_kb_storage.connection import get_connection_pool
 from research_kb_storage.concept_store import _row_to_concept
@@ -984,11 +993,18 @@ async def compute_weighted_graph_score(
     # Try KuzuDB for fast scoring (~150ms vs ~96s PostgreSQL)
     if _check_kuzu_ready():
         try:
+            _kuzu_start = time.monotonic()
             score, explanations = await kuzu_compute_weighted_score(
                 query_concept_ids,
                 chunk_concept_ids,
                 max_hops,
             )
+            _kuzu_duration = time.monotonic() - _kuzu_start
+
+            # Record Prometheus metrics if available (daemon context)
+            if _HAS_DAEMON_METRICS:
+                GRAPH_QUERY_DURATION.labels(engine="kuzu").observe(_kuzu_duration)
+                GRAPH_ENGINE_SELECTION.labels(engine="kuzu").inc()
 
             # Apply mention weights as post-processing if provided
             # This is an approximation - the full mention weighting requires
@@ -1012,10 +1028,16 @@ async def compute_weighted_graph_score(
             return score, explanations
         except Exception as e:
             logger.warning("kuzu_weighted_score_fallback", error=str(e))
+            if _HAS_DAEMON_METRICS:
+                GRAPH_ENGINE_SELECTION.labels(engine="kuzu_fallback").inc()
             # Fall through to PostgreSQL
 
     # Fallback: PostgreSQL with individual path queries (slow O(N×M) CTEs)
     # Protected by timeout to prevent hangs when KuzuDB is unavailable
+    if _HAS_DAEMON_METRICS:
+        GRAPH_ENGINE_SELECTION.labels(engine="postgres_fallback").inc()
+    _pg_start = time.monotonic()
+
     total_score = 0.0
     max_pairs = len(query_concept_ids) * len(chunk_concept_ids)
     path_scores: list[tuple[float, str]] = []
@@ -1058,6 +1080,12 @@ async def compute_weighted_graph_score(
                         explanation = explain_path(path)
                         path_scores.append((score_contribution, explanation))
 
+        # Record PostgreSQL fallback duration
+        if _HAS_DAEMON_METRICS:
+            GRAPH_QUERY_DURATION.labels(engine="postgres_fallback").observe(
+                time.monotonic() - _pg_start
+            )
+
         # Normalize score
         normalized_score = min(total_score / max_pairs, 1.0) if max_pairs > 0 else 0.0
 
@@ -1068,6 +1096,8 @@ async def compute_weighted_graph_score(
         return normalized_score, top_explanations
 
     except asyncio.TimeoutError:
+        if _HAS_DAEMON_METRICS:
+            GRAPH_QUERY_DURATION.labels(engine="postgres_fallback").observe(GRAPH_SCORE_TIMEOUT)
         logger.warning(
             "weighted_graph_score_timeout",
             timeout=GRAPH_SCORE_TIMEOUT,
@@ -1077,6 +1107,10 @@ async def compute_weighted_graph_score(
         # Return 0.0 on timeout (fall back to non-graph search)
         return 0.0, []
     except Exception as e:
+        if _HAS_DAEMON_METRICS:
+            GRAPH_QUERY_DURATION.labels(engine="postgres_fallback").observe(
+                time.monotonic() - _pg_start
+            )
         logger.error("weighted_graph_score_failed", error=str(e))
         return 0.0, []
 
