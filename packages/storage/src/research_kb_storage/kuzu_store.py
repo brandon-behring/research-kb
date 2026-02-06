@@ -31,9 +31,16 @@ logger = get_logger(__name__)
 # Default database path (file, not directory - KuzuDB 0.11+ requirement)
 DEFAULT_KUZU_PATH = Path.home() / ".research_kb" / "kuzu" / "research_kb.kuzu"
 
-# Singleton connection (thread-safe per KuzuDB docs)
+# Singleton connection — NOT thread-safe despite earlier comment.
+# Multiple asyncio.to_thread calls can hit the same connection concurrently,
+# causing undefined behavior and OOM under load.
 _db: Optional[kuzu.Database] = None
 _conn: Optional[kuzu.Connection] = None
+
+# Serialize all KuzuDB access through this lock.
+# Prevents concurrent asyncio.to_thread(conn.execute, ...) calls from
+# hitting the singleton connection simultaneously.
+_kuzu_lock: asyncio.Lock = asyncio.Lock()
 
 
 # Relationship type weights (mirrored from graph_queries.py)
@@ -180,19 +187,20 @@ async def find_shortest_path_kuzu(
     conn = get_kuzu_connection()
 
     try:
-        # Use KuzuDB's SHORTEST path pattern for optimal BFS
-        # The SHORTEST keyword enables optimized shortest path algorithm
-        # Use bidirectional edge pattern (-) for undirected traversal
-        result = await asyncio.to_thread(
-            conn.execute,
-            f"""
-            MATCH p = (a:Concept)-[r:RELATES* SHORTEST 1..{max_hops}]-(b:Concept)
-            WHERE a.id = $start_id AND b.id = $end_id
-            RETURN nodes(p) AS nodes, rels(p) AS rels, length(p) AS path_len
-            LIMIT 1
-            """,
-            {"start_id": str(start_id), "end_id": str(end_id)},
-        )
+        async with _kuzu_lock:
+            # Use KuzuDB's SHORTEST path pattern for optimal BFS
+            # The SHORTEST keyword enables optimized shortest path algorithm
+            # Use bidirectional edge pattern (-) for undirected traversal
+            result = await asyncio.to_thread(
+                conn.execute,
+                f"""
+                MATCH p = (a:Concept)-[r:RELATES* SHORTEST 1..{max_hops}]-(b:Concept)
+                WHERE a.id = $start_id AND b.id = $end_id
+                RETURN nodes(p) AS nodes, rels(p) AS rels, length(p) AS path_len
+                LIMIT 1
+                """,
+                {"start_id": str(start_id), "end_id": str(end_id)},
+            )
 
         df = result.get_as_df()
         if df.empty:
@@ -248,17 +256,18 @@ async def find_shortest_path_length_kuzu(
     conn = get_kuzu_connection()
 
     try:
-        # Use bidirectional edge pattern for undirected traversal
-        result = await asyncio.to_thread(
-            conn.execute,
-            f"""
-            MATCH p = (a:Concept)-[r:RELATES* SHORTEST 1..{max_hops}]-(b:Concept)
-            WHERE a.id = $start_id AND b.id = $end_id
-            RETURN length(p) AS path_len
-            LIMIT 1
-            """,
-            {"start_id": str(start_id), "end_id": str(end_id)},
-        )
+        async with _kuzu_lock:
+            # Use bidirectional edge pattern for undirected traversal
+            result = await asyncio.to_thread(
+                conn.execute,
+                f"""
+                MATCH p = (a:Concept)-[r:RELATES* SHORTEST 1..{max_hops}]-(b:Concept)
+                WHERE a.id = $start_id AND b.id = $end_id
+                RETURN length(p) AS path_len
+                LIMIT 1
+                """,
+                {"start_id": str(start_id), "end_id": str(end_id)},
+            )
 
         df = result.get_as_df()
         if df.empty:
@@ -302,22 +311,23 @@ async def get_neighborhood_kuzu(
         if relationship_type:
             rel_filter = f"AND r.relationship_type = '{relationship_type}'"
 
-        # Get neighbors within N hops
-        result = await asyncio.to_thread(
-            conn.execute,
-            f"""
-            MATCH (center:Concept)-[r:RELATES*1..{hops}]-(neighbor:Concept)
-            WHERE center.id = $concept_id
-              AND neighbor.id <> $concept_id
-              {rel_filter}
-            RETURN DISTINCT
-                neighbor.id AS neighbor_id,
-                neighbor.name AS name,
-                neighbor.canonical_name AS canonical_name,
-                neighbor.concept_type AS concept_type
-            """,
-            {"concept_id": str(concept_id)},
-        )
+        async with _kuzu_lock:
+            # Get neighbors within N hops
+            result = await asyncio.to_thread(
+                conn.execute,
+                f"""
+                MATCH (center:Concept)-[r:RELATES*1..{hops}]-(neighbor:Concept)
+                WHERE center.id = $concept_id
+                  AND neighbor.id <> $concept_id
+                  {rel_filter}
+                RETURN DISTINCT
+                    neighbor.id AS neighbor_id,
+                    neighbor.name AS name,
+                    neighbor.canonical_name AS canonical_name,
+                    neighbor.concept_type AS concept_type
+                """,
+                {"concept_id": str(concept_id)},
+            )
 
         df = result.get_as_df()
         neighbors = df.to_dict("records") if not df.empty else []
@@ -326,21 +336,22 @@ async def get_neighborhood_kuzu(
         neighbor_ids = [n["neighbor_id"] for n in neighbors]
         all_ids = [str(concept_id)] + neighbor_ids
 
-        # Get edges within the neighborhood
-        rel_result = await asyncio.to_thread(
-            conn.execute,
-            f"""
-            MATCH (a:Concept)-[r:RELATES]->(b:Concept)
-            WHERE a.id IN $all_ids AND b.id IN $all_ids
-              {rel_filter.replace('r.', 'r.')}
-            RETURN
-                a.id AS source_id,
-                b.id AS target_id,
-                r.relationship_type AS relationship_type,
-                r.strength AS strength
-            """,
-            {"all_ids": all_ids},
-        )
+        async with _kuzu_lock:
+            # Get edges within the neighborhood
+            rel_result = await asyncio.to_thread(
+                conn.execute,
+                f"""
+                MATCH (a:Concept)-[r:RELATES]->(b:Concept)
+                WHERE a.id IN $all_ids AND b.id IN $all_ids
+                  {rel_filter.replace('r.', 'r.')}
+                RETURN
+                    a.id AS source_id,
+                    b.id AS target_id,
+                    r.relationship_type AS relationship_type,
+                    r.strength AS strength
+                """,
+                {"all_ids": all_ids},
+            )
 
         rel_df = rel_result.get_as_df()
         relationships = rel_df.to_dict("records") if not rel_df.empty else []
@@ -400,20 +411,21 @@ async def compute_batch_graph_scores(
         # Using SHORTEST pattern for optimal performance
         query_ids_str = [str(qid) for qid in query_concept_ids]
 
-        # Use bidirectional edge pattern for undirected traversal
-        result = await asyncio.to_thread(
-            conn.execute,
-            f"""
-            MATCH p = (q:Concept)-[r:RELATES* SHORTEST 1..{max_hops}]-(c:Concept)
-            WHERE q.id IN $query_ids AND c.id IN $chunk_ids
-            RETURN
-                q.id AS query_id,
-                c.id AS chunk_id,
-                length(p) AS shortest_len,
-                rels(p) AS path_rels
-            """,
-            {"query_ids": query_ids_str, "chunk_ids": list(all_chunk_ids)},
-        )
+        async with _kuzu_lock:
+            # Use bidirectional edge pattern for undirected traversal
+            result = await asyncio.to_thread(
+                conn.execute,
+                f"""
+                MATCH p = (q:Concept)-[r:RELATES* SHORTEST 1..{max_hops}]-(c:Concept)
+                WHERE q.id IN $query_ids AND c.id IN $chunk_ids
+                RETURN
+                    q.id AS query_id,
+                    c.id AS chunk_id,
+                    length(p) AS shortest_len,
+                    rels(p) AS path_rels
+                """,
+                {"query_ids": query_ids_str, "chunk_ids": list(all_chunk_ids)},
+            )
 
         df = result.get_as_df()
 
@@ -490,24 +502,25 @@ async def compute_single_graph_score(
         query_ids_str = [str(qid) for qid in query_concept_ids]
         chunk_ids_str = [str(cid) for cid in chunk_concept_ids]
 
-        # Get shortest paths with relationship details using SHORTEST pattern
-        # Note: KuzuDB doesn't support list comprehensions in Cypher, so we fetch
-        # raw nodes/rels and process in Python
-        # Use bidirectional edge pattern for undirected traversal
-        result = await asyncio.to_thread(
-            conn.execute,
-            f"""
-            MATCH p = (q:Concept)-[r:RELATES* SHORTEST 1..{max_hops}]-(c:Concept)
-            WHERE q.id IN $query_ids AND c.id IN $chunk_ids
-            RETURN
-                q.id AS query_id,
-                c.id AS chunk_id,
-                length(p) AS path_len,
-                nodes(p) AS path_nodes,
-                rels(p) AS path_rels
-            """,
-            {"query_ids": query_ids_str, "chunk_ids": chunk_ids_str},
-        )
+        async with _kuzu_lock:
+            # Get shortest paths with relationship details using SHORTEST pattern
+            # Note: KuzuDB doesn't support list comprehensions in Cypher, so we fetch
+            # raw nodes/rels and process in Python
+            # Use bidirectional edge pattern for undirected traversal
+            result = await asyncio.to_thread(
+                conn.execute,
+                f"""
+                MATCH p = (q:Concept)-[r:RELATES* SHORTEST 1..{max_hops}]-(c:Concept)
+                WHERE q.id IN $query_ids AND c.id IN $chunk_ids
+                RETURN
+                    q.id AS query_id,
+                    c.id AS chunk_id,
+                    length(p) AS path_len,
+                    nodes(p) AS path_nodes,
+                    rels(p) AS path_rels
+                """,
+                {"query_ids": query_ids_str, "chunk_ids": chunk_ids_str},
+            )
 
         df = result.get_as_df()
 
@@ -575,17 +588,18 @@ async def clear_all_data() -> int:
     conn = get_kuzu_connection()
 
     try:
-        # Get count first
-        count_result = await asyncio.to_thread(
-            conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt"
-        )
-        count = int(count_result.get_as_df().iloc[0]["cnt"])
+        async with _kuzu_lock:
+            # Get count first
+            count_result = await asyncio.to_thread(
+                conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt"
+            )
+            count = int(count_result.get_as_df().iloc[0]["cnt"])
 
-        # Delete all relationships first (required before deleting nodes)
-        await asyncio.to_thread(conn.execute, "MATCH ()-[r:RELATES]->() DELETE r")
+            # Delete all relationships first (required before deleting nodes)
+            await asyncio.to_thread(conn.execute, "MATCH ()-[r:RELATES]->() DELETE r")
 
-        # Delete all concepts
-        await asyncio.to_thread(conn.execute, "MATCH (c:Concept) DELETE c")
+            # Delete all concepts
+            await asyncio.to_thread(conn.execute, "MATCH (c:Concept) DELETE c")
 
         logger.info("kuzu_data_cleared", concepts_deleted=count)
         return count
@@ -604,27 +618,28 @@ async def get_stats() -> dict:
     conn = get_kuzu_connection()
 
     try:
-        # Concept count
-        c_result = await asyncio.to_thread(
-            conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt"
-        )
-        concept_count = int(c_result.get_as_df().iloc[0]["cnt"])
+        async with _kuzu_lock:
+            # Concept count
+            c_result = await asyncio.to_thread(
+                conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt"
+            )
+            concept_count = int(c_result.get_as_df().iloc[0]["cnt"])
 
-        # Relationship count
-        r_result = await asyncio.to_thread(
-            conn.execute, "MATCH ()-[r:RELATES]->() RETURN count(r) AS cnt"
-        )
-        rel_count = int(r_result.get_as_df().iloc[0]["cnt"])
+            # Relationship count
+            r_result = await asyncio.to_thread(
+                conn.execute, "MATCH ()-[r:RELATES]->() RETURN count(r) AS cnt"
+            )
+            rel_count = int(r_result.get_as_df().iloc[0]["cnt"])
 
-        # Relationship type distribution
-        type_result = await asyncio.to_thread(
-            conn.execute,
-            """
-            MATCH ()-[r:RELATES]->()
-            RETURN r.relationship_type AS type, count(*) AS cnt
-            ORDER BY cnt DESC
-            """,
-        )
+            # Relationship type distribution
+            type_result = await asyncio.to_thread(
+                conn.execute,
+                """
+                MATCH ()-[r:RELATES]->()
+                RETURN r.relationship_type AS type, count(*) AS cnt
+                ORDER BY cnt DESC
+                """,
+            )
         type_df = type_result.get_as_df()
         rel_types = dict(zip(type_df["type"], type_df["cnt"])) if not type_df.empty else {}
 
@@ -679,11 +694,12 @@ async def bulk_insert_concepts(concepts: list[dict]) -> int:
 
         logger.info("concepts_csv_written", path=csv_path, count=len(concepts))
 
-        # Use COPY FROM for bulk insert
-        await asyncio.to_thread(
-            conn.execute,
-            f"COPY Concept FROM '{csv_path}' (HEADER=false)"
-        )
+        async with _kuzu_lock:
+            # Use COPY FROM for bulk insert
+            await asyncio.to_thread(
+                conn.execute,
+                f"COPY Concept FROM '{csv_path}' (HEADER=false)"
+            )
 
         # Cleanup CSV
         os.unlink(csv_path)
@@ -732,11 +748,12 @@ async def bulk_insert_relationships(relationships: list[dict]) -> int:
 
         logger.info("relationships_csv_written", path=csv_path, count=len(relationships))
 
-        # Use COPY FROM for bulk insert
-        await asyncio.to_thread(
-            conn.execute,
-            f"COPY RELATES FROM '{csv_path}' (HEADER=false)"
-        )
+        async with _kuzu_lock:
+            # Use COPY FROM for bulk insert
+            await asyncio.to_thread(
+                conn.execute,
+                f"COPY RELATES FROM '{csv_path}' (HEADER=false)"
+            )
 
         # Cleanup CSV
         os.unlink(csv_path)

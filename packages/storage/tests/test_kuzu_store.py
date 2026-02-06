@@ -77,9 +77,11 @@ def _reset_kuzu_singleton():
     """Reset the module-level singleton before and after every test."""
     kuzu_mod._db = None
     kuzu_mod._conn = None
+    kuzu_mod._kuzu_lock = asyncio.Lock()
     yield
     kuzu_mod._db = None
     kuzu_mod._conn = None
+    kuzu_mod._kuzu_lock = asyncio.Lock()
 
 
 @pytest.fixture

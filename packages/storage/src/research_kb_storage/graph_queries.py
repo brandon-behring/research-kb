@@ -180,6 +180,43 @@ def get_mention_weight(mention_type: str | None) -> float:
     return MENTION_WEIGHTS.get(mention_type, 0.5)
 
 
+def apply_mention_weights(
+    score: float,
+    chunk_concept_ids: list[UUID],
+    chunk_mention_info: dict[UUID, tuple[str, float | None]] | None,
+) -> float:
+    """Apply mention-type weights as a post-processing multiplier on a graph score.
+
+    This is an approximation — full mention weighting requires per-path adjustment,
+    but averaging across chunk concepts gives ~95% of the benefit at 744x speed
+    improvement (batch KuzuDB vs per-result PostgreSQL CTEs).
+
+    Args:
+        score: Raw graph score (0.0–1.0) from batch or single scoring
+        chunk_concept_ids: Concept IDs in the chunk
+        chunk_mention_info: Maps concept_id -> (mention_type, relevance_score)
+
+    Returns:
+        Score adjusted by average mention weight. Returns original score if
+        no mention info provided or score is 0.
+    """
+    if not chunk_mention_info or score <= 0 or not chunk_concept_ids:
+        return score
+
+    mention_multiplier = 0.0
+    for cid in chunk_concept_ids:
+        if cid in chunk_mention_info:
+            mention_type, relevance = chunk_mention_info[cid]
+            weight = get_mention_weight(mention_type)
+            if relevance is not None:
+                weight *= relevance
+            mention_multiplier += weight
+        else:
+            mention_multiplier += 0.5  # Default weight
+    avg_mention = mention_multiplier / len(chunk_concept_ids)
+    return score * avg_mention
+
+
 def get_relationship_weight(rel_type: RelationshipType) -> float:
     """Get scoring weight for a relationship type.
 
@@ -1006,24 +1043,8 @@ async def compute_weighted_graph_score(
                 GRAPH_QUERY_DURATION.labels(engine="kuzu").observe(_kuzu_duration)
                 GRAPH_ENGINE_SELECTION.labels(engine="kuzu").inc()
 
-            # Apply mention weights as post-processing if provided
-            # This is an approximation - the full mention weighting requires
-            # per-path adjustment, but this gives 95%+ of the benefit with
-            # 744x speed improvement
-            if chunk_mention_info and score > 0:
-                mention_multiplier = 0.0
-                for cid in chunk_concept_ids:
-                    if cid in chunk_mention_info:
-                        mention_type, relevance = chunk_mention_info[cid]
-                        weight = get_mention_weight(mention_type)
-                        if relevance is not None:
-                            weight *= relevance
-                        mention_multiplier += weight
-                    else:
-                        mention_multiplier += 0.5  # Default weight
-                # Average the mention weights
-                avg_mention = mention_multiplier / len(chunk_concept_ids)
-                score = score * avg_mention
+            # Apply mention weights as post-processing
+            score = apply_mention_weights(score, chunk_concept_ids, chunk_mention_info)
 
             return score, explanations
         except Exception as e:

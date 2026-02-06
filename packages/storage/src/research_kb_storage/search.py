@@ -13,6 +13,7 @@ Score semantics:
 - rerank_score: Cross-encoder relevance (higher = better)
 """
 
+import asyncio
 import json
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
@@ -28,6 +29,12 @@ if TYPE_CHECKING:
     from research_kb_storage.query_expander import ExpandedQuery
 
 logger = get_logger(__name__)
+
+# Limit concurrent graph-boosted searches to prevent memory accumulation.
+# The daemon allows 50 concurrent connections, but each graph-boosted search
+# can trigger a large KuzuDB SHORTEST query + in-memory DataFrame processing.
+# Capping at 3 prevents OOM while still serving multiple users.
+_graph_semaphore: asyncio.Semaphore = asyncio.Semaphore(3)
 
 
 @dataclass
@@ -362,33 +369,64 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             # Use enhanced function that returns (concept_id, mention_type, relevance_score)
             chunk_concepts_info = await ChunkConceptStore.get_concept_info_for_chunks(chunk_ids)
 
-        # Step 4: Compute graph scores for each result
+        # Step 4: Compute graph scores in batch (1 KuzuDB query instead of ~20)
         if query.use_graph:
+            from research_kb_storage.graph_queries import (
+                apply_mention_weights,
+                _check_kuzu_ready,
+            )
+
+            # Build parallel lists of chunk concept IDs and mention info
+            all_chunk_concept_ids: list[list] = []
+            all_mention_infos: list[dict | None] = []
             for result in base_results:
                 chunk_info = chunk_concepts_info.get(result.chunk.id, [])
-                # Extract just concept IDs for path finding
                 chunk_concept_ids = [cid for cid, _, _ in chunk_info]
+                mention_info = {
+                    cid: (mtype, rel) for cid, mtype, rel in chunk_info
+                } if chunk_concept_ids else None
+                all_chunk_concept_ids.append(chunk_concept_ids)
+                all_mention_infos.append(mention_info)
 
-                if query_concept_ids and chunk_concept_ids:
-                    # Build mention info dict for weighted scoring
-                    # Maps concept_id -> (mention_type, relevance_score)
-                    mention_info = {
-                        cid: (mtype, rel) for cid, mtype, rel in chunk_info
-                    }
+            if query_concept_ids and any(all_chunk_concept_ids):
+                # Use batch scoring when KuzuDB is available (1 query for all results)
+                if _check_kuzu_ready():
+                    from research_kb_storage.kuzu_store import compute_batch_graph_scores
 
-                    # Compute graph score using shortest paths with relationship + mention weights
-                    graph_score, _ = await compute_weighted_graph_score(
-                        query_concept_ids,
-                        chunk_concept_ids,
-                        max_hops=query.max_hops,
-                        chunk_mention_info=mention_info,
-                    )
+                    async with _graph_semaphore:
+                        batch_scores = await compute_batch_graph_scores(
+                            query_concept_ids,
+                            all_chunk_concept_ids,
+                            max_hops=query.max_hops,
+                        )
+
+                    # Apply mention weights as post-processing per chunk
+                    for i, result in enumerate(base_results):
+                        raw_score = batch_scores[i]
+                        result.graph_score = apply_mention_weights(
+                            raw_score,
+                            all_chunk_concept_ids[i],
+                            all_mention_infos[i],
+                        )
                 else:
-                    # No concepts extracted - graph score = 0
-                    graph_score = 0.0
-
-                # Store graph score in result
-                result.graph_score = graph_score
+                    # Fallback: per-result scoring via PostgreSQL CTEs
+                    async with _graph_semaphore:
+                        for i, result in enumerate(base_results):
+                            chunk_concept_ids = all_chunk_concept_ids[i]
+                            if query_concept_ids and chunk_concept_ids:
+                                graph_score, _ = await compute_weighted_graph_score(
+                                    query_concept_ids,
+                                    chunk_concept_ids,
+                                    max_hops=query.max_hops,
+                                    chunk_mention_info=all_mention_infos[i],
+                                )
+                            else:
+                                graph_score = 0.0
+                            result.graph_score = graph_score
+            else:
+                # No query concepts or no chunk concepts — zero scores
+                for result in base_results:
+                    result.graph_score = 0.0
 
         # Step 4b: Fetch citation authority for each source (batch operation)
         source_authorities = {}
