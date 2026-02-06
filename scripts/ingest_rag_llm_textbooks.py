@@ -263,21 +263,33 @@ async def main():
         print(f"Found {len(all_pdfs)} PDFs in {textbooks_dir}")
 
     config = DatabaseConfig()
-    await get_connection_pool(config)
+    pool = await get_connection_pool(config)
 
     to_ingest = []
     already_ingested = 0
 
-    for pdf_path in all_pdfs:
-        file_hash = compute_file_hash(str(pdf_path))
-        existing = await SourceStore.get_by_file_hash(file_hash)
+    async with pool.acquire() as conn:
+        for pdf_path in all_pdfs:
+            file_hash = compute_file_hash(str(pdf_path))
+            existing = await SourceStore.get_by_file_hash(file_hash)
 
-        if existing:
-            already_ingested += 1
-            if not quiet:
-                logger.info("already_ingested", path=pdf_path.name, title=existing.title)
-        else:
-            to_ingest.append(pdf_path)
+            if existing:
+                # Check if source has chunks (previous ingestion may have failed mid-way)
+                chunk_count = await conn.fetchval(
+                    "SELECT COUNT(*) FROM chunks WHERE source_id = $1", existing.id
+                )
+                if chunk_count > 0:
+                    already_ingested += 1
+                    if not quiet:
+                        logger.info("already_ingested", path=pdf_path.name, title=existing.title)
+                else:
+                    # Source record exists but no chunks — delete and re-ingest
+                    if not quiet:
+                        logger.info("removing_empty_source", path=pdf_path.name, title=existing.title)
+                    await conn.execute("DELETE FROM sources WHERE id = $1", existing.id)
+                    to_ingest.append(pdf_path)
+            else:
+                to_ingest.append(pdf_path)
 
     if not quiet:
         print(f"Already ingested: {already_ingested}")
