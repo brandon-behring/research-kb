@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-02-06T15:20:57",
+  "daemon_available": true,
+  "total_prompts": 50,
+  "total_enriched": 50,
+  "overall_coverage_pct": 100.0,
+  "latency_p50_ms": 212.5808039927506,
+  "latency_p95_ms": 261.06225114490366,
+  "latency_p99_ms": 283.5472092439886,
+  "mean_quality": 0.8665380178805016,
+  "domains": [
+    {
+      "domain": "causal_inference",
+      "num_prompts": 10,
+      "enriched_count": 10,
+      "coverage_pct": 100.0,
+      "latency_p50_ms": 218.77834699989762,
+      "latency_p95_ms": 239.68195059642312,
+      "latency_p99_ms": 241.30318611874827,
+      "mean_quality": 0.8749655297981579
+    },
+    {
+      "domain": "time_series",
+      "num_prompts": 10,
+      "enriched_count": 10,
+      "coverage_pct": 100.0,
+      "latency_p50_ms": 200.82676949823508,
+      "latency_p95_ms": 221.80371754511725,
+      "latency_p99_ms": 223.62650590890553,
+      "mean_quality": 0.8712058753686213
+    },
+    {
+      "domain": "rag_llm",
+      "num_prompts": 10,
+      "enriched_count": 10,
+      "coverage_pct": 100.0,
+      "latency_p50_ms": 211.57648449297994,
+      "latency_p95_ms": 249.91204390244093,
+      "latency_p99_ms": 251.87138637702446,
+      "mean_quality": 0.8721059672484457
+    },
+    {
+      "domain": "interview_prep",
+      "num_prompts": 10,
+      "enriched_count": 10,
+      "coverage_pct": 100.0,
+      "latency_p50_ms": 201.86845550051657,
+      "latency_p95_ms": 237.19961504102685,
+      "latency_p99_ms": 243.13018700224347,
+      "mean_quality": 0.8462638156081667
+    },
+    {
+      "domain": "healthcare",
+      "num_prompts": 10,
+      "enriched_count": 10,
+      "coverage_pct": 100.0,
+      "latency_p50_ms": 239.15883999870857,
+      "latency_p95_ms": 283.74876620364375,
+      "latency_p99_ms": 285.56277884054,
+      "mean_quality": 0.868148901379116
+    }
+  ],
+  "exit_criteria": {
+    "latency_p50_under_500ms": {
+      "target": 500,
+      "actual": 212.5808039927506,
+      "passed": true
+    },
+    "coverage_above_80pct": {
+      "target": 80,
+      "actual": 100.0,
+      "passed": true
+    },
+    "quality_above_0.6": {
+      "target": 0.6,
+      "actual": 0.8665380178805016,
+      "passed": true
+    },
+    "fallback_graceful": {
+      "target": true,
+      "actual": true,
+      "passed": true
+    }
+  },
+  "all_passed": true
+}
