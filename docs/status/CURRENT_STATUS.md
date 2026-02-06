@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-06 12:22:42
+**Auto-generated**: 2026-02-06 15:10:54
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -11,9 +11,9 @@
 |-------|------:|
 | sources | 452 |
 | chunks | 178,215 |
-| concepts | 284,929 |
-| concept_relationships | 726,237 |
-| chunk_concepts | 1,150,389 |
+| concepts | 307,622 |
+| concept_relationships | 741,959 |
+| chunk_concepts | 1,188,215 |
 | citations | 15,869 |
 | methods | 15,505 |
 | assumptions | 9,468 |
@@ -34,7 +34,7 @@
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
 | Chunks | 178,215 | 178,215 | 100.0% |
-| Concepts | 283,714 | 284,929 | 99.6% |
+| Concepts | 283,714 | 307,622 | 92.2% |
 
 ---
 
@@ -52,15 +52,15 @@
 
 | Type | Count |
 |------|------:|
-| concept | 80,972 |
-| technique | 68,924 |
-| definition | 51,440 |
-| model | 22,588 |
-| method | 16,870 |
-| problem | 16,571 |
-| principle | 11,235 |
-| assumption | 10,633 |
-| theorem | 5,696 |
+| concept | 84,715 |
+| technique | 73,647 |
+| definition | 56,490 |
+| model | 24,365 |
+| method | 20,152 |
+| problem | 19,119 |
+| principle | 12,533 |
+| assumption | 10,891 |
+| theorem | 5,710 |
 
 ---
 
@@ -68,14 +68,14 @@
 
 | Type | Count |
 |------|------:|
-| USES | 340,344 |
-| ADDRESSES | 109,990 |
-| SPECIALIZES | 87,173 |
-| REQUIRES | 62,164 |
+| USES | 348,335 |
+| ADDRESSES | 112,799 |
+| SPECIALIZES | 89,297 |
+| REQUIRES | 63,257 |
 | RELATED_TO | 51,547 |
-| ALTERNATIVE_TO | 39,571 |
-| EXTENDS | 26,996 |
-| GENERALIZES | 8,452 |
+| ALTERNATIVE_TO | 40,567 |
+| EXTENDS | 27,550 |
+| GENERALIZES | 8,607 |
 
 ---
 
@@ -87,7 +87,7 @@ Based on database population and feature detection:
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
 | Phase 1.5: PDF Ingestion | ✅ Complete | 452 sources, 178,215 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 284,929 concepts, 726,237 relationships |
+| Phase 2: Knowledge Graph | ✅ Complete | 307,622 concepts, 741,959 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
 

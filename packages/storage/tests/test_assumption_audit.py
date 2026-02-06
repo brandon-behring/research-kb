@@ -975,3 +975,401 @@ class TestGenerateDocstringSnippet:
         result = _generate_docstring_snippet("DML", assumptions)
 
         assert result.startswith("Assumptions:")
+
+
+# =============================================================================
+# 9. TestExtractAssumptionsWithAnthropic
+# =============================================================================
+
+
+class TestExtractAssumptionsWithAnthropic:
+    """Tests for Anthropic LLM extraction (mocked API calls).
+
+    Follows the same mocking pattern as TestExtractAssumptionsWithOllama
+    but mocks the anthropic library.
+    """
+
+    async def test_successful_extraction(self):
+        """Successful Anthropic call returns parsed AssumptionDetail objects."""
+        response_json = json.dumps({
+            "assumptions": [
+                {
+                    "name": "unconfoundedness",
+                    "formal_statement": "Y(t) \\perp T | X",
+                    "plain_english": "No unmeasured confounders",
+                    "importance": "critical",
+                    "violation_consequence": "Biased causal estimates",
+                    "verification_approaches": ["DAG review", "sensitivity analysis"],
+                },
+                {
+                    "name": "overlap",
+                    "formal_statement": "0 < P(T=1|X) < 1",
+                    "plain_english": "Positive treatment probability",
+                    "importance": "critical",
+                    "violation_consequence": "Extreme weights",
+                    "verification_approaches": ["propensity score histogram"],
+                },
+                {
+                    "name": "convergence_rate",
+                    "formal_statement": "n^{-1/4} rate",
+                    "plain_english": "Nuisance estimators converge fast enough",
+                    "importance": "technical",
+                    "violation_consequence": "Biased debiased estimator",
+                    "verification_approaches": ["cross-validation"],
+                },
+            ]
+        })
+
+        mock_message = MagicMock()
+        mock_message.content = [MagicMock(text=response_json)]
+
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_message
+
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
+             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+            results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="DML",
+                definition="Double Machine Learning",
+            )
+
+        assert len(results) == 3
+        assert results[0].name == "unconfoundedness"
+        assert results[0].importance == "critical"
+        assert results[0].formal_statement == "Y(t) \\perp T | X"
+        assert results[0].confidence == pytest.approx(0.85, rel=1e-5)
+        assert len(results[0].verification_approaches) == 2
+        assert results[1].name == "overlap"
+        assert results[2].name == "convergence_rate"
+        assert results[2].importance == "technical"
+
+    async def test_no_api_key_returns_empty(self):
+        """Missing ANTHROPIC_API_KEY returns empty list gracefully."""
+        with patch.dict("os.environ", {}, clear=False):
+            # Ensure ANTHROPIC_API_KEY is not set
+            import os
+            original = os.environ.pop("ANTHROPIC_API_KEY", None)
+            try:
+                results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                    method_name="DML",
+                )
+            finally:
+                if original is not None:
+                    os.environ["ANTHROPIC_API_KEY"] = original
+
+        assert results == []
+
+    async def test_import_error_returns_empty(self):
+        """Missing anthropic package returns empty list gracefully."""
+        import builtins
+
+        original_import = builtins.__import__
+
+        def mock_import(name, *args, **kwargs):
+            if name == "anthropic":
+                raise ImportError("No module named 'anthropic'")
+            return original_import(name, *args, **kwargs)
+
+        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
+             patch("builtins.__import__", side_effect=mock_import):
+            results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="DML",
+            )
+
+        assert results == []
+
+    async def test_invalid_json_returns_empty(self):
+        """Malformed JSON response returns empty list gracefully."""
+        mock_message = MagicMock()
+        mock_message.content = [MagicMock(text="not valid {json}}")]
+
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_message
+
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
+             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+            results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="DML",
+            )
+
+        assert results == []
+
+    async def test_api_error_returns_empty(self):
+        """API exception returns empty list gracefully."""
+        mock_client = MagicMock()
+        mock_client.messages.create.side_effect = Exception("API rate limit exceeded")
+
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
+             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+            results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="DML",
+            )
+
+        assert results == []
+
+    async def test_invalid_importance_normalized(self):
+        """Unrecognized importance value is normalized to 'standard'."""
+        response_json = json.dumps({
+            "assumptions": [
+                {
+                    "name": "test_assumption",
+                    "importance": "high",  # Invalid value
+                    "plain_english": "test",
+                }
+            ]
+        })
+
+        mock_message = MagicMock()
+        mock_message.content = [MagicMock(text=response_json)]
+
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_message
+
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
+             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+            results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="test",
+            )
+
+        assert len(results) == 1
+        assert results[0].importance == "standard"
+
+    async def test_code_fenced_json_parsed_correctly(self):
+        """JSON wrapped in markdown code fences is parsed correctly."""
+        inner_json = json.dumps({
+            "assumptions": [
+                {
+                    "name": "overlap",
+                    "plain_english": "Positive treatment probability",
+                    "importance": "critical",
+                }
+            ]
+        })
+        # Wrap in code fences like Haiku actually does
+        fenced_response = f"```json\n{inner_json}\n```"
+
+        mock_message = MagicMock()
+        mock_message.content = [MagicMock(text=fenced_response)]
+
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_message
+
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
+             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+            results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="IPW",
+            )
+
+        assert len(results) == 1
+        assert results[0].name == "overlap"
+        assert results[0].importance == "critical"
+
+
+# =============================================================================
+# 10. TestAuditAssumptionsBackendDispatch
+# =============================================================================
+
+
+class TestAuditAssumptionsBackendDispatch:
+    """Tests for llm_backend parameter in audit_assumptions().
+
+    Verifies that the correct extraction function is called based on
+    the llm_backend parameter ("ollama" vs "anthropic").
+    """
+
+    async def test_anthropic_backend_calls_anthropic_extractor(self, method_sparse):
+        """llm_backend='anthropic' dispatches to extract_assumptions_with_anthropic."""
+        method, _ = method_sparse
+
+        anthropic_response = [
+            AssumptionDetail(
+                name="no_anticipation",
+                plain_english="No anticipation of treatment",
+                importance="critical",
+                confidence=0.85,
+            ),
+            AssumptionDetail(
+                name="convex_hull",
+                plain_english="Treated unit in convex hull of controls",
+                importance="standard",
+                confidence=0.85,
+            ),
+            AssumptionDetail(
+                name="no_interference",
+                plain_english="No spillover between units",
+                importance="standard",
+                confidence=0.85,
+            ),
+        ]
+
+        with patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_anthropic",
+            new_callable=AsyncMock,
+            return_value=anthropic_response,
+        ) as mock_anthropic, \
+        patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_ollama",
+            new_callable=AsyncMock,
+        ) as mock_ollama, \
+        patch.object(
+            MethodAssumptionAuditor,
+            "cache_assumptions",
+            new_callable=AsyncMock,
+            return_value=3,
+        ):
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                use_llm_fallback=True,
+                llm_backend="anthropic",
+            )
+
+        mock_anthropic.assert_called_once()
+        mock_ollama.assert_not_called()
+        assert "anthropic" in result.source
+
+    async def test_ollama_backend_calls_ollama_extractor(self, method_sparse):
+        """llm_backend='ollama' dispatches to extract_assumptions_with_ollama."""
+        method, _ = method_sparse
+
+        ollama_response = [
+            AssumptionDetail(
+                name="no_anticipation",
+                plain_english="No anticipation of treatment",
+                importance="critical",
+                confidence=0.7,
+            ),
+            AssumptionDetail(
+                name="convex_hull",
+                plain_english="Treated unit in convex hull of controls",
+                importance="standard",
+                confidence=0.7,
+            ),
+            AssumptionDetail(
+                name="no_interference",
+                plain_english="No spillover between units",
+                importance="standard",
+                confidence=0.7,
+            ),
+        ]
+
+        with patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_ollama",
+            new_callable=AsyncMock,
+            return_value=ollama_response,
+        ) as mock_ollama, \
+        patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_anthropic",
+            new_callable=AsyncMock,
+        ) as mock_anthropic, \
+        patch.object(
+            MethodAssumptionAuditor,
+            "cache_assumptions",
+            new_callable=AsyncMock,
+            return_value=3,
+        ):
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                use_llm_fallback=True,
+                llm_backend="ollama",
+            )
+
+        mock_ollama.assert_called_once()
+        mock_anthropic.assert_not_called()
+        assert "ollama" in result.source
+
+    async def test_llm_fallback_disabled_skips_extraction(self, method_sparse):
+        """use_llm_fallback=False skips LLM extraction entirely."""
+        method, _ = method_sparse
+
+        with patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_anthropic",
+            new_callable=AsyncMock,
+        ) as mock_anthropic, \
+        patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_ollama",
+            new_callable=AsyncMock,
+        ) as mock_ollama:
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                use_llm_fallback=False,
+                llm_backend="anthropic",
+            )
+
+        mock_anthropic.assert_not_called()
+        mock_ollama.assert_not_called()
+        assert len(result.assumptions) == 1  # Only graph result
+
+    async def test_backward_compat_use_ollama_fallback(self, method_sparse):
+        """Legacy use_ollama_fallback=True still works with default llm_backend."""
+        method, _ = method_sparse
+
+        with patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_ollama",
+            new_callable=AsyncMock,
+            return_value=[
+                AssumptionDetail(name="a1", importance="critical", confidence=0.7),
+                AssumptionDetail(name="a2", importance="standard", confidence=0.7),
+                AssumptionDetail(name="a3", importance="standard", confidence=0.7),
+            ],
+        ) as mock_ollama, \
+        patch.object(
+            MethodAssumptionAuditor,
+            "cache_assumptions",
+            new_callable=AsyncMock,
+            return_value=3,
+        ):
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                use_ollama_fallback=True,
+                # llm_backend defaults to "ollama"
+            )
+
+        mock_ollama.assert_called_once()
+        assert len(result.assumptions) >= 3
+
+    async def test_sufficient_assumptions_skip_llm(self, method_with_assumptions):
+        """Methods with >=3 graph assumptions don't trigger LLM fallback."""
+        method, _ = method_with_assumptions
+
+        with patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_anthropic",
+            new_callable=AsyncMock,
+        ) as mock_anthropic, \
+        patch.object(
+            MethodAssumptionAuditor,
+            "extract_assumptions_with_ollama",
+            new_callable=AsyncMock,
+        ) as mock_ollama:
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                use_llm_fallback=True,
+                llm_backend="anthropic",
+            )
+
+        mock_anthropic.assert_not_called()
+        mock_ollama.assert_not_called()
+        assert len(result.assumptions) >= 4
+        assert result.source == "graph"

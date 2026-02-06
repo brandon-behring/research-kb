@@ -90,7 +90,8 @@ def register_assumption_tools(mcp: FastMCP) -> None:
         try:
             result = await MethodAssumptionAuditor.audit_assumptions(
                 method_name,
-                use_ollama_fallback=use_llm_fallback,
+                use_llm_fallback=use_llm_fallback,
+                llm_backend="anthropic",
             )
             return _format_assumption_audit(result, include_docstring)
 

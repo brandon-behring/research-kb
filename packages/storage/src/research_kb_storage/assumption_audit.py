@@ -2,11 +2,12 @@
 
 Phase 4.1a: Foundation for Assumption Auditing (North Star feature)
 Phase 4.1b: Ollama fallback when graph returns <3 assumptions
+Phase 4.1c: Anthropic backend for higher-quality assumption extraction
 
 Provides:
 - Find method concept by name/alias (case-insensitive)
 - Query knowledge graph for METHOD → REQUIRES/USES → ASSUMPTION
-- LLM extraction fallback when graph insufficient (Ollama)
+- LLM extraction fallback when graph insufficient (Ollama or Anthropic)
 - Cache LLM-extracted assumptions for future queries
 - Return structured Claude-first output format
 
@@ -569,6 +570,107 @@ class MethodAssumptionAuditor:
             return []
 
     @staticmethod
+    async def extract_assumptions_with_anthropic(
+        method_name: str,
+        definition: Optional[str] = None,
+        model: str = "claude-haiku-4-5-20251001",
+    ) -> list[AssumptionDetail]:
+        """Extract assumptions using Anthropic API (Haiku).
+
+        Higher quality than Ollama, especially for structured JSON output.
+        Used as LLM fallback when graph returns fewer than MIN_ASSUMPTIONS_THRESHOLD.
+
+        Args:
+            method_name: Name of the method
+            definition: Optional definition to provide context
+            model: Anthropic model name (default: Haiku 4.5)
+
+        Returns:
+            List of AssumptionDetail objects from LLM
+        """
+        prompt = ASSUMPTION_EXTRACTION_PROMPT.format(
+            method_name=method_name,
+            definition=definition or "Not provided",
+        )
+
+        try:
+            import os
+
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                logger.warning("anthropic_no_api_key")
+                return []
+
+            import anthropic
+
+            client = anthropic.Anthropic(api_key=api_key)
+
+            message = client.messages.create(
+                model=model,
+                max_tokens=4096,
+                temperature=0.1,
+                messages=[{"role": "user", "content": prompt}],
+                system="You are an expert in causal inference and econometrics. Return ONLY valid JSON.",
+            )
+
+            response_text = message.content[0].text
+
+            # Strip markdown code fences if present (Haiku often wraps JSON)
+            response_text = response_text.strip()
+            if response_text.startswith("```"):
+                # Remove opening fence (```json or ```)
+                first_newline = response_text.index("\n")
+                response_text = response_text[first_newline + 1 :]
+                # Remove closing fence
+                if response_text.endswith("```"):
+                    response_text = response_text[: -3].strip()
+
+            # Parse JSON response
+            parsed = json.loads(response_text)
+            raw_assumptions = parsed.get("assumptions", [])
+
+            assumptions = []
+            for raw in raw_assumptions:
+                # Validate importance
+                importance = raw.get("importance", "standard")
+                if importance not in ("critical", "standard", "technical"):
+                    importance = "standard"
+
+                assumptions.append(
+                    AssumptionDetail(
+                        name=raw.get("name", "unknown"),
+                        formal_statement=raw.get("formal_statement"),
+                        plain_english=raw.get("plain_english"),
+                        importance=importance,
+                        violation_consequence=raw.get("violation_consequence"),
+                        verification_approaches=raw.get("verification_approaches", []),
+                        confidence=0.85,  # Higher than Ollama (0.7) — Haiku is more reliable
+                    )
+                )
+
+            logger.info(
+                "anthropic_assumptions_extracted",
+                method=method_name,
+                model=model,
+                count=len(assumptions),
+            )
+
+            return assumptions
+
+        except ImportError:
+            logger.warning(
+                "anthropic_import_failed",
+                message="pip install anthropic",
+            )
+            return []
+        except json.JSONDecodeError as e:
+            logger.error("anthropic_json_parse_error", error=str(e))
+            return []
+        except Exception as e:
+            logger.error("anthropic_extraction_failed", error=str(e))
+            return []
+
+    @staticmethod
     async def cache_assumptions(
         method_id: UUID,
         assumptions: list[AssumptionDetail],
@@ -671,6 +773,8 @@ class MethodAssumptionAuditor:
     async def audit_assumptions(
         method_name: str,
         use_ollama_fallback: bool = True,
+        use_llm_fallback: bool = True,
+        llm_backend: str = "ollama",
         filter_by_domain: bool = True,
     ) -> MethodAssumptions:
         """Main entry point: Get assumptions for a method.
@@ -679,12 +783,16 @@ class MethodAssumptionAuditor:
         1. Find method concept by name/alias
         2. Query graph for REQUIRES/USES → ASSUMPTION (with domain filtering)
         3. Enrich with cached details if available
-        4. If <3 assumptions and use_ollama_fallback: extract via Ollama + cache
+        4. If <3 assumptions and LLM fallback enabled: extract via chosen backend + cache
         5. Generate code_docstring_snippet
 
         Args:
             method_name: Method name, abbreviation, or alias
-            use_ollama_fallback: Enable Ollama extraction for sparse results
+            use_ollama_fallback: Legacy parameter — enables Ollama extraction for sparse results.
+                               Kept for backward compatibility. Equivalent to
+                               use_llm_fallback=True, llm_backend="ollama".
+            use_llm_fallback: Enable LLM extraction for sparse results (default True)
+            llm_backend: LLM backend to use: "ollama" or "anthropic" (default "ollama")
             filter_by_domain: If True (default), only return assumptions from the
                             same domain as the method. This prevents cross-domain
                             contamination (e.g., physics concepts in causal methods).
@@ -751,36 +859,51 @@ class MethodAssumptionAuditor:
         # Determine source
         source = "graph" if graph_assumptions else ("cache" if cached_assumptions else "empty")
 
-        # Step 4: Ollama fallback if insufficient assumptions
-        if use_ollama_fallback and len(final_assumptions) < MIN_ASSUMPTIONS_THRESHOLD:
+        # Step 4: LLM fallback if insufficient assumptions
+        # Resolve effective settings: use_ollama_fallback is legacy shorthand
+        effective_llm_fallback = use_llm_fallback and (use_ollama_fallback or llm_backend != "ollama")
+        effective_backend = llm_backend
+
+        if effective_llm_fallback and len(final_assumptions) < MIN_ASSUMPTIONS_THRESHOLD:
             logger.info(
-                "triggering_ollama_fallback",
+                "triggering_llm_fallback",
                 method=method.canonical_name,
+                backend=effective_backend,
                 current_count=len(final_assumptions),
                 threshold=MIN_ASSUMPTIONS_THRESHOLD,
             )
 
-            ollama_assumptions = await MethodAssumptionAuditor.extract_assumptions_with_ollama(
-                method_name=method.canonical_name or method.name,
-                definition=method.definition,
-            )
+            # Dispatch to the chosen backend
+            if effective_backend == "anthropic":
+                llm_assumptions = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                    method_name=method.canonical_name or method.name,
+                    definition=method.definition,
+                )
+                extraction_method_str = "anthropic:claude-haiku-4-5-20251001"
+            else:
+                llm_assumptions = await MethodAssumptionAuditor.extract_assumptions_with_ollama(
+                    method_name=method.canonical_name or method.name,
+                    definition=method.definition,
+                )
+                extraction_method_str = "ollama:llama3.1:8b"
 
-            if ollama_assumptions:
-                # Cache the Ollama results for future queries
+            if llm_assumptions:
+                # Cache the LLM results for future queries
                 await MethodAssumptionAuditor.cache_assumptions(
                     method_id=method.id,
-                    assumptions=ollama_assumptions,
-                    extraction_method="ollama:llama3.1:8b",
+                    assumptions=llm_assumptions,
+                    extraction_method=extraction_method_str,
                 )
 
-                # Merge Ollama assumptions (don't duplicate by name)
+                # Merge LLM assumptions (don't duplicate by name)
                 existing_names = {a.name.lower() for a in final_assumptions}
-                for oa in ollama_assumptions:
-                    if oa.name.lower() not in existing_names:
-                        final_assumptions.append(oa)
-                        existing_names.add(oa.name.lower())
+                for la in llm_assumptions:
+                    if la.name.lower() not in existing_names:
+                        final_assumptions.append(la)
+                        existing_names.add(la.name.lower())
 
-                source = "graph+ollama" if graph_assumptions else "ollama"
+                backend_label = effective_backend
+                source = f"graph+{backend_label}" if graph_assumptions else backend_label
 
         # Step 5: Generate code docstring snippet
         docstring = _generate_docstring_snippet(

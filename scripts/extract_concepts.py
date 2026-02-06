@@ -151,6 +151,7 @@ class ExtractionPipeline:
         concurrency: int = 1,
         num_ctx: int = 2048,
         domain_id: str = "causal_inference",
+        timeout: float = 120.0,
     ):
         self.backend = backend
         self.model = model  # None means use backend's default
@@ -162,6 +163,7 @@ class ExtractionPipeline:
         self.concurrency = max(1, concurrency)
         self.num_ctx = num_ctx
         self.domain_id = domain_id
+        self.timeout = timeout
         self.backup_path: Optional[str] = None
 
         # Semaphore to limit concurrent LLM requests
@@ -199,6 +201,9 @@ class ExtractionPipeline:
         llm_kwargs = {"temperature": 0.1}
         if self.backend == "ollama":
             llm_kwargs["num_ctx"] = self.num_ctx
+            llm_kwargs["timeout"] = self.timeout
+        elif self.backend == "instructor":
+            llm_kwargs["timeout"] = self.timeout
         elif self.backend == "llamacpp":
             llm_kwargs["n_ctx"] = self.num_ctx
             llm_kwargs["n_gpu_layers"] = 20  # 20 layers fits in 8GB VRAM with desktop overhead
@@ -794,6 +799,12 @@ async def main():
         help="Context window size in tokens (default: 2048, reduced from 4096 for better concurrency)"
     )
     parser.add_argument(
+        "--timeout",
+        type=float,
+        default=120.0,
+        help="LLM request timeout in seconds (default: 120, increase for high parallelism)"
+    )
+    parser.add_argument(
         "--metrics-file",
         type=str,
         default=None,
@@ -823,6 +834,7 @@ async def main():
         skip_backup=args.skip_backup,
         num_ctx=args.num_ctx,
         domain_id=args.domain,
+        timeout=args.timeout,
     )
 
     try:

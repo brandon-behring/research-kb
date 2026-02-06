@@ -97,46 +97,43 @@ async def check_assumption_completeness(conn) -> dict:
     Returns:
         Dict with per-method assumption counts and completeness rate
     """
+    from research_kb_storage.assumption_audit import MethodAssumptionAuditor
+
     results = {}
     complete = 0
 
     for method in TOP_METHODS:
-        # Check method_assumption_cache (pre-computed audits via concept join)
-        cached = await conn.fetchval(
-            """
-            SELECT COUNT(*)
-            FROM method_assumption_cache mac
-            JOIN concepts c ON mac.method_concept_id = c.id
-            WHERE c.canonical_name ILIKE $1
-               OR c.name ILIKE $1
-            """,
-            f"%{method}%",
-        )
+        # Use find_method for accurate concept lookup (handles aliases, case-insensitive)
+        concept = await MethodAssumptionAuditor.find_method(method)
 
-        # Also check concepts table for assumption-type concepts related to this method
-        # Uses both directions (source→target and target→source) since relationship direction varies
-        concept_count = await conn.fetchval(
-            """
-            SELECT COUNT(DISTINCT a.id)
-            FROM concepts a
-            WHERE a.concept_type = 'ASSUMPTION'
-            AND (
-                EXISTS (
-                    SELECT 1 FROM concept_relationships cr
-                    JOIN concepts m ON cr.source_concept_id = m.id
-                    WHERE cr.target_concept_id = a.id
-                    AND (m.canonical_name ILIKE $1 OR m.name ILIKE $1)
-                )
-                OR EXISTS (
-                    SELECT 1 FROM concept_relationships cr
-                    JOIN concepts m ON cr.target_concept_id = m.id
-                    WHERE cr.source_concept_id = a.id
-                    AND (m.canonical_name ILIKE $1 OR m.name ILIKE $1)
-                )
+        if concept is not None:
+            method_id = concept.id
+
+            # Check method_assumption_cache by exact concept ID
+            cached = await conn.fetchval(
+                """
+                SELECT COUNT(*)
+                FROM method_assumption_cache mac
+                WHERE mac.method_concept_id = $1
+                """,
+                method_id,
             )
-            """,
-            f"%{method}%",
-        )
+
+            # Check graph for assumption-type concepts related to this method by ID
+            concept_count = await conn.fetchval(
+                """
+                SELECT COUNT(DISTINCT a.id)
+                FROM concepts a
+                JOIN concept_relationships cr ON cr.target_concept_id = a.id
+                WHERE a.concept_type = 'assumption'
+                AND cr.source_concept_id = $1
+                AND cr.relationship_type IN ('REQUIRES', 'USES')
+                """,
+                method_id,
+            )
+        else:
+            cached = 0
+            concept_count = 0
 
         total = cached + concept_count
         is_complete = total >= MIN_ASSUMPTIONS
