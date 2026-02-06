@@ -246,6 +246,18 @@ async def search_hybrid(query: SearchQuery) -> list[SearchResult]:
             else:
                 raise SearchError("No search criteria provided")
 
+            # Apply RRF reranking if requested (otherwise weighted scores from SQL)
+            if query.scoring_method == "rrf" and results:
+                chunk_rankings = _compute_ranks_by_signal(results)
+                for result in results:
+                    chunk_id = str(result.chunk.id)
+                    rankings = chunk_rankings.get(chunk_id, {})
+                    result.combined_score = compute_rrf_score(rankings)
+                # Re-sort by RRF score and reassign ranks
+                results.sort(key=lambda r: r.combined_score, reverse=True)
+                for rank, result in enumerate(results, start=1):
+                    result.rank = rank
+
             logger.info(
                 "search_completed",
                 mode=(
@@ -254,6 +266,7 @@ async def search_hybrid(query: SearchQuery) -> list[SearchResult]:
                     else ("fts" if query.text else "vector")
                 ),
                 result_count=len(results),
+                scoring_method=query.scoring_method,
             )
 
             return results

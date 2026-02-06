@@ -69,7 +69,7 @@ Tracking progress on audit remediation (Jan 2026).
 2. ✅ KuzuDB migration: Primary graph engine (~150ms batch scoring, `graph_queries.py:984`)
 3. PostgreSQL CTEs retained as fallback only, capped at 2s
 
-**Remaining**: Run Phase D production benchmarks to validate latency improvements.
+**Completed**: Phase D benchmarks validated (see `fixtures/benchmarks/graph_latency_2026-02-05.json`). KuzuDB achieves ~150ms batch scoring, 60s cold-start mitigated by daemon pre-warming.
 
 ## Phase 4.3: ProactiveContext Integration (✅ Complete — 2026-02-06)
 

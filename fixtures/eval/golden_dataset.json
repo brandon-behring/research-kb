@@ -1,0 +1,472 @@
+[
+  {
+    "query": "d-separation",
+    "target_chunk_ids": [
+      "49ead2d9-5142-4260-ba8c-8932386bd254",
+      "0e343da8-f112-4e5e-88ac-c5b5db80611f"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causality: Models, Reasoning and Inference",
+    "difficulty": "easy"
+  },
+  {
+    "query": "do-calculus",
+    "target_chunk_ids": [
+      "c569d6b0-c98a-49b9-9404-252d1d75d160",
+      "0a32f7e3-c23c-43a9-93c8-70041dea4380"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causality: Models, Reasoning and Inference",
+    "difficulty": "easy"
+  },
+  {
+    "query": "interventions vs observations",
+    "target_chunk_ids": [
+      "1eb80704-2424-43a7-b690-589224983eb3",
+      "a904f643-26a6-4331-a804-70096aeb935f"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causality: Models, Reasoning and Inference",
+    "difficulty": "easy"
+  },
+  {
+    "query": "structural causal model definition",
+    "target_chunk_ids": [
+      "31e3bb01-fe40-45b1-a376-97e9318aba7b",
+      "47d0f5a7-3216-4b08-9dff-706f1b3b555f"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causality: Models, Reasoning and Inference",
+    "difficulty": "easy"
+  },
+  {
+    "query": "instrumental variable identification",
+    "target_chunk_ids": [
+      "25c2cee2-acee-4f16-abdc-e56e206e5078",
+      "4ee739ca-5496-45e7-8c13-51893f32a9a3"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causality: Models, Reasoning and Inference",
+    "difficulty": "easy"
+  },
+  {
+    "query": "confounding bias",
+    "target_chunk_ids": [
+      "5ef2f89b-d75d-404e-b83c-766e1761ba00",
+      "208818c8-8082-4642-89e9-e471ca8c0306"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causality: Models, Reasoning and Inference",
+    "difficulty": "easy"
+  },
+  {
+    "query": "counterfactual",
+    "target_chunk_ids": [
+      "082cf6ba-5f41-4a69-a3bc-490fdf81a2dc",
+      "fb8198c9-70dd-46da-bc0b-46b30d64c4c8"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causality: Models, Reasoning and Inference",
+    "difficulty": "easy"
+  },
+  {
+    "query": "causal Bayesian network",
+    "target_chunk_ids": [
+      "b7231643-4259-471f-919f-8bdbc1c2afab",
+      "68ec8c7b-c076-4248-9268-001a7e1a3246"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causality: Models, Reasoning and Inference",
+    "difficulty": "easy"
+  },
+  {
+    "query": "natural direct effect",
+    "target_chunk_ids": [
+      "ef991c7e-5b41-415e-a56f-a2e7ce4494c4",
+      "f6ae7e1f-fa7c-4c39-9392-920d69e8ca1e"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "natural indirect effect",
+    "target_chunk_ids": [
+      "d79d7ac6-a454-4b06-8b47-3c59a6878e50",
+      "44edec74-3cf8-4092-8380-1228a0429499"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "controlled direct effect",
+    "target_chunk_ids": [
+      "e9ae10cf-5b1d-4f2a-ad40-13ea629c2e80",
+      "f6ae7e1f-fa7c-4c39-9392-920d69e8ca1e"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "mediation analysis",
+    "target_chunk_ids": [
+      "f657e16b-8d1c-44ba-aa4b-23bb97540b3a",
+      "ac3d7172-7749-4291-9694-9a081393e500"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "interaction effect",
+    "target_chunk_ids": [
+      "513952a5-dc1d-4101-bd08-93573f7ca6db",
+      "1b117a6d-d814-4f2d-b89a-9d3a66597624"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "total effect decomposition",
+    "target_chunk_ids": [
+      "0fa38a86-9d29-490c-98a8-8ce2fed74b7f",
+      "55990509-a1d4-4a77-9096-75c868c407a6"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "four-way decomposition",
+    "target_chunk_ids": [
+      "5beba1b6-8127-419a-85b3-34aa5d43912b",
+      "86478570-1406-44af-af1f-41a5f5dd8049"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "proportion mediated",
+    "target_chunk_ids": [
+      "92cba2f8-616f-445f-929b-88e2bd36b988",
+      "d90f9523-5017-4e52-a2f6-9daace1b9325"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "sensitivity analysis mediation",
+    "target_chunk_ids": [
+      "f657e16b-8d1c-44ba-aa4b-23bb97540b3a",
+      "d14aab4a-3b93-4bfe-b635-64ce8fb204ca"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "easy"
+  },
+  {
+    "query": "ARIMA model",
+    "target_chunk_ids": [
+      "acd07749-a833-4471-86be-ee9e4fd59128",
+      "da00f78c-a437-4eda-ad0c-6067233c36e7"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "Granger causality test",
+    "target_chunk_ids": [
+      "0f8966e7-52f6-49cd-8c9b-0412da0735c1",
+      "9fd6b645-77dc-467c-9925-ebfa112b9589"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "unit root test",
+    "target_chunk_ids": [
+      "56d536be-6771-4af5-8b46-83a4be6d8759",
+      "cbe72f4a-8b45-4272-aa6f-27639c34f2cf"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "vector autoregression",
+    "target_chunk_ids": [
+      "9f40c01c-fc32-443c-a591-5c83a41f488b",
+      "853f4396-66a1-4ea8-90a7-8bf35015d7af"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "impulse response function",
+    "target_chunk_ids": [
+      "39ff4cc2-4728-4dd9-bb2d-e13b1b85800f",
+      "aa9edaa6-bb2a-489d-ab4f-908dcd327388"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "cointegration",
+    "target_chunk_ids": [
+      "d5b509ed-7522-4098-b7b6-fe63e1c63557",
+      "ded10977-77e4-423b-84fd-07b58e1fe673"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "spectral analysis",
+    "target_chunk_ids": [
+      "ea295c83-f5e5-4289-bd05-9f7647f779e8",
+      "34a14988-bb98-45b7-b343-9b6be00f3f7f"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "Kalman filter",
+    "target_chunk_ids": [
+      "2ae913a8-0e3f-4036-9d87-97377c350700",
+      "204384a5-c26a-408c-b4bc-cc35e2ead4d2"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "stationarity",
+    "target_chunk_ids": [
+      "71449fae-a966-4c83-b6ed-30f53e31a43b",
+      "4af84b49-f348-49e4-9b3c-337335364f3c"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "autocorrelation function",
+    "target_chunk_ids": [
+      "c2fbaa1a-3b34-4301-b1b1-c0b3592ec803",
+      "e13ec064-f11f-47f7-b013-c4da83b7647f"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "easy"
+  },
+  {
+    "query": "few-shot learning",
+    "target_chunk_ids": [
+      "f933265c-d9c6-4e2d-8613-72605419794a",
+      "e99e66b1-2cab-4fb1-aa91-ca28a5249f8b"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "in-context learning",
+    "target_chunk_ids": [
+      "5624569b-776a-4420-bae6-ecf981e589d6",
+      "f39743bf-51c7-43cf-8bc8-7526b843634d"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "scaling laws",
+    "target_chunk_ids": [
+      "131b888a-f936-4d96-9f89-6db708729d39",
+      "df8aad28-b7bd-48ff-bf7b-805ffcf9ba0f"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "language model pretraining",
+    "target_chunk_ids": [
+      "e5495773-dafd-4347-a435-d273d3072b40",
+      "0ce808d0-b78c-4c61-8cf0-e206f7e6e36e"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "zero-shot",
+    "target_chunk_ids": [
+      "a0767bc5-f4d8-4599-83bb-b3c79646042e",
+      "8cf8e928-2267-466b-969b-f77b3d87d33f"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "prompt design",
+    "target_chunk_ids": [
+      "4fbb7a99-05ab-4a94-9036-124f50ce7b01",
+      "0b4df250-56d7-4f11-a52a-584686ee4aac"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "model size performance",
+    "target_chunk_ids": [
+      "df8aad28-b7bd-48ff-bf7b-805ffcf9ba0f",
+      "8ec64919-92aa-4023-94a4-b61c7b24482b"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "text generation",
+    "target_chunk_ids": [
+      "2b06f387-deaa-47f8-9c09-425d85d4fe3d",
+      "f98e5b3a-4ec1-4dac-bffd-eb08bcdbe0b6"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "benchmark evaluation",
+    "target_chunk_ids": [
+      "36907019-bf37-487e-8231-a988111d2c78",
+      "9b57068b-25a9-4292-9b20-127d9b6b453d"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "GPT architecture",
+    "target_chunk_ids": [
+      "f7d37821-471b-4169-9c68-fc34eb897f87",
+      "44d225f4-508c-4ba3-8f55-b8f696eb4e40"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Language Models are Few-Shot Learners",
+    "difficulty": "easy"
+  },
+  {
+    "query": "A/B testing",
+    "target_chunk_ids": [
+      "bde62d90-d2c7-4297-91bb-f3cf008f75aa",
+      "2cf4e9b3-f9d3-44d0-aae4-69a59040f88b"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "statistical significance",
+    "target_chunk_ids": [
+      "b15a2f75-2efe-454b-b690-edd007e1114d",
+      "9a1b261f-af50-44ab-b6f5-d698dfad085a"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "minimum detectable effect",
+    "target_chunk_ids": [
+      "806b30ed-ffd8-4a14-b5ff-fa9f635eb0a6",
+      "c84131ea-3aee-4e38-9403-8dac20433044"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "sample size calculation",
+    "target_chunk_ids": [
+      "909b141a-9196-4565-9475-891695b4a2cf",
+      "32a1fabf-a09e-4380-9e9d-165186ad84f5"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "type I and type II errors",
+    "target_chunk_ids": [
+      "5c5f8883-398d-4178-b28d-9217a0f151ca",
+      "d165f65d-cdbf-4518-bc35-fc1ce4ba5469"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "randomization",
+    "target_chunk_ids": [
+      "fa50cbf0-6104-4246-8c94-9f86cca06f69",
+      "cbb12e4d-7b8f-4c33-a9da-9eafb47e6ef0"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "multiple testing correction",
+    "target_chunk_ids": [
+      "1e9569d6-31c2-4f01-a9f8-1b622dc6c011",
+      "cdf970a6-5937-4b68-890f-7b46b96681e9"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "experiment design",
+    "target_chunk_ids": [
+      "4d8cdd21-08b5-495b-b751-613a8ca39fe1",
+      "3ea21bc3-1bac-40c8-8d94-082f51cc3981"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "power analysis",
+    "target_chunk_ids": [
+      "33106032-390b-4893-b567-3667496350c4",
+      "8b60d561-64a5-4613-b08b-21ae64954cb3"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "treatment effect estimation",
+    "target_chunk_ids": [
+      "7726411a-ef9c-410f-a490-8918e17055e4",
+      "bb4668a3-9fb0-4819-86ea-ad52d0a3b472"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol1_experimentation",
+    "difficulty": "easy"
+  }
+]

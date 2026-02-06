@@ -329,6 +329,94 @@ class TestRRFScoring:
         assert score < 0.001
 
 
+class TestComputeRanksBySignal:
+    """Test _compute_ranks_by_signal internal ranking function."""
+
+    @staticmethod
+    def _make_result(chunk_id, fts=None, vector=None, graph=None, citation=None):
+        """Create a minimal SearchResult-like object for ranking tests."""
+        from unittest.mock import MagicMock
+        from uuid import UUID
+
+        result = MagicMock()
+        result.chunk.id = UUID(chunk_id) if isinstance(chunk_id, str) else chunk_id
+        result.fts_score = fts
+        result.vector_score = vector
+        result.graph_score = graph
+        result.citation_score = citation
+        return result
+
+    def test_single_signal_single_result(self):
+        """Single result with one signal gets rank 1."""
+        results = [self._make_result("00000000-0000-0000-0000-000000000001", fts=0.8)]
+        rankings = _compute_ranks_by_signal(results)
+        assert rankings["00000000-0000-0000-0000-000000000001"]["fts"] == 1
+
+    def test_single_signal_multiple_results_ordered(self):
+        """Multiple results ranked by descending score within one signal."""
+        r1 = self._make_result("00000000-0000-0000-0000-000000000001", fts=0.9)
+        r2 = self._make_result("00000000-0000-0000-0000-000000000002", fts=0.5)
+        r3 = self._make_result("00000000-0000-0000-0000-000000000003", fts=0.7)
+        rankings = _compute_ranks_by_signal([r1, r2, r3])
+        assert rankings["00000000-0000-0000-0000-000000000001"]["fts"] == 1
+        assert rankings["00000000-0000-0000-0000-000000000003"]["fts"] == 2
+        assert rankings["00000000-0000-0000-0000-000000000002"]["fts"] == 3
+
+    def test_multiple_signals(self):
+        """Results ranked independently per signal."""
+        r1 = self._make_result("00000000-0000-0000-0000-000000000001", fts=0.9, vector=0.3)
+        r2 = self._make_result("00000000-0000-0000-0000-000000000002", fts=0.5, vector=0.8)
+        rankings = _compute_ranks_by_signal([r1, r2])
+        # FTS: r1 first
+        assert rankings["00000000-0000-0000-0000-000000000001"]["fts"] == 1
+        assert rankings["00000000-0000-0000-0000-000000000002"]["fts"] == 2
+        # Vector: r2 first
+        assert rankings["00000000-0000-0000-0000-000000000002"]["vector"] == 1
+        assert rankings["00000000-0000-0000-0000-000000000001"]["vector"] == 2
+
+    def test_tied_scores_get_sequential_ranks(self):
+        """Tied scores get sequential (non-shared) ranks."""
+        r1 = self._make_result("00000000-0000-0000-0000-000000000001", fts=0.5)
+        r2 = self._make_result("00000000-0000-0000-0000-000000000002", fts=0.5)
+        rankings = _compute_ranks_by_signal([r1, r2])
+        fts_ranks = {rankings[k]["fts"] for k in rankings}
+        assert fts_ranks == {1, 2}
+
+    def test_none_scores_excluded(self):
+        """Results with None for a signal are not ranked in that signal."""
+        r1 = self._make_result("00000000-0000-0000-0000-000000000001", fts=0.9, vector=None)
+        r2 = self._make_result("00000000-0000-0000-0000-000000000002", fts=None, vector=0.8)
+        rankings = _compute_ranks_by_signal([r1, r2])
+        # r1 only has FTS rank
+        assert "fts" in rankings["00000000-0000-0000-0000-000000000001"]
+        assert "vector" not in rankings["00000000-0000-0000-0000-000000000001"]
+        # r2 only has vector rank
+        assert "vector" in rankings["00000000-0000-0000-0000-000000000002"]
+        assert "fts" not in rankings["00000000-0000-0000-0000-000000000002"]
+
+    def test_four_signals(self):
+        """All four signals ranked correctly."""
+        r1 = self._make_result(
+            "00000000-0000-0000-0000-000000000001",
+            fts=0.9, vector=0.7, graph=0.5, citation=0.3,
+        )
+        r2 = self._make_result(
+            "00000000-0000-0000-0000-000000000002",
+            fts=0.3, vector=0.9, graph=0.8, citation=0.6,
+        )
+        rankings = _compute_ranks_by_signal([r1, r2])
+        # r1 wins FTS, r2 wins vector/graph/citation
+        assert rankings["00000000-0000-0000-0000-000000000001"]["fts"] == 1
+        assert rankings["00000000-0000-0000-0000-000000000002"]["vector"] == 1
+        assert rankings["00000000-0000-0000-0000-000000000002"]["graph"] == 1
+        assert rankings["00000000-0000-0000-0000-000000000002"]["citation"] == 1
+
+    def test_empty_results(self):
+        """Empty result list returns empty rankings."""
+        rankings = _compute_ranks_by_signal([])
+        assert rankings == {}
+
+
 class TestSearchQueryGraphCitation:
     """Test SearchQuery with graph and citation parameters."""
 
