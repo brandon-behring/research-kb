@@ -187,7 +187,16 @@ async def ingest_textbook(
     if not quiet:
         logger.info("generating_embeddings", chunks=len(chunks))
 
-    embeddings = embedding_client.embed_batch(texts, batch_size=32)
+    # Client-side batching: send ≤100 texts per socket request to stay
+    # under the 60s timeout (CPU embedding of 900 chunks takes >60s).
+    EMBED_BATCH = 100
+    embeddings: list[list[float]] = []
+    for i in range(0, len(texts), EMBED_BATCH):
+        batch_texts = texts[i:i + EMBED_BATCH]
+        if not quiet:
+            logger.info("embedding_batch", start=i, end=i + len(batch_texts), total=len(texts))
+        batch_embeddings = embedding_client.embed_batch(batch_texts, batch_size=32)
+        embeddings.extend(batch_embeddings)
 
     chunks_data = []
     for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
