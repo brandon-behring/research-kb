@@ -28,6 +28,9 @@ Usage:
     # Resume from checkpoint
     python scripts/extract_concepts.py --resume
 
+    # Process only chunks from a specific domain
+    python scripts/extract_concepts.py --source-domain rag_llm --domain rag_llm --resume
+
     # Limit chunks for testing
     python scripts/extract_concepts.py --limit 50
 """
@@ -345,11 +348,19 @@ class ExtractionPipeline:
         source_id: Optional[UUID] = None,
         limit: Optional[int] = None,
         resume: bool = False,
+        source_domain: Optional[str] = None,
     ) -> list[Chunk]:
         """Get chunks that need processing.
 
         When resume=True, queries chunks that have NO concept links in the database,
         which is more efficient than loading all chunks and filtering in Python.
+
+        Args:
+            source_id: Filter to chunks from a specific source.
+            limit: Maximum number of chunks to return.
+            resume: If True, only return chunks without concept links.
+            source_domain: Filter to chunks from sources with this domain
+                           (sources.metadata->>'domain').
         """
         batch_limit = limit or 10000
 
@@ -357,20 +368,39 @@ class ExtractionPipeline:
             # Query unprocessed chunks directly from database (much more efficient)
             pool = await get_connection_pool()
             async with pool.acquire() as conn:
-                # Get chunks that have no concept links yet
-                rows = await conn.fetch(
-                    """
-                    SELECT c.id, c.source_id, c.content, c.content_hash,
-                           c.location, c.page_start, c.page_end,
-                           c.embedding, c.metadata, c.created_at
-                    FROM chunks c
-                    LEFT JOIN chunk_concepts cc ON c.id = cc.chunk_id
-                    WHERE cc.chunk_id IS NULL
-                    ORDER BY c.created_at
-                    LIMIT $1
-                    """,
-                    batch_limit,
-                )
+                if source_domain:
+                    # Filter by source domain metadata
+                    rows = await conn.fetch(
+                        """
+                        SELECT c.id, c.source_id, c.content, c.content_hash,
+                               c.location, c.page_start, c.page_end,
+                               c.embedding, c.metadata, c.created_at
+                        FROM chunks c
+                        JOIN sources s ON c.source_id = s.id
+                        LEFT JOIN chunk_concepts cc ON c.id = cc.chunk_id
+                        WHERE cc.chunk_id IS NULL
+                          AND s.metadata->>'domain' = $2
+                        ORDER BY c.created_at
+                        LIMIT $1
+                        """,
+                        batch_limit,
+                        source_domain,
+                    )
+                else:
+                    # Get all unprocessed chunks (original behavior)
+                    rows = await conn.fetch(
+                        """
+                        SELECT c.id, c.source_id, c.content, c.content_hash,
+                               c.location, c.page_start, c.page_end,
+                               c.embedding, c.metadata, c.created_at
+                        FROM chunks c
+                        LEFT JOIN chunk_concepts cc ON c.id = cc.chunk_id
+                        WHERE cc.chunk_id IS NULL
+                        ORDER BY c.created_at
+                        LIMIT $1
+                        """,
+                        batch_limit,
+                    )
 
             # Convert to Chunk objects
             chunks = []
@@ -396,12 +426,45 @@ class ExtractionPipeline:
                 "resume_from_database",
                 unprocessed_chunks=len(chunks),
                 checkpoint_size=len(checkpoint_ids),
+                source_domain_filter=source_domain,
             )
             return chunks
 
         # Non-resume mode: get all chunks up to limit
         if source_id:
             chunks = await ChunkStore.list_by_source(source_id, limit=batch_limit)
+        elif source_domain:
+            # Filter by source domain via raw SQL (ChunkStore doesn't support domain filter)
+            pool = await get_connection_pool()
+            async with pool.acquire() as conn:
+                rows = await conn.fetch(
+                    """
+                    SELECT c.id, c.source_id, c.content, c.content_hash,
+                           c.location, c.page_start, c.page_end,
+                           c.embedding, c.metadata, c.created_at
+                    FROM chunks c
+                    JOIN sources s ON c.source_id = s.id
+                    WHERE s.metadata->>'domain' = $2
+                    ORDER BY c.created_at
+                    LIMIT $1
+                    """,
+                    batch_limit,
+                    source_domain,
+                )
+            chunks = []
+            for row in rows:
+                chunks.append(Chunk(
+                    id=row["id"],
+                    source_id=row["source_id"],
+                    content=row["content"],
+                    content_hash=row["content_hash"],
+                    location=row["location"],
+                    page_start=row["page_start"],
+                    page_end=row["page_end"],
+                    embedding=list(row["embedding"]) if row["embedding"] is not None else None,
+                    metadata=row["metadata"] or {},
+                    created_at=row["created_at"],
+                ))
         else:
             chunks = await ChunkStore.list_all(limit=batch_limit)
 
@@ -593,15 +656,22 @@ class ExtractionPipeline:
         source_id: Optional[UUID] = None,
         limit: Optional[int] = None,
         resume: bool = False,
+        source_domain: Optional[str] = None,
     ) -> ExtractionStats:
         """Run the extraction pipeline.
 
         With concurrency > 1, processes chunks in parallel batches.
+
+        Args:
+            source_id: Filter to chunks from a specific source.
+            limit: Maximum number of chunks to return.
+            resume: If True, only process chunks without concept links.
+            source_domain: Filter to chunks from sources with this domain.
         """
         await self.initialize()
 
         try:
-            chunks = await self.get_chunks_to_process(source_id, limit, resume)
+            chunks = await self.get_chunks_to_process(source_id, limit, resume, source_domain)
             total = len(chunks)
 
             if total == 0:
@@ -680,7 +750,13 @@ async def main():
         "--domain",
         type=str,
         default="causal_inference",
-        help="Knowledge domain for extraction (causal_inference, time_series)"
+        help="Knowledge domain for extraction prompt engineering (causal_inference, time_series, rag_llm)"
+    )
+    parser.add_argument(
+        "--source-domain",
+        type=str,
+        default=None,
+        help="Only process chunks from sources with this domain (sources.metadata->>'domain')"
     )
     parser.add_argument(
         "--backend",
@@ -754,6 +830,7 @@ async def main():
             source_id=source_id,
             limit=args.limit,
             resume=args.resume,
+            source_domain=args.source_domain,
         )
         stats.print_summary()
 
