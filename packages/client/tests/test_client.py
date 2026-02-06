@@ -166,6 +166,223 @@ class TestMockDaemon:
         assert not client.ping()
 
 
+class TestProtocolCompatibility:
+    """Tests verifying the daemon protocol matches what bridges expect.
+
+    These tests ensure that the JSON-RPC 2.0 protocol used by DaemonClient
+    is compatible with ResearchKBBridge in lever_of_archimedes.
+
+    The mock servers handle multiple connections because DaemonClient.search()
+    calls _is_daemon_available() (health check) before the actual search.
+    """
+
+    @pytest.fixture
+    def mock_socket_path(self, tmp_path):
+        """Create temp socket path."""
+        yield str(tmp_path / "test.sock")
+
+    def _start_mock_server(self, socket_path, responses, captured_requests):
+        """Start a mock daemon server that handles multiple connections.
+
+        Args:
+            socket_path: Unix socket path to bind
+            responses: Dict mapping method -> response result.
+                       If callable, called with (request) -> result.
+            captured_requests: List to append received requests to.
+        """
+        import threading
+
+        srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        srv.bind(socket_path)
+        srv.listen(5)
+        srv.settimeout(5.0)
+        stop = threading.Event()
+
+        def serve():
+            while not stop.is_set():
+                try:
+                    conn, _ = srv.accept()
+                    conn.settimeout(2.0)
+                    data = b""
+                    while True:
+                        chunk = conn.recv(4096)
+                        if not chunk:
+                            break
+                        data += chunk
+
+                    request = json.loads(data.decode())
+                    captured_requests.append(request)
+
+                    method = request.get("method", "")
+                    result = responses.get(method, [])
+                    if callable(result):
+                        result = result(request)
+
+                    response = json.dumps({
+                        "jsonrpc": "2.0",
+                        "result": result,
+                        "id": request.get("id", 1),
+                    })
+                    conn.sendall(response.encode())
+                    conn.close()
+                except socket.timeout:
+                    continue
+                except Exception:
+                    break
+
+        thread = threading.Thread(target=serve, daemon=True)
+        thread.start()
+        return srv, stop, thread
+
+    def test_request_format_matches_bridge(self, mock_socket_path):
+        """Client _send_request produces JSON-RPC 2.0 compatible with daemon server.py."""
+        captured = []
+        srv, stop, thread = self._start_mock_server(
+            mock_socket_path,
+            responses={
+                "health": {"status": "healthy", "uptime_seconds": 100},
+                "search": [],
+            },
+            captured_requests=captured,
+        )
+
+        try:
+            client = DaemonClient(socket_path=mock_socket_path, daemon_timeout=2.0)
+            try:
+                client.search("test query", limit=3)
+            except Exception:
+                pass  # May fail parsing empty results
+
+            # Find the search request (not the health check)
+            search_reqs = [r for r in captured if r.get("method") == "search"]
+            assert len(search_reqs) >= 1, f"Expected search request, got methods: {[r.get('method') for r in captured]}"
+
+            req = search_reqs[0]
+            # Verify JSON-RPC 2.0 structure required by server.py:122
+            assert req.get("jsonrpc") == "2.0", "Must include jsonrpc version"
+            assert req.get("method") == "search", "Method must be search"
+            assert isinstance(req.get("params"), dict), "params must be dict"
+            assert "id" in req, "Must include request id"
+            assert req["params"].get("query") == "test query"
+        finally:
+            stop.set()
+            srv.close()
+
+    def test_response_format_flat_results(self, mock_socket_path):
+        """Daemon returns flat result dicts via JSON-RPC 2.0 result field.
+
+        The daemon's _result_to_dict produces flat keys:
+            source_title, vector_score, content, etc.
+
+        Note: _parse_search_response expects nested source/chunk sub-dicts
+        (designed for CLI output). Flat daemon results lose source_title/content
+        but vector_score/combined_score at top level are preserved.
+        ResearchKBBridge (lever_of_archimedes) uses from_daemon_result() which
+        handles flat format correctly — this is the recommended integration path.
+        """
+        # This is the actual format daemon's _result_to_dict produces
+        flat_result = {
+            "chunk_id": "chunk-001",
+            "source_id": "src-001",
+            "content": "IV estimation requires relevance and exclusion",
+            "source_title": "Econometric Analysis",
+            "source_authors": ["Wooldridge, J."],
+            "source_year": 2010,
+            "page_number": 100,
+            "vector_score": 0.85,
+            "combined_score": 0.92,
+        }
+
+        captured = []
+        srv, stop, thread = self._start_mock_server(
+            mock_socket_path,
+            responses={
+                "health": {"status": "healthy", "uptime_seconds": 100},
+                "search": [flat_result],
+            },
+            captured_requests=captured,
+        )
+
+        try:
+            client = DaemonClient(socket_path=mock_socket_path, daemon_timeout=2.0)
+            response = client.search("instrumental variables", limit=1)
+
+            # Client parses flat results — vector_score at top level is preserved
+            assert len(response.results) >= 1
+            result = response.results[0]
+            assert result.vector_score == 0.85
+            assert result.score == 0.92  # combined_score at top level
+            # Note: source.title falls back to "Unknown" because flat format
+            # doesn't have nested source.title — this is a known limitation
+            # of _parse_search_response (designed for CLI nested format).
+            # ResearchKBBridge.from_daemon_result() handles this correctly.
+        finally:
+            stop.set()
+            srv.close()
+
+    def test_error_response_format(self, mock_socket_path):
+        """JSON-RPC 2.0 error format is correctly handled."""
+        import threading
+
+        srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        srv.bind(mock_socket_path)
+        srv.listen(5)
+        srv.settimeout(5.0)
+
+        request_count = 0
+
+        def serve():
+            nonlocal request_count
+            while True:
+                try:
+                    conn, _ = srv.accept()
+                    conn.settimeout(2.0)
+                    data = b""
+                    while True:
+                        chunk = conn.recv(4096)
+                        if not chunk:
+                            break
+                        data += chunk
+                    request = json.loads(data.decode())
+                    request_count += 1
+                    method = request.get("method", "")
+
+                    if method == "health":
+                        # Health OK so it tries daemon for search
+                        response = json.dumps({
+                            "jsonrpc": "2.0",
+                            "result": {"status": "healthy"},
+                            "id": request.get("id", 1),
+                        })
+                    else:
+                        # Error for search
+                        response = json.dumps({
+                            "jsonrpc": "2.0",
+                            "error": {"code": -32600, "message": "Invalid Request"},
+                            "id": request.get("id", 1),
+                        })
+                    conn.sendall(response.encode())
+                    conn.close()
+                except socket.timeout:
+                    continue
+                except Exception:
+                    break
+
+        thread = threading.Thread(target=serve, daemon=True)
+        thread.start()
+
+        try:
+            client = DaemonClient(
+                socket_path=mock_socket_path,
+                daemon_timeout=2.0,
+                cli_path="/nonexistent/cli",  # No CLI fallback
+            )
+            with pytest.raises((ResearchKBError, ConnectionError)):
+                client.search("test")
+        finally:
+            srv.close()
+
+
 @pytest.mark.integration
 class TestLiveIntegration:
     """Integration tests against live daemon.
