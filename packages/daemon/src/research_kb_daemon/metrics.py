@@ -72,3 +72,18 @@ DAEMON_UPTIME = Gauge(
     "daemon_uptime_seconds",
     "Daemon uptime in seconds",
 )
+
+# ==============================================================================
+# KuzuDB Warm-up Metrics
+# ==============================================================================
+
+KUZU_WARMUP_DURATION = Histogram(
+    "kuzu_warmup_duration_seconds",
+    "Duration of KuzuDB pre-warming on startup",
+    buckets=[1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 60.0, 120.0],
+)
+
+KUZU_WARMUP_STATUS = Gauge(
+    "kuzu_warmup_status",
+    "KuzuDB warmup status: 0=pending, 1=in_progress, 2=completed, -1=failed",
+)

@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-05 22:25:11
+**Auto-generated**: 2026-02-06 09:54:36
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -11,9 +11,9 @@
 |-------|------:|
 | sources | 452 |
 | chunks | 178,215 |
-| concepts | 284,315 |
-| concept_relationships | 726,009 |
-| chunk_concepts | 1,149,648 |
+| concepts | 284,405 |
+| concept_relationships | 726,037 |
+| chunk_concepts | 1,149,749 |
 | citations | 15,869 |
 | methods | 15,505 |
 | assumptions | 9,468 |
@@ -34,7 +34,7 @@
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
 | Chunks | 178,215 | 178,215 | 100.0% |
-| Concepts | 283,714 | 284,315 | 99.8% |
+| Concepts | 283,714 | 284,405 | 99.8% |
 
 ---
 
@@ -52,14 +52,14 @@
 
 | Type | Count |
 |------|------:|
-| concept | 80,889 |
-| technique | 68,860 |
-| definition | 51,402 |
-| model | 22,456 |
-| method | 16,772 |
-| problem | 16,386 |
+| concept | 80,893 |
+| technique | 68,872 |
+| definition | 51,406 |
+| model | 22,492 |
+| method | 16,793 |
+| problem | 16,398 |
 | principle | 11,233 |
-| assumption | 10,621 |
+| assumption | 10,622 |
 | theorem | 5,696 |
 
 ---
@@ -68,14 +68,14 @@
 
 | Type | Count |
 |------|------:|
-| USES | 340,263 |
-| ADDRESSES | 109,931 |
-| SPECIALIZES | 87,166 |
+| USES | 340,277 |
+| ADDRESSES | 109,935 |
+| SPECIALIZES | 87,167 |
 | REQUIRES | 62,158 |
 | RELATED_TO | 51,547 |
-| ALTERNATIVE_TO | 39,562 |
-| EXTENDS | 26,978 |
-| GENERALIZES | 8,404 |
+| ALTERNATIVE_TO | 39,564 |
+| EXTENDS | 26,981 |
+| GENERALIZES | 8,408 |
 
 ---
 
@@ -87,7 +87,7 @@ Based on database population and feature detection:
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
 | Phase 1.5: PDF Ingestion | ✅ Complete | 452 sources, 178,215 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 284,315 concepts, 726,009 relationships |
+| Phase 2: Knowledge Graph | ✅ Complete | 284,405 concepts, 726,037 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
 

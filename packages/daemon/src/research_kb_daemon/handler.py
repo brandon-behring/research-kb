@@ -305,11 +305,15 @@ async def handle_health(params: dict[str, Any]) -> dict[str, Any]:
     if kuzu_reason:
         kuzu_health["reason"] = kuzu_reason
 
+    # KuzuDB warmup status
+    from research_kb_daemon.warmup import warmup_status
+
     return {
         "status": overall,
         "uptime_seconds": round(uptime, 1),
         "database": db_status,
         "kuzu_graph": kuzu_health,
+        "kuzu_warmup": warmup_status(),
         "embed_server": embed_health,
         "rerank_server": rerank_health,
     }

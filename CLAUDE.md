@@ -382,6 +382,13 @@ systemctl --user status research-kb-daemon
 echo '{"jsonrpc":"2.0","method":"health","id":1}' | nc -U /tmp/research_kb_daemon_$USER.sock
 ```
 
+**Pre-warming:**
+The daemon pre-warms KuzuDB on startup to avoid 60s cold-start latency.
+- Warming runs in background; `health` and `fast_search` work immediately
+- Typical warming time: 5-15s (depends on page cache state)
+- Skip with `--no-warm` flag for testing
+- Monitor via `health` endpoint (`kuzu_warmup` field) or Prometheus gauge
+
 **Installation:**
 ```bash
 ./scripts/install_daemon.sh install
