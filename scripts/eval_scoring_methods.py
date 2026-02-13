@@ -34,7 +34,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 
 from research_kb_pdf import EmbeddingClient
 from research_kb_storage import DatabaseConfig, SearchQuery, get_connection_pool
-from research_kb_storage.search import search_hybrid, search_hybrid_v2
+from research_kb_storage.search import (
+    search_hybrid,
+    search_hybrid_v2,
+    search_with_expansion,
+    search_with_rerank,
+)
 
 
 @dataclass
@@ -89,6 +94,9 @@ async def evaluate_query(
     embed_client: EmbeddingClient,
     scoring_method: str,
     use_v2: bool = True,
+    domain_filter: bool = True,
+    use_rerank: bool = False,
+    use_expand: bool = False,
 ) -> QueryResult:
     """Run a single query and check if target chunks appear in results.
 
@@ -97,6 +105,9 @@ async def evaluate_query(
         embed_client: Embedding client for query embedding
         scoring_method: "weighted" or "rrf"
         use_v2: Use search_hybrid_v2 (4-way) or search_hybrid (2-way)
+        domain_filter: Filter by entry's domain (default True)
+        use_rerank: Enable cross-encoder reranking
+        use_expand: Enable query expansion (synonyms + graph)
     """
     result = QueryResult(entry=entry, scoring_method=scoring_method)
 
@@ -114,10 +125,26 @@ async def evaluate_query(
             use_citations=True,
             limit=10,
             scoring_method=scoring_method,
+            domain_id=entry.domain if domain_filter else None,
         )
 
         start = time.monotonic()
-        if use_v2:
+        if use_expand:
+            results, _expansion = await search_with_expansion(
+                query,
+                use_synonyms=True,
+                use_graph_expansion=True,
+                use_llm_expansion=False,
+                use_rerank=use_rerank,
+                rerank_top_k=10,
+            )
+        elif use_rerank:
+            results = await search_with_rerank(
+                query,
+                rerank_top_k=10,
+                fetch_multiplier=5,
+            )
+        elif use_v2:
             results = await search_hybrid_v2(query)
         else:
             results = await search_hybrid(query)
@@ -212,6 +239,21 @@ async def main():
         action="store_true",
         help="Use search_hybrid instead of search_hybrid_v2 (for testing D1 fix)",
     )
+    parser.add_argument(
+        "--no-domain-filter",
+        action="store_true",
+        help="Search entire corpus (don't filter by domain)",
+    )
+    parser.add_argument(
+        "--rerank",
+        action="store_true",
+        help="Enable cross-encoder reranking (requires rerank server running)",
+    )
+    parser.add_argument(
+        "--expand",
+        action="store_true",
+        help="Enable query expansion (synonyms + graph expansion)",
+    )
     args = parser.parse_args()
 
     golden_path = Path(args.golden)
@@ -228,8 +270,32 @@ async def main():
     embed_client = EmbeddingClient()
 
     use_v2 = not args.use_v1
-    search_fn_name = "search_hybrid_v2" if use_v2 else "search_hybrid"
+    domain_filter = not args.no_domain_filter
+    use_rerank = args.rerank
+    use_expand = args.expand
+
+    # Determine search mode label
+    if use_expand:
+        search_fn_name = "search_with_expansion" + (" + rerank" if use_rerank else "")
+    elif use_rerank:
+        search_fn_name = "search_with_rerank"
+    elif use_v2:
+        search_fn_name = "search_hybrid_v2"
+    else:
+        search_fn_name = "search_hybrid"
+
+    mode_flags = []
+    if domain_filter:
+        mode_flags.append("domain_filter=ON")
+    else:
+        mode_flags.append("domain_filter=OFF")
+    if use_rerank:
+        mode_flags.append("rerank=ON")
+    if use_expand:
+        mode_flags.append("expand=ON")
+
     print(f"Search function: {search_fn_name}")
+    print(f"Mode: {', '.join(mode_flags)}")
 
     all_results = {}
     for method in ["weighted", "rrf"]:
@@ -239,7 +305,15 @@ async def main():
 
         results = []
         for entry in entries:
-            result = await evaluate_query(entry, embed_client, method, use_v2=use_v2)
+            result = await evaluate_query(
+                entry,
+                embed_client,
+                method,
+                use_v2=use_v2,
+                domain_filter=domain_filter,
+                use_rerank=use_rerank,
+                use_expand=use_expand,
+            )
             results.append(result)
 
             if args.verbose:
@@ -329,6 +403,11 @@ async def main():
         output = {
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
             "search_function": search_fn_name,
+            "mode": {
+                "domain_filter": domain_filter,
+                "rerank": use_rerank,
+                "expand": use_expand,
+            },
             "golden_entries": len(entries),
             "metrics": metrics,
             "domain_metrics": {

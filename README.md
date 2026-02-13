@@ -1,313 +1,267 @@
 # Research Knowledge Base
 
-A semantic search system for causal inference literature with graph-boosted retrieval.
+Graph-boosted semantic search for research literature.
+
+Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 19-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
 
 ## Features
 
-- **Hybrid Search**: Combines full-text search (FTS), vector similarity, and knowledge graph signals
-- **Graph-Boosted Ranking**: Leverages concept relationships for improved relevance (enabled by default)
-- **Knowledge Graph**: Automatically extracted concepts and relationships from research papers
-- **CLI Interface**: Simple command-line interface for querying the knowledge base
-- **Multiple Output Formats**: Markdown, JSON, and agent-optimized formats
+- **4-signal hybrid search** -- BM25 + vector + knowledge graph + citation authority, with context-aware weight profiles
+- **19-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
+- **Knowledge graph** -- 307K concepts and 742K relationships extracted from research literature, served by KuzuDB
+- **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
+- **Multi-domain** -- causal inference, time series, and extensible to new domains
+- **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
 
 ## Quick Start
 
-### Installation
+### Prerequisites
+
+- Docker + Docker Compose
+- Python 3.11+
+- Ollama (optional, for concept extraction)
+
+### 1. Start infrastructure
 
 ```bash
-# Install all packages in development mode
-pip install -e packages/cli
-pip install -e packages/storage
-pip install -e packages/pdf-tools
-pip install -e packages/contracts
-pip install -e packages/common
+docker-compose up -d   # PostgreSQL + pgvector
 ```
 
-### Basic Usage
+### 2. Install packages
 
-#### Search with Graph Boosting (Default)
+```bash
+pip install -e "packages/cli[all]"
+```
 
-Graph-boosted search is enabled by default and provides the best results:
+Or install individually:
+
+```bash
+pip install -e packages/contracts
+pip install -e packages/common
+pip install -e packages/storage
+pip install -e packages/pdf-tools
+pip install -e packages/cli
+```
+
+### 3. Ingest content
+
+```bash
+research-kb ingest <your-pdfs-directory>
+```
+
+### 4. Search
 
 ```bash
 research-kb query "instrumental variables"
 ```
 
-This combines:
-- **Full-text search** (keyword matching)
-- **Vector similarity** (semantic matching)
-- **Knowledge graph signals** (concept relationships)
-
-#### Customize Graph Weight
-
-Adjust how much the knowledge graph influences rankings:
+### 5. Start the MCP server (optional)
 
 ```bash
-research-kb query "backdoor criterion" --graph-weight 0.3
+research-kb-mcp serve
 ```
 
-Default graph weight is 0.2 (20% influence).
+Then add to your Claude Code MCP config to access all 19 tools from conversation.
 
-#### Fallback to Non-Graph Search
+## How It Works
 
-If you prefer traditional FTS + vector search only:
-
-```bash
-research-kb query "double machine learning" --no-graph
-```
-
-#### Other Query Options
-
-```bash
-# Limit number of results
-research-kb query "propensity score" --limit 10
-
-# Filter by source type
-research-kb query "matching" --source-type paper
-
-# Adjust context type (affects FTS/vector weights)
-research-kb query "cross-fitting" --context-type building
-
-# JSON output
-research-kb query "IV estimation" --format json
-
-# Agent-optimized output
-research-kb query "causal trees" --format agent
-```
-
-### Other CLI Commands
-
-#### List Sources
-
-```bash
-research-kb sources
-```
-
-#### Database Statistics
-
-```bash
-research-kb stats
-```
-
-#### Concept Search
-
-```bash
-research-kb concepts "instrumental variables"
-```
-
-#### Knowledge Graph Exploration
-
-```bash
-# View concept neighborhood
-research-kb graph "double machine learning" --hops 2
-
-# Find path between concepts
-research-kb path "instrumental variables" "exogeneity"
-```
-
-#### Extraction Status
-
-```bash
-research-kb extraction-status
-```
-
-#### Citation Network
-
-```bash
-# List citations from a source
-research-kb citations <source>
-
-# Find sources citing this one
-research-kb cited-by <source>
-
-# Find sources this one cites
-research-kb cites <source>
-
-# Corpus citation statistics
-research-kb citation-stats
-```
-
-#### Semantic Scholar Discovery
-
-```bash
-# Search Semantic Scholar
-research-kb discover search "double machine learning"
-
-# Browse by topic
-research-kb discover topics
-
-# Find by author
-research-kb discover author "Chernozhukov"
-
-# Enrich corpus with S2 metadata
-research-kb enrich citations
-
-# Show enrichment status
-research-kb enrich status
-```
-
-## Graph-Boosted Search
-
-### How It Works
-
-Graph-boosted search (v2) enhances traditional hybrid search by incorporating knowledge graph signals:
-
-1. **Extract query concepts**: Identify concepts mentioned in your query
-2. **Base retrieval**: Get initial results using FTS + vector search
-3. **Graph scoring**: Compute graph similarity between query concepts and document concepts
-4. **Re-ranking**: Combine all three signals for final ranking
-
-**Formula**: `score = fts_weight × fts + vector_weight × vector + graph_weight × graph`
-
-### When to Use Graph Search
-
-✅ **Use graph search (default) when:**
-- You want the most relevant results
-- You're searching for specific concepts or methods
-- You care about conceptual relationships
-
-🔄 **Use `--no-graph` when:**
-- Concepts haven't been extracted yet
-- You're debugging search issues
-- You want to compare results
-
-### Graceful Fallback
-
-If graph search is requested but concepts haven't been extracted, the system automatically falls back to standard search with a warning:
+### Search Pipeline
 
 ```
-Warning: Graph search requested but no concepts extracted.
-Falling back to standard search (FTS + vector only).
-To extract concepts: python scripts/extract_concepts.py
+Query
+  |
+  +---> Embed (BGE-large-en-v1.5, 1024d)
+  |
+  +---> Execute in parallel:
+  |       FTS (PostgreSQL ts_rank)
+  |       Vector (pgvector cosine similarity)
+  |       Graph (KuzuDB concept traversal)
+  |       Citation (PageRank authority)
+  |
+  +---> Weighted fusion
+  |       score = w_fts * BM25 + w_vec * cosine + w_graph * graph + w_cite * pagerank
+  |
+  +---> Cross-encoder rerank (optional)
+  |
+  +---> Return top-K results
 ```
 
-## Data Ingestion
+### Context-Aware Weights
 
-### Ingest Corpus
+The weight profile adapts to the search intent:
 
-```bash
-# Ingest Phase 1 corpus (textbooks + papers)
-python scripts/ingest_corpus.py
-```
-
-### Extract Concepts
-
-```bash
-# Extract concepts using Ollama (requires Ollama server)
-python scripts/extract_concepts.py --limit 1000
-```
-
-### Validate Quality
-
-```bash
-# Validate retrieval quality
-python scripts/eval_retrieval.py
-
-# Validate concept extraction
-python scripts/validate_seed_concepts.py
-
-# Validate knowledge graph
-python scripts/master_plan_validation.py
-```
-
-## Development
-
-### Running Tests
-
-```bash
-# All tests
-pytest
-
-# By package
-pytest packages/cli/tests/ -v
-pytest packages/storage/tests/ -v
-pytest packages/pdf-tools/tests/ -v
-pytest packages/extraction/tests/ -v
-
-# By marker (limited coverage - most tests lack markers)
-pytest -m "unit"            # Fast, isolated (6 tests in pdf-tools)
-pytest -m "requires_reranker"  # Needs reranker service (3 tests)
-```
-
-**Note**: Test markers have sparse coverage. Run by package for more reliable filtering. See Phase 5 in remediation plan for marker expansion.
-
-### CI/CD
-
-The project uses a tiered CI/CD approach:
-
-1. **PR Checks** (fast, <10 min): Unit tests + CLI tests with mocked services
-2. **Daily Validation** (3 min): Quick quality checks using cached database
-3. **Weekly Full Rebuild** (60 min): Complete from-scratch validation proving reproducibility
-
-See `.github/workflows/` for workflow definitions.
+| Context | FTS | Vector | Graph | Use Case |
+|---------|-----|--------|-------|----------|
+| `building` | 20% | 70% | 10% | Broad research -- cast a wide semantic net |
+| `auditing` | 45% | 45% | 10% | Precise lookup -- keyword accuracy matters |
+| `balanced` | 30% | 60% | 10% | Default -- good general performance |
 
 ## Architecture
 
+```
+┌───────────────────────────────────────────────────┐
+│  Interfaces                                       │
+│  ┌─────┐  ┌─────────┐  ┌─────┐  ┌───────────┐   │
+│  │ CLI │  │MCP (19) │  │ API │  │ Dashboard │   │
+│  └──┬──┘  └────┬────┘  └──┬──┘  └─────┬─────┘   │
+│     └──────────┴──────────┴────────────┘          │
+│                     │                              │
+│  ┌──────────────────┴──────────────────────────┐  │
+│  │           Storage Layer                      │  │
+│  │  SourceStore · ChunkStore · ConceptStore     │  │
+│  │  CitationStore · KuzuStore                   │  │
+│  │  HybridSearch (4-signal fusion)              │  │
+│  └──────────────────┬──────────────────────────┘  │
+│                     │                              │
+│  ┌──────────────────┴──────────────────────────┐  │
+│  │     PostgreSQL + pgvector  |  KuzuDB        │  │
+│  │     (FTS, vectors, schema) | (graph engine) │  │
+│  └─────────────────────────────────────────────┘  │
+└───────────────────────────────────────────────────┘
+```
+
 ### Packages
 
-- **cli**: Command-line interface (Typer-based)
-- **storage**: Database layer (PostgreSQL + pgvector)
-- **pdf-tools**: PDF ingestion and embedding
-- **contracts**: Shared data models (Pydantic)
-- **common**: Shared utilities and logging
-- **extraction**: Concept extraction (Ollama-based)
+| Package | Purpose | Key Technology |
+|---------|---------|----------------|
+| `contracts` | Shared data models | Pydantic |
+| `common` | Logging, retry, instrumentation | structlog, tenacity |
+| `storage` | Database + search orchestration | asyncpg, pgvector, KuzuDB |
+| `pdf-tools` | PDF extraction + embedding | PyMuPDF, GROBID, BGE-large |
+| `extraction` | Concept extraction from text | Ollama LLM |
+| `cli` | Command-line interface | Typer |
+| `api` | REST endpoints + health checks | FastAPI |
+| `daemon` | Background service (embedding, sync) | asyncio |
+| `mcp-server` | MCP tool server for Claude Code | MCP SDK |
+| `dashboard` | Visual search + graph explorer | Streamlit |
+| `s2-client` | Semantic Scholar API client | httpx, rate limiting |
+| `client` | Python client library | httpx |
 
-### Database Schema
+### Key Design Decisions
 
-- **sources**: Textbooks, papers, repositories
-- **chunks**: Content units with embeddings
-- **citations**: Extracted bibliographic references
-- **concepts**: Extracted concepts with types
-- **concept_relationships**: Graph edges (REQUIRES, USES, etc.)
-- **chunk_concepts**: Links chunks to concepts
-- **methods**: Method-specific attributes
-- **assumptions**: Assumption-specific attributes
+| Decision | Rationale | Alternative Rejected |
+|----------|-----------|---------------------|
+| BGE-large-en-v1.5 (1024d) | Single model ensures embedding consistency across 178K chunks | Multi-model (marginal quality gain, consistency cost) |
+| KuzuDB embedded graph | Solved O(N*M) recursive CTE bottleneck: 85s -> 2.1s | PostgreSQL-only graph (too slow at scale) |
+| Weighted sum over RRF | Validated 5-1 superiority on 47-query golden dataset | Reciprocal Rank Fusion (loses magnitude signal) |
+| asyncpg connection pooling | Handles concurrent MCP + API + CLI requests | Synchronous psycopg2 (blocks on I/O) |
+| JSONB metadata columns | Extensible without schema migrations | Rigid columns (migration overhead) |
 
-## Migration Guide (v1 → v2)
+## Performance
 
-### Breaking Changes
+### Retrieval Quality
 
-**Graph search is now enabled by default.** If you were using the CLI before:
+Evaluated on a golden dataset of 47 queries with known-relevant chunks:
 
-**Before (v1)**:
+| Metric | Score |
+|--------|-------|
+| Hit Rate@K | 92.9% |
+| MRR | 0.849 |
+| NDCG@5 | 0.823 |
+
+### Latency
+
+| Operation | p50 | p95 |
+|-----------|-----|-----|
+| Health check | 20ms | 22ms |
+| Vector search (fast path) | 208ms | 212ms |
+| Graph-boosted search (warm) | 2.1s | -- |
+| Graph path query (KuzuDB) | 3.1s | 5.8s |
+
+The graph-boosted warm latency of 2.1s represents a **40x improvement** from the pre-KuzuDB architecture (85s). Full optimization story: [`docs/design/latency_analysis.md`](docs/design/latency_analysis.md).
+
+### Corpus Scale
+
+| Dimension | Count |
+|-----------|-------|
+| Sources (papers, textbooks) | 452 |
+| Text chunks (100% embedded) | 178K |
+| Concepts (9 types) | 307K |
+| Relationships | 742K |
+| Citations | 15,869 |
+
+## MCP Server
+
+19 tools organized by function, designed for conversational use in Claude Code:
+
+| Category | Tools | Description |
+|----------|-------|-------------|
+| **Search** | `research_kb_search` | Hybrid search with domain filtering and context profiles |
+| **Sources** | `list_sources`, `get_source`, `get_source_citations`, `get_citing_sources`, `get_cited_sources` | Browse corpus and citation links |
+| **Concepts** | `list_concepts`, `get_concept`, `chunk_concepts`, `find_similar_concepts` | Search and inspect knowledge graph nodes |
+| **Graph** | `graph_neighborhood`, `graph_path`, `cross_domain_concepts` | Traverse concept relationships |
+| **Citations** | `citation_network`, `biblio_coupling` | Upstream/downstream influence, bibliographic coupling |
+| **Health** | `health`, `stats`, `list_domains` | System status and corpus metrics |
+| **Advanced** | `audit_assumptions` | Method assumption extraction with docstring generation |
+
+## Testing
+
+- **1,900+ test functions** across 89 test files
+- **Tiered CI/CD**: PR checks (<10 min) -> Daily validation (3 min) -> Weekly full rebuild (60 min)
+- **Golden evaluation dataset**: 47 queries across 4 domains with known-relevant chunks
+- **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
+
 ```bash
-research-kb query "test"  # FTS + vector only
-research-kb query "test" --use-graph  # Opt-in to graph
+# Run all tests
+pytest
+
+# Run by package
+pytest packages/storage/tests/ -v
+pytest packages/mcp-server/tests/ -v
+
+# Run with markers
+pytest -m "unit"
 ```
 
-**After (v2)**:
+## CLI Reference
+
+Full command reference with examples: [`docs/CLI.md`](docs/CLI.md)
+
+## Development
+
+### Adding a New Domain
+
+1. Create a domain config in `packages/storage/src/research_kb_storage/domains/`
+2. Ingest domain-specific PDFs: `research-kb ingest --domain <name> <pdf-dir>`
+3. Extract concepts: `python scripts/extract_concepts.py --domain <name>`
+4. Sync to KuzuDB: `python scripts/sync_kuzu.py`
+
+### Extending the MCP Server
+
+1. Create a tool module in `packages/mcp-server/src/research_kb_mcp/tools/`
+2. Implement tools with `@mcp.tool()` decorators
+3. Register in `tools/__init__.py`
+4. Add tests in `packages/mcp-server/tests/`
+
+### Running the Full Stack
+
 ```bash
-research-kb query "test"  # FTS + vector + graph (default)
-research-kb query "test" --no-graph  # Opt-out of graph
+# Infrastructure
+docker-compose up -d
+
+# Embedding server
+python -m research_kb_pdf.embed_server
+
+# MCP daemon
+research-kb-mcp serve
+
+# API server
+uvicorn research_kb_api.app:app --port 8000
+
+# Dashboard
+streamlit run packages/dashboard/app.py
 ```
 
-### Compatibility
+## Documentation
 
-- Old scripts using `--use-graph` will continue to work (flag still accepted)
-- Default behavior change only affects interactive CLI usage
-- Programmatic API unchanged
-
-## Requirements
-
-### Prerequisites
-
-- Python 3.11+
-- PostgreSQL with pgvector extension
-- Ollama (for concept extraction, optional)
-
-### External Services
-
-- **Embedding server** (required for search): `python -m research_kb_pdf.embed_server`
-- **Ollama server** (optional, for concept extraction): `ollama serve`
+| Document | Description |
+|----------|-------------|
+| [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Architecture, package dependencies, schema |
+| [`docs/design/latency_analysis.md`](docs/design/latency_analysis.md) | 85s -> 2.1s graph optimization story |
+| [`docs/design/rrf_validation.md`](docs/design/rrf_validation.md) | Weighted sum vs. RRF empirical comparison |
+| [`docs/SLO.md`](docs/SLO.md) | Service level objectives |
+| [`docs/CLI.md`](docs/CLI.md) | Full CLI command reference |
 
 ## License
 
-[Add license information]
-
-## Contributing
-
-[Add contributing guidelines]
-
-## Citation
-
-[Add citation information]
+MIT

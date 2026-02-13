@@ -1,0 +1,26 @@
+[Unit]
+Description=Research-KB Cross-Encoder Reranker
+Documentation=https://github.com/brandon-behring/research-kb
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=%h/Claude/research-kb/venv/bin/python -m research_kb_pdf.rerank_server
+WorkingDirectory=%h/Claude/research-kb
+Environment=PATH=%h/Claude/research-kb/venv/bin:/usr/local/bin:/usr/bin:/bin
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=research-kb-reranker
+
+# Restart on failure
+Restart=on-failure
+RestartSec=10
+
+# Resource limits
+TimeoutStartSec=120
+Nice=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,196 @@
+# CLI Reference
+
+> This is the command-line interface reference for research-kb. For project overview, architecture, and quick start, see the [main README](../README.md).
+
+---
+
+## Installation
+
+```bash
+# Install all packages in development mode
+pip install -e packages/cli
+pip install -e packages/storage
+pip install -e packages/pdf-tools
+pip install -e packages/contracts
+pip install -e packages/common
+```
+
+## Search
+
+### Graph-Boosted Search (Default)
+
+Graph-boosted search is enabled by default and provides the best results:
+
+```bash
+research-kb query "instrumental variables"
+```
+
+This combines:
+- **Full-text search** (keyword matching)
+- **Vector similarity** (semantic matching)
+- **Knowledge graph signals** (concept relationships)
+
+### Customize Graph Weight
+
+Adjust how much the knowledge graph influences rankings:
+
+```bash
+research-kb query "backdoor criterion" --graph-weight 0.3
+```
+
+Default graph weight is 0.2 (20% influence).
+
+### Fallback to Non-Graph Search
+
+If you prefer traditional FTS + vector search only:
+
+```bash
+research-kb query "double machine learning" --no-graph
+```
+
+### Other Query Options
+
+```bash
+# Limit number of results
+research-kb query "propensity score" --limit 10
+
+# Filter by source type
+research-kb query "matching" --source-type paper
+
+# Adjust context type (affects FTS/vector weights)
+research-kb query "cross-fitting" --context-type building
+
+# JSON output
+research-kb query "IV estimation" --format json
+
+# Agent-optimized output
+research-kb query "causal trees" --format agent
+```
+
+## Browsing
+
+### List Sources
+
+```bash
+research-kb sources
+```
+
+### Database Statistics
+
+```bash
+research-kb stats
+```
+
+### Concept Search
+
+```bash
+research-kb concepts "instrumental variables"
+```
+
+### Extraction Status
+
+```bash
+research-kb extraction-status
+```
+
+## Knowledge Graph
+
+### View Concept Neighborhood
+
+```bash
+research-kb graph "double machine learning" --hops 2
+```
+
+### Find Path Between Concepts
+
+```bash
+research-kb path "instrumental variables" "exogeneity"
+```
+
+## Citation Network
+
+```bash
+# List citations from a source
+research-kb citations <source>
+
+# Find sources citing this one
+research-kb cited-by <source>
+
+# Find sources this one cites
+research-kb cites <source>
+
+# Corpus citation statistics
+research-kb citation-stats
+```
+
+## Semantic Scholar Discovery
+
+```bash
+# Search Semantic Scholar
+research-kb discover search "double machine learning"
+
+# Browse by topic
+research-kb discover topics
+
+# Find by author
+research-kb discover author "Chernozhukov"
+
+# Enrich corpus with S2 metadata
+research-kb enrich citations
+
+# Show enrichment status
+research-kb enrich status
+```
+
+## Data Ingestion
+
+### Ingest Corpus
+
+```bash
+# Ingest Phase 1 corpus (textbooks + papers)
+python scripts/ingest_corpus.py
+```
+
+### Extract Concepts
+
+```bash
+# Extract concepts using Ollama (requires Ollama server)
+python scripts/extract_concepts.py --limit 1000
+```
+
+### Validate Quality
+
+```bash
+# Validate retrieval quality
+python scripts/eval_retrieval.py
+
+# Validate concept extraction
+python scripts/validate_seed_concepts.py
+
+# Validate knowledge graph
+python scripts/master_plan_validation.py
+```
+
+## Migration Guide (v1 -> v2)
+
+### Breaking Changes
+
+**Graph search is now enabled by default.** If you were using the CLI before:
+
+**Before (v1)**:
+```bash
+research-kb query "test"  # FTS + vector only
+research-kb query "test" --use-graph  # Opt-in to graph
+```
+
+**After (v2)**:
+```bash
+research-kb query "test"  # FTS + vector + graph (default)
+research-kb query "test" --no-graph  # Opt-out of graph
+```
+
+### Compatibility
+
+- Old scripts using `--use-graph` will continue to work (flag still accepted)
+- Default behavior change only affects interactive CLI usage
+- Programmatic API unchanged

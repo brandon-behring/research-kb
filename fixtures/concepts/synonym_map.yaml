@@ -370,3 +370,147 @@ pretrend:
   - pretrends
   - pre-trends
   - pre-treatment trend
+
+# =============================================================================
+# INTERVIEW PREP / EXPERIMENTATION
+# =============================================================================
+
+ab_testing:
+  - a/b testing
+  - a-b testing
+  - randomized controlled trial
+  - online experiment
+  - split testing
+  - controlled experiment
+
+feature_flag:
+  - feature toggle
+  - feature switch
+  - experimentation platform
+  - feature gate
+
+sample_size:
+  - power analysis
+  - statistical power
+  - minimum detectable effect
+  - mde
+  - sample size calculation
+
+multiple_testing:
+  - multiple testing correction
+  - multiple comparisons
+  - bonferroni correction
+  - bonferroni
+  - family-wise error rate
+  - fwer
+  - false discovery rate
+  - fdr
+
+type_i_error:
+  - type 1 error
+  - type I error
+  - false positive
+  - alpha error
+
+type_ii_error:
+  - type 2 error
+  - type II error
+  - false negative
+  - beta error
+
+statistical_significance:
+  - statistical significance
+  - significance testing
+  - hypothesis testing
+  - null hypothesis
+
+experiment_design:
+  - experiment design
+  - experimental design
+  - study design
+  - trial design
+
+# =============================================================================
+# RAG / LLM
+# =============================================================================
+
+rag:
+  - retrieval augmented generation
+  - retrieval-augmented generation
+  - rag pipeline
+  - rag system
+
+few_shot:
+  - few-shot learning
+  - few shot learning
+  - in-context learning
+  - k-shot
+  - n-shot
+
+zero_shot:
+  - zero-shot learning
+  - zero shot learning
+  - zero-shot prompting
+
+chain_of_thought:
+  - cot
+  - step-by-step reasoning
+  - chain of thought prompting
+  - chain-of-thought
+
+scaling_law:
+  - scaling laws
+  - compute-optimal
+  - chinchilla scaling
+  - neural scaling law
+
+embedding_model:
+  - text encoder
+  - bi-encoder
+  - sentence transformer
+  - sentence-transformers
+  - embedding
+
+vector_database:
+  - vector store
+  - vector index
+  - approximate nearest neighbor
+  - ann index
+  - vector search
+
+prompt_engineering:
+  - prompt design
+  - prompt tuning
+  - prompt optimization
+  - prompt construction
+
+language_model:
+  - language model pretraining
+  - large language model
+  - llm
+  - lm
+  - foundation model
+
+transformer:
+  - transformer architecture
+  - attention mechanism
+  - self-attention
+  - multi-head attention
+
+gpt:
+  - gpt architecture
+  - generative pretrained transformer
+  - generative pre-trained transformer
+  - autoregressive language model
+
+benchmark:
+  - benchmark evaluation
+  - evaluation benchmark
+  - model evaluation
+  - benchmark dataset
+
+text_generation:
+  - text generation
+  - language generation
+  - natural language generation
+  - nlg
