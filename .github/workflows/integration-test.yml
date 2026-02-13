@@ -39,6 +39,8 @@ jobs:
           pip install -e packages/contracts
           pip install -e packages/common
           pip install -e packages/storage
+          pip install -e packages/extraction
+          pip install pyyaml
           pip install pytest pytest-asyncio
 
       - name: Apply database schema
