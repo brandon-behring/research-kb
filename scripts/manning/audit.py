@@ -66,7 +66,7 @@ def normalize_for_match(title: str) -> str:
     # Remove parentheticals
     import re
 
-    t = re.sub(r"\(.*?\)", "", t)
+    t = re.sub(r"[()]", "", t)
     # Remove punctuation except spaces
     t = re.sub(r"[^\w\s]", "", t)
     # Collapse whitespace

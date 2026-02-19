@@ -1,0 +1,263 @@
+{
+  "timestamp": "2026-02-19T17:48:38",
+  "search_function": "search_hybrid_v2",
+  "mode": {
+    "domain_filter": true,
+    "rerank": false,
+    "expand": false
+  },
+  "golden_entries": 94,
+  "metrics": {
+    "weighted": {
+      "total_queries": 94,
+      "valid_queries": 94,
+      "errors": 0,
+      "hit_rate_at_5": 0.46808510638297873,
+      "hit_rate_at_10": 0.5319148936170213,
+      "mrr": 0.2843971631205674,
+      "ndcg_at_5": 0.322842384658889,
+      "ndcg_at_10": 0.3438452982903673,
+      "avg_latency_ms": 11664.537377063562
+    },
+    "rrf": {
+      "total_queries": 94,
+      "valid_queries": 3,
+      "errors": 91,
+      "hit_rate_at_5": 0.0,
+      "hit_rate_at_10": 0.3333333333333333,
+      "mrr": 0.03333333333333333,
+      "ndcg_at_5": 0.0,
+      "ndcg_at_10": 0.09635494210596263,
+      "avg_latency_ms": 14543.289400999734
+    }
+  },
+  "domain_metrics": {
+    "weighted": {
+      "causal_inference": {
+        "total_queries": 20,
+        "valid_queries": 20,
+        "errors": 0,
+        "hit_rate_at_5": 0.45,
+        "hit_rate_at_10": 0.5,
+        "mrr": 0.2379166666666667,
+        "ndcg_at_5": 0.2839170491254812,
+        "ndcg_at_10": 0.2996902929647677,
+        "avg_latency_ms": 19480.703711699607
+      },
+      "deep_learning": {
+        "total_queries": 8,
+        "valid_queries": 8,
+        "errors": 0,
+        "hit_rate_at_5": 0.5,
+        "hit_rate_at_10": 0.5,
+        "mrr": 0.3333333333333333,
+        "ndcg_at_5": 0.375,
+        "ndcg_at_10": 0.375,
+        "avg_latency_ms": 8466.734436499792
+      },
+      "econometrics": {
+        "total_queries": 7,
+        "valid_queries": 7,
+        "errors": 0,
+        "hit_rate_at_5": 0.2857142857142857,
+        "hit_rate_at_10": 0.42857142857142855,
+        "mrr": 0.21428571428571427,
+        "ndcg_at_5": 0.21428571428571427,
+        "ndcg_at_10": 0.265172455301146,
+        "avg_latency_ms": 14660.892950285675
+      },
+      "finance": {
+        "total_queries": 3,
+        "valid_queries": 3,
+        "errors": 0,
+        "hit_rate_at_5": 0.6666666666666666,
+        "hit_rate_at_10": 0.6666666666666666,
+        "mrr": 0.19444444444444442,
+        "ndcg_at_5": 0.3102255193577977,
+        "ndcg_at_10": 0.3102255193577977,
+        "avg_latency_ms": 10837.60734800065
+      },
+      "interview_prep": {
+        "total_queries": 10,
+        "valid_queries": 10,
+        "errors": 0,
+        "hit_rate_at_5": 0.4,
+        "hit_rate_at_10": 0.5,
+        "mrr": 0.19083333333333333,
+        "ndcg_at_5": 0.23175293653079346,
+        "ndcg_at_10": 0.26329942420936636,
+        "avg_latency_ms": 1562.6348929996311
+      },
+      "machine_learning": {
+        "total_queries": 4,
+        "valid_queries": 4,
+        "errors": 0,
+        "hit_rate_at_5": 0.75,
+        "hit_rate_at_10": 0.75,
+        "mrr": 0.4583333333333333,
+        "ndcg_at_5": 0.5327324383928644,
+        "ndcg_at_10": 0.5327324383928644,
+        "avg_latency_ms": 20651.59600725019
+      },
+      "rag_llm": {
+        "total_queries": 15,
+        "valid_queries": 15,
+        "errors": 0,
+        "hit_rate_at_5": 0.26666666666666666,
+        "hit_rate_at_10": 0.3333333333333333,
+        "mrr": 0.19166666666666668,
+        "ndcg_at_5": 0.20410708744299005,
+        "ndcg_at_10": 0.2251380792287053,
+        "avg_latency_ms": 4296.590563799206
+      },
+      "software_engineering": {
+        "total_queries": 8,
+        "valid_queries": 8,
+        "errors": 0,
+        "hit_rate_at_5": 0.875,
+        "hit_rate_at_10": 1.0,
+        "mrr": 0.5197916666666667,
+        "ndcg_at_5": 0.5974552584936142,
+        "ndcg_at_10": 0.6368883680918304,
+        "avg_latency_ms": 6607.0703948748815
+      },
+      "statistics": {
+        "total_queries": 6,
+        "valid_queries": 6,
+        "errors": 0,
+        "hit_rate_at_5": 0.6666666666666666,
+        "hit_rate_at_10": 0.8333333333333334,
+        "mrr": 0.4861111111111111,
+        "ndcg_at_5": 0.5102677186074751,
+        "ndcg_at_10": 0.5696355831254788,
+        "avg_latency_ms": 20166.9072821666
+      },
+      "time_series": {
+        "total_queries": 13,
+        "valid_queries": 13,
+        "errors": 0,
+        "hit_rate_at_5": 0.38461538461538464,
+        "hit_rate_at_10": 0.38461538461538464,
+        "mrr": 0.2717948717948718,
+        "ndcg_at_5": 0.29898867747958013,
+        "ndcg_at_10": 0.29898867747958013,
+        "avg_latency_ms": 12879.991750307594
+      }
+    },
+    "rrf": {
+      "causal_inference": {
+        "total_queries": 20,
+        "valid_queries": 3,
+        "errors": 17,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.3333333333333333,
+        "mrr": 0.03333333333333333,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.09635494210596263,
+        "avg_latency_ms": 14543.289400999734
+      },
+      "deep_learning": {
+        "total_queries": 8,
+        "valid_queries": 0,
+        "errors": 8,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      },
+      "econometrics": {
+        "total_queries": 7,
+        "valid_queries": 0,
+        "errors": 7,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      },
+      "finance": {
+        "total_queries": 3,
+        "valid_queries": 0,
+        "errors": 3,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      },
+      "interview_prep": {
+        "total_queries": 10,
+        "valid_queries": 0,
+        "errors": 10,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      },
+      "machine_learning": {
+        "total_queries": 4,
+        "valid_queries": 0,
+        "errors": 4,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      },
+      "rag_llm": {
+        "total_queries": 15,
+        "valid_queries": 0,
+        "errors": 15,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      },
+      "software_engineering": {
+        "total_queries": 8,
+        "valid_queries": 0,
+        "errors": 8,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      },
+      "statistics": {
+        "total_queries": 6,
+        "valid_queries": 0,
+        "errors": 6,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      },
+      "time_series": {
+        "total_queries": 13,
+        "valid_queries": 0,
+        "errors": 13,
+        "hit_rate_at_5": 0.0,
+        "hit_rate_at_10": 0.0,
+        "mrr": 0.0,
+        "ndcg_at_5": 0.0,
+        "ndcg_at_10": 0.0,
+        "avg_latency_ms": 0.0
+      }
+    }
+  },
+  "verdict": "Weighted wins \u2014 keep current default",
+  "rrf_wins": 0,
+  "weighted_wins": 6
+}

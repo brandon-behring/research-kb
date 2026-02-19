@@ -193,6 +193,38 @@ class TestChunkStoreBatch:
         result = await ChunkStore.batch_create([])
         assert result == []
 
+    async def test_batch_create_idempotent(self, test_source):
+        """Re-inserting same chunks returns existing rather than duplicating."""
+        chunks_data = [
+            {
+                "source_id": test_source.id,
+                "content": "Dedup test content",
+                "content_hash": "sha256:test_dedup_batch",
+                "embedding": [0.1] * 1024,
+                "metadata": {"index": 0},
+            }
+        ]
+        first = await ChunkStore.batch_create(chunks_data)
+        second = await ChunkStore.batch_create(chunks_data)
+
+        assert len(first) == len(second) == 1
+        assert first[0].id == second[0].id
+
+    async def test_create_idempotent(self, test_source):
+        """Re-inserting same chunk via create() returns existing."""
+        first = await ChunkStore.create(
+            source_id=test_source.id,
+            content="Single dedup test",
+            content_hash="sha256:test_dedup_single",
+        )
+        second = await ChunkStore.create(
+            source_id=test_source.id,
+            content="Single dedup test",
+            content_hash="sha256:test_dedup_single",
+        )
+
+        assert first.id == second.id
+
 
 class TestChunkStoreDelete:
     """Test ChunkStore delete operations."""

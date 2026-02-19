@@ -90,6 +90,7 @@ class ChunkStore:
                         location, page_start, page_end,
                         embedding, metadata, domain_id, created_at
                     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                    ON CONFLICT (source_id, content_hash) DO NOTHING
                     RETURNING *
                     """,
                     chunk_id,
@@ -105,14 +106,27 @@ class ChunkStore:
                     now,
                 )
 
-                logger.info(
-                    "chunk_created",
-                    chunk_id=str(chunk_id),
-                    source_id=str(source_id),
-                    content_length=len(content),
-                    has_embedding=embedding is not None,
-                    domain_id=domain_id,
-                )
+                if row is None:
+                    # Conflict: chunk already exists, fetch existing
+                    row = await conn.fetchrow(
+                        "SELECT * FROM chunks WHERE source_id = $1 AND content_hash = $2",
+                        source_id,
+                        content_hash,
+                    )
+                    logger.info(
+                        "chunk_already_exists",
+                        chunk_id=str(row["id"]),
+                        source_id=str(source_id),
+                    )
+                else:
+                    logger.info(
+                        "chunk_created",
+                        chunk_id=str(chunk_id),
+                        source_id=str(source_id),
+                        content_length=len(content),
+                        has_embedding=embedding is not None,
+                        domain_id=domain_id,
+                    )
 
                 return await _row_to_chunk(row, conn)
 
@@ -349,6 +363,7 @@ class ChunkStore:
                                 location, page_start, page_end,
                                 embedding, metadata, domain_id, created_at
                             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                            ON CONFLICT (source_id, content_hash) DO NOTHING
                             RETURNING *
                             """,
                             chunk_id,
@@ -363,6 +378,14 @@ class ChunkStore:
                             chunk_dict.get("domain_id", "causal_inference"),
                             now,
                         )
+
+                        if row is None:
+                            # Conflict: fetch existing chunk
+                            row = await conn.fetchrow(
+                                "SELECT * FROM chunks WHERE source_id = $1 AND content_hash = $2",
+                                chunk_dict["source_id"],
+                                chunk_dict["content_hash"],
+                            )
 
                         created_chunks.append(await _row_to_chunk(row, conn))
 
