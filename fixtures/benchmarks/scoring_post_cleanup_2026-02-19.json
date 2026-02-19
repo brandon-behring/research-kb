@@ -1,0 +1,131 @@
+{
+  "timestamp": "2026-02-19T14:08:06",
+  "search_function": "search_hybrid_v2",
+  "mode": {
+    "domain_filter": true,
+    "rerank": false,
+    "expand": false
+  },
+  "golden_entries": 47,
+  "metrics": {
+    "weighted": {
+      "total_queries": 47,
+      "valid_queries": 47,
+      "errors": 0,
+      "hit_rate_at_5": 0.40425531914893614,
+      "hit_rate_at_10": 0.5319148936170213,
+      "mrr": 0.2946386355960824,
+      "ndcg_at_5": 0.3081707285210934,
+      "ndcg_at_10": 0.3501431127670026,
+      "avg_latency_ms": 2693.8785864679226
+    },
+    "rrf": {
+      "total_queries": 47,
+      "valid_queries": 47,
+      "errors": 0,
+      "hit_rate_at_5": 0.3829787234042553,
+      "hit_rate_at_10": 0.48936170212765956,
+      "mrr": 0.2616092536305302,
+      "ndcg_at_5": 0.28144896142187886,
+      "ndcg_at_10": 0.31538726395823957,
+      "avg_latency_ms": 2685.4131164467267
+    }
+  },
+  "domain_metrics": {
+    "weighted": {
+      "causal_inference": {
+        "total_queries": 17,
+        "valid_queries": 17,
+        "errors": 0,
+        "hit_rate_at_5": 0.35294117647058826,
+        "hit_rate_at_10": 0.5294117647058824,
+        "mrr": 0.265406162464986,
+        "ndcg_at_5": 0.26832978303793237,
+        "ndcg_at_10": 0.3271533124496971,
+        "avg_latency_ms": 5384.484035235266
+      },
+      "interview_prep": {
+        "total_queries": 10,
+        "valid_queries": 10,
+        "errors": 0,
+        "hit_rate_at_5": 0.2,
+        "hit_rate_at_10": 0.3,
+        "mrr": 0.13666666666666666,
+        "ndcg_at_5": 0.13868528072345415,
+        "ndcg_at_10": 0.17430599943425637,
+        "avg_latency_ms": 1305.77074169978
+      },
+      "rag_llm": {
+        "total_queries": 10,
+        "valid_queries": 10,
+        "errors": 0,
+        "hit_rate_at_5": 0.7,
+        "hit_rate_at_10": 0.9,
+        "mrr": 0.39694444444444443,
+        "ndcg_at_5": 0.45355651216119985,
+        "ndcg_at_10": 0.5152059994061708,
+        "avg_latency_ms": 990.0565656995241
+      },
+      "time_series": {
+        "total_queries": 10,
+        "valid_queries": 10,
+        "errors": 0,
+        "hit_rate_at_5": 0.4,
+        "hit_rate_at_10": 0.4,
+        "mrr": 0.4,
+        "ndcg_at_5": 0.4,
+        "ndcg_at_10": 0.4,
+        "avg_latency_ms": 1211.7791890999797
+      }
+    },
+    "rrf": {
+      "causal_inference": {
+        "total_queries": 17,
+        "valid_queries": 17,
+        "errors": 0,
+        "hit_rate_at_5": 0.23529411764705882,
+        "hit_rate_at_10": 0.47058823529411764,
+        "mrr": 0.20709617180205414,
+        "ndcg_at_5": 0.1918740886554656,
+        "ndcg_at_10": 0.26714675585683173,
+        "avg_latency_ms": 5362.549456705785
+      },
+      "interview_prep": {
+        "total_queries": 10,
+        "valid_queries": 10,
+        "errors": 0,
+        "hit_rate_at_5": 0.1,
+        "hit_rate_at_10": 0.2,
+        "mrr": 0.1125,
+        "ndcg_at_5": 0.1,
+        "ndcg_at_10": 0.13154648767857288,
+        "avg_latency_ms": 1297.4603781998667
+      },
+      "rag_llm": {
+        "total_queries": 10,
+        "valid_queries": 10,
+        "errors": 0,
+        "hit_rate_at_5": 0.9,
+        "hit_rate_at_10": 0.9,
+        "mrr": 0.43166666666666664,
+        "ndcg_at_5": 0.5466241679685392,
+        "ndcg_at_10": 0.5466241679685392,
+        "avg_latency_ms": 989.6527922999667
+      },
+      "time_series": {
+        "total_queries": 10,
+        "valid_queries": 10,
+        "errors": 0,
+        "hit_rate_at_5": 0.4,
+        "hit_rate_at_10": 0.4,
+        "mrr": 0.33333333333333337,
+        "ndcg_at_5": 0.35,
+        "ndcg_at_10": 0.35,
+        "avg_latency_ms": 1217.994400399948
+      }
+    }
+  },
+  "verdict": "Weighted wins \u2014 keep current default",
+  "rrf_wins": 1,
+  "weighted_wins": 5
+}
