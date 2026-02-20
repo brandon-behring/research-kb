@@ -5,7 +5,7 @@
 - **Phase**: Core phases ✅ Complete | Phase 4.3 (ProactiveContext Integration) ✅ Complete
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
 - **KuzuDB**: ✅ Operational (307K concepts, 742K relationships, <300ms graph queries)
-- **MCP Server**: 19 tools available
+- **MCP Server**: 20 tools available
 - **Domains**: 19 tagged (causal_inference, rag_llm, time_series, econometrics, software_engineering, deep_learning, mathematics, and 12 more)
 - **ProactiveContext**: Integrated via `fast_search` (~200ms latency)
 
@@ -43,6 +43,7 @@
 | I. CI Hardening | ✅ Complete | pytest-cov in PR checks, doc freshness gate, ROADMAP rewrite | [→](../ROADMAP.md) |
 | J. Eval Expansion | ✅ Complete | 55 retrieval test cases, 29 assumption methods, per-domain eval | [→](../ROADMAP.md) |
 | K. Doc Consolidation | ✅ Complete | CLAUDE.md, README, MEMORY.md refresh, zero audit warnings | [→](../ROADMAP.md) |
+| M. Code Quality Hardening | ✅ Complete | Coverage gate, MCP HyDE+fast_search, daemon timeout, dashboard tests | [→](../ROADMAP.md) |
 
 ---
 
@@ -90,5 +91,4 @@ Run `python scripts/generate_status.py` to refresh metrics.
 
 ## External References
 
-- **Full System Design**: `$HOME/Claude/lever_of_archimedes/research-kb-system-design.md`
 - **GitHub Repository**: https://github.com/brandonmbehring-dev/research-kb

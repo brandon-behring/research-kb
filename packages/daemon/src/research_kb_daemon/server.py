@@ -40,7 +40,7 @@ DEFAULT_SOCKET_PATH = f"/tmp/research_kb_daemon_{os.getenv('USER', 'unknown')}.s
 
 # Connection limits
 MAX_CONCURRENT_CONNECTIONS = 50
-CONNECTION_TIMEOUT = 5.0  # Reduced from 30s
+CONNECTION_TIMEOUT = 10.0  # Graph queries take 1.7-5.8s; 5s was too aggressive
 
 # Connection tracking
 _connection_semaphore: Optional[asyncio.Semaphore] = None

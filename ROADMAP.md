@@ -30,7 +30,7 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - Streamlit + PyVis dashboard
 - Citation network visualization
 - Concept graph explorer with N-hop neighborhoods
-- MCP server for Claude Code integration (19 tools)
+- MCP server for Claude Code integration (20 tools)
 
 ## Phase D: Observability ✅ COMPLETE
 
@@ -84,19 +84,56 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - MEMORY.md refresh with post-Phase-K metrics
 - docs/INDEX.md final pass with all H-K rows
 
+## Phase M: Code Quality Hardening ✅ COMPLETE
+
+- Coverage threshold enforcement (`--cov-fail-under=40` in PR checks)
+- MCP search tool: `use_hyde` parameter for HyDE query expansion
+- MCP `fast_search` tool: vector-only search (~200ms, 20th tool)
+- Daemon connection timeout 5s→10s (graph queries take 1.7-5.8s)
+- Dashboard AppTest suite: 24 new tests (search + citations pages)
+
 ---
 
-**Current Status**: All phases H-K complete.
+**Current Status**: All phases H-K and M complete.
 
 **Key Metrics** (as of 2026-02-20):
 - Sources: 477 (across 19 domains)
 - Chunks: ~210,000 (100% with embeddings)
 - Concepts: 307,000 (742,000 relationships)
 - KuzuDB: ~110MB graph engine
-- Tests: ~2,040 functions (unit + integration + quality)
+- Tests: ~2,070+ functions (unit + integration + quality)
 - Domains: 19 tagged (causal_inference, rag_llm, time_series, econometrics, software_engineering, deep_learning, mathematics, interview_prep, finance, machine_learning, statistics, ml_engineering, data_science, portfolio_management, functional_programming, algorithms, forecasting, fitness, economics)
 - Method cache: 10/10 top methods, 55 cached assumptions, 87.5% readiness
 
 **Architecture**: 12 packages (contracts → common → storage → cli/daemon/api/dashboard/mcp-server/client/pdf-tools/extraction/s2-client)
 
 **Documentation**: Run `python scripts/generate_status.py` to refresh status docs. Run `python scripts/audit_docs.py` to check documentation health.
+
+---
+
+## Future Work (Contributions Welcome)
+
+### Retrieval Quality
+- **Learned weight optimization**: Tune FTS/vector/graph/citation weights on golden dataset
+- **Multi-vector retrieval**: ColBERT-style late interaction for fine-grained matching
+- **Adaptive chunking**: Use document structure (sections, paragraphs) instead of fixed token windows
+
+### New Domains
+- **Biology/Genomics**: Pathway analysis literature
+- **Climate science**: Climate modeling papers
+- **Your domain**: See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add a new domain
+
+### Infrastructure
+- **Kubernetes deployment**: Helm chart for production deployment
+- **Streaming search**: Server-sent events for real-time result streaming
+- **Multi-user**: Authentication and per-user corpora
+
+### Knowledge Graph
+- **Temporal reasoning**: Track how assumptions/methods evolve across publications
+- **Contradiction detection**: Flag conflicting claims across papers
+- **Automated literature review**: Generate structured reviews from graph traversal
+
+### Dashboard
+- **Screenshot/GIF capture**: Visual showcase for README and docs
+- **Performance page**: Benchmark visualization from `fixtures/benchmarks/`
+- **Comparison mode**: Side-by-side search results with different weight profiles

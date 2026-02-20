@@ -92,7 +92,7 @@ python scripts/ingest_missing_textbooks.py
 
 ### Extraction Profiles
 
-**Fast Profile** (Ollama, GPU): ~50 chunks/min on RTX 2070 SUPER
+**Fast Profile** (Ollama, GPU): ~50 chunks/min on NVIDIA GPU (8GB+ VRAM)
 ```bash
 python scripts/extract_concepts.py \
   --backend ollama \
@@ -348,10 +348,10 @@ Run `python scripts/audit_docs.py` periodically to detect drift.
 
 ## Integration
 
-This system integrates with [lever_of_archimedes](~/Claude/lever_of_archimedes):
-- **Daemon service**: Unix socket at `/tmp/research_kb_daemon_${USER}.sock`
-- **Hook integration**: `hooks/lib/research_kb.sh`
-- **Health monitoring**: `services/health/research_kb_status.jl`
+research-kb exposes three integration surfaces:
+- **Daemon service**: Unix socket at `/tmp/research_kb_daemon_${USER}.sock` (JSON-RPC 2.0)
+- **REST API**: FastAPI at `http://localhost:8000` (Swagger at `/docs`)
+- **MCP server**: Claude Code integration via Model Context Protocol
 
 See [docs/INTEGRATION.md](docs/INTEGRATION.md) for full details.
 
@@ -403,10 +403,11 @@ The daemon pre-warms KuzuDB on startup to avoid 60s cold-start latency.
 
 The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 
-**Available Tools (19 total):**
+**Available Tools (20 total):**
 | Tool | Description |
 |------|-------------|
-| `research_kb_search` | Hybrid search (FTS + vector + graph + citation) |
+| `research_kb_search` | Hybrid search (FTS + vector + graph + citation), optional HyDE via `use_hyde` |
+| `research_kb_fast_search` | Fast vector-only search (~200ms), skips FTS/graph/citation/reranking |
 | `research_kb_list_sources` | List sources (papers, textbooks) |
 | `research_kb_get_source` | Get source details and chunks |
 | `research_kb_get_source_citations` | Get citations for a source |

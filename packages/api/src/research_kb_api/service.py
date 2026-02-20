@@ -18,6 +18,8 @@ from research_kb_common import get_logger
 from research_kb_contracts import Source, Concept, ConceptRelationship
 from research_kb_pdf import EmbeddingClient
 from research_kb_storage import (
+    HydeConfig,
+    get_hyde_embedding,
     ConceptStore,
     SourceStore,
     ChunkStore,
@@ -65,6 +67,7 @@ class SearchOptions:
     citation_weight: float = 0.15
     domain_id: Optional[str] = None  # Filter by knowledge domain (None = all domains)
     fast_mode: bool = False  # Vector-only search for low latency (~200ms vs ~3s)
+    hyde_config: Optional[HydeConfig] = None  # HyDE query expansion
 
 
 @dataclass
@@ -193,6 +196,13 @@ async def search(options: SearchOptions) -> SearchResponse:
     embed_start = time.perf_counter()
     query_embedding = await get_cached_embedding(options.query)
     response.embedding_time_ms = (time.perf_counter() - embed_start) * 1000
+
+    # HyDE: replace query embedding with hypothetical document embedding
+    if options.hyde_config and options.hyde_config.enabled:
+        hyde_embedding = await get_hyde_embedding(options.query, options.hyde_config)
+        if hyde_embedding is not None:
+            query_embedding = hyde_embedding
+            response.expanded_query = "[HyDE-expanded]"
 
     # Fast mode: vector-only search (skips FTS, graph, rerank, expansion)
     # ~200ms total vs ~3s for full hybrid search

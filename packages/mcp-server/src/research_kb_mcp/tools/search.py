@@ -1,6 +1,6 @@
-"""Search tool for MCP server.
+"""Search tools for MCP server.
 
-Exposes the hybrid search functionality (FTS + vector + graph) to Claude Code.
+Exposes the hybrid search and fast vector-only search to Claude Code.
 """
 
 from __future__ import annotations
@@ -11,6 +11,7 @@ from fastmcp import FastMCP
 
 from research_kb_api.service import search, SearchOptions, ContextType
 from research_kb_mcp.formatters import format_search_results
+from research_kb_storage import HydeConfig
 
 
 def register_search_tools(mcp: FastMCP) -> None:
@@ -27,6 +28,7 @@ def register_search_tools(mcp: FastMCP) -> None:
         use_expand: bool = True,
         use_citations: bool = True,
         citation_weight: float = 0.15,
+        use_hyde: bool = False,
     ) -> str:
         """Search the research knowledge base across multiple domains.
 
@@ -52,6 +54,9 @@ def register_search_tools(mcp: FastMCP) -> None:
             use_expand: Expand query with synonyms (default True)
             use_citations: Enable citation authority boosting (default True)
             citation_weight: Weight for citation signal (0-1, default 0.15)
+            use_hyde: Enable HyDE query expansion (default False).
+                Generates a hypothetical document to improve embedding quality
+                for terse queries. Requires Ollama running locally.
 
         Returns:
             Markdown-formatted search results with:
@@ -71,6 +76,11 @@ def register_search_tools(mcp: FastMCP) -> None:
         limit = max(1, min(50, limit))
         citation_weight = max(0.0, min(1.0, citation_weight))
 
+        # Build HyDE config if requested
+        hyde_config = None
+        if use_hyde:
+            hyde_config = HydeConfig(enabled=True, backend="ollama")
+
         options = SearchOptions(
             query=query,
             limit=limit,
@@ -81,6 +91,42 @@ def register_search_tools(mcp: FastMCP) -> None:
             use_citations=use_citations,
             citation_weight=citation_weight,
             domain_id=domain,
+            hyde_config=hyde_config,
+        )
+
+        response = await search(options)
+        return format_search_results(response)
+
+    @mcp.tool()
+    async def research_kb_fast_search(
+        query: str,
+        limit: int = 5,
+        domain: str | None = None,
+    ) -> str:
+        """Fast vector-only search (~200ms). Skips FTS, graph, citation, reranking.
+
+        Use this for quick lookups when latency matters more than recall.
+        Results are ranked by cosine similarity to BGE-large embeddings only.
+
+        Args:
+            query: Search query (natural language or keywords)
+            limit: Maximum number of results (1-20, default 5)
+            domain: Knowledge domain to filter by (optional)
+
+        Returns:
+            Markdown-formatted search results with vector similarity scores.
+        """
+        limit = max(1, min(20, limit))
+
+        options = SearchOptions(
+            query=query,
+            limit=limit,
+            fast_mode=True,
+            domain_id=domain,
+            use_graph=False,
+            use_rerank=False,
+            use_expand=False,
+            use_citations=False,
         )
 
         response = await search(options)

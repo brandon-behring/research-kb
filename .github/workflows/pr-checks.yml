@@ -67,7 +67,8 @@ jobs:
           pytest packages/ tests/ \
             -m "unit and not requires_embedding and not requires_ollama and not requires_reranker and not requires_grobid" \
             -v --tb=short \
-            --cov=packages --cov-report=term-missing --cov-report=xml:coverage-unit.xml
+            --cov=packages --cov-report=term-missing --cov-report=xml:coverage-unit.xml \
+            --cov-fail-under=40
 
       - name: Integration tests (DB only)
         env:
@@ -81,4 +82,5 @@ jobs:
           pytest packages/ tests/ \
             -m "integration and not requires_embedding and not requires_ollama and not requires_reranker" \
             -v --tb=short \
-            --cov=packages --cov-report=term-missing --cov-report=xml:coverage-integration.xml --cov-append
+            --cov=packages --cov-report=term-missing --cov-report=xml:coverage-integration.xml --cov-append \
+            --cov-fail-under=40

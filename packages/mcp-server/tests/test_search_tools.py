@@ -326,3 +326,172 @@ class TestSearchToolExecution:
             # Should return something indicating no results
             assert result is not None
             assert isinstance(result, str)
+
+
+class TestSearchHyDE:
+    """Tests for HyDE query expansion in search tool."""
+
+    def test_search_hyde_disabled_by_default(self):
+        """HyDE is disabled when use_hyde is not specified."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
+            search_mock.return_value = MockSearchResponse(query="IV", results=[])
+            format_mock.return_value = "## Results"
+
+            import asyncio
+
+            asyncio.run(mcp.tools["research_kb_search"]["func"](query="IV"))
+
+            call_args = search_mock.call_args[0][0]
+            assert call_args.hyde_config is None
+
+    def test_search_hyde_enabled(self):
+        """HyDE config is set when use_hyde=True."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
+            search_mock.return_value = MockSearchResponse(query="IV", results=[])
+            format_mock.return_value = "## Results"
+
+            import asyncio
+
+            asyncio.run(mcp.tools["research_kb_search"]["func"](query="IV", use_hyde=True))
+
+            call_args = search_mock.call_args[0][0]
+            assert call_args.hyde_config is not None
+            assert call_args.hyde_config.enabled is True
+            assert call_args.hyde_config.backend == "ollama"
+
+    @pytest.mark.asyncio
+    async def test_search_hyde_fallback(self):
+        """Search still works when HyDE returns None (Ollama unavailable)."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
+            search_mock.return_value = MockSearchResponse(
+                query="IV", results=[], expanded_query=None
+            )
+            format_mock.return_value = "## Results\n\nNo results found."
+
+            result = await mcp.tools["research_kb_search"]["func"](query="IV", use_hyde=True)
+
+            # Search should complete successfully even with HyDE enabled
+            assert result is not None
+            search_mock.assert_called_once()
+
+
+class TestFastSearchTool:
+    """Tests for fast_search MCP tool."""
+
+    def test_fast_search_registered(self):
+        """Fast search tool is registered correctly."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        assert "research_kb_fast_search" in mcp.tools
+
+    def test_fast_search_has_docstring(self):
+        """Fast search tool has descriptive docstring."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        doc = mcp.tools["research_kb_fast_search"]["func"].__doc__
+        assert doc is not None
+        assert "vector" in doc.lower()
+        assert "fast" in doc.lower() or "200ms" in doc.lower()
+
+    @pytest.mark.asyncio
+    async def test_fast_search_uses_fast_mode(self):
+        """Fast search sets fast_mode=True on SearchOptions."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
+            search_mock.return_value = MockSearchResponse(query="IV", results=[])
+            format_mock.return_value = "## Results"
+
+            await mcp.tools["research_kb_fast_search"]["func"](query="IV")
+
+            call_args = search_mock.call_args[0][0]
+            assert call_args.fast_mode is True
+            assert call_args.use_graph is False
+            assert call_args.use_rerank is False
+            assert call_args.use_expand is False
+            assert call_args.use_citations is False
+
+    @pytest.mark.asyncio
+    async def test_fast_search_limit_clamp(self):
+        """Fast search clamps limit to 1-20 range."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
+            search_mock.return_value = MockSearchResponse(query="test", results=[])
+            format_mock.return_value = "## Results"
+
+            # Upper bound
+            await mcp.tools["research_kb_fast_search"]["func"](query="test", limit=50)
+            call_args = search_mock.call_args[0][0]
+            assert call_args.limit == 20
+
+            # Lower bound
+            await mcp.tools["research_kb_fast_search"]["func"](query="test", limit=0)
+            call_args = search_mock.call_args[0][0]
+            assert call_args.limit == 1
+
+    @pytest.mark.asyncio
+    async def test_fast_search_default_limit(self):
+        """Fast search defaults to limit=5."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
+            search_mock.return_value = MockSearchResponse(query="test", results=[])
+            format_mock.return_value = "## Results"
+
+            await mcp.tools["research_kb_fast_search"]["func"](query="test")
+
+            call_args = search_mock.call_args[0][0]
+            assert call_args.limit == 5
+
+    @pytest.mark.asyncio
+    async def test_fast_search_with_domain(self):
+        """Fast search passes domain filter."""
+        mcp = MockFastMCP()
+        register_search_tools(mcp)
+
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
+            search_mock.return_value = MockSearchResponse(query="IV", results=[])
+            format_mock.return_value = "## Results"
+
+            await mcp.tools["research_kb_fast_search"]["func"](
+                query="IV", domain="causal_inference"
+            )
+
+            call_args = search_mock.call_args[0][0]
+            assert call_args.domain_id == "causal_inference"
