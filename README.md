@@ -49,12 +49,21 @@ pip install -e packages/cli
 
 ### 3. Set up demo corpus
 
+**Option A -- Pre-built fixtures (fast, no downloads):**
+
 ```bash
-# Download and ingest 25 open-access arXiv papers
-python scripts/setup_demo.py
+python scripts/load_demo_data.py          # Load 9 causal-inference papers + concepts
+python -m research_kb_pdf.embed_server &   # Start embedding server
+python scripts/embed_missing.py            # Generate embeddings (~5 min on CPU)
 ```
 
-Or bring your own PDFs:
+**Option B -- Full pipeline (downloads from arXiv):**
+
+```bash
+python scripts/setup_demo.py               # Download + ingest 25 open-access papers
+```
+
+**Option C -- Bring your own PDFs:**
 
 ```bash
 research-kb ingest <your-pdfs-directory>

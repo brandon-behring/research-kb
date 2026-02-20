@@ -1,0 +1,211 @@
+[
+  {
+    "id": "d7aff093-288c-43a3-944b-04a40c2ef2ba",
+    "source_type": "paper",
+    "title": "Identification, Inference and Sensitivity Analysis for Causal Mediation Effects",
+    "authors": [
+      "Imai, Kosuke",
+      "Keele, Luke",
+      "Yamamoto, Teppei"
+    ],
+    "year": 2010,
+    "metadata": {
+      "domain": "causal_inference",
+      "arxiv_id": "1011.1079",
+      "authority": "canonical",
+      "key_concept": "mediation",
+      "total_chars": 86465,
+      "total_pages": 21,
+      "total_chunks": 81,
+      "total_headings": 4,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.042450446635484695,
+    "domain_id": "causal_inference"
+  },
+  {
+    "id": "fbb14822-a241-4e86-8cf5-fcdaa73988d4",
+    "source_type": "paper",
+    "title": "Recursive Partitioning for Heterogeneous Causal Effects",
+    "authors": [
+      "Athey, Susan",
+      "Imbens, Guido"
+    ],
+    "year": 2016,
+    "metadata": {
+      "domain": "causal_inference",
+      "arxiv_id": "1504.01132",
+      "key_concept": "causal trees",
+      "total_chars": 62796,
+      "total_pages": 22,
+      "total_chunks": 55,
+      "total_headings": 50,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.26525068283081055,
+    "domain_id": "causal_inference"
+  },
+  {
+    "id": "d8c1e0bc-0e7d-44e5-a883-785efff197e5",
+    "source_type": "paper",
+    "title": "The State of Applied Econometrics: Causality and Policy Evaluation",
+    "authors": [
+      "Athey, Susan",
+      "Imbens, Guido W."
+    ],
+    "year": 2017,
+    "metadata": {
+      "domain": "econometrics",
+      "arxiv_id": "1607.00699",
+      "total_chars": 173877,
+      "total_pages": 75,
+      "total_chunks": 149,
+      "total_headings": 43,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.07242865115404129,
+    "domain_id": "causal_inference"
+  },
+  {
+    "id": "2bc757a2-8fc9-4622-a733-a18814df7a0b",
+    "source_type": "paper",
+    "title": "Double/Debiased Machine Learning for Treatment and Structural Parameters",
+    "authors": [
+      "Chernozhukov, Victor",
+      "Chetverikov, Denis",
+      "Demirer, Mert",
+      "Duflo, Esther",
+      "Hansen, Christian",
+      "Newey, Whitney",
+      "Robins, James"
+    ],
+    "year": 2018,
+    "metadata": {
+      "domain": "causal_inference",
+      "arxiv_id": "1608.00060",
+      "key_concept": "cross-fitting",
+      "total_chars": 185101,
+      "total_pages": 71,
+      "total_chunks": 218,
+      "total_headings": 3,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.15614938735961914,
+    "domain_id": "causal_inference"
+  },
+  {
+    "id": "6e46afef-b380-4517-8964-d8a3cdae49ae",
+    "source_type": "paper",
+    "title": "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests",
+    "authors": [
+      "Wager, Stefan",
+      "Athey, Susan"
+    ],
+    "year": 2018,
+    "metadata": {
+      "domain": "causal_inference",
+      "arxiv_id": "1510.04342",
+      "authority": "canonical",
+      "key_concept": "causal_forest",
+      "total_chars": 249596,
+      "total_pages": 48,
+      "total_chunks": 129,
+      "total_headings": 4142,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.41644805669784546,
+    "domain_id": "causal_inference"
+  },
+  {
+    "id": "8baf995f-455d-44ae-a8bf-8b8be0f0c5cc",
+    "source_type": "paper",
+    "title": "Machine Learning Methods That Economists Should Know About",
+    "authors": [
+      "Athey, Susan",
+      "Imbens, Guido W."
+    ],
+    "year": 2019,
+    "metadata": {
+      "domain": "econometrics",
+      "arxiv_id": "1903.10075",
+      "total_chars": 143720,
+      "total_pages": 62,
+      "total_chunks": 123,
+      "total_headings": 69,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.05848728492856026,
+    "domain_id": "causal_inference"
+  },
+  {
+    "id": "a24af953-6046-4759-b7bd-be16e818481c",
+    "source_type": "paper",
+    "title": "Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning",
+    "authors": [
+      "Künzel, Sören R.",
+      "Sekhon, Jasjeet S.",
+      "Bickel, Peter J.",
+      "Yu, Bin"
+    ],
+    "year": 2019,
+    "metadata": {
+      "domain": "causal_inference",
+      "arxiv_id": "1712.09988",
+      "authority": "frontier",
+      "key_concept": "cate",
+      "total_chars": 185088,
+      "total_pages": 108,
+      "total_chunks": 260,
+      "total_headings": 1,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.07944050431251526,
+    "domain_id": "causal_inference"
+  },
+  {
+    "id": "928d7131-b28b-4cfa-ab51-785b4d4b2add",
+    "source_type": "paper",
+    "title": "Difference-in-Differences with Multiple Time Periods",
+    "authors": [
+      "Callaway, Brantly",
+      "Sant'Anna, Pedro H.C."
+    ],
+    "year": 2021,
+    "metadata": {
+      "domain": "econometrics",
+      "arxiv_id": "1803.09015",
+      "authority": "frontier",
+      "key_concept": "staggered_did",
+      "total_chars": 135519,
+      "total_pages": 45,
+      "total_chunks": 142,
+      "total_headings": 2202,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.06609781831502914,
+    "domain_id": "causal_inference"
+  },
+  {
+    "id": "1e210ea3-49a0-4944-8fd1-fd8579325123",
+    "source_type": "paper",
+    "title": "Synthetic Controls for Experimental Design",
+    "authors": [
+      "Abadie, Alberto",
+      "Zhao, Jinglong"
+    ],
+    "year": 2021,
+    "metadata": {
+      "domain": "causal_inference",
+      "arxiv_id": "2108.02196",
+      "authority": "canonical",
+      "key_concept": "synthetic_control",
+      "total_chars": 127291,
+      "total_pages": 80,
+      "total_chunks": 149,
+      "total_headings": 7,
+      "extraction_method": "pymupdf"
+    },
+    "citation_authority": 0.042450446635484695,
+    "domain_id": "causal_inference"
+  }
+]

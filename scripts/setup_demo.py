@@ -394,17 +394,11 @@ def main():
 
     # Step 5: Pre-extracted seed data
     if args.seed_only:
-        seed_file = DEMO_DIR / "seed_data.sql"
-        if seed_file.exists():
-            print("\n--- Loading pre-extracted seed data ---")
-            subprocess.run(
-                ["psql", "-f", str(seed_file)],
-                env={"PGDATABASE": "research_kb"},
-                check=True,
-            )
-        else:
-            print(f"\n  Seed file not found: {seed_file}")
-            print("  Run full setup instead: python scripts/setup_demo.py")
+        print("\n--- Loading pre-extracted seed data ---")
+        subprocess.run(
+            [sys.executable, str(PROJECT_ROOT / "scripts" / "load_demo_data.py")],
+            check=True,
+        )
 
     print("\n" + "=" * 60)
     print("Setup complete! Try:")
