@@ -120,18 +120,22 @@ async def get_path(
     nodes = []
     for item in path_nodes:
         if isinstance(item, dict):
-            nodes.append(schemas.GraphNode(
-                id=item.get("id", ""),
-                name=item.get("name", ""),
-                type=item.get("type"),
-            ))
+            nodes.append(
+                schemas.GraphNode(
+                    id=item.get("id", ""),
+                    name=item.get("name", ""),
+                    type=item.get("type"),
+                )
+            )
         elif isinstance(item, str):
             # Simple string path - just names
-            nodes.append(schemas.GraphNode(
-                id="",
-                name=item,
-                type=None,
-            ))
+            nodes.append(
+                schemas.GraphNode(
+                    id="",
+                    name=item,
+                    type=None,
+                )
+            )
 
     return schemas.GraphPath(
         from_concept=concept_a,

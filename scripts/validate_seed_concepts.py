@@ -28,10 +28,10 @@ import asyncio
 import json
 import sys
 from collections import defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import yaml
 
@@ -41,11 +41,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" /
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
 from research_kb_common import get_logger
-from research_kb_contracts import Concept, ConceptRelationship, ConceptType
+from research_kb_contracts import Concept
 from research_kb_storage import (
     ConceptStore,
     RelationshipStore,
-    get_connection_pool,
 )
 
 logger = get_logger(__name__)
@@ -148,7 +147,13 @@ class SeedConceptLoader:
             data = yaml.safe_load(f)
 
         # Parse concepts by type
-        for concept_type in ["methods", "assumptions", "problems", "definitions", "theorems"]:
+        for concept_type in [
+            "methods",
+            "assumptions",
+            "problems",
+            "definitions",
+            "theorems",
+        ]:
             if concept_type not in data:
                 continue
 
@@ -324,9 +329,7 @@ class ValidationMetrics:
 
         # Track found and missing
         metrics.found_concepts = [m.seed.name for m in found]
-        metrics.missing_concepts = [
-            m.seed.name for m in matches.values() if not m.found
-        ]
+        metrics.missing_concepts = [m.seed.name for m in matches.values() if not m.found]
 
         # Per-type recall
         by_type = defaultdict(lambda: {"found": 0, "total": 0})
@@ -365,9 +368,7 @@ class ValidationMetrics:
         metrics = PrecisionMetrics()
 
         # Build set of extracted IDs that matched seed
-        matched_ids = {
-            m.extracted.id for m in matches.values() if m.found and m.extracted
-        }
+        matched_ids = {m.extracted.id for m in matches.values() if m.found and m.extracted}
 
         # Count false positives
         false_positives = [c for c in extracted_concepts if c.id not in matched_ids]
@@ -380,13 +381,9 @@ class ValidationMetrics:
 
         # Precision by confidence threshold
         for threshold in [0.5, 0.6, 0.7, 0.8, 0.9]:
-            high_conf = [
-                c for c in extracted_concepts if (c.confidence_score or 0.0) >= threshold
-            ]
+            high_conf = [c for c in extracted_concepts if (c.confidence_score or 0.0) >= threshold]
             in_seed = len([c for c in high_conf if c.id in matched_ids])
-            metrics.by_confidence[threshold] = (
-                in_seed / len(high_conf) if high_conf else 0.0
-            )
+            metrics.by_confidence[threshold] = in_seed / len(high_conf) if high_conf else 0.0
 
         return metrics
 
@@ -409,11 +406,7 @@ class ValidationMetrics:
 
                 # Find target concept match
                 target_match = next(
-                    (
-                        m
-                        for m in matches.values()
-                        if m.seed.name == expected_rel["target"]
-                    ),
+                    (m for m in matches.values() if m.seed.name == expected_rel["target"]),
                     None,
                 )
 
@@ -448,9 +441,7 @@ class ValidationMetrics:
                         }
                     )
 
-        metrics.recall = (
-            metrics.found / metrics.expected if metrics.expected > 0 else 0.0
-        )
+        metrics.recall = metrics.found / metrics.expected if metrics.expected > 0 else 0.0
 
         return metrics
 
@@ -482,7 +473,9 @@ class ReportGenerator:
         lines.append("-" * 60)
         lines.append(f"Seed concepts: {report.seed_count}")
         lines.append(f"Extracted concepts: {report.extracted_count}")
-        lines.append(f"Matched: {report.matched_count} ({report.matched_count/report.seed_count*100:.1f}%)")
+        lines.append(
+            f"Matched: {report.matched_count} ({report.matched_count/report.seed_count*100:.1f}%)"
+        )
         lines.append("")
 
         # Recall
@@ -524,9 +517,7 @@ class ReportGenerator:
             for name in sorted(report.recall_metrics.missing_concepts)[:10]:
                 lines.append(f"  • {name}")
             if len(report.recall_metrics.missing_concepts) > 10:
-                lines.append(
-                    f"  ... and {len(report.recall_metrics.missing_concepts) - 10} more"
-                )
+                lines.append(f"  ... and {len(report.recall_metrics.missing_concepts) - 10} more")
 
         lines.append("\n" + "=" * 60)
         return "\n".join(lines)

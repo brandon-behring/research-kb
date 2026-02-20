@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch
 from uuid import uuid4
 
 from research_kb_mcp.tools.graph import register_graph_tools
+
+pytestmark = pytest.mark.unit
 
 
 class MockFastMCP:
@@ -17,12 +19,14 @@ class MockFastMCP:
 
     def tool(self, **kwargs):
         """Decorator that captures tool functions."""
+
         def decorator(func):
             self.tools[func.__name__] = {
                 "func": func,
                 "kwargs": kwargs,
             }
             return func
+
         return decorator
 
 
@@ -78,8 +82,16 @@ class TestGraphNeighborhood:
                 },
             ],
             "relationships": [
-                {"source": "Double Machine Learning", "target": "Neyman Orthogonality", "type": "USES"},
-                {"source": "Double Machine Learning", "target": "Cross-Fitting", "type": "USES"},
+                {
+                    "source": "Double Machine Learning",
+                    "target": "Neyman Orthogonality",
+                    "type": "USES",
+                },
+                {
+                    "source": "Double Machine Learning",
+                    "target": "Cross-Fitting",
+                    "type": "USES",
+                },
             ],
         }
 
@@ -188,9 +200,21 @@ class TestGraphPath:
         return {
             "found": True,
             "path": [
-                {"id": str(uuid4()), "name": "Regression Discontinuity", "type": "METHOD"},
-                {"id": str(uuid4()), "name": "Local Average Treatment Effect", "type": "DEFINITION"},
-                {"id": str(uuid4()), "name": "Instrumental Variables", "type": "METHOD"},
+                {
+                    "id": str(uuid4()),
+                    "name": "Regression Discontinuity",
+                    "type": "METHOD",
+                },
+                {
+                    "id": str(uuid4()),
+                    "name": "Local Average Treatment Effect",
+                    "type": "DEFINITION",
+                },
+                {
+                    "id": str(uuid4()),
+                    "name": "Instrumental Variables",
+                    "type": "METHOD",
+                },
             ],
             "length": 2,
         }

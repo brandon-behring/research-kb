@@ -11,6 +11,8 @@ from research_kb_extraction.models import (
     StoredConcept,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestExtractedConcept:
     """Tests for ExtractedConcept model."""

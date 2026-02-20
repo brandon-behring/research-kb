@@ -66,4 +66,4 @@ jobs:
           POSTGRES_PASSWORD: postgres
           TEST_DATABASE_NAME: research_kb_test
         run: |
-          pytest tests/integration/test_search_pipeline.py -v --tb=short
+          pytest tests/integration/test_search_pipeline.py tests/integration/test_ingestion_resilience.py tests/integration/test_seed_concept_validation.py -v --tb=short

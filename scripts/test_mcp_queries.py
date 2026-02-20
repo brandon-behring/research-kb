@@ -23,12 +23,14 @@ QUERIES = [
 
 def query_daemon(query: str, request_id: int) -> dict:
     """Send a search query to the daemon via Unix socket."""
-    request = json.dumps({
-        "jsonrpc": "2.0",
-        "method": "search",
-        "params": {"query": query},
-        "id": request_id,
-    })
+    request = json.dumps(
+        {
+            "jsonrpc": "2.0",
+            "method": "search",
+            "params": {"query": query},
+            "id": request_id,
+        }
+    )
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     sock.settimeout(30)
@@ -70,7 +72,9 @@ def main():
             items = []
 
         print(f"\n  Query: {query}")
-        print(f"  Expected domain: {expected_domain} | Latency: {latency_ms:.0f}ms | Results: {len(items)}")
+        print(
+            f"  Expected domain: {expected_domain} | Latency: {latency_ms:.0f}ms | Results: {len(items)}"
+        )
 
         for j, item in enumerate(items[:5]):
             if isinstance(item, dict):

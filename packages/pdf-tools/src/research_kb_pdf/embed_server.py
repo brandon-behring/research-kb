@@ -123,9 +123,7 @@ class EmbeddingServer:
         embedding = self.model.encode([prefixed_text], convert_to_numpy=True)[0]
         return embedding.tolist()
 
-    def embed_batch(
-        self, texts: list[str], batch_size: int = MAX_BATCH_SIZE
-    ) -> list[list[float]]:
+    def embed_batch(self, texts: list[str], batch_size: int = MAX_BATCH_SIZE) -> list[list[float]]:
         """Embed multiple texts in batches (for documents/passages).
 
         Args:
@@ -321,9 +319,7 @@ def main():
     parser = argparse.ArgumentParser(description="Research-KB Embedding Server")
     parser.add_argument("--socket", default=SOCKET_PATH, help="Unix socket path")
     parser.add_argument("--model", default=MODEL_NAME, help="Model name")
-    parser.add_argument(
-        "--test", action="store_true", help="Test mode: embed sample and exit"
-    )
+    parser.add_argument("--test", action="store_true", help="Test mode: embed sample and exit")
     args = parser.parse_args()
 
     if args.test:

@@ -2,10 +2,12 @@
 
 import json
 import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 from pathlib import Path
 
 from research_kb_extraction.models import ChunkExtraction
+
+pytestmark = pytest.mark.unit
 
 
 class TestLlamaCppClientInit:
@@ -102,9 +104,7 @@ class TestLlamaCppAvailability:
                 client = LlamaCppClient(model_path="/models/exists.gguf")
                 # is_available tries to import llama_cpp and catches ImportError
                 # Need to make the import fail
-                with patch.dict(
-                    "sys.modules", {"llama_cpp": None}, clear=False
-                ):
+                with patch.dict("sys.modules", {"llama_cpp": None}, clear=False):
 
                     def raise_import(*args, **kwargs):
                         raise ImportError("No module")
@@ -131,7 +131,6 @@ class TestLlamaCppModelLoading:
         """Test _load_model creates Llama instance."""
         from research_kb_extraction.llama_cpp_client import (
             LlamaCppClient,
-            LlamaCppError,
         )
 
         with patch.object(Path, "exists", return_value=True):
@@ -139,9 +138,7 @@ class TestLlamaCppModelLoading:
             mock_llama_instance = MagicMock()
             mock_llama_class.return_value = mock_llama_instance
 
-            with patch.dict(
-                "sys.modules", {"llama_cpp": MagicMock(Llama=mock_llama_class)}
-            ):
+            with patch.dict("sys.modules", {"llama_cpp": MagicMock(Llama=mock_llama_class)}):
                 client = LlamaCppClient(model_path="/models/test.gguf")
                 client._load_model()
 
@@ -234,9 +231,7 @@ class TestLlamaCppGenerate:
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
 
         mock_llm = MagicMock()
-        mock_llm.create_chat_completion.return_value = {
-            "choices": [{"message": {"content": "{}"}}]
-        }
+        mock_llm.create_chat_completion.return_value = {"choices": [{"message": {"content": "{}"}}]}
 
         client = LlamaCppClient()
         client._llm = mock_llm

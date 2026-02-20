@@ -8,7 +8,6 @@ Supports multiple Claude models with different speed/quality tradeoffs:
 """
 
 import asyncio
-import json
 import os
 from typing import Optional
 
@@ -36,31 +35,41 @@ EXTRACTION_TOOL = {
                     "properties": {
                         "name": {
                             "type": "string",
-                            "description": "Concept name as it appears in text"
+                            "description": "Concept name as it appears in text",
                         },
                         "concept_type": {
                             "type": "string",
-                            "enum": ["method", "assumption", "problem", "definition", "theorem", "concept", "principle", "technique", "model"],
-                            "description": "Classification of the concept (method ≤35% of extractions)"
+                            "enum": [
+                                "method",
+                                "assumption",
+                                "problem",
+                                "definition",
+                                "theorem",
+                                "concept",
+                                "principle",
+                                "technique",
+                                "model",
+                            ],
+                            "description": "Classification of the concept (method ≤35% of extractions)",
                         },
                         "definition": {
                             "type": "string",
-                            "description": "Brief definition if provided in the text"
+                            "description": "Brief definition if provided in the text",
                         },
                         "aliases": {
                             "type": "array",
                             "items": {"type": "string"},
-                            "description": "Alternative names or abbreviations"
+                            "description": "Alternative names or abbreviations",
                         },
                         "confidence": {
                             "type": "number",
                             "minimum": 0.0,
                             "maximum": 1.0,
-                            "description": "Confidence in extraction (0.0-1.0)"
-                        }
+                            "description": "Confidence in extraction (0.0-1.0)",
+                        },
                     },
-                    "required": ["name", "concept_type"]
-                }
+                    "required": ["name", "concept_type"],
+                },
             },
             "relationships": {
                 "type": "array",
@@ -70,34 +79,46 @@ EXTRACTION_TOOL = {
                     "properties": {
                         "source_concept": {
                             "type": "string",
-                            "description": "Source concept name"
+                            "description": "Source concept name",
                         },
                         "target_concept": {
                             "type": "string",
-                            "description": "Target concept name"
+                            "description": "Target concept name",
                         },
                         "relationship_type": {
                             "type": "string",
-                            "enum": ["REQUIRES", "USES", "ADDRESSES", "GENERALIZES", "SPECIALIZES", "ALTERNATIVE_TO", "EXTENDS"],
-                            "description": "Relationship type from ontology"
+                            "enum": [
+                                "REQUIRES",
+                                "USES",
+                                "ADDRESSES",
+                                "GENERALIZES",
+                                "SPECIALIZES",
+                                "ALTERNATIVE_TO",
+                                "EXTENDS",
+                            ],
+                            "description": "Relationship type from ontology",
                         },
                         "evidence": {
                             "type": "string",
-                            "description": "Text snippet supporting this relationship"
+                            "description": "Text snippet supporting this relationship",
                         },
                         "confidence": {
                             "type": "number",
                             "minimum": 0.0,
                             "maximum": 1.0,
-                            "description": "Confidence in relationship"
-                        }
+                            "description": "Confidence in relationship",
+                        },
                     },
-                    "required": ["source_concept", "target_concept", "relationship_type"]
-                }
-            }
+                    "required": [
+                        "source_concept",
+                        "target_concept",
+                        "relationship_type",
+                    ],
+                },
+            },
         },
-        "required": ["concepts", "relationships"]
-    }
+        "required": ["concepts", "relationships"],
+    },
 }
 
 
@@ -152,9 +173,7 @@ class AnthropicClient(LLMClient):
         try:
             import anthropic
         except ImportError:
-            raise ImportError(
-                "anthropic package not installed. Run: pip install anthropic"
-            )
+            raise ImportError("anthropic package not installed. Run: pip install anthropic")
 
         raw_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         self._api_key = raw_key.strip() if raw_key else None

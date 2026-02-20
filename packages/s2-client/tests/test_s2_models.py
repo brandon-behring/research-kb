@@ -7,7 +7,6 @@ Semantic Scholar API response schemas.
 from datetime import datetime, timezone
 
 import pytest
-from pydantic import ValidationError
 
 from s2_client.models import (
     OpenAccessPdf,
@@ -16,6 +15,8 @@ from s2_client.models import (
     S2Paper,
     S2SearchResult,
 )
+
+pytestmark = pytest.mark.unit
 
 
 # -----------------------------------------------------------------------------
@@ -199,7 +200,10 @@ class TestS2PaperInit:
 
         assert paper.paper_id == "649def34f8be52c8b66281af98ae884c09aef38b"
         assert paper.corpus_id == 14457330
-        assert paper.title == "Double/debiased machine learning for treatment and structural parameters"
+        assert (
+            paper.title
+            == "Double/debiased machine learning for treatment and structural parameters"
+        )
         assert paper.year == 2018
         assert paper.citation_count == 1542
         assert paper.is_open_access is True

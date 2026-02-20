@@ -30,10 +30,20 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "storage" / "
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
-from research_kb_common import EmbeddingError, StorageError, configure_logging, get_logger
+from research_kb_common import (
+    EmbeddingError,
+    StorageError,
+    configure_logging,
+    get_logger,
+)
 from research_kb_contracts import SourceType
 from research_kb_pdf import EmbeddingClient, chunk_with_sections, extract_with_headings
-from research_kb_storage import ChunkStore, DatabaseConfig, SourceStore, get_connection_pool
+from research_kb_storage import (
+    ChunkStore,
+    DatabaseConfig,
+    SourceStore,
+    get_connection_pool,
+)
 
 logger = get_logger(__name__)
 
@@ -127,8 +137,8 @@ def parse_filename_for_metadata(filename: str) -> dict:
 
     # Generic fallback
     name = filename.replace(".pdf", "")
-    name = re.sub(r'_v\d+_MEAP.*', '', name)
-    name = re.sub(r'\s*\(\d+\)\s*', '', name)
+    name = re.sub(r"_v\d+_MEAP.*", "", name)
+    name = re.sub(r"\s*\(\d+\)\s*", "", name)
     title = name.replace("_", " ").strip()
     return {"title": title, "authors": [], "year": None}
 
@@ -192,7 +202,7 @@ async def ingest_textbook(
     EMBED_BATCH = 100
     embeddings: list[list[float]] = []
     for i in range(0, len(texts), EMBED_BATCH):
-        batch_texts = texts[i:i + EMBED_BATCH]
+        batch_texts = texts[i : i + EMBED_BATCH]
         if not quiet:
             logger.info("embedding_batch", start=i, end=i + len(batch_texts), total=len(texts))
         batch_embeddings = embedding_client.embed_batch(batch_texts, batch_size=32)
@@ -201,32 +211,36 @@ async def ingest_textbook(
     chunks_data = []
     for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
         content_hash = hashlib.sha256(chunk.content.encode("utf-8")).hexdigest()
-        chunks_data.append({
-            "source_id": source.id,
-            "content": chunk.content,
-            "content_hash": content_hash,
-            "page_start": chunk.start_page,
-            "page_end": chunk.end_page,
-            "embedding": embedding,
-            "metadata": {
-                "section_header": chunk.metadata.get("section", ""),
-                "chunk_index": i,
-                "domain": DOMAIN,
-            },
-        })
+        chunks_data.append(
+            {
+                "source_id": source.id,
+                "content": chunk.content,
+                "content_hash": content_hash,
+                "page_start": chunk.start_page,
+                "page_end": chunk.end_page,
+                "embedding": embedding,
+                "metadata": {
+                    "section_header": chunk.metadata.get("section", ""),
+                    "chunk_index": i,
+                    "domain": DOMAIN,
+                },
+            }
+        )
 
     BATCH_SIZE = 100
     chunks_created = 0
     for i in range(0, len(chunks_data), BATCH_SIZE):
-        batch = chunks_data[i:i + BATCH_SIZE]
+        batch = chunks_data[i : i + BATCH_SIZE]
         await ChunkStore.batch_create(batch)
         chunks_created += len(batch)
 
     if not quiet:
-        logger.info("ingestion_complete",
-                    source_id=str(source.id),
-                    chunks=chunks_created,
-                    headings=len(headings))
+        logger.info(
+            "ingestion_complete",
+            source_id=str(source.id),
+            chunks=chunks_created,
+            headings=len(headings),
+        )
 
     return str(source.id), chunks_created, len(headings)
 
@@ -237,7 +251,8 @@ def parse_args():
         description="Ingest RAG/LLM textbooks from fixtures/textbooks/rag_llm/."
     )
     parser.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         action="store_true",
         help="Minimal output (one line per PDF + final summary)",
     )
@@ -294,7 +309,11 @@ async def main():
                 else:
                     # Source record exists but no chunks — delete and re-ingest
                     if not quiet:
-                        logger.info("removing_empty_source", path=pdf_path.name, title=existing.title)
+                        logger.info(
+                            "removing_empty_source",
+                            path=pdf_path.name,
+                            title=existing.title,
+                        )
                     await conn.execute("DELETE FROM sources WHERE id = $1", existing.id)
                     to_ingest.append(pdf_path)
             else:
@@ -306,14 +325,18 @@ async def main():
 
     if not to_ingest:
         if json_output:
-            print(json_module.dumps({
-                "domain": DOMAIN,
-                "success_count": 0,
-                "failed_count": 0,
-                "total_chunks": 0,
-                "already_ingested": already_ingested,
-                "failed_files": [],
-            }))
+            print(
+                json_module.dumps(
+                    {
+                        "domain": DOMAIN,
+                        "success_count": 0,
+                        "failed_count": 0,
+                        "total_chunks": 0,
+                        "already_ingested": already_ingested,
+                        "failed_files": [],
+                    }
+                )
+            )
         elif not quiet:
             print("Nothing to ingest!")
         return
@@ -337,12 +360,14 @@ async def main():
             )
 
             elapsed = time.time() - start_time
-            results["success"].append({
-                "file": pdf_path.name,
-                "title": meta["title"],
-                "chunks": num_chunks,
-                "elapsed_seconds": round(elapsed, 1),
-            })
+            results["success"].append(
+                {
+                    "file": pdf_path.name,
+                    "title": meta["title"],
+                    "chunks": num_chunks,
+                    "elapsed_seconds": round(elapsed, 1),
+                }
+            )
 
             if quiet and not json_output:
                 print(f"  {pdf_path.name}: {num_chunks} chunks ({elapsed:.0f}s)")
@@ -351,38 +376,46 @@ async def main():
 
         except (MemoryError, OSError) as e:
             error_type = "memory_exhausted" if isinstance(e, MemoryError) else "file_io_error"
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": f"{error_type}: {str(e)[:100]}",
-                "recoverable": False,
-            })
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": f"{error_type}: {str(e)[:100]}",
+                    "recoverable": False,
+                }
+            )
             if not json_output:
                 print(f"  {pdf_path.name}: {error_type}")
 
-        except (EmbeddingError, ConnectionError) as e:
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": "Embedding service failure (retries exhausted)",
-                "recoverable": True,
-            })
+        except (EmbeddingError, ConnectionError):
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": "Embedding service failure (retries exhausted)",
+                    "recoverable": True,
+                }
+            )
             if not json_output:
                 print(f"  {pdf_path.name}: embedding service failure (recoverable)")
 
         except StorageError as e:
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": f"Database error: {str(e)[:100]}",
-                "recoverable": True,
-            })
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": f"Database error: {str(e)[:100]}",
+                    "recoverable": True,
+                }
+            )
             if not json_output:
                 print(f"  {pdf_path.name}: database error (recoverable)")
 
         except Exception as e:
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": str(e)[:100],
-                "recoverable": False,
-            })
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": str(e)[:100],
+                    "recoverable": False,
+                }
+            )
             if not json_output:
                 print(f"  {pdf_path.name}: {str(e)[:60]}")
 
@@ -396,7 +429,11 @@ async def main():
             "total_chunks": total_chunks,
             "already_ingested": already_ingested,
             "failed_files": [
-                {"file": r["file"], "error": r["error"], "recoverable": r.get("recoverable", False)}
+                {
+                    "file": r["file"],
+                    "error": r["error"],
+                    "recoverable": r.get("recoverable", False),
+                }
                 for r in results["failed"]
             ],
         }
@@ -420,12 +457,12 @@ async def main():
                 status = "(recoverable)" if r.get("recoverable", False) else "(not recoverable)"
                 print(f"  - {r['file']}: {r['error'][:60]} {status}")
 
-        print(f"\nNext: Run concept extraction overnight:")
-        print(f"  nohup python scripts/extract_concepts.py \\")
-        print(f"    --backend ollama --model llama3.1:8b \\")
+        print("\nNext: Run concept extraction overnight:")
+        print("  nohup python scripts/extract_concepts.py \\")
+        print("    --backend ollama --model llama3.1:8b \\")
         print(f"    --concurrency 2 --metrics-file /tmp/{DOMAIN}_extraction_metrics.txt \\")
         print(f"    > /tmp/{DOMAIN}_extraction.log 2>&1 &")
-        print(f"\n  Then: python scripts/sync_kuzu.py")
+        print("\n  Then: python scripts/sync_kuzu.py")
 
 
 if __name__ == "__main__":

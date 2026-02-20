@@ -203,9 +203,7 @@ def main():
         action="store_true",
         help="Use faster MiniLM model instead of BGE",
     )
-    parser.add_argument(
-        "--test", action="store_true", help="Test mode: rerank sample and exit"
-    )
+    parser.add_argument("--test", action="store_true", help="Test mode: rerank sample and exit")
     args = parser.parse_args()
 
     model_name = FALLBACK_MODEL if args.fast else args.model

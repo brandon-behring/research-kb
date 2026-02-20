@@ -36,13 +36,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 
 from research_kb_contracts import Chunk
 from research_kb_extraction import ExtractionMetrics, get_llm_client
-from research_kb_extraction.prompts import SYSTEM_PROMPT, format_extraction_prompt
 from research_kb_storage import ChunkStore, get_connection_pool
 
 
 @dataclass
 class BenchmarkResult:
     """Result from benchmarking a single backend."""
+
     backend: str
     chunks_processed: int
     successful: int
@@ -96,7 +96,7 @@ async def benchmark_backend(
 
     # Check availability
     if not await client.is_available():
-        print(f"  ✗ Backend not available")
+        print("  ✗ Backend not available")
         return BenchmarkResult(
             backend=backend,
             chunks_processed=0,
@@ -162,7 +162,7 @@ async def benchmark_backend(
         total_concepts=metrics.total_concepts,
         total_relationships=metrics.total_relationships,
         duration_seconds=duration,
-        throughput_per_min=(metrics.total_chunks / duration) * 60 if duration > 0 else 0,
+        throughput_per_min=((metrics.total_chunks / duration) * 60 if duration > 0 else 0),
         latency_p50_ms=p50,
         latency_p95_ms=p95,
         latencies_ms=latencies,
@@ -172,7 +172,9 @@ async def benchmark_backend(
     print(f"\n  Results for {result.backend}:")
     print(f"    Throughput: {result.throughput_per_min:.2f} chunks/min")
     print(f"    Latency p50: {result.latency_p50_ms:.0f}ms, p95: {result.latency_p95_ms:.0f}ms")
-    print(f"    Success: {result.successful}/{result.chunks_processed} ({100*result.successful/max(1, result.chunks_processed):.0f}%)")
+    print(
+        f"    Success: {result.successful}/{result.chunks_processed} ({100*result.successful/max(1, result.chunks_processed):.0f}%)"
+    )
     print(f"    Concepts: {result.total_concepts}, Relationships: {result.total_relationships}")
 
     return result
@@ -185,25 +187,16 @@ async def main():
         nargs="+",
         default=["ollama", "instructor"],
         choices=["ollama", "instructor", "llamacpp", "anthropic"],
-        help="Backends to benchmark"
+        help="Backends to benchmark",
     )
     parser.add_argument(
         "--chunks",
         type=int,
         default=20,
-        help="Number of chunks to benchmark (default: 20)"
+        help="Number of chunks to benchmark (default: 20)",
     )
-    parser.add_argument(
-        "--output",
-        type=str,
-        help="Output JSON file for results"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for chunk selection"
-    )
+    parser.add_argument("--output", type=str, help="Output JSON file for results")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for chunk selection")
 
     args = parser.parse_args()
 
@@ -234,7 +227,9 @@ async def main():
     for r in results:
         if r.chunks_processed > 0:
             success_pct = f"{100*r.successful/r.chunks_processed:.0f}%"
-            print(f"{r.backend:<30} {r.throughput_per_min:.2f}/min       {r.latency_p50_ms:.0f}ms        {success_pct}")
+            print(
+                f"{r.backend:<30} {r.throughput_per_min:.2f}/min       {r.latency_p50_ms:.0f}ms        {success_pct}"
+            )
         else:
             print(f"{r.backend:<30} {'N/A':<15} {'N/A':<12} {'0%':<10}")
 
@@ -244,7 +239,11 @@ async def main():
         sorted_results = sorted(valid_results, key=lambda r: r.throughput_per_min, reverse=True)
         fastest = sorted_results[0]
         second = sorted_results[1]
-        speedup = fastest.throughput_per_min / second.throughput_per_min if second.throughput_per_min > 0 else 0
+        speedup = (
+            fastest.throughput_per_min / second.throughput_per_min
+            if second.throughput_per_min > 0
+            else 0
+        )
         print(f"\n★ Fastest: {fastest.backend} ({speedup:.2f}x faster than {second.backend})")
 
     # Save results
@@ -254,8 +253,7 @@ async def main():
             "chunks_tested": len(selected),
             "seed": args.seed,
             "results": [
-                {k: v for k, v in asdict(r).items() if k != "latencies_ms"}
-                for r in results
+                {k: v for k, v in asdict(r).items() if k != "latencies_ms"} for r in results
             ],
         }
         with open(args.output, "w") as f:

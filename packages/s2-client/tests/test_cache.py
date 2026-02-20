@@ -5,13 +5,13 @@ Uses tmp_path fixture for isolated file-based tests.
 """
 
 import asyncio
-import json
-import time
 
 import pytest
 
 from s2_client.cache import DEFAULT_TTL_SECONDS, S2Cache
 from s2_client.errors import S2CacheError
+
+pytestmark = pytest.mark.unit
 
 
 # -----------------------------------------------------------------------------

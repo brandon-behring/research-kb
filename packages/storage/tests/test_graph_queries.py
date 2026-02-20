@@ -20,6 +20,8 @@ from research_kb_storage import (
 )
 from research_kb_storage.graph_queries import reset_kuzu_cache
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture(autouse=True)
 def force_postgres_graph():
@@ -33,6 +35,7 @@ def force_postgres_graph():
 
     # Mock KuzuDB availability check to return False
     import research_kb_storage.graph_queries as gq
+
     original_check = gq._check_kuzu_ready
     gq._check_kuzu_ready = lambda: False
 

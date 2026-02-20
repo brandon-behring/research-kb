@@ -26,7 +26,12 @@ from research_kb_pdf import (
     chunk_with_sections,
     extract_with_headings,
 )
-from research_kb_storage import ChunkStore, DatabaseConfig, SourceStore, get_connection_pool
+from research_kb_storage import (
+    ChunkStore,
+    DatabaseConfig,
+    SourceStore,
+    get_connection_pool,
+)
 
 logger = get_logger(__name__)
 
@@ -46,7 +51,7 @@ def parse_filename_for_metadata(filename: str) -> dict:
     name = filename.replace(".pdf", "")
 
     # Try to extract year (4 digits at end or in middle)
-    year_match = re.search(r'(\d{4})', name)
+    year_match = re.search(r"(\d{4})", name)
     year = int(year_match.group(1)) if year_match else None
 
     # Split by underscore
@@ -60,7 +65,14 @@ def parse_filename_for_metadata(filename: str) -> dict:
         for i, part in enumerate(parts):
             if part.isdigit() or len(part) < 2:
                 break
-            if any(c.isupper() for c in part) or part.lower() in ['athey', 'imbens', 'chernozhukov', 'pearl', 'rubin', 'angrist']:
+            if any(c.isupper() for c in part) or part.lower() in [
+                "athey",
+                "imbens",
+                "chernozhukov",
+                "pearl",
+                "rubin",
+                "angrist",
+            ]:
                 author_parts.append(part.title())
             else:
                 break
@@ -220,10 +232,12 @@ async def ingest_pdf(
         if (i + 1) % 50 == 0:
             logger.info("chunks_progress", current=i + 1, total=len(chunks))
 
-    logger.info("ingestion_complete",
-                source_id=str(source.id),
-                chunks=chunks_created,
-                headings=len(headings))
+    logger.info(
+        "ingestion_complete",
+        source_id=str(source.id),
+        chunks=chunks_created,
+        headings=len(headings),
+    )
 
     return str(source.id), chunks_created, len(headings)
 
@@ -291,20 +305,24 @@ async def main():
                 metadata=extra_metadata,
             )
 
-            results["success"].append({
-                "file": pdf_path.name,
-                "title": title,
-                "chunks": num_chunks,
-            })
+            results["success"].append(
+                {
+                    "file": pdf_path.name,
+                    "title": title,
+                    "chunks": num_chunks,
+                }
+            )
 
             print(f"  ✓ {num_chunks} chunks created")
 
         except Exception as e:
             logger.error("ingestion_failed", file=pdf_path.name, error=str(e), exc_info=True)
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": str(e),
-            })
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": str(e),
+                }
+            )
             print(f"  ✗ Failed: {e}")
 
     # Summary

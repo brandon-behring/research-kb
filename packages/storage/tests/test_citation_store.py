@@ -9,6 +9,8 @@ from uuid import uuid4
 from research_kb_contracts import SourceType
 from research_kb_storage import CitationStore, SourceStore
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture
 async def test_source(db_pool):

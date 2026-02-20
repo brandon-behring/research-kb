@@ -48,6 +48,7 @@ try:
         compute_single_graph_score as kuzu_compute_weighted_score,
         DEFAULT_KUZU_PATH,
     )
+
     KUZU_AVAILABLE = True
 except ImportError:
     KUZU_AVAILABLE = False
@@ -459,9 +460,7 @@ async def find_shortest_path(
             # Fetch all concepts and relationships
             concepts = {}
             for cid in path_concept_ids:
-                concept_row = await conn.fetchrow(
-                    "SELECT * FROM concepts WHERE id = $1", cid
-                )
+                concept_row = await conn.fetchrow("SELECT * FROM concepts WHERE id = $1", cid)
                 concepts[cid] = _row_to_concept(concept_row)
 
             relationships = {}
@@ -603,9 +602,7 @@ async def _get_neighborhood_via_kuzu(
             )
 
             # Get center concept
-            center_row = await conn.fetchrow(
-                "SELECT * FROM concepts WHERE id = $1", concept_id
-            )
+            center_row = await conn.fetchrow("SELECT * FROM concepts WHERE id = $1", concept_id)
             if not center_row:
                 raise StorageError(f"Concept not found: {concept_id}")
 
@@ -614,9 +611,7 @@ async def _get_neighborhood_via_kuzu(
             # Fetch all neighbor concepts
             concepts = [center_concept]
             for nid in neighbor_ids:
-                concept_row = await conn.fetchrow(
-                    "SELECT * FROM concepts WHERE id = $1", nid
-                )
+                concept_row = await conn.fetchrow("SELECT * FROM concepts WHERE id = $1", nid)
                 if concept_row:
                     concepts.append(_row_to_concept(concept_row))
 
@@ -687,18 +682,14 @@ async def get_neighborhood(
             )
 
             # Get center concept
-            center_row = await conn.fetchrow(
-                "SELECT * FROM concepts WHERE id = $1", concept_id
-            )
+            center_row = await conn.fetchrow("SELECT * FROM concepts WHERE id = $1", concept_id)
             if not center_row:
                 raise StorageError(f"Concept not found: {concept_id}")
 
             center_concept = _row_to_concept(center_row)
 
             # Recursive CTE for N-hop traversal
-            type_filter = (
-                "AND cr.relationship_type = $3" if relationship_type else "AND TRUE"
-            )
+            type_filter = "AND cr.relationship_type = $3" if relationship_type else "AND TRUE"
 
             query_params = [concept_id, hops]
             if relationship_type:
@@ -740,9 +731,7 @@ async def get_neighborhood(
             # Fetch all concepts
             concepts = [center_concept]
             for nid in neighbor_ids:
-                concept_row = await conn.fetchrow(
-                    "SELECT * FROM concepts WHERE id = $1", nid
-                )
+                concept_row = await conn.fetchrow("SELECT * FROM concepts WHERE id = $1", nid)
                 concepts.append(_row_to_concept(concept_row))
 
             # Fetch relationships between concepts in neighborhood
@@ -927,9 +916,7 @@ def generate_synthesis_prompt(
     end_name = end_concept.canonical_name or end_concept.name
 
     # Get intermediate concepts
-    intermediates = [
-        c.canonical_name or c.name for c, _ in path[1:-1]
-    ] if len(path) > 2 else []
+    intermediates = [c.canonical_name or c.name for c, _ in path[1:-1]] if len(path) > 2 else []
 
     # Build path with relationship types
     path_parts = []
@@ -947,15 +934,17 @@ def generate_synthesis_prompt(
     for concept, _ in path[1:-1]:
         name = concept.canonical_name or concept.name
         if concept.definition:
-            intermediates_with_defs.append(f"{name} ({concept.definition[:100]}...)" if len(concept.definition) > 100 else f"{name} ({concept.definition})")
+            intermediates_with_defs.append(
+                f"{name} ({concept.definition[:100]}...)"
+                if len(concept.definition) > 100
+                else f"{name} ({concept.definition})"
+            )
         else:
             intermediates_with_defs.append(name)
 
     # Generate style-specific prompts
     if style == "educational":
-        intermediate_clause = (
-            f" through {', '.join(intermediates)}" if intermediates else ""
-        )
+        intermediate_clause = f" through {', '.join(intermediates)}" if intermediates else ""
         return (
             f"Explain how {start_name} relates to {end_name}{intermediate_clause}. "
             f"What are the key connecting concepts and why do these relationships matter?"
@@ -1179,7 +1168,10 @@ async def get_path_with_explanation(
     path = await find_shortest_path(start_concept.id, end_concept.id, max_hops)
 
     if not path:
-        return None, f"No path found between '{start_name}' and '{end_name}' within {max_hops} hops"
+        return (
+            None,
+            f"No path found between '{start_name}' and '{end_name}' within {max_hops} hops",
+        )
 
     explanation = explain_path(path)
     return path, explanation

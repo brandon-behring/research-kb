@@ -11,6 +11,8 @@ from research_kb_extraction.chunk_filter import (
     get_filter_stats,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestFilterDecision:
     """Tests for FilterDecision enum."""

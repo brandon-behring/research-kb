@@ -58,11 +58,40 @@ def get_phase_status(stats: dict) -> dict:
     phase4_complete = all(p.exists() for p in phase4_packages)
 
     return {
-        "phase1": ("✅ Complete", "PostgreSQL + pgvector operational") if phase1_complete else ("📋 Pending", "Setup required"),
-        "phase15": ("✅ Complete", f"{stats.get('sources', 0):,} sources, {stats.get('chunks', 0):,} chunks") if phase15_complete else ("📋 Pending", "Ingestion required"),
-        "phase2": ("✅ Complete", f"{stats.get('concepts', 0):,} concepts, {stats.get('relationships', 0):,} relationships") if phase2_complete else ("📋 Pending", "Concept extraction required"),
-        "phase3": ("✅ Complete", "Query expansion, reranking, citation graph") if phase3_complete else ("📋 Ready to start", "No blockers"),
-        "phase4": ("✅ Complete", "FastAPI + Streamlit dashboard") if phase4_complete else ("📋 Planned", "Pending Phase 3" if not phase3_complete else "Ready to start"),
+        "phase1": (
+            ("✅ Complete", "PostgreSQL + pgvector operational")
+            if phase1_complete
+            else ("📋 Pending", "Setup required")
+        ),
+        "phase15": (
+            (
+                "✅ Complete",
+                f"{stats.get('sources', 0):,} sources, {stats.get('chunks', 0):,} chunks",
+            )
+            if phase15_complete
+            else ("📋 Pending", "Ingestion required")
+        ),
+        "phase2": (
+            (
+                "✅ Complete",
+                f"{stats.get('concepts', 0):,} concepts, {stats.get('relationships', 0):,} relationships",
+            )
+            if phase2_complete
+            else ("📋 Pending", "Concept extraction required")
+        ),
+        "phase3": (
+            ("✅ Complete", "Query expansion, reranking, citation graph")
+            if phase3_complete
+            else ("📋 Ready to start", "No blockers")
+        ),
+        "phase4": (
+            ("✅ Complete", "FastAPI + Streamlit dashboard")
+            if phase4_complete
+            else (
+                "📋 Planned",
+                "Pending Phase 3" if not phase3_complete else "Ready to start",
+            )
+        ),
     }
 
 
@@ -89,9 +118,7 @@ async def get_db_stats() -> dict:
             stats["relationships"] = await conn.fetchval(
                 "SELECT COUNT(*) FROM concept_relationships"
             )
-            stats["chunk_concepts"] = await conn.fetchval(
-                "SELECT COUNT(*) FROM chunk_concepts"
-            )
+            stats["chunk_concepts"] = await conn.fetchval("SELECT COUNT(*) FROM chunk_concepts")
             stats["citations"] = await conn.fetchval("SELECT COUNT(*) FROM citations")
 
             # Enrichment tables
@@ -130,7 +157,19 @@ async def get_db_stats() -> dict:
             rel_types = await conn.fetch(
                 "SELECT relationship_type, COUNT(*) as count FROM concept_relationships GROUP BY relationship_type ORDER BY count DESC"
             )
-            stats["relationship_types"] = {row["relationship_type"]: row["count"] for row in rel_types}
+            stats["relationship_types"] = {
+                row["relationship_type"]: row["count"] for row in rel_types
+            }
+
+            # Domain breakdown
+            domain_rows = await conn.fetch(
+                """SELECT COALESCE(s.metadata->>'domain', 'untagged') AS domain,
+                          COUNT(*) AS source_count
+                   FROM sources s
+                   GROUP BY COALESCE(s.metadata->>'domain', 'untagged')
+                   ORDER BY source_count DESC"""
+            )
+            stats["domains"] = {row["domain"]: row["source_count"] for row in domain_rows}
 
             # Date ranges
             stats["sources_date_range"] = await conn.fetchrow(
@@ -155,32 +194,30 @@ def generate_status_md(stats: dict) -> str:
 
     # Calculate percentages
     chunk_embed_pct = (
-        100 * stats["chunks_with_embeddings"] / stats["chunks"]
-        if stats["chunks"] > 0
-        else 0
+        100 * stats["chunks_with_embeddings"] / stats["chunks"] if stats["chunks"] > 0 else 0
     )
     concept_embed_pct = (
-        100 * stats["concepts_with_embeddings"] / stats["concepts"]
-        if stats["concepts"] > 0
-        else 0
+        100 * stats["concepts_with_embeddings"] / stats["concepts"] if stats["concepts"] > 0 else 0
     )
 
     # Format source types
     source_lines = "\n".join(
-        f"| {stype} | {count:,} |"
-        for stype, count in stats["source_types"].items()
+        f"| {stype} | {count:,} |" for stype, count in stats["source_types"].items()
     )
 
     # Format concept types
     concept_lines = "\n".join(
-        f"| {ctype} | {count:,} |"
-        for ctype, count in stats["concept_types"].items()
+        f"| {ctype} | {count:,} |" for ctype, count in stats["concept_types"].items()
     )
 
     # Format relationship types
     rel_lines = "\n".join(
-        f"| {rtype} | {count:,} |"
-        for rtype, count in stats["relationship_types"].items()
+        f"| {rtype} | {count:,} |" for rtype, count in stats["relationship_types"].items()
+    )
+
+    # Format domain breakdown
+    domain_lines = "\n".join(
+        f"| {domain} | {count:,} |" for domain, count in stats.get("domains", {}).items()
     )
 
     return f"""# Current Status
@@ -228,6 +265,14 @@ def generate_status_md(stats: dict) -> str:
 | Type | Count |
 |------|------:|
 {source_lines}
+
+---
+
+## Domain Breakdown
+
+| Domain | Sources |
+|--------|--------:|
+{domain_lines}
 
 ---
 
@@ -318,7 +363,9 @@ def main():
         if output_path.exists():
             existing = output_path.read_text()
             # Compare ignoring timestamp line
-            existing_lines = [l for l in existing.split("\n") if not l.startswith("**Auto-generated**")]
+            existing_lines = [
+                l for l in existing.split("\n") if not l.startswith("**Auto-generated**")
+            ]
             new_lines = [l for l in content.split("\n") if not l.startswith("**Auto-generated**")]
             if existing_lines != new_lines:
                 print(f"ERROR: {args.output} is out of date!")

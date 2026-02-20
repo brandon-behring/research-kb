@@ -46,6 +46,8 @@ from research_kb_api.schemas import (
     HealthDetail,
 )
 
+pytestmark = pytest.mark.unit
+
 
 # =============================================================================
 # Test Enums

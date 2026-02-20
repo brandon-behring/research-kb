@@ -319,9 +319,7 @@ class RelationshipStore:
                 deleted = result == "DELETE 1"
 
                 if deleted:
-                    logger.info(
-                        "relationship_deleted", relationship_id=str(relationship_id)
-                    )
+                    logger.info("relationship_deleted", relationship_id=str(relationship_id))
                 else:
                     logger.warning(
                         "relationship_not_found_for_delete",
@@ -345,9 +343,7 @@ class RelationshipStore:
 
         try:
             async with pool.acquire() as conn:
-                result = await conn.fetchval(
-                    "SELECT COUNT(*) FROM concept_relationships"
-                )
+                result = await conn.fetchval("SELECT COUNT(*) FROM concept_relationships")
                 return result or 0
 
         except Exception as e:

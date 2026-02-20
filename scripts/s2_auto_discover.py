@@ -54,7 +54,7 @@ from research_kb_storage import (
     get_connection_pool,
 )
 from research_kb_storage.discovery_store import DiscoveryStore, DiscoveryMethod
-from research_kb_storage.queue_store import QueueStore, QueueStatus
+from research_kb_storage.queue_store import QueueStore
 from s2_client import (
     CitationTraversal,
     S2Client,
@@ -100,9 +100,7 @@ def paper_to_queue_item(paper: S2Paper, domain_id: str, priority: int = 0) -> di
             "citation_count": paper.citation_count,
             "influential_citation_count": paper.influential_citation_count,
             "is_open_access": paper.is_open_access,
-            "fields_of_study": [
-                f.get("category") for f in (paper.s2_fields_of_study or [])
-            ],
+            "fields_of_study": [f.get("category") for f in (paper.s2_fields_of_study or [])],
             "abstract": paper.abstract,
         },
     }
@@ -144,7 +142,7 @@ async def discover_by_search(
     existing_arxiv_ids = existing["arxiv_ids"]
 
     print(f"\n{'='*60}")
-    print(f"S2 Discovery: Keyword Search")
+    print("S2 Discovery: Keyword Search")
     print(f"{'='*60}")
     print(f"Query: {query}")
     print(f"Domain: {domain_id}")
@@ -299,7 +297,7 @@ async def discover_by_topics(
         topics = list(DiscoveryTopic)
 
     print(f"\n{'='*60}")
-    print(f"S2 Discovery: Topic Batch")
+    print("S2 Discovery: Topic Batch")
     print(f"{'='*60}")
     print(f"Domain: {domain_id}")
     print(f"Topics: {len(topics)}")
@@ -417,7 +415,7 @@ async def discover_by_author(
     existing = await SourceStore.get_existing_identifiers(domain_id)
 
     print(f"\n{'='*60}")
-    print(f"S2 Discovery: Author Papers")
+    print("S2 Discovery: Author Papers")
     print(f"{'='*60}")
     print(f"Author ID: {author_id}")
     print(f"Domain: {domain_id}")
@@ -465,7 +463,10 @@ async def discover_by_author(
 
         if new_papers:
             print("\nTop papers:")
-            for i, paper in enumerate(sorted(new_papers, key=lambda p: p.citation_count or 0, reverse=True)[:10], 1):
+            for i, paper in enumerate(
+                sorted(new_papers, key=lambda p: p.citation_count or 0, reverse=True)[:10],
+                1,
+            ):
                 print(f"  {i:2}. [{paper.citation_count or 0:4} cit] {paper.title[:55]}")
 
             if not dry_run:
@@ -544,7 +545,7 @@ async def discover_by_traversal(
     existing_arxiv_ids = existing["arxiv_ids"]
 
     print(f"\n{'='*60}")
-    print(f"S2 Discovery: Citation Traversal")
+    print("S2 Discovery: Citation Traversal")
     print(f"{'='*60}")
     print(f"Domain: {domain_id}")
     print(f"Direction: {direction}")
@@ -606,7 +607,7 @@ async def discover_by_traversal(
         )
 
         papers_found = len(result.papers)
-        print(f"\nTraversal complete:")
+        print("\nTraversal complete:")
         print(f"  Papers discovered: {papers_found}")
         print(f"  Total traversed: {result.total_traversed}")
         print(f"  Duplicates removed: {result.duplicates_removed}")
@@ -633,7 +634,9 @@ async def discover_by_traversal(
             if new_papers:
                 # Show top papers
                 print("\nTop discovered papers:")
-                sorted_papers = sorted(new_papers, key=lambda p: p.citation_count or 0, reverse=True)
+                sorted_papers = sorted(
+                    new_papers, key=lambda p: p.citation_count or 0, reverse=True
+                )
                 for i, paper in enumerate(sorted_papers[:10], 1):
                     citations = paper.citation_count or 0
                     print(f"  {i:2}. [{citations:4} cit] {(paper.title or 'Unknown')[:55]}")
@@ -751,7 +754,9 @@ def main():
     search_parser.add_argument("--year-from", type=int, help="Minimum publication year")
     search_parser.add_argument("--min-citations", type=int, default=50, help="Minimum citations")
     search_parser.add_argument("--limit", type=int, default=100, help="Max papers")
-    search_parser.add_argument("--include-closed", action="store_true", help="Include closed access")
+    search_parser.add_argument(
+        "--include-closed", action="store_true", help="Include closed access"
+    )
     search_parser.add_argument("--dry-run", action="store_true", help="Don't queue papers")
 
     # Topics command
@@ -759,8 +764,12 @@ def main():
     topics_parser.add_argument("--domain", default="causal_inference", help="Target domain")
     topics_parser.add_argument("--year-from", type=int, help="Minimum publication year")
     topics_parser.add_argument("--min-citations", type=int, default=50, help="Minimum citations")
-    topics_parser.add_argument("--limit-per-topic", type=int, default=30, help="Max papers per topic")
-    topics_parser.add_argument("--include-closed", action="store_true", help="Include closed access")
+    topics_parser.add_argument(
+        "--limit-per-topic", type=int, default=30, help="Max papers per topic"
+    )
+    topics_parser.add_argument(
+        "--include-closed", action="store_true", help="Include closed access"
+    )
     topics_parser.add_argument("--dry-run", action="store_true", help="Don't queue papers")
 
     # Author command
@@ -769,28 +778,39 @@ def main():
     author_parser.add_argument("--domain", default="causal_inference", help="Target domain")
     author_parser.add_argument("--min-citations", type=int, default=20, help="Minimum citations")
     author_parser.add_argument("--limit", type=int, default=100, help="Max papers")
-    author_parser.add_argument("--include-closed", action="store_true", help="Include closed access")
+    author_parser.add_argument(
+        "--include-closed", action="store_true", help="Include closed access"
+    )
     author_parser.add_argument("--dry-run", action="store_true", help="Don't queue papers")
 
     # Traverse command
     traverse_parser = subparsers.add_parser("traverse", help="Traverse citation graph")
     traverse_parser.add_argument(
-        "--seed-paper-id", action="append", dest="seed_paper_ids",
-        help="Specific paper ID(s) to start from (can repeat)"
+        "--seed-paper-id",
+        action="append",
+        dest="seed_paper_ids",
+        help="Specific paper ID(s) to start from (can repeat)",
     )
     traverse_parser.add_argument(
-        "--seed-from-corpus", action="store_true",
-        help="Use top-cited papers from corpus as seeds"
+        "--seed-from-corpus",
+        action="store_true",
+        help="Use top-cited papers from corpus as seeds",
     )
     traverse_parser.add_argument("--domain", default="causal_inference", help="Target domain")
-    traverse_parser.add_argument("--depth", type=int, default=1, help="Traversal depth (1-2 recommended)")
     traverse_parser.add_argument(
-        "--direction", choices=["citations", "references", "both"],
-        default="both", help="Traversal direction"
+        "--depth", type=int, default=1, help="Traversal depth (1-2 recommended)"
+    )
+    traverse_parser.add_argument(
+        "--direction",
+        choices=["citations", "references", "both"],
+        default="both",
+        help="Traversal direction",
     )
     traverse_parser.add_argument("--min-citations", type=int, default=30, help="Minimum citations")
     traverse_parser.add_argument("--limit-per-paper", type=int, default=50, help="Max per paper")
-    traverse_parser.add_argument("--include-closed", action="store_true", help="Include closed access")
+    traverse_parser.add_argument(
+        "--include-closed", action="store_true", help="Include closed access"
+    )
     traverse_parser.add_argument("--dry-run", action="store_true", help="Don't queue papers")
 
     # Queue status command
@@ -803,45 +823,53 @@ def main():
     args = parser.parse_args()
 
     if args.command == "search":
-        asyncio.run(discover_by_search(
-            query=args.query,
-            domain_id=args.domain,
-            year_from=args.year_from,
-            min_citations=args.min_citations,
-            open_access_only=not args.include_closed,
-            limit=args.limit,
-            dry_run=args.dry_run,
-        ))
+        asyncio.run(
+            discover_by_search(
+                query=args.query,
+                domain_id=args.domain,
+                year_from=args.year_from,
+                min_citations=args.min_citations,
+                open_access_only=not args.include_closed,
+                limit=args.limit,
+                dry_run=args.dry_run,
+            )
+        )
     elif args.command == "topics":
-        asyncio.run(discover_by_topics(
-            domain_id=args.domain,
-            year_from=args.year_from,
-            min_citations=args.min_citations,
-            open_access_only=not args.include_closed,
-            limit_per_topic=args.limit_per_topic,
-            dry_run=args.dry_run,
-        ))
+        asyncio.run(
+            discover_by_topics(
+                domain_id=args.domain,
+                year_from=args.year_from,
+                min_citations=args.min_citations,
+                open_access_only=not args.include_closed,
+                limit_per_topic=args.limit_per_topic,
+                dry_run=args.dry_run,
+            )
+        )
     elif args.command == "author":
-        asyncio.run(discover_by_author(
-            author_id=args.author_id,
-            domain_id=args.domain,
-            min_citations=args.min_citations,
-            open_access_only=not args.include_closed,
-            limit=args.limit,
-            dry_run=args.dry_run,
-        ))
+        asyncio.run(
+            discover_by_author(
+                author_id=args.author_id,
+                domain_id=args.domain,
+                min_citations=args.min_citations,
+                open_access_only=not args.include_closed,
+                limit=args.limit,
+                dry_run=args.dry_run,
+            )
+        )
     elif args.command == "traverse":
-        asyncio.run(discover_by_traversal(
-            seed_paper_ids=args.seed_paper_ids,
-            seed_from_corpus=args.seed_from_corpus,
-            domain_id=args.domain,
-            depth=args.depth,
-            direction=args.direction,
-            min_citations=args.min_citations,
-            open_access_only=not args.include_closed,
-            limit_per_paper=args.limit_per_paper,
-            dry_run=args.dry_run,
-        ))
+        asyncio.run(
+            discover_by_traversal(
+                seed_paper_ids=args.seed_paper_ids,
+                seed_from_corpus=args.seed_from_corpus,
+                domain_id=args.domain,
+                depth=args.depth,
+                direction=args.direction,
+                min_citations=args.min_citations,
+                open_access_only=not args.include_closed,
+                limit_per_paper=args.limit_per_paper,
+                dry_run=args.dry_run,
+            )
+        )
     elif args.command == "queue-status":
         asyncio.run(show_queue_status())
     elif args.command == "stats":

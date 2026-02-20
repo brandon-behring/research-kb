@@ -191,9 +191,7 @@ class PDFDispatcher:
             existing = await SourceStore.get_by_file_hash(file_hash)
             if existing:
                 # Return existing with chunk count
-                chunk_count = (
-                    await ChunkStore.count_by_source(existing.id) if ChunkStore else 0
-                )
+                chunk_count = await ChunkStore.count_by_source(existing.id) if ChunkStore else 0
                 logger.info(
                     "source_already_exists",
                     source_id=str(existing.id),
@@ -204,9 +202,7 @@ class PDFDispatcher:
                     source=existing,
                     chunk_count=chunk_count,
                     headings_detected=existing.metadata.get("total_headings", 0),
-                    extraction_method=existing.metadata.get(
-                        "extraction_method", "unknown"
-                    ),
+                    extraction_method=existing.metadata.get("extraction_method", "unknown"),
                     grobid_metadata_extracted="grobid"
                     in existing.metadata.get("extraction_method", ""),
                 )
@@ -376,9 +372,7 @@ class PDFDispatcher:
         if not chunks:
             return 0
 
-        logger.info(
-            "generating_embeddings", source_id=str(source.id), chunks=len(chunks)
-        )
+        logger.info("generating_embeddings", source_id=str(source.id), chunks=len(chunks))
 
         # Prepare chunk data for batch creation
         chunks_data = []

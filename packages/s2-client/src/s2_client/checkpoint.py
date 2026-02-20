@@ -83,7 +83,11 @@ class EnrichmentCheckpoint:
                 processed_ids={UUID(uid) for uid in data.get("processed_ids", [])},
                 total_citations=data.get("total_citations", 0),
                 started_at=datetime.fromisoformat(data["started_at"]),
-                last_saved_at=datetime.fromisoformat(data["last_saved_at"]) if data.get("last_saved_at") else None,
+                last_saved_at=(
+                    datetime.fromisoformat(data["last_saved_at"])
+                    if data.get("last_saved_at")
+                    else None
+                ),
                 matched=data.get("stats", {}).get("matched", 0),
                 ambiguous=data.get("stats", {}).get("ambiguous", 0),
                 unmatched=data.get("stats", {}).get("unmatched", 0),
@@ -229,7 +233,7 @@ class GracefulShutdown:
         print(f"\n⚡ {signal_name} received - saving checkpoint...")
         self.checkpoint.save()
         self.shutdown_requested = True
-        print(f"✓ Checkpoint saved. Resume with: research-kb enrich citations --resume")
+        print("✓ Checkpoint saved. Resume with: research-kb enrich citations --resume")
 
 
 def list_checkpoints() -> list[dict]:
@@ -244,14 +248,16 @@ def list_checkpoints() -> list[dict]:
     for path in sorted(CHECKPOINT_DIR.glob("*.json"), reverse=True):
         try:
             data = json.loads(path.read_text())
-            checkpoints.append({
-                "job_id": data.get("job_id", path.stem),
-                "started_at": data.get("started_at"),
-                "last_saved_at": data.get("last_saved_at"),
-                "processed": len(data.get("processed_ids", [])),
-                "total": data.get("total_citations", 0),
-                "stats": data.get("stats", {}),
-            })
+            checkpoints.append(
+                {
+                    "job_id": data.get("job_id", path.stem),
+                    "started_at": data.get("started_at"),
+                    "last_saved_at": data.get("last_saved_at"),
+                    "processed": len(data.get("processed_ids", [])),
+                    "total": data.get("total_citations", 0),
+                    "stats": data.get("stats", {}),
+                }
+            )
         except (json.JSONDecodeError, KeyError):
             continue
 

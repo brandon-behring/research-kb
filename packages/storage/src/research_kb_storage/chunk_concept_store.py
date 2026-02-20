@@ -90,9 +90,7 @@ class ChunkConceptStore:
                 concept_id=str(concept_id),
                 error=str(e),
             )
-            raise StorageError(
-                f"Chunk or concept does not exist: {chunk_id}, {concept_id}"
-            ) from e
+            raise StorageError(f"Chunk or concept does not exist: {chunk_id}, {concept_id}") from e
         except Exception as e:
             logger.error("chunk_concept_creation_failed", error=str(e))
             raise StorageError(f"Failed to create chunk-concept link: {e}") from e
@@ -335,9 +333,7 @@ class ChunkConceptStore:
 
         except Exception as e:
             logger.error("chunk_concept_batch_create_failed", error=str(e))
-            raise StorageError(
-                f"Failed to batch create chunk-concept links: {e}"
-            ) from e
+            raise StorageError(f"Failed to batch create chunk-concept links: {e}") from e
 
     @staticmethod
     async def get_concept_ids_for_chunks(
@@ -421,19 +417,19 @@ class ChunkConceptStore:
                     cid: [] for cid in chunk_ids
                 }
                 for row in rows:
-                    result[row["chunk_id"]].append((
-                        row["concept_id"],
-                        row["mention_type"] or "reference",
-                        row["relevance_score"],
-                    ))
+                    result[row["chunk_id"]].append(
+                        (
+                            row["concept_id"],
+                            row["mention_type"] or "reference",
+                            row["relevance_score"],
+                        )
+                    )
 
                 return result
 
         except Exception as e:
             logger.error("chunk_concept_get_info_batch_failed", error=str(e))
-            raise StorageError(
-                f"Failed to get concept info for chunks: {e}"
-            ) from e
+            raise StorageError(f"Failed to get concept info for chunks: {e}") from e
 
 
 def _row_to_chunk_concept(row: asyncpg.Record) -> ChunkConcept:

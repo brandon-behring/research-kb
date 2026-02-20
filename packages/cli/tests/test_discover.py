@@ -11,6 +11,9 @@ import respx
 from httpx import Response
 from typer.testing import CliRunner
 
+pytestmark = pytest.mark.unit
+
+
 # Fixture loading
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "s2_responses"
 
@@ -110,7 +113,10 @@ class TestOutputFormatters:
         data = json.loads(output)
         assert isinstance(data, list)
         assert len(data) == 3
-        assert data[0]["title"] == "Double/debiased machine learning for treatment and structural parameters"
+        assert (
+            data[0]["title"]
+            == "Double/debiased machine learning for treatment and structural parameters"
+        )
         assert data[0]["citation_count"] == 1542
 
     def test_format_paper_table_no_title(self):
@@ -158,7 +164,9 @@ class TestSearchCommand:
             return_value=Response(200, json=search_response)
         )
 
-        result = cli_runner.invoke(app, ["search", "unique year filter test 9876", "--year-from", "2020"])
+        result = cli_runner.invoke(
+            app, ["search", "unique year filter test 9876", "--year-from", "2020"]
+        )
 
         # Command should succeed with year filter
         assert result.exit_code == 0
@@ -174,7 +182,10 @@ class TestSearchCommand:
             return_value=Response(200, json=search_response)
         )
 
-        result = cli_runner.invoke(app, ["search", "unique citation filter test 5432", "--min-citations", "100"])
+        result = cli_runner.invoke(
+            app,
+            ["search", "unique citation filter test 5432", "--min-citations", "100"],
+        )
 
         # Command should succeed with citation filter
         assert result.exit_code == 0
@@ -241,7 +252,9 @@ class TestSearchCommand:
 
         # When timeout occurs, it should either exit 1 or show error
         # The actual behavior depends on retry logic
-        assert result.exit_code == 1 or "Error" in result.output or "timeout" in result.output.lower()
+        assert (
+            result.exit_code == 1 or "Error" in result.output or "timeout" in result.output.lower()
+        )
 
     @respx.mock
     def test_search_rate_limit(self, cli_runner):
@@ -278,7 +291,9 @@ class TestAuthorCommand:
 
         # Mock author papers endpoint
         respx.get("https://api.semanticscholar.org/graph/v1/author/26331346/papers").mock(
-            return_value=Response(200, json={"total": 215, "offset": 0, "data": search_response["data"]})
+            return_value=Response(
+                200, json={"total": 215, "offset": 0, "data": search_response["data"]}
+            )
         )
 
         result = cli_runner.invoke(app, ["author", "26331346"])

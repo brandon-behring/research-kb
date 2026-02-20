@@ -206,12 +206,20 @@ def register_concept_tools(mcp: FastMCP) -> None:
 
             # Format output
             lines = [f"## Concepts Similar to: {source_concept.name}"]
-            type_val = source_concept.concept_type.value if hasattr(source_concept.concept_type, "value") else source_concept.concept_type
+            type_val = (
+                source_concept.concept_type.value
+                if hasattr(source_concept.concept_type, "value")
+                else source_concept.concept_type
+            )
             lines.append(f"*Type: {type_val} | Threshold: {threshold:.2f}*\n")
             lines.append(f"**{len(similar)} similar concepts found**\n")
 
             for concept, score in similar:
-                c_type = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+                c_type = (
+                    concept.concept_type.value
+                    if hasattr(concept.concept_type, "value")
+                    else concept.concept_type
+                )
                 lines.append(f"- **{concept.name}** [{c_type}]")
                 lines.append(f"  - Similarity: {score:.3f}")
                 lines.append(f"  - ID: `{concept.id}`")

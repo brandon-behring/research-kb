@@ -15,26 +15,22 @@ from uuid import UUID
 
 from research_kb_common import get_logger
 from research_kb_contracts import SearchResult
+from research_kb_storage import (
+    SearchQuery,
+    is_kuzu_ready,
+    search_hybrid,
+    search_hybrid_v2,
+    search_vector_only,
+)
+from research_kb_storage.concept_store import ConceptStore as ConceptStoreClass
+from research_kb_storage.graph_queries import find_shortest_path
+
 from research_kb_daemon.metrics import (
-    ACTIVE_CONNECTIONS,
     DAEMON_UPTIME,
     REQUEST_COUNT,
     REQUEST_DURATION,
 )
-from research_kb_storage import (
-    SearchQuery,
-    search_hybrid,
-    search_hybrid_v2,
-    search_vector_only,
-    SourceStore,
-    ChunkStore,
-    ConceptStore,
-    is_kuzu_ready,
-)
-from research_kb_storage.graph_queries import find_shortest_path
-from research_kb_storage.concept_store import ConceptStore as ConceptStoreClass
-
-from research_kb_daemon.pool import get_pool, get_embed_client, get_rerank_client
+from research_kb_daemon.pool import get_embed_client, get_pool, get_rerank_client
 
 logger = get_logger(__name__)
 
@@ -77,12 +73,13 @@ async def _resolve_concept(name_or_id: str):
                OR name ILIKE $1
             LIMIT 1
             """,
-            f"%{name_or_id}%"
+            f"%{name_or_id}%",
         )
         if row:
             return await ConceptStoreClass.get(row["id"])
 
     return None
+
 
 # Track daemon start time
 _start_time = time.time()
@@ -104,8 +101,8 @@ def _result_to_dict(result: SearchResult) -> dict[str, Any]:
         "source_title": result.source.title if result.source else None,
         "source_authors": result.source.authors if result.source else None,
         "source_year": result.source.year if result.source else None,
-        "page_number": result.chunk.metadata.get("page_number") if result.chunk else None,
-        "section_header": result.chunk.metadata.get("section_header") if result.chunk else None,
+        "page_number": (result.chunk.metadata.get("page_number") if result.chunk else None),
+        "section_header": (result.chunk.metadata.get("section_header") if result.chunk else None),
         "fts_score": result.fts_score,
         "vector_score": result.vector_score,
         "graph_score": result.graph_score,
@@ -142,13 +139,14 @@ async def handle_search(params: dict[str, Any]) -> list[dict[str, Any]]:
     context_type = params.get("context_type", "balanced")
     use_graph = params.get("use_graph", False)
     use_citations = params.get("use_citations", False)
+    use_hyde = params.get("use_hyde", False)
     domain_id = params.get("domain")  # None = all domains
 
     # Context-based weight presets
     weight_presets = {
-        "building": (0.2, 0.8),   # Favor semantic breadth
-        "auditing": (0.5, 0.5),   # Favor precision
-        "balanced": (0.3, 0.7),   # Default
+        "building": (0.2, 0.8),  # Favor semantic breadth
+        "auditing": (0.5, 0.5),  # Favor precision
+        "balanced": (0.3, 0.7),  # Default
     }
     fts_weight, vector_weight = weight_presets.get(context_type, (0.3, 0.7))
 
@@ -181,8 +179,24 @@ async def handle_search(params: dict[str, Any]) -> list[dict[str, Any]]:
         domain=domain_id,
     )
 
+    # Route through search_with_expansion when HyDE is requested
+    if use_hyde:
+        from research_kb_storage import HydeConfig, search_with_expansion
+
+        hyde_config = HydeConfig(
+            enabled=True,
+            backend=params.get("hyde_backend", "ollama"),
+            model=params.get("hyde_model", "llama3.1:8b"),
+        )
+        results, _ = await search_with_expansion(
+            search_query,
+            use_synonyms=False,
+            use_graph_expansion=False,
+            use_rerank=False,
+            hyde_config=hyde_config,
+        )
     # Use v2 search if graph or citations enabled, otherwise basic hybrid
-    if use_graph or use_citations:
+    elif use_graph or use_citations:
         results = await search_hybrid_v2(search_query)
     else:
         results = await search_hybrid(search_query)
@@ -403,7 +417,7 @@ async def handle_graph_path(params: dict[str, Any]) -> dict[str, Any]:
         item = {
             "concept_id": str(concept.id),
             "concept_name": concept.name,
-            "concept_type": concept.concept_type.value if concept.concept_type else None,
+            "concept_type": (concept.concept_type.value if concept.concept_type else None),
         }
         if relationship:
             item["relationship"] = {

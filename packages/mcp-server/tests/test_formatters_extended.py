@@ -14,9 +14,6 @@ from __future__ import annotations
 
 import pytest
 from uuid import uuid4
-from datetime import datetime
-from dataclasses import dataclass, field
-from typing import Optional
 from enum import Enum
 
 from research_kb_mcp.formatters import (
@@ -29,6 +26,8 @@ from research_kb_mcp.formatters import (
     format_biblio_similar,
     format_chunk_concepts,
 )
+
+pytestmark = pytest.mark.unit
 
 
 # Mock classes for testing
@@ -347,9 +346,7 @@ class TestFormatConceptDetail:
 
     def test_relationships_truncated_to_twenty(self, sample_concept):
         """Only first 20 relationships shown."""
-        relationships = [
-            MockConceptRelationship(target_id=uuid4()) for _ in range(30)
-        ]
+        relationships = [MockConceptRelationship(target_id=uuid4()) for _ in range(30)]
 
         result = format_concept_detail(sample_concept, relationships=relationships)
 

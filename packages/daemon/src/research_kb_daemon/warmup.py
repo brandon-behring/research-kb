@@ -94,16 +94,14 @@ async def warm_kuzu() -> None:
 
     try:
         # Import here to handle missing kuzu gracefully
-        from research_kb_storage.kuzu_store import get_kuzu_connection
         from research_kb_storage.graph_queries import _check_kuzu_ready
+        from research_kb_storage.kuzu_store import get_kuzu_connection
 
         # Step 1: Open connection (triggers file open + schema check)
         conn = await asyncio.to_thread(get_kuzu_connection)
 
         # Step 2: Scan node table
-        result = await asyncio.to_thread(
-            conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt"
-        )
+        result = await asyncio.to_thread(conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt")
         df = result.get_as_df()
         node_count = int(df.iloc[0]["cnt"]) if not df.empty else 0
         logger.info("kuzu_warmup_nodes_scanned", count=node_count)

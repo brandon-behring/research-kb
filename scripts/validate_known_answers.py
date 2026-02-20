@@ -16,7 +16,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 
 from research_kb_common import get_logger
 from research_kb_pdf import EmbeddingClient
-from research_kb_storage import DatabaseConfig, SearchQuery, get_connection_pool, search_hybrid
+from research_kb_storage import (
+    DatabaseConfig,
+    SearchQuery,
+    get_connection_pool,
+    search_hybrid,
+)
 
 logger = get_logger(__name__)
 
@@ -185,14 +190,12 @@ async def validate_query(query_data: dict, embedding_client: EmbeddingClient) ->
     # 3. At least 60% results have section metadata
 
     source_match = any(expected_source in src for src in top_sources[:3])
-    keyword_quality = max(keyword_match_counts[:3]) / len(expected_keywords) if keyword_match_counts else 0
+    keyword_quality = (
+        max(keyword_match_counts[:3]) / len(expected_keywords) if keyword_match_counts else 0
+    )
     section_quality = validation["section_coverage"]
 
-    validation["passed"] = (
-        source_match
-        and keyword_quality >= 0.5
-        and section_quality >= 0.6
-    )
+    validation["passed"] = source_match and keyword_quality >= 0.5 and section_quality >= 0.6
 
     if validation["passed"]:
         logger.info("query_passed", query_id=query_id)
@@ -224,12 +227,14 @@ async def main():
             results.append(validation)
         except Exception as e:
             logger.error("query_failed", query_id=query_data["id"], error=str(e), exc_info=True)
-            results.append({
-                "query_id": query_data["id"],
-                "query": query_data["query"],
-                "passed": False,
-                "error": str(e),
-            })
+            results.append(
+                {
+                    "query_id": query_data["id"],
+                    "query": query_data["query"],
+                    "passed": False,
+                    "error": str(e),
+                }
+            )
 
     # Summary report
     print("\n" + "=" * 80)
@@ -240,7 +245,7 @@ async def main():
     total = len(results)
 
     print(f"\nOverall: {passed}/{total} queries passed ({passed/total*100:.1f}%)")
-    print(f"Success threshold: ≥71% (10/14 queries)")
+    print("Success threshold: ≥71% (10/14 queries)")
     print()
 
     # Per-query breakdown

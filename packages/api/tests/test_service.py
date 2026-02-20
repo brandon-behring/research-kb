@@ -10,7 +10,6 @@ Tests cover:
 
 from __future__ import annotations
 
-import asyncio
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -50,6 +49,8 @@ from research_kb_api.service import (
     get_citations_for_source,
     _embedding_cache,
 )
+
+pytestmark = pytest.mark.unit
 
 
 # =============================================================================
@@ -390,12 +391,14 @@ class TestSearch:
     @pytest.fixture
     def mock_search_deps(self, mock_embedding, sample_search_result):
         """Mock all search dependencies."""
-        with patch("research_kb_api.service.get_cached_embedding") as embed_mock, \
-             patch("research_kb_api.service.ConceptStore") as concept_mock, \
-             patch("research_kb_api.service.search_with_expansion") as expand_mock, \
-             patch("research_kb_api.service.search_with_rerank") as rerank_mock, \
-             patch("research_kb_api.service.search_hybrid_v2") as hybrid_v2_mock, \
-             patch("research_kb_api.service.search_hybrid") as hybrid_mock:
+        with (
+            patch("research_kb_api.service.get_cached_embedding") as embed_mock,
+            patch("research_kb_api.service.ConceptStore") as concept_mock,
+            patch("research_kb_api.service.search_with_expansion") as expand_mock,
+            patch("research_kb_api.service.search_with_rerank") as rerank_mock,
+            patch("research_kb_api.service.search_hybrid_v2") as hybrid_v2_mock,
+            patch("research_kb_api.service.search_hybrid") as hybrid_mock,
+        ):
 
             embed_mock.return_value = mock_embedding
             concept_mock.count = AsyncMock(return_value=100)
@@ -446,7 +449,9 @@ class TestSearch:
         mock_search_deps["expand"].assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_search_uses_rerank_without_expansion(self, mock_search_deps, sample_search_result):
+    async def test_search_uses_rerank_without_expansion(
+        self, mock_search_deps, sample_search_result
+    ):
         """Test search uses rerank when expansion disabled."""
         mock_search_deps["rerank"].return_value = [sample_search_result]
         options = SearchOptions(query="test", use_expand=False, use_rerank=True)
@@ -557,9 +562,7 @@ class TestSourceOperations:
 
             assert len(result) == 1
             assert result[0].title == sample_source.title
-            mock_store.list_all.assert_called_once_with(
-                limit=10, offset=0, source_type=None
-            )
+            mock_store.list_all.assert_called_once_with(limit=10, offset=0, source_type=None)
 
     @pytest.mark.asyncio
     async def test_get_sources_with_filter(self, sample_source):
@@ -569,9 +572,7 @@ class TestSourceOperations:
 
             await get_sources(limit=50, offset=10, source_type="TEXTBOOK")
 
-            mock_store.list_all.assert_called_once_with(
-                limit=50, offset=10, source_type="TEXTBOOK"
-            )
+            mock_store.list_all.assert_called_once_with(limit=50, offset=10, source_type="TEXTBOOK")
 
     @pytest.mark.asyncio
     async def test_get_source_by_id(self, sample_source):
@@ -679,8 +680,10 @@ class TestGraphOperations:
     @pytest.mark.asyncio
     async def test_get_graph_neighborhood(self, sample_concept):
         """Test get_graph_neighborhood returns neighborhood data."""
-        with patch("research_kb_api.service.ConceptStore") as concept_mock, \
-             patch("research_kb_api.service.get_neighborhood") as neighbor_mock:
+        with (
+            patch("research_kb_api.service.ConceptStore") as concept_mock,
+            patch("research_kb_api.service.get_neighborhood") as neighbor_mock,
+        ):
 
             concept_mock.search = AsyncMock(return_value=[sample_concept])
             neighbor_mock.return_value = {
@@ -718,8 +721,10 @@ class TestGraphOperations:
             created_at=datetime.now(),
         )
 
-        with patch("research_kb_api.service.ConceptStore") as concept_mock, \
-             patch("research_kb_api.service.find_shortest_path") as path_mock:
+        with (
+            patch("research_kb_api.service.ConceptStore") as concept_mock,
+            patch("research_kb_api.service.find_shortest_path") as path_mock,
+        ):
 
             concept_mock.search = AsyncMock(side_effect=[[concept_a], [concept_b]])
             # Service expects list of (Concept, Relationship) tuples
@@ -784,8 +789,10 @@ class TestStatsAndCitations:
             return mock_pool
 
         # Patch at the storage module level where it's imported from
-        with patch("research_kb_storage.get_connection_pool", mock_get_pool), \
-             patch("research_kb_storage.DatabaseConfig"):
+        with (
+            patch("research_kb_storage.get_connection_pool", mock_get_pool),
+            patch("research_kb_storage.DatabaseConfig"),
+        ):
 
             result = await get_stats()
 
@@ -818,8 +825,10 @@ class TestStatsAndCitations:
             updated_at=datetime.now(),
         )
 
-        with patch("research_kb_api.service.get_citing_sources") as citing_mock, \
-             patch("research_kb_api.service.get_cited_sources") as cited_mock:
+        with (
+            patch("research_kb_api.service.get_citing_sources") as citing_mock,
+            patch("research_kb_api.service.get_cited_sources") as cited_mock,
+        ):
 
             citing_mock.return_value = [citing_source]
             cited_mock.return_value = [cited_source]

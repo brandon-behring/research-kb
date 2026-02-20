@@ -12,11 +12,12 @@ from __future__ import annotations
 
 import os
 import pytest
-from unittest.mock import patch
 
 from pydantic import ValidationError
 
 from research_kb_common.config import Settings, get_settings
+
+pytestmark = pytest.mark.unit
 
 
 # =============================================================================

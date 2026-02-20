@@ -102,9 +102,7 @@ def _make_embedding(seed: int, dim: int = 1024) -> list[float]:
     return [x / norm for x in raw]
 
 
-def _blend_embeddings(
-    base: list[float], target: list[float], alpha: float = 0.7
-) -> list[float]:
+def _blend_embeddings(base: list[float], target: list[float], alpha: float = 0.7) -> list[float]:
     """Blend two embeddings: result = alpha * base + (1-alpha) * target.
 
     Higher alpha → closer to base. Returns normalized vector.

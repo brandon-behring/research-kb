@@ -35,7 +35,7 @@ from pathlib import Path
 LEVER_PATH = Path.home() / "Claude" / "lever_of_archimedes"
 sys.path.insert(0, str(LEVER_PATH))
 
-from services.proactive_context.research_kb_bridge import ResearchKBBridge, SearchResult
+from services.proactive_context.research_kb_bridge import ResearchKBBridge
 
 
 # ── Test corpus: 50 prompts across 5 domains ──────────────────────────────────
@@ -107,6 +107,7 @@ TEST_PROMPTS = {
 @dataclass
 class PromptResult:
     """Result from a single prompt test."""
+
     domain: str
     prompt: str
     latency_ms: float
@@ -118,6 +119,7 @@ class PromptResult:
 @dataclass
 class DomainSummary:
     """Summary statistics for a domain."""
+
     domain: str
     num_prompts: int
     enriched_count: int
@@ -131,6 +133,7 @@ class DomainSummary:
 @dataclass
 class ValidationReport:
     """Complete validation report."""
+
     timestamp: str
     daemon_available: bool
     total_prompts: int
@@ -163,10 +166,7 @@ def run_prompt(bridge: ResearchKBBridge, domain: str, prompt: str) -> PromptResu
     results = bridge.query(prompt, limit=3)
     elapsed_ms = (time.monotonic() - start) * 1000
 
-    vector_scores = [
-        r.confidence for r in results
-        if r.confidence is not None
-    ]
+    vector_scores = [r.confidence for r in results if r.confidence is not None]
     mean_vs = statistics.mean(vector_scores) if vector_scores else None
 
     return PromptResult(
@@ -197,10 +197,7 @@ def run_validation(daemon_only: bool = False) -> ValidationReport:
 
     # Overall statistics
     all_latencies = [r.latency_ms for r in all_results]
-    all_scores = [
-        r.mean_vector_score for r in all_results
-        if r.mean_vector_score is not None
-    ]
+    all_scores = [r.mean_vector_score for r in all_results if r.mean_vector_score is not None]
     total_enriched = sum(1 for r in all_results if r.enriched)
 
     # Per-domain summaries
@@ -208,22 +205,21 @@ def run_validation(daemon_only: bool = False) -> ValidationReport:
     for domain in TEST_PROMPTS:
         domain_results = [r for r in all_results if r.domain == domain]
         latencies = [r.latency_ms for r in domain_results]
-        scores = [
-            r.mean_vector_score for r in domain_results
-            if r.mean_vector_score is not None
-        ]
+        scores = [r.mean_vector_score for r in domain_results if r.mean_vector_score is not None]
         enriched = sum(1 for r in domain_results if r.enriched)
 
-        domain_summaries.append(DomainSummary(
-            domain=domain,
-            num_prompts=len(domain_results),
-            enriched_count=enriched,
-            coverage_pct=enriched / len(domain_results) * 100 if domain_results else 0,
-            latency_p50_ms=percentile(latencies, 50),
-            latency_p95_ms=percentile(latencies, 95),
-            latency_p99_ms=percentile(latencies, 99),
-            mean_quality=statistics.mean(scores) if scores else None,
-        ))
+        domain_summaries.append(
+            DomainSummary(
+                domain=domain,
+                num_prompts=len(domain_results),
+                enriched_count=enriched,
+                coverage_pct=(enriched / len(domain_results) * 100 if domain_results else 0),
+                latency_p50_ms=percentile(latencies, 50),
+                latency_p95_ms=percentile(latencies, 95),
+                latency_p99_ms=percentile(latencies, 99),
+                mean_quality=statistics.mean(scores) if scores else None,
+            )
+        )
 
     overall_coverage = total_enriched / len(all_results) * 100 if all_results else 0
     p50 = percentile(all_latencies, 50)
@@ -234,8 +230,16 @@ def run_validation(daemon_only: bool = False) -> ValidationReport:
     # Check exit criteria
     exit_criteria = {
         "latency_p50_under_500ms": {"target": 500, "actual": p50, "passed": p50 < 500},
-        "coverage_above_80pct": {"target": 80, "actual": overall_coverage, "passed": overall_coverage >= 80},
-        "quality_above_0.6": {"target": 0.6, "actual": mean_q, "passed": (mean_q or 0) > 0.6},
+        "coverage_above_80pct": {
+            "target": 80,
+            "actual": overall_coverage,
+            "passed": overall_coverage >= 80,
+        },
+        "quality_above_0.6": {
+            "target": 0.6,
+            "actual": mean_q,
+            "passed": (mean_q or 0) > 0.6,
+        },
     }
     all_passed = all(c["passed"] for c in exit_criteria.values())
 

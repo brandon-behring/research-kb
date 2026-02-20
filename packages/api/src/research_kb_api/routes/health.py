@@ -57,7 +57,10 @@ async def readiness() -> dict:
         if client is not None:
             components["embedding"] = {"status": "ready"}
         else:
-            components["embedding"] = {"status": "not_ready", "error": "client not initialized"}
+            components["embedding"] = {
+                "status": "not_ready",
+                "error": "client not initialized",
+            }
     except Exception as e:
         components["embedding"] = {"status": "not_ready", "error": str(e)[:100]}
 

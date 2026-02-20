@@ -123,9 +123,7 @@ def citation_to_bibtex(citation: Citation) -> str:
                 formatted_authors.append(f"{parts[-1]}, {' '.join(parts[:-1])}")
             else:
                 formatted_authors.append(author)
-        lines.append(
-            f"  author = {{{escape_bibtex(' and '.join(formatted_authors))}}},"
-        )
+        lines.append(f"  author = {{{escape_bibtex(' and '.join(formatted_authors))}}},")
 
     # Title
     lines.append(f"  title = {{{escape_bibtex(citation.title)}}},")

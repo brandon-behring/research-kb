@@ -1,4 +1,5 @@
 """Quick check: list current domain values and counts."""
+
 import asyncio
 import sys
 from pathlib import Path

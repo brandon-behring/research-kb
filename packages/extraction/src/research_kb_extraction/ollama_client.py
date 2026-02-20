@@ -204,15 +204,11 @@ class OllamaClient(LLMClient):
 
         except json.JSONDecodeError as e:
             logger.error("json_parse_error", response=response[:200], error=str(e))
-            raise ExtractionValidationError(
-                f"Failed to parse JSON response: {e}"
-            ) from e
+            raise ExtractionValidationError(f"Failed to parse JSON response: {e}") from e
 
         except Exception as e:
             logger.error("extraction_validation_error", error=str(e))
-            raise ExtractionValidationError(
-                f"Failed to validate extraction output: {e}"
-            ) from e
+            raise ExtractionValidationError(f"Failed to validate extraction output: {e}") from e
 
     async def extract_batch(
         self,

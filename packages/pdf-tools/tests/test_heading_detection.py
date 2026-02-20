@@ -11,6 +11,8 @@ from research_kb_pdf import (
     Heading,
 )
 
+pytestmark = pytest.mark.unit
+
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 TEST_PDF = FIXTURES_DIR / "test_simple.pdf"
@@ -258,6 +260,4 @@ class TestIntegration:
                 print(f"    H{h.level}: {h.text}")
 
             chunks_with_sections = [c for c in chunks if c.metadata.get("section")]
-            print(
-                f"  Chunks with section metadata: {len(chunks_with_sections)}/{len(chunks)}"
-            )
+            print(f"  Chunks with section metadata: {len(chunks_with_sections)}/{len(chunks)}")

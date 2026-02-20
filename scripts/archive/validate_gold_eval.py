@@ -39,7 +39,8 @@ async def main():
     )
 
     # Get gold eval chunks with content
-    rows = await conn.fetch("""
+    rows = await conn.fetch(
+        """
         SELECT
             g.chunk_id,
             g.category,
@@ -48,7 +49,8 @@ async def main():
         FROM gold_eval_chunks g
         JOIN chunks c ON g.chunk_id = c.id
         ORDER BY g.category, g.r1_concept_count
-    """)
+    """
+    )
 
     print(f"=== Gold Eval Validation ===")
     print(f"Total chunks: {len(rows)}")

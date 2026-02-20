@@ -20,9 +20,27 @@ MAX_EMBEDDING_TOKENS = 512
 
 # Common abbreviations that should NOT trigger sentence splits
 _ABBREVIATIONS = {
-    'Mr', 'Mrs', 'Ms', 'Dr', 'Prof', 'Jr', 'Sr',
-    'vs', 'etc', 'al', 'e.g', 'i.e', 'eg', 'ie',
-    'Fig', 'Eq', 'Ch', 'Vol', 'No', 'Ref', 'cf',
+    "Mr",
+    "Mrs",
+    "Ms",
+    "Dr",
+    "Prof",
+    "Jr",
+    "Sr",
+    "vs",
+    "etc",
+    "al",
+    "e.g",
+    "i.e",
+    "eg",
+    "ie",
+    "Fig",
+    "Eq",
+    "Ch",
+    "Vol",
+    "No",
+    "Ref",
+    "cf",
 }
 
 # Initialize BGE tokenizer (same model we'll use for embeddings)
@@ -150,9 +168,7 @@ def chunk_document(
             # Split large paragraph into sentence-based chunks
             sentence_chunks = split_large_paragraph(para, target_tokens, max_variance)
             for sent_chunk in sentence_chunks:
-                chunk = create_chunk(
-                    content=sent_chunk, document=document, chunk_index=chunk_index
-                )
+                chunk = create_chunk(content=sent_chunk, document=document, chunk_index=chunk_index)
                 chunks.append(chunk)
                 chunk_index += 1
 
@@ -173,9 +189,7 @@ def chunk_document(
                 # Overlap: keep paragraphs worth ~overlap_tokens
                 overlap_paras = get_overlap_paragraphs(current_chunk, overlap_tokens)
                 current_chunk = overlap_paras
-                current_tokens = (
-                    count_tokens("\n\n".join(current_chunk)) if current_chunk else 0
-                )
+                current_tokens = count_tokens("\n\n".join(current_chunk)) if current_chunk else 0
             else:
                 # Chunk too small, keep accumulating
                 # Don't reset - just continue adding paragraphs
@@ -187,9 +201,7 @@ def chunk_document(
     # Save final chunk
     if current_chunk:
         chunk_content = "\n\n".join(current_chunk)
-        chunk = create_chunk(
-            content=chunk_content, document=document, chunk_index=chunk_index
-        )
+        chunk = create_chunk(content=chunk_content, document=document, chunk_index=chunk_index)
         chunks.append(chunk)
 
     # Validate chunks fit embedding model context
@@ -293,7 +305,7 @@ def split_sentences(text: str) -> list[str]:
 
     # First do a simple split on sentence-ending punctuation
     # Pattern: punctuation followed by whitespace
-    raw_parts = re.split(r'([.!?]+)\s+', text)
+    raw_parts = re.split(r"([.!?]+)\s+", text)
 
     # Reconstruct, checking for abbreviations
     sentences = []
@@ -303,7 +315,15 @@ def split_sentences(text: str) -> list[str]:
     while i < len(raw_parts):
         part = raw_parts[i]
 
-        if i + 1 < len(raw_parts) and raw_parts[i + 1] in {'.', '!', '?', '..', '...', '.!', '!?'}:
+        if i + 1 < len(raw_parts) and raw_parts[i + 1] in {
+            ".",
+            "!",
+            "?",
+            "..",
+            "...",
+            ".!",
+            "!?",
+        }:
             # This part is followed by punctuation
             punct = raw_parts[i + 1]
             combined = part + punct
@@ -314,11 +334,11 @@ def split_sentences(text: str) -> list[str]:
 
             # Check for abbreviations or single letter (initials)
             is_abbreviation = (
-                last_word in _ABBREVIATIONS or
-                last_word.rstrip('.') in _ABBREVIATIONS or
-                (len(last_word) == 1 and last_word.isupper()) or  # Single capital letter
-                (len(last_word) == 2 and last_word[0].isupper() and last_word[1] == '.') or  # "J."
-                re.match(r'^\d+$', last_word)  # Number before decimal
+                last_word in _ABBREVIATIONS
+                or last_word.rstrip(".") in _ABBREVIATIONS
+                or (len(last_word) == 1 and last_word.isupper())  # Single capital letter
+                or (len(last_word) == 2 and last_word[0].isupper() and last_word[1] == ".")  # "J."
+                or re.match(r"^\d+$", last_word)  # Number before decimal
             )
 
             if is_abbreviation:
@@ -342,9 +362,7 @@ def split_sentences(text: str) -> list[str]:
     return [s for s in sentences if s]
 
 
-def split_large_paragraph(
-    paragraph: str, target_tokens: int, max_variance: int
-) -> list[str]:
+def split_large_paragraph(paragraph: str, target_tokens: int, max_variance: int) -> list[str]:
     """Split a large paragraph into sentence-based chunks.
 
     Args:
@@ -389,9 +407,7 @@ def split_large_paragraph(
     return chunks
 
 
-def create_chunk(
-    content: str, document: ExtractedDocument, chunk_index: int
-) -> TextChunk:
+def create_chunk(content: str, document: ExtractedDocument, chunk_index: int) -> TextChunk:
     """Create chunk with page number tracking.
 
     Args:
@@ -443,9 +459,7 @@ def estimate_page_range(content: str, document: ExtractedDocument) -> tuple[int,
     # Get first/last snippets for matching
     snippet_len = min(100, len(content) // 2)
     first_snippet = content[:snippet_len].strip()
-    last_snippet = (
-        content[-snippet_len:].strip() if len(content) > snippet_len else first_snippet
-    )
+    last_snippet = content[-snippet_len:].strip() if len(content) > snippet_len else first_snippet
 
     start_page = None
     end_page = None

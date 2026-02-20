@@ -23,18 +23,21 @@ class ExtractedConcept(BaseModel):
 
     name: str = Field(..., description="Concept name as it appears in text")
     concept_type: Literal[
-        "method", "assumption", "problem", "definition", "theorem",
-        "concept", "principle", "technique", "model"
+        "method",
+        "assumption",
+        "problem",
+        "definition",
+        "theorem",
+        "concept",
+        "principle",
+        "technique",
+        "model",
     ] = Field(..., description="Classification of the concept")
-    definition: Optional[str] = Field(
-        None, description="Brief definition if provided in the text"
-    )
+    definition: Optional[str] = Field(None, description="Brief definition if provided in the text")
     aliases: list[str] = Field(
         default_factory=list, description="Alternative names or abbreviations"
     )
-    confidence: float = Field(
-        default=0.8, ge=0.0, le=1.0, description="Confidence in extraction"
-    )
+    confidence: float = Field(default=0.8, ge=0.0, le=1.0, description="Confidence in extraction")
 
 
 class ExtractedRelationship(BaseModel):
@@ -59,12 +62,8 @@ class ExtractedRelationship(BaseModel):
         "ALTERNATIVE_TO",
         "EXTENDS",
     ] = Field(..., description="Relationship type from ontology")
-    evidence: Optional[str] = Field(
-        None, description="Text snippet supporting this relationship"
-    )
-    confidence: float = Field(
-        default=0.7, ge=0.0, le=1.0, description="Confidence in relationship"
-    )
+    evidence: Optional[str] = Field(None, description="Text snippet supporting this relationship")
+    confidence: float = Field(default=0.7, ge=0.0, le=1.0, description="Confidence in relationship")
 
 
 class ChunkExtraction(BaseModel):
@@ -95,9 +94,7 @@ class ChunkExtraction(BaseModel):
         """Filter concepts by type."""
         return [c for c in self.concepts if c.concept_type == concept_type]
 
-    def get_high_confidence_concepts(
-        self, threshold: float = 0.7
-    ) -> list[ExtractedConcept]:
+    def get_high_confidence_concepts(self, threshold: float = 0.7) -> list[ExtractedConcept]:
         """Get concepts above confidence threshold."""
         return [c for c in self.concepts if c.confidence >= threshold]
 

@@ -1,6 +1,9 @@
 """Tests for output formatters."""
 
 import json
+import pytest
+
+pytestmark = pytest.mark.unit
 
 
 class TestMarkdownFormatter:
@@ -126,9 +129,7 @@ class TestAgentFormatter:
         """Test agent-optimized format structure."""
         from research_kb_cli.formatters import format_results_agent
 
-        output = format_results_agent(
-            mock_search_results, query="test", context_type="balanced"
-        )
+        output = format_results_agent(mock_search_results, query="test", context_type="balanced")
 
         assert output.startswith("RESEARCH_KB_RESULTS")
         assert "QUERY: test" in output
@@ -160,9 +161,7 @@ class TestAgentFormatter:
         """Test agent format includes context type."""
         from research_kb_cli.formatters import format_results_agent
 
-        output = format_results_agent(
-            mock_search_results, query="test", context_type="building"
-        )
+        output = format_results_agent(mock_search_results, query="test", context_type="building")
 
         assert "CONTEXT: building" in output
 

@@ -189,7 +189,9 @@ def track_request_status(endpoint: str, method: str, status: int) -> None:
     ).inc()
 
 
-def track_search_results(count: int, search_type: str = "hybrid", duration: float | None = None) -> None:
+def track_search_results(
+    count: int, search_type: str = "hybrid", duration: float | None = None
+) -> None:
     """Track search result metrics.
 
     Args:

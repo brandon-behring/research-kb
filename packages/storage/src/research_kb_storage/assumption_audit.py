@@ -16,9 +16,8 @@ by surfacing required assumptions when implementing methods.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
 import json
-from typing import Any, Optional
+from typing import Optional
 from uuid import UUID
 
 from research_kb_common import StorageError, get_logger
@@ -354,9 +353,7 @@ class MethodAssumptionAuditor:
                 for row in rows:
                     # Determine importance based on relationship type
                     importance = (
-                        "critical"
-                        if row["relationship_type"] == "REQUIRES"
-                        else "standard"
+                        "critical" if row["relationship_type"] == "REQUIRES" else "standard"
                     )
 
                     assumptions.append(
@@ -623,7 +620,7 @@ class MethodAssumptionAuditor:
                 response_text = response_text[first_newline + 1 :]
                 # Remove closing fence
                 if response_text.endswith("```"):
-                    response_text = response_text[: -3].strip()
+                    response_text = response_text[:-3].strip()
 
             # Parse JSON response
             parsed = json.loads(response_text)
@@ -745,7 +742,7 @@ class MethodAssumptionAuditor:
                         a.plain_english,
                         a.importance,
                         a.violation_consequence,
-                        a.verification_approaches if a.verification_approaches else None,
+                        (a.verification_approaches if a.verification_approaches else None),
                         a.source_citation,
                         extraction_method,
                         a.confidence,
@@ -861,7 +858,9 @@ class MethodAssumptionAuditor:
 
         # Step 4: LLM fallback if insufficient assumptions
         # Resolve effective settings: use_ollama_fallback is legacy shorthand
-        effective_llm_fallback = use_llm_fallback and (use_ollama_fallback or llm_backend != "ollama")
+        effective_llm_fallback = use_llm_fallback and (
+            use_ollama_fallback or llm_backend != "ollama"
+        )
         effective_backend = llm_backend
 
         if effective_llm_fallback and len(final_assumptions) < MIN_ASSUMPTIONS_THRESHOLD:
@@ -930,9 +929,7 @@ class MethodAssumptionAuditor:
         return result
 
 
-def _generate_docstring_snippet(
-    method_name: str, assumptions: list[AssumptionDetail]
-) -> str:
+def _generate_docstring_snippet(method_name: str, assumptions: list[AssumptionDetail]) -> str:
     """Generate a code docstring snippet for Claude to use.
 
     Creates a ready-to-paste docstring section listing assumptions
@@ -973,7 +970,7 @@ def _generate_docstring_snippet(
 
 def _row_to_concept(row) -> Concept:
     """Convert database row to Concept model."""
-    from research_kb_contracts import Concept, ConceptType
+    from research_kb_contracts import Concept
 
     return Concept(
         id=row["id"],

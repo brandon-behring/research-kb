@@ -55,7 +55,12 @@ def main():
         st.header("Navigation")
         page = st.radio(
             "Select View",
-            ["📊 Citation Network", "🔍 Search", "🧠 Concept Graph", "📋 Extraction Queue"],
+            [
+                "📊 Citation Network",
+                "🔍 Search",
+                "🧠 Concept Graph",
+                "📋 Extraction Queue",
+            ],
             index=0,
         )
 
@@ -91,18 +96,21 @@ def main():
 def render_citation_network():
     """Render the citation network visualization."""
     from research_kb_dashboard.pages.citations import citation_network_page
+
     citation_network_page()
 
 
 def render_queue():
     """Render the extraction queue status page."""
     from research_kb_dashboard.pages.queue import queue_page
+
     queue_page()
 
 
 def render_search():
     """Render the search interface."""
     from research_kb_dashboard.pages.search import search_page
+
     search_page()
 
 

@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 
 from research_kb_pdf.dlq import DLQEntry, DeadLetterQueue
+import pytest
+
+pytestmark = pytest.mark.unit
 
 
 class TestDLQEntry:

@@ -31,7 +31,12 @@ from research_kb_pdf import (
     chunk_with_sections,
     extract_with_headings,
 )
-from research_kb_storage import ChunkStore, DatabaseConfig, SourceStore, get_connection_pool
+from research_kb_storage import (
+    ChunkStore,
+    DatabaseConfig,
+    SourceStore,
+    get_connection_pool,
+)
 
 logger = get_logger(__name__)
 
@@ -50,6 +55,7 @@ def load_sidecar_metadata(pdf_path: Path) -> dict | None:
     json_path = pdf_path.with_suffix(".json")
     if json_path.exists():
         import json
+
         try:
             with open(json_path) as f:
                 data = json.load(f)
@@ -72,7 +78,7 @@ def parse_filename_for_metadata(filename: str) -> dict:
     name = filename.replace(".pdf", "")
 
     # Handle tier-prefixed files (tier1_01_title_year.pdf)
-    tier_match = re.match(r'^tier\d+_\d+_(.+)_(\d{4})$', name)
+    tier_match = re.match(r"^tier\d+_\d+_(.+)_(\d{4})$", name)
     if tier_match:
         title = tier_match.group(1).replace("_", " ").title()
         year = int(tier_match.group(2))
@@ -87,7 +93,7 @@ def parse_filename_for_metadata(filename: str) -> dict:
         }
 
     # Try standard patterns
-    year_match = re.search(r'(\d{4})', name)
+    year_match = re.search(r"(\d{4})", name)
     year = int(year_match.group(1)) if year_match else None
 
     # Handle "Applied Bayesian..." long format
@@ -164,32 +170,36 @@ async def ingest_textbook(
     chunks_data = []
     for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
         content_hash = hashlib.sha256(chunk.content.encode("utf-8")).hexdigest()
-        chunks_data.append({
-            "source_id": source.id,
-            "content": chunk.content,
-            "content_hash": content_hash,
-            "page_start": chunk.start_page,
-            "page_end": chunk.end_page,
-            "embedding": embedding,
-            "metadata": {
-                "section_header": chunk.metadata.get("section", ""),
-                "chunk_index": i,
-            },
-        })
+        chunks_data.append(
+            {
+                "source_id": source.id,
+                "content": chunk.content,
+                "content_hash": content_hash,
+                "page_start": chunk.start_page,
+                "page_end": chunk.end_page,
+                "embedding": embedding,
+                "metadata": {
+                    "section_header": chunk.metadata.get("section", ""),
+                    "chunk_index": i,
+                },
+            }
+        )
 
     # Batch insert in groups of 100
     BATCH_SIZE = 100
     chunks_created = 0
     for i in range(0, len(chunks_data), BATCH_SIZE):
-        batch = chunks_data[i:i + BATCH_SIZE]
+        batch = chunks_data[i : i + BATCH_SIZE]
         await ChunkStore.batch_create(batch)
         chunks_created += len(batch)
 
     if not quiet:
-        logger.info("ingestion_complete",
-                    source_id=str(source.id),
-                    chunks=chunks_created,
-                    headings=len(headings))
+        logger.info(
+            "ingestion_complete",
+            source_id=str(source.id),
+            chunks=chunks_created,
+            headings=len(headings),
+        )
 
     return str(source.id), chunks_created, len(headings)
 
@@ -210,14 +220,15 @@ def parse_args():
         description="Ingest missing textbooks from fixtures/textbooks/."
     )
     parser.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         action="store_true",
-        help="Minimal output (one line per PDF + final summary)"
+        help="Minimal output (one line per PDF + final summary)",
     )
     parser.add_argument(
         "--json",
         action="store_true",
-        help="Output summary as JSON (for programmatic parsing)"
+        help="Output summary as JSON (for programmatic parsing)",
     )
     return parser.parse_args()
 
@@ -285,14 +296,18 @@ async def main():
 
     if not to_ingest:
         if json_output:
-            print(json_module.dumps({
-                "success_count": 0,
-                "failed_count": 0,
-                "total_chunks": 0,
-                "already_ingested": already_ingested,
-                "skipped": skipped,
-                "failed_files": []
-            }))
+            print(
+                json_module.dumps(
+                    {
+                        "success_count": 0,
+                        "failed_count": 0,
+                        "total_chunks": 0,
+                        "already_ingested": already_ingested,
+                        "skipped": skipped,
+                        "failed_files": [],
+                    }
+                )
+            )
         elif not quiet:
             print("Nothing to ingest!")
         return
@@ -323,12 +338,14 @@ async def main():
 
             elapsed = time.time() - start_time
 
-            results["success"].append({
-                "file": pdf_path.name,
-                "title": meta["title"],
-                "chunks": num_chunks,
-                "elapsed_seconds": round(elapsed, 1),
-            })
+            results["success"].append(
+                {
+                    "file": pdf_path.name,
+                    "title": meta["title"],
+                    "chunks": num_chunks,
+                    "elapsed_seconds": round(elapsed, 1),
+                }
+            )
 
             # Single-line progress in quiet mode
             if quiet and not json_output:
@@ -340,12 +357,19 @@ async def main():
             # System-level errors: not recoverable
             error_type = "memory_exhausted" if isinstance(e, MemoryError) else "file_io_error"
             if not json_output:
-                logger.error("system_error", file=pdf_path.name, error_type=error_type, error=str(e))
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": f"{error_type}: {str(e)[:100]}",
-                "recoverable": False,
-            })
+                logger.error(
+                    "system_error",
+                    file=pdf_path.name,
+                    error_type=error_type,
+                    error=str(e),
+                )
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": f"{error_type}: {str(e)[:100]}",
+                    "recoverable": False,
+                }
+            )
             if quiet and not json_output:
                 print(f"✗ {pdf_path.name}: {error_type}")
             elif not json_output:
@@ -355,39 +379,45 @@ async def main():
             # Embedding service errors: recoverable (retry later)
             if not json_output:
                 logger.error("embedding_service_failure", file=pdf_path.name, error=str(e))
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": "Embedding service failure (retries exhausted)",
-                "recoverable": True,
-            })
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": "Embedding service failure (retries exhausted)",
+                    "recoverable": True,
+                }
+            )
             if quiet and not json_output:
                 print(f"✗ {pdf_path.name}: embedding service failure (recoverable)")
             elif not json_output:
-                print(f"  ✗ Embedding service failure (retry ingestion later)")
+                print("  ✗ Embedding service failure (retry ingestion later)")
 
         except StorageError as e:
             # Database errors: recoverable
             if not json_output:
                 logger.error("storage_error", file=pdf_path.name, error=str(e))
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": f"Database error: {str(e)[:100]}",
-                "recoverable": True,
-            })
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": f"Database error: {str(e)[:100]}",
+                    "recoverable": True,
+                }
+            )
             if quiet and not json_output:
                 print(f"✗ {pdf_path.name}: database error (recoverable)")
             elif not json_output:
-                print(f"  ✗ Database error")
+                print("  ✗ Database error")
 
         except Exception as e:
             # Unknown errors: not recoverable
             if not json_output:
                 logger.error("ingestion_failed", file=pdf_path.name, error=str(e), exc_info=True)
-            results["failed"].append({
-                "file": pdf_path.name,
-                "error": str(e)[:100],
-                "recoverable": False,
-            })
+            results["failed"].append(
+                {
+                    "file": pdf_path.name,
+                    "error": str(e)[:100],
+                    "recoverable": False,
+                }
+            )
             if quiet and not json_output:
                 print(f"✗ {pdf_path.name}: {str(e)[:60]}")
             elif not json_output:
@@ -405,9 +435,13 @@ async def main():
             "already_ingested": already_ingested,
             "skipped": skipped,
             "failed_files": [
-                {"file": r["file"], "error": r["error"], "recoverable": r.get("recoverable", False)}
+                {
+                    "file": r["file"],
+                    "error": r["error"],
+                    "recoverable": r.get("recoverable", False),
+                }
                 for r in results["failed"]
-            ]
+            ],
         }
         print(json_module.dumps(summary, indent=2))
     elif quiet:

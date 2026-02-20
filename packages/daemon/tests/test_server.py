@@ -1,19 +1,22 @@
 """Tests for daemon server JSON-RPC protocol."""
 
 import json
-import pytest
 from unittest.mock import AsyncMock, patch
 
+import pytest
+
 from research_kb_daemon.server import (
-    handle_request,
-    make_response,
-    make_error,
-    PARSE_ERROR,
+    INTERNAL_ERROR,
+    INVALID_PARAMS,
     INVALID_REQUEST,
     METHOD_NOT_FOUND,
-    INVALID_PARAMS,
-    INTERNAL_ERROR,
+    PARSE_ERROR,
+    handle_request,
+    make_error,
+    make_response,
 )
+
+pytestmark = pytest.mark.unit
 
 
 class TestMakeResponse:
@@ -160,12 +163,14 @@ class TestHandleRequest:
             mock_dispatch.return_value = []
 
             response = await handle_request(
-                json.dumps({
-                    "jsonrpc": "2.0",
-                    "method": "search",
-                    "params": {"query": "test", "limit": 5},
-                    "id": 1,
-                }).encode()
+                json.dumps(
+                    {
+                        "jsonrpc": "2.0",
+                        "method": "search",
+                        "params": {"query": "test", "limit": 5},
+                        "id": 1,
+                    }
+                ).encode()
             )
 
             # Verify dispatch was called with params
@@ -209,12 +214,14 @@ class TestHandleRequest:
     async def test_positional_params_rejected(self):
         """Test positional params are rejected."""
         response = await handle_request(
-            json.dumps({
-                "jsonrpc": "2.0",
-                "method": "search",
-                "params": ["test", 10],
-                "id": 1,
-            }).encode()
+            json.dumps(
+                {
+                    "jsonrpc": "2.0",
+                    "method": "search",
+                    "params": ["test", 10],
+                    "id": 1,
+                }
+            ).encode()
         )
         parsed = json.loads(response.decode())
 

@@ -8,7 +8,6 @@ Validates:
 """
 
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
@@ -23,10 +22,13 @@ from research_kb_storage.kuzu_store import (
 )
 from research_kb_storage.graph_queries import apply_mention_weights
 
+pytestmark = pytest.mark.unit
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_concept(concept_id=None, name="test", concept_type="METHOD"):
     cid = concept_id or uuid4()
@@ -50,6 +52,7 @@ def _make_rel(source_id, target_id, rel_type="USES", strength=1.0):
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(autouse=True)
 def _reset_kuzu():
@@ -96,6 +99,7 @@ async def populated_graph(tmp_path):
 # ===================================================================
 # 1. Lock Serialization
 # ===================================================================
+
 
 class TestLockSerialization:
     """Verify _kuzu_lock prevents concurrent KuzuDB access."""
@@ -151,6 +155,7 @@ class TestLockSerialization:
 # 2. Batch Scoring Parity
 # ===================================================================
 
+
 class TestBatchScoringParity:
     """Batch scores should match individual scores (within tolerance)."""
 
@@ -159,14 +164,10 @@ class TestBatchScoringParity:
         ids = populated_graph
 
         # Individual score
-        single_score, _ = await compute_single_graph_score(
-            [ids["a"]], [ids["b"]], max_hops=3
-        )
+        single_score, _ = await compute_single_graph_score([ids["a"]], [ids["b"]], max_hops=3)
 
         # Batch score
-        batch_scores = await compute_batch_graph_scores(
-            [ids["a"]], [[ids["b"]]], max_hops=3
-        )
+        batch_scores = await compute_batch_graph_scores([ids["a"]], [[ids["b"]]], max_hops=3)
 
         assert batch_scores[0] == pytest.approx(single_score, abs=0.05)
 
@@ -174,13 +175,9 @@ class TestBatchScoringParity:
         """A->D (2-hop): batch[0] ≈ single(A, D)."""
         ids = populated_graph
 
-        single_score, _ = await compute_single_graph_score(
-            [ids["a"]], [ids["d"]], max_hops=3
-        )
+        single_score, _ = await compute_single_graph_score([ids["a"]], [ids["d"]], max_hops=3)
 
-        batch_scores = await compute_batch_graph_scores(
-            [ids["a"]], [[ids["d"]]], max_hops=3
-        )
+        batch_scores = await compute_batch_graph_scores([ids["a"]], [[ids["d"]]], max_hops=3)
 
         assert batch_scores[0] == pytest.approx(single_score, abs=0.05)
 
@@ -189,15 +186,9 @@ class TestBatchScoringParity:
         ids = populated_graph
 
         # Individual scores
-        score_b, _ = await compute_single_graph_score(
-            [ids["a"]], [ids["b"]], max_hops=3
-        )
-        score_c, _ = await compute_single_graph_score(
-            [ids["a"]], [ids["c"]], max_hops=3
-        )
-        score_d, _ = await compute_single_graph_score(
-            [ids["a"]], [ids["d"]], max_hops=3
-        )
+        score_b, _ = await compute_single_graph_score([ids["a"]], [ids["b"]], max_hops=3)
+        score_c, _ = await compute_single_graph_score([ids["a"]], [ids["c"]], max_hops=3)
+        score_d, _ = await compute_single_graph_score([ids["a"]], [ids["d"]], max_hops=3)
 
         # Batch scores
         batch_scores = await compute_batch_graph_scores(
@@ -228,24 +219,27 @@ class TestBatchScoringParity:
 # 3. Graph Semaphore Backpressure
 # ===================================================================
 
+
 class TestGraphSemaphore:
     """Verify _graph_semaphore limits concurrent graph operations."""
 
     def test_semaphore_exists(self):
         from research_kb_storage.search import _graph_semaphore
+
         assert isinstance(_graph_semaphore, asyncio.Semaphore)
 
     def test_semaphore_limit_is_3(self):
         from research_kb_storage.search import _graph_semaphore
+
         # asyncio.Semaphore stores its value as _value
         assert _graph_semaphore._value == 3
 
     async def test_semaphore_limits_concurrent_access(self):
         """Demonstrate that _graph_semaphore limits to 3 concurrent operations."""
-        from research_kb_storage.search import _graph_semaphore
 
         # Reset for this test
         import research_kb_storage.search as search_mod
+
         search_mod._graph_semaphore = asyncio.Semaphore(3)
         sem = search_mod._graph_semaphore
 
@@ -272,6 +266,7 @@ class TestGraphSemaphore:
 # 4. apply_mention_weights Helper
 # ===================================================================
 
+
 class TestApplyMentionWeights:
     """Unit tests for the extracted mention-weight helper."""
 
@@ -291,43 +286,31 @@ class TestApplyMentionWeights:
 
     def test_defines_boosts_more_than_example(self):
         cid = uuid4()
-        score_defines = apply_mention_weights(
-            0.8, [cid], {cid: ("defines", 1.0)}
-        )
-        score_example = apply_mention_weights(
-            0.8, [cid], {cid: ("example", 1.0)}
-        )
+        score_defines = apply_mention_weights(0.8, [cid], {cid: ("defines", 1.0)})
+        score_example = apply_mention_weights(0.8, [cid], {cid: ("example", 1.0)})
         # "defines" weight=1.0, "example" weight=0.4
         assert score_defines > score_example
 
     def test_relevance_multiplier_applied(self):
         cid = uuid4()
         # Full relevance
-        score_full = apply_mention_weights(
-            0.8, [cid], {cid: ("reference", 1.0)}
-        )
+        score_full = apply_mention_weights(0.8, [cid], {cid: ("reference", 1.0)})
         # Half relevance
-        score_half = apply_mention_weights(
-            0.8, [cid], {cid: ("reference", 0.5)}
-        )
+        score_half = apply_mention_weights(0.8, [cid], {cid: ("reference", 0.5)})
         assert score_full > score_half
 
     def test_missing_concept_uses_default_weight(self):
         cid_present = uuid4()
         cid_missing = uuid4()
         info = {cid_present: ("defines", 1.0)}
-        score = apply_mention_weights(
-            0.8, [cid_present, cid_missing], info
-        )
+        score = apply_mention_weights(0.8, [cid_present, cid_missing], info)
         # avg of 1.0 (defines) and 0.5 (default) = 0.75
         # 0.8 * 0.75 = 0.6
         assert score == pytest.approx(0.6, abs=0.01)
 
     def test_none_relevance_uses_base_weight(self):
         cid = uuid4()
-        score = apply_mention_weights(
-            0.8, [cid], {cid: ("defines", None)}
-        )
+        score = apply_mention_weights(0.8, [cid], {cid: ("defines", None)})
         # defines weight=1.0, no relevance multiplier
         # 0.8 * 1.0 = 0.8
         assert score == pytest.approx(0.8, abs=0.01)

@@ -32,14 +32,16 @@ def mock_pool():
 @pytest.fixture
 def mock_storage():
     """Mock all storage operations."""
-    with patch("research_kb_api.service.ConceptStore") as concept_mock, \
-         patch("research_kb_api.service.SourceStore") as source_mock, \
-         patch("research_kb_api.service.ChunkStore") as chunk_mock, \
-         patch("research_kb_api.service.RelationshipStore") as rel_mock, \
-         patch("research_kb_api.service.search_hybrid") as search_mock, \
-         patch("research_kb_api.service.search_hybrid_v2") as search_v2_mock, \
-         patch("research_kb_api.service.search_with_rerank") as rerank_mock, \
-         patch("research_kb_api.service.search_with_expansion") as expand_mock:
+    with (
+        patch("research_kb_api.service.ConceptStore") as concept_mock,
+        patch("research_kb_api.service.SourceStore") as source_mock,
+        patch("research_kb_api.service.ChunkStore") as chunk_mock,
+        patch("research_kb_api.service.RelationshipStore") as rel_mock,
+        patch("research_kb_api.service.search_hybrid") as search_mock,
+        patch("research_kb_api.service.search_hybrid_v2") as search_v2_mock,
+        patch("research_kb_api.service.search_with_rerank") as rerank_mock,
+        patch("research_kb_api.service.search_with_expansion") as expand_mock,
+    ):
 
         # Default return values
         concept_mock.count = AsyncMock(return_value=100)
@@ -72,14 +74,21 @@ def mock_storage():
 
 
 @pytest.fixture
-async def app_client(mock_pool, mock_storage, mock_embedding_client) -> AsyncGenerator[AsyncClient, None]:
+async def app_client(
+    mock_pool, mock_storage, mock_embedding_client
+) -> AsyncGenerator[AsyncClient, None]:
     """Create test client with mocked dependencies."""
     # Create async mock for get_cached_embedding
     async_embedding_mock = AsyncMock(return_value=[0.1] * 1024)
 
-    with patch("research_kb_api.main.get_connection_pool", return_value=mock_pool), \
-         patch("research_kb_api.service.get_embedding_client", return_value=mock_embedding_client), \
-         patch("research_kb_api.service.get_cached_embedding", async_embedding_mock):
+    with (
+        patch("research_kb_api.main.get_connection_pool", return_value=mock_pool),
+        patch(
+            "research_kb_api.service.get_embedding_client",
+            return_value=mock_embedding_client,
+        ),
+        patch("research_kb_api.service.get_cached_embedding", async_embedding_mock),
+    ):
         app = create_app()
         app.state.pool = mock_pool
 

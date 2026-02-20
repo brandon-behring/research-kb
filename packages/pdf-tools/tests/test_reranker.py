@@ -111,7 +111,10 @@ class TestCrossEncoderRerankerUnit:
         """Test reranking dictionary results."""
         query = "propensity score matching"
         results = [
-            {"id": 1, "content": "Propensity score matching is a method for bias reduction."},
+            {
+                "id": 1,
+                "content": "Propensity score matching is a method for bias reduction.",
+            },
             {"id": 2, "content": "The quick brown fox jumps over the lazy dog."},
             {"id": 3, "content": "PSM balances covariates between treatment groups."},
         ]

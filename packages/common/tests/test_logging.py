@@ -4,6 +4,8 @@ import pytest
 
 from research_kb_common.logging_config import configure_logging, get_logger
 
+pytestmark = pytest.mark.unit
+
 
 class TestLoggingConfiguration:
     """Test logging configuration and logger creation."""

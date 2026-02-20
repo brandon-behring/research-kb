@@ -133,4 +133,3 @@
 - **Machine Learning Control**
   - Score: 0.70
   - Possible match: Machine Learning Control – Taming Nonlinear Dynamics and Turbulence by Thomas Duriez, Steven L. Brunton, Bernd R. Noack (auth.) (z-lib.org)
-

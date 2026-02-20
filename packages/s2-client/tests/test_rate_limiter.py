@@ -11,6 +11,8 @@ import pytest
 
 from s2_client.rate_limiter import RateLimiter
 
+pytestmark = pytest.mark.unit
+
 
 # -----------------------------------------------------------------------------
 # Initialization Tests

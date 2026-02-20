@@ -19,6 +19,8 @@ from research_kb_storage.query_expander import (
     expand_query,
 )
 
+pytestmark = pytest.mark.unit
+
 
 # =============================================================================
 # Fixtures
@@ -29,8 +31,17 @@ from research_kb_storage.query_expander import (
 def synonym_map() -> dict[str, list[str]]:
     """Minimal synonym map for testing."""
     return {
-        "iv": ["instrumental variables", "instrumental variable", "2sls", "two-stage least squares"],
-        "did": ["difference-in-differences", "difference in differences", "diff-in-diff"],
+        "iv": [
+            "instrumental variables",
+            "instrumental variable",
+            "2sls",
+            "two-stage least squares",
+        ],
+        "did": [
+            "difference-in-differences",
+            "difference in differences",
+            "diff-in-diff",
+        ],
         "ate": ["average treatment effect", "treatment effect"],
         "dml": ["double machine learning", "debiased machine learning"],
         "dag": ["directed acyclic graph", "causal diagram", "causal graph"],
@@ -159,14 +170,17 @@ class TestGraphExpansion:
         }
 
         # Patch at the source modules (imports are done inside the method)
-        with patch(
-            "research_kb_storage.query_extractor.extract_query_concepts",
-            new_callable=AsyncMock,
-            return_value=["concept-uuid-1"],
-        ), patch(
-            "research_kb_storage.graph_queries.get_neighborhood",
-            new_callable=AsyncMock,
-            return_value=mock_neighborhood,
+        with (
+            patch(
+                "research_kb_storage.query_extractor.extract_query_concepts",
+                new_callable=AsyncMock,
+                return_value=["concept-uuid-1"],
+            ),
+            patch(
+                "research_kb_storage.graph_queries.get_neighborhood",
+                new_callable=AsyncMock,
+                return_value=mock_neighborhood,
+            ),
         ):
             # When: We expand with graph
             expansions = await expander.expand_with_graph("IV estimation")
@@ -181,19 +195,21 @@ class TestGraphExpansion:
         # Given: Many concepts in neighborhood
         mock_neighborhood = {
             "concepts": [
-                MagicMock(canonical_name=f"concept_{i}", name=f"Concept {i}")
-                for i in range(10)
+                MagicMock(canonical_name=f"concept_{i}", name=f"Concept {i}") for i in range(10)
             ]
         }
 
-        with patch(
-            "research_kb_storage.query_extractor.extract_query_concepts",
-            new_callable=AsyncMock,
-            return_value=["concept-uuid-1"],
-        ), patch(
-            "research_kb_storage.graph_queries.get_neighborhood",
-            new_callable=AsyncMock,
-            return_value=mock_neighborhood,
+        with (
+            patch(
+                "research_kb_storage.query_extractor.extract_query_concepts",
+                new_callable=AsyncMock,
+                return_value=["concept-uuid-1"],
+            ),
+            patch(
+                "research_kb_storage.graph_queries.get_neighborhood",
+                new_callable=AsyncMock,
+                return_value=mock_neighborhood,
+            ),
         ):
             # When: We expand with max_concepts=3
             expansions = await expander.expand_with_graph("test query", max_concepts=3)
@@ -335,14 +351,17 @@ class TestCombinedExpansion:
         }
 
         # Patch at the source modules
-        with patch(
-            "research_kb_storage.query_extractor.extract_query_concepts",
-            new_callable=AsyncMock,
-            return_value=["concept-uuid-1"],
-        ), patch(
-            "research_kb_storage.graph_queries.get_neighborhood",
-            new_callable=AsyncMock,
-            return_value=mock_neighborhood,
+        with (
+            patch(
+                "research_kb_storage.query_extractor.extract_query_concepts",
+                new_callable=AsyncMock,
+                return_value=["concept-uuid-1"],
+            ),
+            patch(
+                "research_kb_storage.graph_queries.get_neighborhood",
+                new_callable=AsyncMock,
+                return_value=mock_neighborhood,
+            ),
         ):
             # When: We expand with synonyms and graph
             result = await expander.expand(
@@ -401,14 +420,17 @@ class TestCombinedExpansion:
         }
 
         # Patch at the source modules
-        with patch(
-            "research_kb_storage.query_extractor.extract_query_concepts",
-            new_callable=AsyncMock,
-            return_value=["concept-uuid-1"],
-        ), patch(
-            "research_kb_storage.graph_queries.get_neighborhood",
-            new_callable=AsyncMock,
-            return_value=mock_neighborhood,
+        with (
+            patch(
+                "research_kb_storage.query_extractor.extract_query_concepts",
+                new_callable=AsyncMock,
+                return_value=["concept-uuid-1"],
+            ),
+            patch(
+                "research_kb_storage.graph_queries.get_neighborhood",
+                new_callable=AsyncMock,
+                return_value=mock_neighborhood,
+            ),
         ):
             # When: Both sources would add same term
             result = await expander.expand(

@@ -8,6 +8,8 @@ from research_kb_common import ExtractionValidationError
 from research_kb_extraction.ollama_client import OllamaClient, OllamaError
 from research_kb_extraction.models import ChunkExtraction
 
+pytestmark = pytest.mark.unit
+
 
 class TestOllamaClientInit:
     """Tests for OllamaClient initialization."""
@@ -233,9 +235,7 @@ class TestOllamaExtraction:
 
         extraction_json = json.dumps(
             {
-                "concepts": [
-                    {"name": "test", "concept_type": "method", "confidence": 0.8}
-                ],
+                "concepts": [{"name": "test", "concept_type": "method", "confidence": 0.8}],
                 "relationships": [],
             }
         )

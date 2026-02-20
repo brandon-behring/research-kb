@@ -43,7 +43,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" /
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
 from research_kb_pdf import EmbeddingClient
-from research_kb_storage import DatabaseConfig, SearchQuery, get_connection_pool, search_hybrid
+from research_kb_storage import (
+    DatabaseConfig,
+    SearchQuery,
+    get_connection_pool,
+    search_hybrid,
+)
 
 
 @dataclass
@@ -122,17 +127,21 @@ def load_test_cases(yaml_path: Path, tag_filter: Optional[str] = None) -> list[T
         if tag_filter and tag_filter not in tags:
             continue
 
-        cases.append(TestCase(
-            query=tc["query"],
-            expected_source_pattern=tc["expected_source_pattern"],
-            expected_in_top_k=tc.get("expected_in_top_k", 5),
-            expected_page_range=tuple(tc["expected_page_range"]) if tc.get("expected_page_range") else None,
-            expect_mixed_sources=tc.get("expect_mixed_sources", False),
-            expected_concepts=tc.get("expected_concepts", []),  # Phase 2
-            relevance_grade=tc.get("relevance_grade", 3),  # Phase 2
-            tags=tags,
-            notes=tc.get("notes"),
-        ))
+        cases.append(
+            TestCase(
+                query=tc["query"],
+                expected_source_pattern=tc["expected_source_pattern"],
+                expected_in_top_k=tc.get("expected_in_top_k", 5),
+                expected_page_range=(
+                    tuple(tc["expected_page_range"]) if tc.get("expected_page_range") else None
+                ),
+                expect_mixed_sources=tc.get("expect_mixed_sources", False),
+                expected_concepts=tc.get("expected_concepts", []),  # Phase 2
+                relevance_grade=tc.get("relevance_grade", 3),  # Phase 2
+                tags=tags,
+                notes=tc.get("notes"),
+            )
+        )
 
     return cases
 
@@ -215,7 +224,11 @@ async def run_test_case(
                     matched_page=result.chunk.page_start,
                     concept_recall=concept_recall,
                     found_concepts=found_concepts[:10],  # Limit for display
-                    error=None if page_valid else f"Page {result.chunk.page_start} outside expected range {test_case.expected_page_range}",
+                    error=(
+                        None
+                        if page_valid
+                        else f"Page {result.chunk.page_start} outside expected range {test_case.expected_page_range}"
+                    ),
                 )
 
         # No match found
@@ -289,11 +302,7 @@ async def run_eval(
 
     # Mean Reciprocal Rank (MRR): average of 1/rank for successful queries
     # Measures ranking quality - higher is better, 1.0 means always rank 1
-    reciprocal_ranks = [
-        1.0 / r.matched_rank
-        for r in results
-        if r.passed and r.matched_rank
-    ]
+    reciprocal_ranks = [1.0 / r.matched_rank for r in results if r.passed and r.matched_rank]
     mrr = sum(reciprocal_ranks) / len(reciprocal_ranks) if reciprocal_ranks else 0.0
 
     # NDCG@K (Normalized Discounted Cumulative Gain)
@@ -319,14 +328,8 @@ async def run_eval(
     ndcg_10 = compute_ndcg_at_k(results, 10)
 
     # Phase 2: Compute average concept recall
-    concept_recalls = [
-        r.concept_recall for r in results
-        if r.concept_recall is not None
-    ]
-    avg_concept_recall = (
-        sum(concept_recalls) / len(concept_recalls)
-        if concept_recalls else None
-    )
+    concept_recalls = [r.concept_recall for r in results if r.concept_recall is not None]
+    avg_concept_recall = sum(concept_recalls) / len(concept_recalls) if concept_recalls else None
 
     metrics = {
         "total": total,
@@ -362,34 +365,36 @@ def print_summary(results: list[TestResult], metrics: dict):
     # Metrics
     print("\nMetrics:")
     target_hit_rate = 0.90
-    actual_hit_rate = metrics['hit_rate_at_k']
+    actual_hit_rate = metrics["hit_rate_at_k"]
     status = "✓" if actual_hit_rate >= target_hit_rate else "✗"
     print(f"  {status} Hit Rate@K: {actual_hit_rate:.1%} (target: ≥{target_hit_rate:.0%})")
-    print(f"      (% of queries where expected result appears in top K)")
+    print("      (% of queries where expected result appears in top K)")
 
-    mrr = metrics['mrr']
+    mrr = metrics["mrr"]
     mrr_status = "✓" if mrr >= 0.5 else "✗"  # MRR >= 0.5 means avg rank ≤ 2
     print(f"  {mrr_status} MRR: {mrr:.3f}")
-    print(f"      (Mean Reciprocal Rank: 1.0=always rank 1, 0.5=avg rank 2)")
+    print("      (Mean Reciprocal Rank: 1.0=always rank 1, 0.5=avg rank 2)")
 
     # NDCG metrics
-    ndcg_5 = metrics.get('ndcg_5', 0.0)
-    ndcg_10 = metrics.get('ndcg_10', 0.0)
+    ndcg_5 = metrics.get("ndcg_5", 0.0)
+    ndcg_10 = metrics.get("ndcg_10", 0.0)
     ndcg_status = "✓" if ndcg_5 >= 0.7 else "✗"  # NDCG ≥ 0.7 is good ranking
     print(f"  {ndcg_status} NDCG@5: {ndcg_5:.3f}")
     print(f"    NDCG@10: {ndcg_10:.3f}")
-    print(f"      (Position-weighted: 1.0=perfect, 0.5=avg rank 3)")
+    print("      (Position-weighted: 1.0=perfect, 0.5=avg rank 3)")
 
     # Phase 2: Concept Recall metrics
-    concept_recall = metrics.get('concept_recall')
-    concept_tests = metrics.get('concept_recall_tests', 0)
+    concept_recall = metrics.get("concept_recall")
+    concept_tests = metrics.get("concept_recall_tests", 0)
     if concept_recall is not None:
         target_concept_recall = 0.70
         cr_status = "✓" if concept_recall >= target_concept_recall else "✗"
-        print(f"  {cr_status} Concept Recall: {concept_recall:.1%} (target: ≥{target_concept_recall:.0%})")
+        print(
+            f"  {cr_status} Concept Recall: {concept_recall:.1%} (target: ≥{target_concept_recall:.0%})"
+        )
         print(f"      ({concept_tests} tests with expected_concepts)")
     else:
-        print(f"  ⊘ Concept Recall: N/A (no tests have expected_concepts defined)")
+        print("  ⊘ Concept Recall: N/A (no tests have expected_concepts defined)")
 
     # List failures
     failures = [r for r in results if not r.passed]
@@ -411,10 +416,11 @@ async def main():
     parser.add_argument("--tag", "-t", help="Filter by tag (e.g., 'core')")
     parser.add_argument("--output", "-o", help="Output JSON file for CI (e.g., metrics.json)")
     parser.add_argument(
-        "--scoring", "-s",
+        "--scoring",
+        "-s",
         choices=["weighted", "rrf"],
         default="weighted",
-        help="Scoring method: 'weighted' (default) or 'rrf' (Reciprocal Rank Fusion)"
+        help="Scoring method: 'weighted' (default) or 'rrf' (Reciprocal Rank Fusion)",
     )
     args = parser.parse_args()
 

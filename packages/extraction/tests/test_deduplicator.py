@@ -6,6 +6,8 @@ from uuid import uuid4
 from research_kb_extraction.deduplicator import Deduplicator, ABBREVIATION_MAP
 from research_kb_extraction.models import ExtractedConcept
 
+pytestmark = pytest.mark.unit
+
 
 class TestCanonicalName:
     """Tests for canonical name normalization."""
@@ -27,14 +29,8 @@ class TestCanonicalName:
         """Test whitespace handling."""
         dedup = Deduplicator()
 
-        assert (
-            dedup.to_canonical_name("  instrumental   variables  ")
-            == "instrumental variables"
-        )
-        assert (
-            dedup.to_canonical_name("difference\tin\tdifferences")
-            == "difference in differences"
-        )
+        assert dedup.to_canonical_name("  instrumental   variables  ") == "instrumental variables"
+        assert dedup.to_canonical_name("difference\tin\tdifferences") == "difference in differences"
 
     def test_parenthetical_removal(self):
         """Test parenthetical content removal."""
@@ -51,9 +47,7 @@ class TestCanonicalName:
         dedup = Deduplicator()
 
         # Hyphens preserved
-        assert "difference-in-differences" in dedup.to_canonical_name(
-            "difference-in-differences"
-        )
+        assert "difference-in-differences" in dedup.to_canonical_name("difference-in-differences")
 
         # Other special chars removed
         result = dedup.to_canonical_name("concept: name!")
@@ -64,10 +58,7 @@ class TestCanonicalName:
         """Test unknown terms pass through normalized."""
         dedup = Deduplicator()
 
-        assert (
-            dedup.to_canonical_name("propensity score matching")
-            == "propensity score matching"
-        )
+        assert dedup.to_canonical_name("propensity score matching") == "propensity score matching"
         assert dedup.to_canonical_name("Causal Forest") == "causal forest"
 
 
@@ -138,9 +129,7 @@ class TestDeduplication:
         results = await dedup.deduplicate_batch(concepts)
 
         # IV should match instrumental variables
-        iv_results = [
-            r for r in results if r.matched_canonical_name == "instrumental variables"
-        ]
+        iv_results = [r for r in results if r.matched_canonical_name == "instrumental variables"]
         assert len(iv_results) == 2  # Original + IV abbreviation
 
         # First one is new, second matches first

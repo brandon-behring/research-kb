@@ -376,7 +376,7 @@ def _row_to_domain(row: asyncpg.Record) -> Domain:
         description=row["description"],
         config=row["config"] if row["config"] else {},
         concept_types=row["concept_types"] if row["concept_types"] else [],
-        relationship_types=row["relationship_types"] if row["relationship_types"] else [],
+        relationship_types=(row["relationship_types"] if row["relationship_types"] else []),
         default_fts_weight=row["default_fts_weight"],
         default_vector_weight=row["default_vector_weight"],
         default_graph_weight=row["default_graph_weight"],

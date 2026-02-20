@@ -140,7 +140,12 @@ async def ingest_volume(
         return None, 0
 
     if not quiet:
-        logger.info("ingesting_volume", volume=volume_name, cards=len(all_cards), files=len(card_files))
+        logger.info(
+            "ingesting_volume",
+            volume=volume_name,
+            cards=len(all_cards),
+            files=len(card_files),
+        )
 
     # Create source record
     source = await SourceStore.create(
@@ -264,15 +269,18 @@ async def main():
                     volume_dir, embedding_client, quiet=args.quiet
                 )
                 if source_id:
-                    results.append({
-                        "volume": volume_dir.name,
-                        "source_id": source_id,
-                        "cards": card_count,
-                    })
+                    results.append(
+                        {
+                            "volume": volume_dir.name,
+                            "source_id": source_id,
+                            "cards": card_count,
+                        }
+                    )
                     total_cards += card_count
 
             if args.json:
                 import json
+
                 print(json.dumps({"volumes": results, "total_cards": total_cards}, indent=2))
             elif not args.quiet:
                 print(f"\n{'='*60}")
@@ -292,11 +300,16 @@ async def main():
 
             if args.json:
                 import json
-                print(json.dumps({
-                    "volume": args.volume,
-                    "source_id": source_id,
-                    "cards": card_count,
-                }))
+
+                print(
+                    json.dumps(
+                        {
+                            "volume": args.volume,
+                            "source_id": source_id,
+                            "cards": card_count,
+                        }
+                    )
+                )
             elif not args.quiet:
                 if source_id:
                     print(f"Ingested {args.volume}: {card_count} cards (source: {source_id})")

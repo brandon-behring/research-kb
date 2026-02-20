@@ -8,6 +8,8 @@ from datetime import datetime
 
 from research_kb_contracts import SearchResult, Source, Chunk, SourceType
 
+pytestmark = pytest.mark.unit
+
 
 def make_search_result(title: str = "Test Paper", content: str = "Test content") -> SearchResult:
     """Create a mock search result."""

@@ -11,6 +11,8 @@ from research_kb_storage.query_extractor import (
     extract_query_concepts_unified,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestExtractQueryConcepts:
     """Tests for extract_query_concepts function."""

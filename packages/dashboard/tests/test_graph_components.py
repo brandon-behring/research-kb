@@ -21,6 +21,8 @@ from research_kb_dashboard.components.graph import (
     create_network,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestGetNodeColor:
     """Tests for get_node_color function."""
@@ -202,6 +204,7 @@ class TestGraphModuleImports:
     def test_module_imports(self):
         """Module can be imported without error."""
         from research_kb_dashboard.components import graph
+
         assert hasattr(graph, "create_network")
         assert hasattr(graph, "render_network")
         assert hasattr(graph, "get_node_color")

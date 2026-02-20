@@ -8,6 +8,8 @@ from research_kb_common.instrumentation import (
     instrument_function,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestInitTelemetry:
     """Tests for init_telemetry function."""

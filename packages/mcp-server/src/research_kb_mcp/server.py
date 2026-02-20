@@ -9,14 +9,18 @@ from __future__ import annotations
 import sys
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 # Configure logging IMMEDIATELY to ensure stderr usage
 from research_kb_common import get_logger, configure_logging
+
 configure_logging()
 
 from fastmcp import FastMCP
-from research_kb_storage import get_connection_pool, close_connection_pool, DatabaseConfig
+from research_kb_storage import (
+    get_connection_pool,
+    close_connection_pool,
+    DatabaseConfig,
+)
 
 logger = get_logger(__name__)
 
@@ -25,7 +29,7 @@ logger = get_logger(__name__)
 class AppContext:
     """Application context available to all tools."""
 
-    pool: Pool
+    pool: object  # asyncpg.Pool (imported lazily at runtime)
 
 
 @asynccontextmanager

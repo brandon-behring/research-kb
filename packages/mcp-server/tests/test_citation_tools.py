@@ -3,13 +3,22 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch, AsyncMock
 from uuid import uuid4
 from datetime import datetime
 
-from research_kb_contracts import Source, SourceType, Concept, ConceptType, Chunk, ChunkConcept
+from research_kb_contracts import (
+    Source,
+    SourceType,
+    Concept,
+    ConceptType,
+    Chunk,
+    ChunkConcept,
+)
 from research_kb_mcp.tools.citations import register_citation_tools
 from research_kb_mcp.tools.concepts import register_concept_tools
+
+pytestmark = pytest.mark.unit
 
 
 class MockFastMCP:
@@ -20,12 +29,14 @@ class MockFastMCP:
 
     def tool(self, **kwargs):
         """Decorator that captures tool functions."""
+
         def decorator(func):
             self.tools[func.__name__] = {
                 "func": func,
                 "kwargs": kwargs,
             }
             return func
+
         return decorator
 
 
@@ -135,9 +146,11 @@ class TestCitationNetworkTool:
         mcp = MockFastMCP()
         register_citation_tools(mcp)
 
-        with patch("research_kb_mcp.tools.citations.get_source_by_id") as get_source_mock, \
-             patch("research_kb_mcp.tools.citations.get_citing_sources") as citing_mock, \
-             patch("research_kb_mcp.tools.citations.get_cited_sources") as cited_mock:
+        with (
+            patch("research_kb_mcp.tools.citations.get_source_by_id") as get_source_mock,
+            patch("research_kb_mcp.tools.citations.get_citing_sources") as citing_mock,
+            patch("research_kb_mcp.tools.citations.get_cited_sources") as cited_mock,
+        ):
 
             get_source_mock.return_value = sample_source
             citing_mock.return_value = citing_sources
@@ -218,8 +231,10 @@ class TestBiblioCouplingTool:
         mcp = MockFastMCP()
         register_citation_tools(mcp)
 
-        with patch("research_kb_mcp.tools.citations.get_source_by_id") as get_source_mock, \
-             patch("research_kb_mcp.tools.citations.BiblioStore") as biblio_mock:
+        with (
+            patch("research_kb_mcp.tools.citations.get_source_by_id") as get_source_mock,
+            patch("research_kb_mcp.tools.citations.BiblioStore") as biblio_mock,
+        ):
 
             get_source_mock.return_value = sample_source
             biblio_mock.get_similar_sources = AsyncMock(return_value=similar_sources)
@@ -258,8 +273,10 @@ class TestBiblioCouplingTool:
         mcp = MockFastMCP()
         register_citation_tools(mcp)
 
-        with patch("research_kb_mcp.tools.citations.get_source_by_id") as get_source_mock, \
-             patch("research_kb_mcp.tools.citations.BiblioStore") as biblio_mock:
+        with (
+            patch("research_kb_mcp.tools.citations.get_source_by_id") as get_source_mock,
+            patch("research_kb_mcp.tools.citations.BiblioStore") as biblio_mock,
+        ):
 
             get_source_mock.return_value = sample_source
             biblio_mock.get_similar_sources = AsyncMock(return_value=[])
@@ -338,9 +355,11 @@ class TestChunkConceptsTool:
 
         concepts, chunk_concepts = sample_concepts
 
-        with patch("research_kb_mcp.tools.concepts.ChunkStore") as chunk_mock, \
-             patch("research_kb_mcp.tools.concepts.ChunkConceptStore") as cc_mock, \
-             patch("research_kb_mcp.tools.concepts.ConceptStore") as concept_mock:
+        with (
+            patch("research_kb_mcp.tools.concepts.ChunkStore") as chunk_mock,
+            patch("research_kb_mcp.tools.concepts.ChunkConceptStore") as cc_mock,
+            patch("research_kb_mcp.tools.concepts.ConceptStore") as concept_mock,
+        ):
 
             chunk_mock.get_by_id = AsyncMock(return_value=sample_chunk)
             cc_mock.list_concepts_for_chunk = AsyncMock(return_value=chunk_concepts)
@@ -381,8 +400,10 @@ class TestChunkConceptsTool:
         mcp = MockFastMCP()
         register_concept_tools(mcp)
 
-        with patch("research_kb_mcp.tools.concepts.ChunkStore") as chunk_mock, \
-             patch("research_kb_mcp.tools.concepts.ChunkConceptStore") as cc_mock:
+        with (
+            patch("research_kb_mcp.tools.concepts.ChunkStore") as chunk_mock,
+            patch("research_kb_mcp.tools.concepts.ChunkConceptStore") as cc_mock,
+        ):
 
             chunk_mock.get_by_id = AsyncMock(return_value=sample_chunk)
             cc_mock.list_concepts_for_chunk = AsyncMock(return_value=[])

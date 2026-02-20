@@ -31,25 +31,29 @@ async def find_duplicate_groups(conn: asyncpg.Connection) -> list[dict]:
 
     Returns list of dicts with keys: source_id, content_hash, chunk_ids, keep_id, victim_ids.
     """
-    rows = await conn.fetch("""
+    rows = await conn.fetch(
+        """
         SELECT source_id, content_hash,
                array_agg(id ORDER BY page_start NULLS LAST, created_at ASC) as chunk_ids
         FROM chunks
         GROUP BY source_id, content_hash
         HAVING COUNT(*) > 1
         ORDER BY COUNT(*) DESC
-    """)
+    """
+    )
 
     groups = []
     for row in rows:
         ids = list(row["chunk_ids"])
-        groups.append({
-            "source_id": row["source_id"],
-            "content_hash": row["content_hash"],
-            "chunk_ids": ids,
-            "keep_id": ids[0],
-            "victim_ids": ids[1:],
-        })
+        groups.append(
+            {
+                "source_id": row["source_id"],
+                "content_hash": row["content_hash"],
+                "chunk_ids": ids,
+                "keep_id": ids[0],
+                "victim_ids": ids[1:],
+            }
+        )
     return groups
 
 
@@ -64,8 +68,11 @@ async def dedup_chunks(apply: bool = False, verbose: bool = False) -> dict:
         Summary dict with counts.
     """
     conn = await asyncpg.connect(
-        host=DB_HOST, port=DB_PORT, database=DB_NAME,
-        user=DB_USER, password=DB_PASS,
+        host=DB_HOST,
+        port=DB_PORT,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS,
     )
 
     try:
@@ -81,7 +88,12 @@ async def dedup_chunks(apply: bool = False, verbose: bool = False) -> dict:
 
         if total_groups == 0:
             print("No duplicates found.")
-            return {"groups": 0, "removed": 0, "concepts_reassigned": 0, "evidence_fixed": 0}
+            return {
+                "groups": 0,
+                "removed": 0,
+                "concepts_reassigned": 0,
+                "evidence_fixed": 0,
+            }
 
         concepts_reassigned = 0
         evidence_fixed = 0
@@ -103,21 +115,29 @@ async def dedup_chunks(apply: bool = False, verbose: bool = False) -> dict:
 
                     for victim in victims:
                         # 1. Reassign chunk_concepts from victim to keeper
-                        result = await conn.execute("""
+                        result = await conn.execute(
+                            """
                             INSERT INTO chunk_concepts (chunk_id, concept_id, mention_type, relevance_score, created_at)
                             SELECT $1, concept_id, mention_type, relevance_score, created_at
                             FROM chunk_concepts WHERE chunk_id = $2
                             ON CONFLICT (chunk_id, concept_id, mention_type) DO NOTHING
-                        """, keeper, victim)
+                        """,
+                            keeper,
+                            victim,
+                        )
                         moved = int(result.split()[-1]) if result.startswith("INSERT") else 0
                         concepts_reassigned += moved
 
                         # 2. Fix concept_relationships.evidence_chunk_ids
-                        result = await conn.execute("""
+                        result = await conn.execute(
+                            """
                             UPDATE concept_relationships
                             SET evidence_chunk_ids = array_replace(evidence_chunk_ids, $1, $2)
                             WHERE $1 = ANY(evidence_chunk_ids)
-                        """, victim, keeper)
+                        """,
+                            victim,
+                            keeper,
+                        )
                         fixed = int(result.split()[-1])
                         evidence_fixed += fixed
 
@@ -128,12 +148,12 @@ async def dedup_chunks(apply: bool = False, verbose: bool = False) -> dict:
                     if (i + 1) % 1000 == 0:
                         print(f"  Processed {i + 1}/{total_groups} groups...")
 
-            print(f"\nResults:")
+            print("\nResults:")
             print(f"  Chunks removed: {chunks_removed}")
             print(f"  Concept links reassigned: {concepts_reassigned}")
             print(f"  Evidence arrays fixed: {evidence_fixed}")
         else:
-            print(f"\nDry run complete. Use --apply to execute.")
+            print("\nDry run complete. Use --apply to execute.")
 
         return {
             "groups": total_groups,
@@ -148,12 +168,14 @@ async def dedup_chunks(apply: bool = False, verbose: bool = False) -> dict:
 
 async def verify(conn: asyncpg.Connection) -> bool:
     """Verify no duplicates remain."""
-    count = await conn.fetchval("""
+    count = await conn.fetchval(
+        """
         SELECT COUNT(*) FROM (
             SELECT source_id, content_hash FROM chunks
             GROUP BY source_id, content_hash HAVING COUNT(*) > 1
         ) d
-    """)
+    """
+    )
     return count == 0
 
 
@@ -169,8 +191,11 @@ def main():
         # Verify
         async def _verify():
             conn = await asyncpg.connect(
-                host=DB_HOST, port=DB_PORT, database=DB_NAME,
-                user=DB_USER, password=DB_PASS,
+                host=DB_HOST,
+                port=DB_PORT,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASS,
             )
             try:
                 clean = await verify(conn)

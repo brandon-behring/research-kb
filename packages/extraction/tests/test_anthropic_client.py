@@ -1,10 +1,12 @@
 """Tests for Anthropic Claude API client."""
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 import os
 
 from research_kb_extraction.models import ChunkExtraction
+
+pytestmark = pytest.mark.unit
 
 
 class TestAnthropicClientInit:
@@ -127,9 +129,7 @@ class TestAnthropicAvailability:
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
             with patch("anthropic.Anthropic") as mock_anthropic:
                 mock_client = MagicMock()
-                mock_client.messages.count_tokens = MagicMock(
-                    side_effect=Exception("API Error")
-                )
+                mock_client.messages.count_tokens = MagicMock(side_effect=Exception("API Error"))
                 mock_anthropic.return_value = mock_client
 
                 from research_kb_extraction.anthropic_client import AnthropicClient
@@ -243,9 +243,7 @@ class TestAnthropicExtraction:
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
             with patch("anthropic.Anthropic") as mock_anthropic:
                 mock_client = MagicMock()
-                mock_client.messages.create = MagicMock(
-                    side_effect=Exception("Rate limited")
-                )
+                mock_client.messages.create = MagicMock(side_effect=Exception("Rate limited"))
                 mock_anthropic.return_value = mock_client
 
                 from research_kb_extraction.anthropic_client import (

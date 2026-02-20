@@ -141,7 +141,7 @@ The plan adds a *fourth* copy: `EXTRACTION_SCHEMA` (plan: `$HOME/.claude/plans/p
 - llama.cpp grammar/schema,
 - (optionally) prompt docs for Ollama.
 
-Pros: less drift, easier ontology changes.  
+Pros: less drift, easier ontology changes.
 Cons: more upfront plumbing; Pydantic schema may be verbose and need simplification.
 
 ### 5.3 Integration points beyond `get_llm_client()`
@@ -164,41 +164,41 @@ If llama.cpp introduces more parse/validation failures (e.g., truncation), you c
 ## 6) Options to move forward (with pros/cons)
 
 ### Option 1: Optimize Ollama first (lowest effort, validates assumptions)
-**What:** enable server-side performance settings + reduce context; then reassess whether llama.cpp is still worth it.  
-**Pros:** minimal code; keeps current tested client; reduces risk.  
+**What:** enable server-side performance settings + reduce context; then reassess whether llama.cpp is still worth it.
+**Pros:** minimal code; keeps current tested client; reduces risk.
 **Cons:** still depends on systemd service + HTTP; “schema enforcement” remains prompt+validation.
 
 Relevant code: Ollama JSON mode and `num_ctx` (packages/extraction/src/research_kb_extraction/ollama_client.py#L105).
 
 ### Option 2: Add `LlamaCppClient` as a third backend (recommended framing)
-**What:** implement llamacpp backend as optional; keep Ollama and Anthropic.  
-**Pros:** flexibility; can benchmark and choose best backend per job.  
+**What:** implement llamacpp backend as optional; keep Ollama and Anthropic.
+**Pros:** flexibility; can benchmark and choose best backend per job.
 **Cons:** more surface area (deps, CI, docs, support).
 
 Alignment: repo explicitly anticipates it (packages/extraction/src/research_kb_extraction/base_client.py#L13).
 
 ### Option 3: Use `llama-server` (HTTP) instead of embedding llama.cpp in-process
-**What:** run llama.cpp as a server and talk over HTTP, similar to Ollama.  
-**Pros:** isolates crashes/leaks; easier concurrency control; simpler Python client.  
+**What:** run llama.cpp as a server and talk over HTTP, similar to Ollama.
+**Pros:** isolates crashes/leaks; easier concurrency control; simpler Python client.
 **Cons:** gives back some “no HTTP overhead” benefit; still an extra service.
 
 ### Option 4: Use Anthropic for extraction runs; reserve local LLMs for dev
-**What:** if cost is acceptable, Anthropic gives much faster latency (packages/extraction/src/research_kb_extraction/anthropic_client.py#L110).  
-**Pros:** fastest time-to-results; no GPU constraints.  
+**What:** if cost is acceptable, Anthropic gives much faster latency (packages/extraction/src/research_kb_extraction/anthropic_client.py#L110).
+**Pros:** fastest time-to-results; no GPU constraints.
 **Cons:** cost + rate limits; still needs robustness (tool schema is not guaranteed).
 
 ### Option 5: Scale out with multi-GPU (bigger win than 1.8×)
-**What:** run two extraction workers pinned to different GPUs (process-level parallelism).  
-**Pros:** near-linear throughput scaling; avoids thread-safety issues.  
+**What:** run two extraction workers pinned to different GPUs (process-level parallelism).
+**Pros:** near-linear throughput scaling; avoids thread-safety issues.
 **Cons:** requires 2nd GPU + thermal planning; more operational complexity.
 
 ## 7) Suggested revised plan (go/no-go gates)
 
-1) **Benchmark baseline**: optimized Ollama with `num_ctx=2048` and safe parallel settings; record throughput + failure rate.  
-2) **Prototype llamacpp**: verify the exact llama-cpp-python API for schema/grammar output; confirm chat template correctness.  
-3) **Implement**: `LlamaCppClient` + factory + script CLI backend + docs updates + tests.  
-4) **Add robustness**: retry/repair on validation failures and report failure rate explicitly.  
-5) **A/B on a fixed chunk set**: compare quality (concept count, typing accuracy) and speed.  
+1) **Benchmark baseline**: optimized Ollama with `num_ctx=2048` and safe parallel settings; record throughput + failure rate.
+2) **Prototype llamacpp**: verify the exact llama-cpp-python API for schema/grammar output; confirm chat template correctness.
+3) **Implement**: `LlamaCppClient` + factory + script CLI backend + docs updates + tests.
+4) **Add robustness**: retry/repair on validation failures and report failure rate explicitly.
+5) **A/B on a fixed chunk set**: compare quality (concept count, typing accuracy) and speed.
 6) **Decide**: keep as optional backend, switch default only if quality is equal and speed gain is real under your workload.
 
 ## References

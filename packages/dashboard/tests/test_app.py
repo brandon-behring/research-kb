@@ -12,6 +12,10 @@ or manual testing with `streamlit run`.
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+import pytest
+
+pytestmark = pytest.mark.unit
+
 
 # Add package to path
 repo_root = Path(__file__).parent.parent.parent.parent
@@ -43,7 +47,9 @@ class TestModuleImports:
     def test_pages_module_imports(self):
         """Pages modules can be imported."""
         search_path = repo_root / "packages/dashboard/src/research_kb_dashboard/pages/search.py"
-        citations_path = repo_root / "packages/dashboard/src/research_kb_dashboard/pages/citations.py"
+        citations_path = (
+            repo_root / "packages/dashboard/src/research_kb_dashboard/pages/citations.py"
+        )
 
         assert search_path.exists()
         assert citations_path.exists()

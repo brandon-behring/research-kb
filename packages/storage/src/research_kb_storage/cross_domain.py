@@ -16,9 +16,7 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 from uuid import UUID
 
-import asyncpg
 from research_kb_common import StorageError, get_logger
-from research_kb_contracts import Concept
 
 from research_kb_storage.connection import get_connection_pool
 

@@ -33,6 +33,7 @@ def embedding_available():
     """Check if embedding server is available."""
     try:
         from research_kb_pdf import EmbeddingClient
+
         client = EmbeddingClient()
         # Try to embed a test string
         result = client.embed("test")
@@ -45,12 +46,9 @@ def embedding_available():
 def ollama_available():
     """Check if Ollama server is available."""
     import subprocess
+
     try:
-        result = subprocess.run(
-            ["ollama", "list"],
-            capture_output=True,
-            timeout=5
-        )
+        result = subprocess.run(["ollama", "list"], capture_output=True, timeout=5)
         return result.returncode == 0
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return False

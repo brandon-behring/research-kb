@@ -228,10 +228,12 @@ score = fts_weight × fts + vector_weight × vector + graph_weight × graph + ci
 - **Graph**: Concept co-occurrence boost (knowledge graph)
 - **Citation**: PageRank-style authority score (citation network)
 
-Context types adjust weights:
+Context types adjust weights (FTS + vector only; graph and citation are opt-in, disabled by default):
 - **building**: 20% FTS, 80% vector (favor semantic breadth)
 - **auditing**: 50% FTS, 50% vector (favor precision)
 - **balanced**: 30% FTS, 70% vector (default)
+
+When `use_graph` or `use_citations` are enabled, each adds 15% weight (FTS/vector reduced proportionally).
 
 ### HyDE (Hypothetical Document Embeddings)
 
@@ -290,8 +292,8 @@ Single model: BGE-large-en-v1.5 (1024 dimensions). All vector columns are `vecto
 ## CI/CD Tiers
 
 1. **PR Checks** (<10 min): Unit + CLI tests with mocked services
-2. **Daily Validation** (3 min): Quality checks with cached DB
-3. **Weekly Full Rebuild** (60 min): Complete from-scratch validation
+2. **Weekly Integration** (10 min, Sunday 2AM): Search pipeline + ingestion resilience + seed concept validation against PostgreSQL
+3. **Full Rebuild** (Planned): Complete from-scratch validation with full service stack
 
 ## Data Protection
 

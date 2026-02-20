@@ -6,7 +6,6 @@ Supports Prometheus text file format for scraping.
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from research_kb_common import get_logger
 
@@ -44,9 +43,7 @@ class ExtractionMetrics:
     EMPTY_RATE_WARN = 0.15  # Warn if >15% empty (lenient start)
     FAILURE_RATE_WARN = 0.05  # Warn if >5% failures
 
-    def record_success(
-        self, concepts: int, relationships: int, latency_ms: float
-    ) -> None:
+    def record_success(self, concepts: int, relationships: int, latency_ms: float) -> None:
         """Record a successful extraction.
 
         Args:

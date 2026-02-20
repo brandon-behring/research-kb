@@ -223,9 +223,7 @@ async def main():
             print(f"  Headings: {num_headings}")
 
         except Exception as e:
-            logger.error(
-                "ingestion_failed", title=pdf_data["title"], error=str(e), exc_info=True
-            )
+            logger.error("ingestion_failed", title=pdf_data["title"], error=str(e), exc_info=True)
             results.append(
                 {
                     "title": pdf_data["title"],

@@ -17,7 +17,6 @@ Usage:
     python -m scripts.manning ingest --upgrade-meaps --dry-run
 """
 
-import asyncio
 import hashlib
 import json as json_module
 import sys
@@ -31,10 +30,24 @@ _project_root = Path(__file__).parent.parent.parent
 for pkg in ("pdf-tools", "storage", "contracts", "common"):
     sys.path.insert(0, str(_project_root / "packages" / pkg / "src"))
 
-from research_kb_common import EmbeddingError, StorageError, configure_logging, get_logger  # noqa: E402
+from research_kb_common import (
+    EmbeddingError,
+    StorageError,
+    configure_logging,
+    get_logger,
+)  # noqa: E402
 from research_kb_contracts import SourceType  # noqa: E402
-from research_kb_pdf import EmbeddingClient, chunk_with_sections, extract_with_headings  # noqa: E402
-from research_kb_storage import ChunkStore, DatabaseConfig, SourceStore, get_connection_pool  # noqa: E402
+from research_kb_pdf import (
+    EmbeddingClient,
+    chunk_with_sections,
+    extract_with_headings,
+)  # noqa: E402
+from research_kb_storage import (
+    ChunkStore,
+    DatabaseConfig,
+    SourceStore,
+    get_connection_pool,
+)  # noqa: E402
 
 logger = get_logger(__name__)
 
@@ -247,6 +260,7 @@ async def check_meap_upgrades(pool, books: list[ManningBook]) -> list[dict]:
                 meta = row["metadata"] or {}
                 if isinstance(meta, str):
                     import json as _json
+
                     meta = _json.loads(meta)
                 db_version = meta.get("meap_version")
                 if db_version is not None and book.meap_version > int(db_version):
@@ -282,9 +296,7 @@ async def upgrade_meap(pool, book: ManningBook, old_source_id: str, quiet: bool 
 
     async with pool.acquire() as conn:
         # Delete old chunks (cascading from chunk_concepts if they exist)
-        old_chunk_ids = await conn.fetch(
-            "SELECT id FROM chunks WHERE source_id = $1", old_uuid
-        )
+        old_chunk_ids = await conn.fetch("SELECT id FROM chunks WHERE source_id = $1", old_uuid)
         if old_chunk_ids:
             chunk_ids = [r["id"] for r in old_chunk_ids]
             # Delete chunk_concepts first (FK)
@@ -438,7 +450,7 @@ async def run_ingest(
             print("\nBooks to ingest:")
             for b in to_ingest:
                 print(f"  [{b.domain_id}] {b.title}")
-            print(f"\nDry run — no changes made.")
+            print("\nDry run — no changes made.")
         return
 
     if not to_ingest:
@@ -469,9 +481,7 @@ async def run_ingest(
         start_time = time.time()
 
         try:
-            source_id, num_chunks, num_headings = await ingest_one_book(
-                book, pool, quiet=quiet
-            )
+            source_id, num_chunks, num_headings = await ingest_one_book(book, pool, quiet=quiet)
             elapsed = time.time() - start_time
 
             results_success.append(
@@ -500,7 +510,7 @@ async def run_ingest(
             if not json_output:
                 print(f"  {book.title}: {error_type}")
 
-        except (EmbeddingError, ConnectionError) as e:
+        except (EmbeddingError, ConnectionError):
             results_failed.append(
                 {
                     "title": book.title,
@@ -542,7 +552,11 @@ async def run_ingest(
             "total_chunks": total_chunks,
             "already_ingested": already_ingested,
             "failed_files": [
-                {"title": r["title"], "error": r["error"], "recoverable": r.get("recoverable", False)}
+                {
+                    "title": r["title"],
+                    "error": r["error"],
+                    "recoverable": r.get("recoverable", False),
+                }
                 for r in results_failed
             ],
         }
@@ -566,6 +580,8 @@ async def run_ingest(
                 status = "(recoverable)" if r.get("recoverable", False) else "(not recoverable)"
                 print(f"  - {r['title']}: {r['error'][:60]} {status}")
 
-        print(f"\nNext steps:")
-        print(f"  python scripts/extract_concepts.py --backend anthropic --model haiku --concurrency 4")
-        print(f"  python scripts/sync_kuzu.py")
+        print("\nNext steps:")
+        print(
+            "  python scripts/extract_concepts.py --backend anthropic --model haiku --concurrency 4"
+        )
+        print("  python scripts/sync_kuzu.py")

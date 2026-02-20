@@ -19,7 +19,6 @@ Exit codes:
 - 2: Errors found
 """
 
-import os
 import re
 import sys
 from datetime import datetime, timedelta
@@ -28,22 +27,27 @@ from pathlib import Path
 # Repository root
 REPO_ROOT = Path(__file__).parent.parent
 
+
 # Colors for output
 class Colors:
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    RESET = '\033[0m'
-    BOLD = '\033[1m'
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+
 
 def success(msg: str) -> None:
     print(f"{Colors.GREEN}✅ {msg}{Colors.RESET}")
 
+
 def warning(msg: str) -> None:
     print(f"{Colors.YELLOW}⚠️  {msg}{Colors.RESET}")
 
+
 def error(msg: str) -> None:
     print(f"{Colors.RED}❌ {msg}{Colors.RESET}")
+
 
 def header(msg: str) -> None:
     print(f"\n{Colors.BOLD}=== {msg} ==={Colors.RESET}")
@@ -67,7 +71,7 @@ def check_cli_commands() -> tuple[bool, list[str]]:
     code_commands = set(re.findall(r'@app\.command\(["\'](\w+)["\']', content))
 
     # Also check for subcommand groups
-    subgroups = re.findall(r'(\w+)_app\s*=\s*typer\.Typer', content)
+    subgroups = re.findall(r"(\w+)_app\s*=\s*typer\.Typer", content)
     for group in subgroups:
         group_file = REPO_ROOT / f"packages/cli/src/research_kb_cli/{group}.py"
         if group_file.exists():
@@ -85,7 +89,7 @@ def check_cli_commands() -> tuple[bool, list[str]]:
     readme_content = readme.read_text()
 
     # Commands that should be documented
-    critical_commands = {'query', 'sources', 'stats', 'concepts', 'graph', 'path'}
+    critical_commands = {"query", "sources", "stats", "concepts", "graph", "path"}
 
     for cmd in critical_commands:
         if f"research-kb {cmd}" not in claude_content:
@@ -114,7 +118,7 @@ def check_package_readmes() -> tuple[bool, list[str]]:
         return False, ["packages/ directory not found"]
 
     for pkg_dir in packages_dir.iterdir():
-        if pkg_dir.is_dir() and not pkg_dir.name.startswith('.'):
+        if pkg_dir.is_dir() and not pkg_dir.name.startswith("."):
             readme = pkg_dir / "README.md"
             if not readme.exists():
                 issues.append(f"Package '{pkg_dir.name}' missing README.md")
@@ -164,10 +168,10 @@ def check_extraction_backends() -> tuple[bool, list[str]]:
     # Check for backend files
     extraction_dir = REPO_ROOT / "packages/extraction/src/research_kb_extraction"
     backend_files = {
-        'ollama_client.py': 'OllamaClient',
-        'instructor_client.py': 'InstructorOllamaClient',
-        'llama_cpp_client.py': 'LlamaCppClient',
-        'anthropic_client.py': 'AnthropicClient',
+        "ollama_client.py": "OllamaClient",
+        "instructor_client.py": "InstructorOllamaClient",
+        "llama_cpp_client.py": "LlamaCppClient",
+        "anthropic_client.py": "AnthropicClient",
     }
 
     code_backends = []

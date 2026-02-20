@@ -91,8 +91,7 @@ class RerankClient:
 
         except FileNotFoundError:
             raise ConnectionError(
-                "Rerank server not running. Start with: "
-                "python -m research_kb_pdf.rerank_server"
+                "Rerank server not running. Start with: " "python -m research_kb_pdf.rerank_server"
             )
         except Exception as e:
             if isinstance(e, (ConnectionError, ValueError)):
@@ -145,11 +144,13 @@ class RerankClient:
             >>> len(scores)
             2
         """
-        response = self._send_request({
-            "action": "predict",
-            "query": query,
-            "documents": documents,
-        })
+        response = self._send_request(
+            {
+                "action": "predict",
+                "query": query,
+                "documents": documents,
+            }
+        )
         return response["scores"]
 
     def rerank(
@@ -173,12 +174,14 @@ class RerankClient:
             >>> results[0].new_rank
             1
         """
-        response = self._send_request({
-            "action": "rerank",
-            "query": query,
-            "documents": documents,
-            "top_k": top_k,
-        })
+        response = self._send_request(
+            {
+                "action": "rerank",
+                "query": query,
+                "documents": documents,
+                "top_k": top_k,
+            }
+        )
 
         return [
             RerankResult(
@@ -219,17 +222,20 @@ class RerankClient:
 
         # Extract content from results
         if content_extractor is None:
+
             def content_extractor(r):
                 return r.chunk.content
 
         documents = [content_extractor(r) for r in results]
 
         # Get scores from server
-        response = self._send_request({
-            "action": "predict",
-            "query": query,
-            "documents": documents,
-        })
+        response = self._send_request(
+            {
+                "action": "predict",
+                "query": query,
+                "documents": documents,
+            }
+        )
         scores = response["scores"]
 
         # Pair results with scores

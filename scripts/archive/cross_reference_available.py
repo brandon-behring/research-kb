@@ -280,11 +280,17 @@ def prioritize_paper(paper: AvailablePaper) -> str:
 
     # High priority: canonical works
     high_priority_keywords = [
-        "box", "jenkins", "time series analysis",
-        "pearl", "causality",
-        "neapolitan", "bayesian network",
-        "koller", "probabilistic graphical",
-        "imbens", "rubin",
+        "box",
+        "jenkins",
+        "time series analysis",
+        "pearl",
+        "causality",
+        "neapolitan",
+        "bayesian network",
+        "koller",
+        "probabilistic graphical",
+        "imbens",
+        "rubin",
     ]
     if any(kw in title_lower for kw in high_priority_keywords):
         return "high"

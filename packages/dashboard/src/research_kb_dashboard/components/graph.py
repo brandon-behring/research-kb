@@ -40,7 +40,8 @@ def create_network(
     )
 
     # Configure physics for better layout
-    net.set_options("""
+    net.set_options(
+        """
     {
         "physics": {
             "enabled": true,
@@ -79,7 +80,8 @@ def create_network(
             }
         }
     }
-    """)
+    """
+    )
 
     return net
 
@@ -92,9 +94,7 @@ def render_network(net: Network, key: str = "graph") -> None:
         key: Unique key for the Streamlit component
     """
     # Generate HTML to a temporary file
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".html", delete=False
-    ) as tmp:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False) as tmp:
         net.save_graph(tmp.name)
         tmp_path = tmp.name
 
@@ -118,10 +118,10 @@ def get_node_color(source_type: str) -> str:
         Hex color code
     """
     colors = {
-        "paper": "#4299e1",      # Blue
-        "textbook": "#48bb78",   # Green
+        "paper": "#4299e1",  # Blue
+        "textbook": "#48bb78",  # Green
         "code_repo": "#ed8936",  # Orange
-        "unknown": "#a0aec0",    # Gray
+        "unknown": "#a0aec0",  # Gray
     }
     return colors.get(source_type.lower(), colors["unknown"])
 
@@ -153,4 +153,4 @@ def truncate_title(title: str, max_length: int = 40) -> str:
     """
     if len(title) <= max_length:
         return title
-    return title[:max_length - 3] + "..."
+    return title[: max_length - 3] + "..."

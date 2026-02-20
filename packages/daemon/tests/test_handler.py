@@ -1,16 +1,19 @@
 """Tests for daemon request handlers."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from research_kb_daemon.handler import (
-    dispatch,
-    handle_search,
-    handle_health,
-    handle_stats,
-    _result_to_dict,
     METHODS,
+    _result_to_dict,
+    dispatch,
+    handle_health,
+    handle_search,
+    handle_stats,
 )
+
+pytestmark = pytest.mark.unit
 
 
 class TestResultToDict:
@@ -96,8 +99,13 @@ class TestHandleSearch:
 
         # Default search uses search_hybrid (not v2) when use_graph=False and use_citations=False
         with (
-            patch("research_kb_daemon.handler.get_embed_client", return_value=mock_embed_client),
-            patch("research_kb_daemon.handler.search_hybrid", new_callable=AsyncMock) as mock_search,
+            patch(
+                "research_kb_daemon.handler.get_embed_client",
+                return_value=mock_embed_client,
+            ),
+            patch(
+                "research_kb_daemon.handler.search_hybrid", new_callable=AsyncMock
+            ) as mock_search,
         ):
             mock_search.return_value = mock_results
 
@@ -123,8 +131,13 @@ class TestHandleSearch:
 
         # Default search uses search_hybrid (not v2) when use_graph=False and use_citations=False
         with (
-            patch("research_kb_daemon.handler.get_embed_client", return_value=mock_embed_client),
-            patch("research_kb_daemon.handler.search_hybrid", new_callable=AsyncMock) as mock_search,
+            patch(
+                "research_kb_daemon.handler.get_embed_client",
+                return_value=mock_embed_client,
+            ),
+            patch(
+                "research_kb_daemon.handler.search_hybrid", new_callable=AsyncMock
+            ) as mock_search,
         ):
             mock_search.return_value = []
 
@@ -150,14 +163,25 @@ class TestHandleHealth:
         mock_pool = AsyncMock()
         mock_conn = AsyncMock()
         mock_conn.fetchval = AsyncMock(return_value=1)
-        mock_pool.acquire = MagicMock(return_value=AsyncMock(__aenter__=AsyncMock(return_value=mock_conn), __aexit__=AsyncMock()))
+        mock_pool.acquire = MagicMock(
+            return_value=AsyncMock(
+                __aenter__=AsyncMock(return_value=mock_conn), __aexit__=AsyncMock()
+            )
+        )
 
         mock_embed_client = MagicMock()
         mock_embed_client.health_check = AsyncMock(return_value={"status": "healthy"})
 
         with (
-            patch("research_kb_daemon.handler.get_pool", new_callable=AsyncMock, return_value=mock_pool),
-            patch("research_kb_daemon.handler.get_embed_client", return_value=mock_embed_client),
+            patch(
+                "research_kb_daemon.handler.get_pool",
+                new_callable=AsyncMock,
+                return_value=mock_pool,
+            ),
+            patch(
+                "research_kb_daemon.handler.get_embed_client",
+                return_value=mock_embed_client,
+            ),
         ):
             result = await handle_health({})
 
@@ -176,13 +200,23 @@ class TestHandleStats:
         mock_pool = AsyncMock()
         mock_conn = AsyncMock()
         mock_conn.fetchval = AsyncMock(side_effect=[100, 5000, 10000, 500, 20000])
-        mock_conn.fetch = AsyncMock(return_value=[
-            {"source_type": "paper", "count": 60},
-            {"source_type": "textbook", "count": 40},
-        ])
-        mock_pool.acquire = MagicMock(return_value=AsyncMock(__aenter__=AsyncMock(return_value=mock_conn), __aexit__=AsyncMock()))
+        mock_conn.fetch = AsyncMock(
+            return_value=[
+                {"source_type": "paper", "count": 60},
+                {"source_type": "textbook", "count": 40},
+            ]
+        )
+        mock_pool.acquire = MagicMock(
+            return_value=AsyncMock(
+                __aenter__=AsyncMock(return_value=mock_conn), __aexit__=AsyncMock()
+            )
+        )
 
-        with patch("research_kb_daemon.handler.get_pool", new_callable=AsyncMock, return_value=mock_pool):
+        with patch(
+            "research_kb_daemon.handler.get_pool",
+            new_callable=AsyncMock,
+            return_value=mock_pool,
+        ):
             result = await handle_stats({})
 
             assert result["sources"] == 100

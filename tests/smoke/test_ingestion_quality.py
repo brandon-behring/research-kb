@@ -5,7 +5,6 @@ They test the entire ingestion pipeline end-to-end.
 """
 
 import pytest
-from pathlib import Path
 
 
 def count_tokens(text: str) -> int:
@@ -52,8 +51,7 @@ async def test_ingest_textbook(test_db, textbook_path, ingestion_helper):
     from research_kb_contracts import SourceType
 
     source, chunks = await ingestion_helper.ingest_pdf(
-        textbook_path,
-        source_type=SourceType.TEXTBOOK
+        textbook_path, source_type=SourceType.TEXTBOOK
     )
 
     # Textbooks should produce many chunks
@@ -65,7 +63,9 @@ async def test_ingest_textbook(test_db, textbook_path, ingestion_helper):
 
     # Most chunks should be reasonable length (word count approximation)
     reasonable = [c for c in chunks if 100 < count_tokens(c.content) < 500]
-    assert len(reasonable) / len(chunks) > 0.60, "Less than 60% of chunks in reasonable range (100-500 words)"
+    assert (
+        len(reasonable) / len(chunks) > 0.60
+    ), "Less than 60% of chunks in reasonable range (100-500 words)"
 
 
 @pytest.mark.smoke
@@ -114,8 +114,9 @@ async def test_deduplication(test_db, simple_paper_path, ingestion_helper):
 
     # All should be unique
     unique_hashes = set(content_hashes)
-    assert len(content_hashes) == len(unique_hashes), \
-        f"Found {len(content_hashes) - len(unique_hashes)} duplicate chunks"
+    assert len(content_hashes) == len(
+        unique_hashes
+    ), f"Found {len(content_hashes) - len(unique_hashes)} duplicate chunks"
 
 
 @pytest.mark.smoke
@@ -134,8 +135,9 @@ async def test_chunk_metadata(test_db, simple_paper_path, ingestion_helper):
     with_pages = [c for c in chunks if c.page_start is not None]
 
     # Most chunks should have page numbers
-    assert len(with_pages) / len(chunks) > 0.8, \
-        f"Only {len(with_pages)}/{len(chunks)} chunks have page numbers"
+    assert (
+        len(with_pages) / len(chunks) > 0.8
+    ), f"Only {len(with_pages)}/{len(chunks)} chunks have page numbers"
 
     # Page numbers should be reasonable
     for chunk in with_pages:
@@ -143,8 +145,9 @@ async def test_chunk_metadata(test_db, simple_paper_path, ingestion_helper):
         assert chunk.page_start < 1000, f"Page number unreasonably high: {chunk.page_start}"
 
         if chunk.page_end:
-            assert chunk.page_end >= chunk.page_start, \
-                f"Page end ({chunk.page_end}) before start ({chunk.page_start})"
+            assert (
+                chunk.page_end >= chunk.page_start
+            ), f"Page end ({chunk.page_end}) before start ({chunk.page_start})"
 
 
 @pytest.mark.smoke
@@ -175,8 +178,8 @@ async def test_content_extraction_quality(test_db, simple_paper_path, ingestion_
         assert alpha_ratio > 0.5, f"Chunk is {alpha_ratio:.1%} alphabetic (should be >50%)"
 
         # Should have some punctuation (normal text)
-        has_period = '.' in content
-        has_comma = ',' in content
+        has_period = "." in content
+        has_comma = "," in content
         assert has_period or has_comma, "Chunk should have basic punctuation"
 
 
@@ -200,29 +203,28 @@ async def test_multiple_papers_ingestion(test_db, all_papers, ingestion_helper):
     for paper_path in test_papers:
         try:
             source, chunks = await ingestion_helper.ingest_pdf(paper_path)
-            results.append({
-                'path': paper_path,
-                'source': source,
-                'chunks': len(chunks),
-                'success': True
-            })
+            results.append(
+                {
+                    "path": paper_path,
+                    "source": source,
+                    "chunks": len(chunks),
+                    "success": True,
+                }
+            )
         except Exception as e:
-            results.append({
-                'path': paper_path,
-                'chunks': 0,
-                'success': False,
-                'error': str(e)
-            })
+            results.append({"path": paper_path, "chunks": 0, "success": False, "error": str(e)})
 
     # All should succeed
-    failures = [r for r in results if not r['success']]
-    assert len(failures) == 0, \
-        f"{len(failures)}/{len(results)} papers failed: {[f['path'].name for f in failures]}"
+    failures = [r for r in results if not r["success"]]
+    assert (
+        len(failures) == 0
+    ), f"{len(failures)}/{len(results)} papers failed: {[f['path'].name for f in failures]}"
 
     # All should produce chunks
     for result in results:
-        assert result['chunks'] > 5, \
-            f"{result['path'].name} produced only {result['chunks']} chunks"
+        assert (
+            result["chunks"] > 5
+        ), f"{result['path'].name} produced only {result['chunks']} chunks"
 
 
 @pytest.mark.smoke
@@ -248,8 +250,9 @@ async def test_full_pipeline_smoke(test_db, simple_paper_path, ingestion_helper)
 
     # Verify chunks can be retrieved
     retrieved_chunks = await ChunkStore.list_by_source(source.id, limit=1000)
-    assert len(retrieved_chunks) == len(chunks), \
-        f"Expected {len(chunks)} chunks, retrieved {len(retrieved_chunks)}"
+    assert len(retrieved_chunks) == len(
+        chunks
+    ), f"Expected {len(chunks)} chunks, retrieved {len(retrieved_chunks)}"
 
     # Verify chunk content matches
     first_chunk = retrieved_chunks[0]

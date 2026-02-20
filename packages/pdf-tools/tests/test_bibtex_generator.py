@@ -16,6 +16,8 @@ from research_kb_pdf.bibtex_generator import (
     source_to_bibtex,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestEscapeBibtex:
     """Test special character escaping for BibTeX safety."""
@@ -58,16 +60,12 @@ class TestGenerateBibtexKey:
 
     def test_generates_standard_key(self):
         """Standard format: lastnameyearfirstword."""
-        key = generate_bibtex_key(
-            "Judea Pearl", 2009, "Causality: Models, Reasoning and Inference"
-        )
+        key = generate_bibtex_key("Judea Pearl", 2009, "Causality: Models, Reasoning and Inference")
         assert key == "pearl2009causality"
 
     def test_handles_multi_word_name(self):
         """Extracts last name from multi-word author name."""
-        key = generate_bibtex_key(
-            "Joshua D. Angrist", 2009, "Mostly Harmless Econometrics"
-        )
+        key = generate_bibtex_key("Joshua D. Angrist", 2009, "Mostly Harmless Econometrics")
         assert key == "angrist2009mostly"
 
     def test_skips_stopwords_in_title(self):

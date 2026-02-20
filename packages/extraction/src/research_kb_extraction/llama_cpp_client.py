@@ -6,7 +6,7 @@ Uses grammar-based JSON output for structured extraction.
 
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from research_kb_common import get_logger
 
@@ -18,7 +18,11 @@ logger = get_logger(__name__)
 
 # Default model path (research-kb/models/)
 # Path: llama_cpp_client.py -> research_kb_extraction -> src -> extraction -> packages -> research-kb
-DEFAULT_MODEL_PATH = Path(__file__).parent.parent.parent.parent.parent / "models" / "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+DEFAULT_MODEL_PATH = (
+    Path(__file__).parent.parent.parent.parent.parent
+    / "models"
+    / "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+)
 
 # JSON schema for structured output (grammar-based sampling)
 EXTRACTION_SCHEMA = {
@@ -32,17 +36,24 @@ EXTRACTION_SCHEMA = {
                     "name": {"type": "string"},
                     "concept_type": {
                         "type": "string",
-                        "enum": ["method", "assumption", "problem", "definition", "theorem", "concept", "principle", "technique", "model"]
+                        "enum": [
+                            "method",
+                            "assumption",
+                            "problem",
+                            "definition",
+                            "theorem",
+                            "concept",
+                            "principle",
+                            "technique",
+                            "model",
+                        ],
                     },
                     "definition": {"type": ["string", "null"]},
-                    "aliases": {
-                        "type": "array",
-                        "items": {"type": "string"}
-                    },
-                    "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+                    "aliases": {"type": "array", "items": {"type": "string"}},
+                    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
                 },
-                "required": ["name", "concept_type"]
-            }
+                "required": ["name", "concept_type"],
+            },
         },
         "relationships": {
             "type": "array",
@@ -53,21 +64,30 @@ EXTRACTION_SCHEMA = {
                     "target_concept": {"type": "string"},
                     "relationship_type": {
                         "type": "string",
-                        "enum": ["REQUIRES", "USES", "ADDRESSES", "GENERALIZES", "SPECIALIZES", "ALTERNATIVE_TO", "EXTENDS"]
+                        "enum": [
+                            "REQUIRES",
+                            "USES",
+                            "ADDRESSES",
+                            "GENERALIZES",
+                            "SPECIALIZES",
+                            "ALTERNATIVE_TO",
+                            "EXTENDS",
+                        ],
                     },
                     "evidence": {"type": ["string", "null"]},
-                    "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+                    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
                 },
-                "required": ["source_concept", "target_concept", "relationship_type"]
-            }
-        }
+                "required": ["source_concept", "target_concept", "relationship_type"],
+            },
+        },
     },
-    "required": ["concepts", "relationships"]
+    "required": ["concepts", "relationships"],
 }
 
 
 class LlamaCppError(Exception):
     """Error from llama.cpp inference."""
+
     pass
 
 
@@ -131,8 +151,7 @@ class LlamaCppClient(LLMClient):
 
         if not self.model_path.exists():
             raise LlamaCppError(
-                f"Model not found: {self.model_path}\n"
-                "Run: ./scripts/download_gguf_model.sh"
+                f"Model not found: {self.model_path}\n" "Run: ./scripts/download_gguf_model.sh"
             )
 
         logger.info(
@@ -158,7 +177,8 @@ class LlamaCppClient(LLMClient):
             if not self.model_path.exists():
                 return False
             # Try importing llama_cpp
-            import llama_cpp
+            import llama_cpp  # noqa: F401
+
             return True
         except ImportError:
             return False

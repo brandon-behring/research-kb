@@ -196,9 +196,7 @@ async def link_chunks_to_concepts(
 
     for i, (chunk_id, embedding, preview) in enumerate(chunks):
         # Find similar concepts
-        similar = await find_similar_concepts(
-            embedding, target_domain, threshold, max_concepts
-        )
+        similar = await find_similar_concepts(embedding, target_domain, threshold, max_concepts)
 
         if similar:
             stats["chunks_with_matches"] += 1

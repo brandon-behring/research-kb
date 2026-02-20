@@ -227,10 +227,15 @@ def register_graph_tools(mcp: FastMCP) -> None:
 
                         for concept, score in similar:
                             link_type = (
-                                "EQUIVALENT" if score >= 0.95 else
-                                "ANALOGOUS" if score >= 0.90 else "RELATED"
+                                "EQUIVALENT"
+                                if score >= 0.95
+                                else "ANALOGOUS" if score >= 0.90 else "RELATED"
                             )
-                            c_type = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+                            c_type = (
+                                concept.concept_type.value
+                                if hasattr(concept.concept_type, "value")
+                                else concept.concept_type
+                            )
                             lines.append(f"- **{concept.name}** [{link_type}] ({c_type})")
                             lines.append(f"  - Similarity: {score:.3f}")
                             lines.append(f"  - ID: `{concept.id}`")
@@ -260,8 +265,9 @@ def register_graph_tools(mcp: FastMCP) -> None:
 
             for link in links:
                 link_type = (
-                    "EQUIVALENT" if link["similarity"] >= 0.95 else
-                    "ANALOGOUS" if link["similarity"] >= 0.90 else "RELATED"
+                    "EQUIVALENT"
+                    if link["similarity"] >= 0.95
+                    else "ANALOGOUS" if link["similarity"] >= 0.90 else "RELATED"
                 )
                 lines.append(
                     f"- **{link['source_name']}** ↔ **{link['target_name']}** [{link_type}]"

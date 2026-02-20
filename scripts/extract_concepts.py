@@ -63,7 +63,6 @@ from research_kb_extraction import (
     Deduplicator,
     ExtractionMetrics,
     LLMClient,
-    OllamaClient,
     get_llm_client,
 )
 from research_kb_storage import (
@@ -71,7 +70,6 @@ from research_kb_storage import (
     ChunkStore,
     ConceptStore,
     RelationshipStore,
-    SourceStore,
     get_connection_pool,
 )
 
@@ -129,9 +127,15 @@ class ExtractionStats:
         print("EXTRACTION SUMMARY")
         print("=" * 60)
         print(f"Duration: {self.duration_seconds:.1f}s ({self.chunks_per_second:.2f} chunks/sec)")
-        print(f"Chunks: {self.chunks_processed} processed, {self.chunks_skipped} skipped, {self.chunks_failed} failed")
-        print(f"Concepts: {self.concepts_extracted} extracted, {self.concepts_new} new, {self.concepts_merged} merged")
-        print(f"Relationships: {self.relationships_extracted} extracted, {self.relationships_stored} stored")
+        print(
+            f"Chunks: {self.chunks_processed} processed, {self.chunks_skipped} skipped, {self.chunks_failed} failed"
+        )
+        print(
+            f"Concepts: {self.concepts_extracted} extracted, {self.concepts_new} new, {self.concepts_merged} merged"
+        )
+        print(
+            f"Relationships: {self.relationships_extracted} extracted, {self.relationships_stored} stored"
+        )
         print(f"Chunk-Concept Links: {self.chunk_links_created}")
         print("=" * 60)
 
@@ -239,7 +243,9 @@ class ExtractionPipeline:
         if self.backend == "ollama" and hasattr(self.llm_client, "is_model_loaded"):
             if not await self.llm_client.is_model_loaded():
                 model_name = self.model or "llama3.1:8b"
-                raise RuntimeError(f"Model {model_name} not loaded. Pull with: ollama pull {model_name}")
+                raise RuntimeError(
+                    f"Model {model_name} not loaded. Pull with: ollama pull {model_name}"
+                )
 
         logger.info(
             "llm_client_connected",
@@ -316,11 +322,15 @@ class ExtractionPipeline:
         """Save processed chunk IDs to checkpoint."""
         try:
             with open(CHECKPOINT_FILE, "w") as f:
-                json.dump({
-                    "processed_chunk_ids": [str(id) for id in self.processed_chunk_ids],
-                    "timestamp": datetime.now().isoformat(),
-                    "stats": self.stats.to_dict(),
-                }, f, indent=2)
+                json.dump(
+                    {
+                        "processed_chunk_ids": [str(id) for id in self.processed_chunk_ids],
+                        "timestamp": datetime.now().isoformat(),
+                        "stats": self.stats.to_dict(),
+                    },
+                    f,
+                    indent=2,
+                )
             logger.debug("checkpoint_saved", count=len(self.processed_chunk_ids))
         except Exception as e:
             logger.warning("checkpoint_save_failed", error=str(e))
@@ -338,13 +348,17 @@ class ExtractionPipeline:
 
         try:
             with open(dlq_file, "w") as f:
-                json.dump({
-                    "chunk_id": str(chunk.id),
-                    "source_id": str(chunk.source_id),
-                    "content_preview": chunk.content[:500],
-                    "error": error,
-                    "timestamp": datetime.now().isoformat(),
-                }, f, indent=2)
+                json.dump(
+                    {
+                        "chunk_id": str(chunk.id),
+                        "source_id": str(chunk.source_id),
+                        "content_preview": chunk.content[:500],
+                        "error": error,
+                        "timestamp": datetime.now().isoformat(),
+                    },
+                    f,
+                    indent=2,
+                )
         except Exception as e:
             logger.error("dlq_save_failed", chunk_id=str(chunk.id), error=str(e))
 
@@ -410,18 +424,22 @@ class ExtractionPipeline:
             # Convert to Chunk objects
             chunks = []
             for row in rows:
-                chunks.append(Chunk(
-                    id=row["id"],
-                    source_id=row["source_id"],
-                    content=row["content"],
-                    content_hash=row["content_hash"],
-                    location=row["location"],
-                    page_start=row["page_start"],
-                    page_end=row["page_end"],
-                    embedding=list(row["embedding"]) if row["embedding"] is not None else None,
-                    metadata=row["metadata"] or {},
-                    created_at=row["created_at"],
-                ))
+                chunks.append(
+                    Chunk(
+                        id=row["id"],
+                        source_id=row["source_id"],
+                        content=row["content"],
+                        content_hash=row["content_hash"],
+                        location=row["location"],
+                        page_start=row["page_start"],
+                        page_end=row["page_end"],
+                        embedding=(
+                            list(row["embedding"]) if row["embedding"] is not None else None
+                        ),
+                        metadata=row["metadata"] or {},
+                        created_at=row["created_at"],
+                    )
+                )
 
             # Also load checkpoint IDs for tracking (but don't use for filtering)
             checkpoint_ids = self.load_checkpoint()
@@ -458,18 +476,22 @@ class ExtractionPipeline:
                 )
             chunks = []
             for row in rows:
-                chunks.append(Chunk(
-                    id=row["id"],
-                    source_id=row["source_id"],
-                    content=row["content"],
-                    content_hash=row["content_hash"],
-                    location=row["location"],
-                    page_start=row["page_start"],
-                    page_end=row["page_end"],
-                    embedding=list(row["embedding"]) if row["embedding"] is not None else None,
-                    metadata=row["metadata"] or {},
-                    created_at=row["created_at"],
-                ))
+                chunks.append(
+                    Chunk(
+                        id=row["id"],
+                        source_id=row["source_id"],
+                        content=row["content"],
+                        content_hash=row["content_hash"],
+                        location=row["location"],
+                        page_start=row["page_start"],
+                        page_end=row["page_end"],
+                        embedding=(
+                            list(row["embedding"]) if row["embedding"] is not None else None
+                        ),
+                        metadata=row["metadata"] or {},
+                        created_at=row["created_at"],
+                    )
+                )
         else:
             chunks = await ChunkStore.list_all(limit=batch_limit)
 
@@ -517,7 +539,11 @@ class ExtractionPipeline:
             Tuple of (new_concepts, relationships_stored, links_created)
         """
         if self.dry_run:
-            return (len(extraction.concepts), len(extraction.relationships), len(extraction.concepts))
+            return (
+                len(extraction.concepts),
+                len(extraction.relationships),
+                len(extraction.concepts),
+            )
 
         new_concepts = 0
         relationships_stored = 0
@@ -568,9 +594,18 @@ class ExtractionPipeline:
                     )
                     links_created += 1
                 except asyncpg.UniqueViolationError:
-                    logger.debug("chunk_concept_link_exists", chunk_id=str(chunk.id), concept=extracted.name)
+                    logger.debug(
+                        "chunk_concept_link_exists",
+                        chunk_id=str(chunk.id),
+                        concept=extracted.name,
+                    )
                 except Exception as e:
-                    logger.warning("chunk_concept_link_failed", chunk_id=str(chunk.id), concept=extracted.name, error=str(e))
+                    logger.warning(
+                        "chunk_concept_link_failed",
+                        chunk_id=str(chunk.id),
+                        concept=extracted.name,
+                        error=str(e),
+                    )
 
         # Process relationships
         for rel in extraction.relationships:
@@ -699,7 +734,11 @@ class ExtractionPipeline:
                 # Sequential processing (original behavior)
                 for i, chunk in enumerate(valid_chunks):
                     if (i + 1) % 10 == 0 or i == 0:
-                        print(f"\rProcessing chunk {i + 1}/{len(valid_chunks)} ({100 * (i + 1) / len(valid_chunks):.1f}%)...", end="", flush=True)
+                        print(
+                            f"\rProcessing chunk {i + 1}/{len(valid_chunks)} ({100 * (i + 1) / len(valid_chunks):.1f}%)...",
+                            end="",
+                            flush=True,
+                        )
 
                     extraction = await self.process_chunk(chunk)
                     await self._store_result(chunk, extraction)
@@ -713,7 +752,7 @@ class ExtractionPipeline:
                 processed = 0
 
                 for batch_start in range(0, len(valid_chunks), batch_size):
-                    batch = valid_chunks[batch_start:batch_start + batch_size]
+                    batch = valid_chunks[batch_start : batch_start + batch_size]
 
                     # Process batch concurrently
                     tasks = [self._process_chunk_with_semaphore(chunk) for chunk in batch]
@@ -729,7 +768,11 @@ class ExtractionPipeline:
                             await self._store_result(chunk, extraction)
 
                     processed += len(batch)
-                    print(f"\rProcessing: {processed}/{len(valid_chunks)} ({100 * processed / len(valid_chunks):.1f}%) [concurrency={self.concurrency}]...", end="", flush=True)
+                    print(
+                        f"\rProcessing: {processed}/{len(valid_chunks)} ({100 * processed / len(valid_chunks):.1f}%) [concurrency={self.concurrency}]...",
+                        end="",
+                        flush=True,
+                    )
 
                     # Checkpoint after each batch
                     self.save_checkpoint()
@@ -755,60 +798,71 @@ async def main():
         "--domain",
         type=str,
         default="causal_inference",
-        help="Knowledge domain for extraction prompt engineering (causal_inference, time_series, rag_llm)"
+        help="Knowledge domain for extraction prompt engineering (causal_inference, time_series, rag_llm)",
     )
     parser.add_argument(
         "--source-domain",
         type=str,
         default=None,
-        help="Only process chunks from sources with this domain (sources.metadata->>'domain')"
+        help="Only process chunks from sources with this domain (sources.metadata->>'domain')",
     )
     parser.add_argument(
         "--backend",
         type=str,
         default="ollama",
         choices=["ollama", "instructor", "llamacpp", "anthropic"],
-        help="LLM backend (ollama=local, instructor=ollama+validation, llamacpp=direct, anthropic=API)"
+        help="LLM backend (ollama=local, instructor=ollama+validation, llamacpp=direct, anthropic=API)",
     )
     parser.add_argument(
         "--model",
         type=str,
         default=None,
-        help="Model name/path (ollama: llama3.1:8b, llamacpp: path/to/model.gguf, anthropic: haiku/sonnet/opus)"
+        help="Model name/path (ollama: llama3.1:8b, llamacpp: path/to/model.gguf, anthropic: haiku/sonnet/opus)",
     )
-    parser.add_argument("--confidence", type=float, default=0.7, help="Minimum confidence threshold")
-    parser.add_argument("--batch-size", type=int, default=10, help="Batch size for processing (default: auto = concurrency * 2)")
+    parser.add_argument(
+        "--confidence", type=float, default=0.7, help="Minimum confidence threshold"
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=10,
+        help="Batch size for processing (default: auto = concurrency * 2)",
+    )
     parser.add_argument(
         "--concurrency",
         type=int,
         default=1,
-        help="Number of concurrent LLM requests (default: 1, max recommended: 20 for Haiku)"
+        help="Number of concurrent LLM requests (default: 1, max recommended: 20 for Haiku)",
     )
     parser.add_argument("--dry-run", action="store_true", help="Run without storing results")
     parser.add_argument("--resume", action="store_true", help="Resume from checkpoint")
-    parser.add_argument("--clear-checkpoint", action="store_true", help="Clear checkpoint and start fresh")
+    parser.add_argument(
+        "--clear-checkpoint",
+        action="store_true",
+        help="Clear checkpoint and start fresh",
+    )
     parser.add_argument(
         "--skip-backup",
         action="store_true",
-        help="Skip pre-extraction backup (NOT recommended - risk of data loss)"
+        help="Skip pre-extraction backup (NOT recommended - risk of data loss)",
     )
     parser.add_argument(
         "--num-ctx",
         type=int,
         default=2048,
-        help="Context window size in tokens (default: 2048, reduced from 4096 for better concurrency)"
+        help="Context window size in tokens (default: 2048, reduced from 4096 for better concurrency)",
     )
     parser.add_argument(
         "--timeout",
         type=float,
         default=120.0,
-        help="LLM request timeout in seconds (default: 120, increase for high parallelism)"
+        help="LLM request timeout in seconds (default: 120, increase for high parallelism)",
     )
     parser.add_argument(
         "--metrics-file",
         type=str,
         default=None,
-        help="Export metrics to Prometheus text file (e.g., /tmp/extraction_metrics.txt)"
+        help="Export metrics to Prometheus text file (e.g., /tmp/extraction_metrics.txt)",
     )
 
     args = parser.parse_args()

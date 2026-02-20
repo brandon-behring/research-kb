@@ -30,7 +30,12 @@ from research_kb_pdf import (
     chunk_with_sections,
     extract_with_headings,
 )
-from research_kb_storage import ChunkStore, DatabaseConfig, SourceStore, get_connection_pool
+from research_kb_storage import (
+    ChunkStore,
+    DatabaseConfig,
+    SourceStore,
+    get_connection_pool,
+)
 
 logger = get_logger(__name__)
 
@@ -183,7 +188,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 1},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 1,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch02_p9-33.pdf",
@@ -191,7 +200,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 2},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 2,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch03_p34-75.pdf",
@@ -199,7 +212,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 3},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 3,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch04_p76-96.pdf",
@@ -207,7 +224,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 4},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 4,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch05_p97-133.pdf",
@@ -215,7 +236,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 5},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 5,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch06_p134-150.pdf",
@@ -223,7 +248,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 6},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 6,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch07_p151-182.pdf",
@@ -231,7 +260,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 7},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 7,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch08_p183-204.pdf",
@@ -239,7 +272,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 8},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 8,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch09_p205-236.pdf",
@@ -247,7 +284,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 9},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 9,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch10_p237-258.pdf",
@@ -255,7 +296,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 10},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 10,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch11_p259-281.pdf",
@@ -263,7 +308,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 11},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 11,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch12_p282-314.pdf",
@@ -271,7 +320,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 12},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 12,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch13_p315-346.pdf",
@@ -279,7 +332,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 13},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 13,
+        },
     },
     {
         "file": "fixtures/textbooks/train_discrete_choice_2009_chapters/Ch14_p347-370.pdf",
@@ -287,7 +344,11 @@ TRAIN_CHAPTERS = [
         "authors": ["Train, Kenneth E."],
         "year": 2009,
         "source_type": SourceType.TEXTBOOK,
-        "metadata": {"publisher": "Cambridge University Press", "domain": "econometrics", "chapter": 14},
+        "metadata": {
+            "publisher": "Cambridge University Press",
+            "domain": "econometrics",
+            "chapter": 14,
+        },
     },
 ]
 
@@ -965,11 +1026,22 @@ PAPERS = [
     {
         "file": "fixtures/papers/chernozhukov_dml_2018.pdf",
         "title": "Double/Debiased Machine Learning for Treatment and Structural Parameters",
-        "authors": ["Chernozhukov, Victor", "Chetverikov, Denis", "Demirer, Mert",
-                   "Duflo, Esther", "Hansen, Christian", "Newey, Whitney", "Robins, James"],
+        "authors": [
+            "Chernozhukov, Victor",
+            "Chetverikov, Denis",
+            "Demirer, Mert",
+            "Duflo, Esther",
+            "Hansen, Christian",
+            "Newey, Whitney",
+            "Robins, James",
+        ],
         "year": 2018,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1608.00060", "domain": "causal inference", "key_concept": "cross-fitting"},
+        "metadata": {
+            "arxiv_id": "1608.00060",
+            "domain": "causal inference",
+            "key_concept": "cross-fitting",
+        },
     },
     {
         "file": "fixtures/papers/athey_imbens_hte_2016.pdf",
@@ -977,7 +1049,11 @@ PAPERS = [
         "authors": ["Athey, Susan", "Imbens, Guido"],
         "year": 2016,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1504.01132", "domain": "causal inference", "key_concept": "causal trees"},
+        "metadata": {
+            "arxiv_id": "1504.01132",
+            "domain": "causal inference",
+            "key_concept": "causal trees",
+        },
     },
     {
         "file": "fixtures/papers/athey_imbens_state_2017.pdf",
@@ -1001,7 +1077,11 @@ PAPERS = [
         "authors": ["Stuart, Elizabeth A."],
         "year": 2011,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1010.5586", "domain": "causal inference", "key_concept": "matching"},
+        "metadata": {
+            "arxiv_id": "1010.5586",
+            "domain": "causal inference",
+            "key_concept": "matching",
+        },
     },
     {
         "file": "fixtures/papers/psm_revisited_2022.pdf",
@@ -1009,7 +1089,11 @@ PAPERS = [
         "authors": ["King, Gary", "Nielsen, Richard"],
         "year": 2022,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "2208.08065", "domain": "causal inference", "key_concept": "propensity scores"},
+        "metadata": {
+            "arxiv_id": "2208.08065",
+            "domain": "causal inference",
+            "key_concept": "propensity scores",
+        },
     },
     {
         "file": "fixtures/papers/psm_subclass_2015.pdf",
@@ -1017,7 +1101,11 @@ PAPERS = [
         "authors": ["Rosenbaum, Paul R."],
         "year": 2015,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1508.06948", "domain": "causal inference", "key_concept": "propensity scores"},
+        "metadata": {
+            "arxiv_id": "1508.06948",
+            "domain": "causal inference",
+            "key_concept": "propensity scores",
+        },
     },
     {
         "file": "fixtures/papers/dl_causal_2018.pdf",
@@ -1025,7 +1113,11 @@ PAPERS = [
         "authors": ["Johansson, Fredrik", "Shalit, Uri", "Sontag, David"],
         "year": 2018,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1803.00149", "domain": "causal inference/ML", "key_concept": "counterfactual inference"},
+        "metadata": {
+            "arxiv_id": "1803.00149",
+            "domain": "causal inference/ML",
+            "key_concept": "counterfactual inference",
+        },
     },
     {
         "file": "fixtures/papers/angrist_imbens_late_2024.pdf",
@@ -1033,7 +1125,11 @@ PAPERS = [
         "authors": ["Angrist, Joshua D.", "Imbens, Guido W."],
         "year": 2024,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "2402.13023", "domain": "causal inference", "key_concept": "LATE"},
+        "metadata": {
+            "arxiv_id": "2402.13023",
+            "domain": "causal inference",
+            "key_concept": "LATE",
+        },
     },
     {
         "file": "fixtures/papers/ai_iv_search_2024.pdf",
@@ -1041,15 +1137,28 @@ PAPERS = [
         "authors": ["Chen, Xiaohong", "White, Halbert"],
         "year": 2024,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "2409.14202", "domain": "causal inference", "key_concept": "instrumental variables"},
+        "metadata": {
+            "arxiv_id": "2409.14202",
+            "domain": "causal inference",
+            "key_concept": "instrumental variables",
+        },
     },
     {
         "file": "fixtures/papers/optimal_iv_2023.pdf",
         "title": "Optimal Instrumental Variables Estimation for Categorical Treatments",
-        "authors": ["Blandhol, Christine", "Mogstad, Magne", "Romano, Joseph P.", "Shaikh, Azeem M."],
+        "authors": [
+            "Blandhol, Christine",
+            "Mogstad, Magne",
+            "Romano, Joseph P.",
+            "Shaikh, Azeem M.",
+        ],
         "year": 2023,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "2311.17021", "domain": "causal inference", "key_concept": "instrumental variables"},
+        "metadata": {
+            "arxiv_id": "2311.17021",
+            "domain": "causal inference",
+            "key_concept": "instrumental variables",
+        },
     },
     {
         "file": "fixtures/papers/lasso_iv_2010.pdf",
@@ -1057,7 +1166,11 @@ PAPERS = [
         "authors": ["Belloni, Alexandre", "Chernozhukov, Victor", "Hansen, Christian"],
         "year": 2010,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1012.1297", "domain": "econometrics", "key_concept": "LASSO IV"},
+        "metadata": {
+            "arxiv_id": "1012.1297",
+            "domain": "econometrics",
+            "key_concept": "LASSO IV",
+        },
     },
     # ===== Phase 1 Cleanup: Additional Papers =====
     # NOTE: Some foundational papers (Abadie 2010, Imbens/Lemieux 2008, Cinelli 2020) are not on arXiv
@@ -1068,7 +1181,12 @@ PAPERS = [
         "authors": ["Abadie, Alberto", "Zhao, Jinglong"],
         "year": 2021,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "2108.02196", "domain": "causal inference", "key_concept": "synthetic_control", "authority": "canonical"},
+        "metadata": {
+            "arxiv_id": "2108.02196",
+            "domain": "causal inference",
+            "key_concept": "synthetic_control",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/wager_athey_causal_forests_2015.pdf",
@@ -1076,7 +1194,12 @@ PAPERS = [
         "authors": ["Wager, Stefan", "Athey, Susan"],
         "year": 2018,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1510.04342", "domain": "causal inference", "key_concept": "causal_forest", "authority": "canonical"},
+        "metadata": {
+            "arxiv_id": "1510.04342",
+            "domain": "causal inference",
+            "key_concept": "causal_forest",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/imai_mediation_2010.pdf",
@@ -1084,7 +1207,12 @@ PAPERS = [
         "authors": ["Imai, Kosuke", "Keele, Luke", "Yamamoto, Teppei"],
         "year": 2010,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1011.1079", "domain": "causal inference", "key_concept": "mediation", "authority": "canonical"},
+        "metadata": {
+            "arxiv_id": "1011.1079",
+            "domain": "causal inference",
+            "key_concept": "mediation",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/callaway_staggered_did_2018.pdf",
@@ -1092,7 +1220,12 @@ PAPERS = [
         "authors": ["Callaway, Brantly", "Sant'Anna, Pedro H.C."],
         "year": 2021,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1803.09015", "domain": "econometrics", "key_concept": "staggered_did", "authority": "frontier"},
+        "metadata": {
+            "arxiv_id": "1803.09015",
+            "domain": "econometrics",
+            "key_concept": "staggered_did",
+            "authority": "frontier",
+        },
     },
     {
         "file": "fixtures/papers/tamer_partial_id_2010.pdf",
@@ -1100,15 +1233,30 @@ PAPERS = [
         "authors": ["Tamer, Elie"],
         "year": 2010,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1002.0729", "domain": "econometrics", "key_concept": "bounds", "authority": "canonical"},
+        "metadata": {
+            "arxiv_id": "1002.0729",
+            "domain": "econometrics",
+            "key_concept": "bounds",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/cate_estimation_2017.pdf",
         "title": "Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning",
-        "authors": ["Künzel, Sören R.", "Sekhon, Jasjeet S.", "Bickel, Peter J.", "Yu, Bin"],
+        "authors": [
+            "Künzel, Sören R.",
+            "Sekhon, Jasjeet S.",
+            "Bickel, Peter J.",
+            "Yu, Bin",
+        ],
         "year": 2019,
         "source_type": SourceType.PAPER,
-        "metadata": {"arxiv_id": "1712.09988", "domain": "causal inference", "key_concept": "cate", "authority": "frontier"},
+        "metadata": {
+            "arxiv_id": "1712.09988",
+            "domain": "causal inference",
+            "key_concept": "cate",
+            "authority": "frontier",
+        },
     },
     # ===== EXPANDED CORPUS: Additional Papers =====
     {
@@ -1125,12 +1273,22 @@ PAPERS = [
         "authors": ["Angrist, Joshua D.", "Imbens, Guido W.", "Rubin, Donald B."],
         "year": 1996,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "LATE", "authority": "canonical"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "LATE",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/arkhangelsky_sdid_2021.pdf",
         "title": "Synthetic Difference-in-Differences",
-        "authors": ["Arkhangelsky, Dmitry", "Athey, Susan", "Hirshberg, David A.", "Imbens, Guido W.", "Wager, Stefan"],
+        "authors": [
+            "Arkhangelsky, Dmitry",
+            "Athey, Susan",
+            "Hirshberg, David A.",
+            "Imbens, Guido W.",
+            "Wager, Stefan",
+        ],
         "year": 2021,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal inference", "key_concept": "synthetic_did"},
@@ -1146,7 +1304,13 @@ PAPERS = [
     {
         "file": "fixtures/papers/athey_matrix_completion_2019.pdf",
         "title": "Matrix Completion Methods for Causal Panel Data Models",
-        "authors": ["Athey, Susan", "Bayati, Mohsen", "Doudchenko, Nikolay", "Imbens, Guido", "Khosravi, Khashayar"],
+        "authors": [
+            "Athey, Susan",
+            "Bayati, Mohsen",
+            "Doudchenko, Nikolay",
+            "Imbens, Guido",
+            "Khosravi, Khashayar",
+        ],
         "year": 2019,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal inference", "key_concept": "matrix_completion"},
@@ -1165,7 +1329,11 @@ PAPERS = [
         "authors": ["Bang, Heejung", "Robins, James M."],
         "year": 2005,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "doubly_robust", "authority": "canonical"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "doubly_robust",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/benmichael_augsynth_2021.pdf",
@@ -1181,7 +1349,11 @@ PAPERS = [
         "authors": ["Berry, Steven", "Levinsohn, James", "Pakes, Ariel"],
         "year": 1995,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "econometrics", "key_concept": "BLP", "authority": "canonical"},
+        "metadata": {
+            "domain": "econometrics",
+            "key_concept": "BLP",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/bojinov_panel_experiments_2021.pdf",
@@ -1197,7 +1369,10 @@ PAPERS = [
         "authors": ["Bojinov, Iavor", "Shephard, Neil"],
         "year": 2019,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "timeseries_experiments"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "timeseries_experiments",
+        },
     },
     {
         "file": "fixtures/papers/borusyak_event_study_2021.pdf",
@@ -1210,7 +1385,13 @@ PAPERS = [
     {
         "file": "fixtures/papers/brodersen_causalimpact_2015.pdf",
         "title": "Inferring Causal Impact Using Bayesian Structural Time-Series Models",
-        "authors": ["Brodersen, Kay H.", "Gallusser, Fabian", "Koehler, Jim", "Remy, Nicolas", "Scott, Steven L."],
+        "authors": [
+            "Brodersen, Kay H.",
+            "Gallusser, Fabian",
+            "Koehler, Jim",
+            "Remy, Nicolas",
+            "Scott, Steven L.",
+        ],
         "year": 2015,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal inference", "key_concept": "CausalImpact"},
@@ -1218,7 +1399,13 @@ PAPERS = [
     {
         "file": "fixtures/papers/chen_causalml_2020.pdf",
         "title": "CausalML: Python Package for Causal Machine Learning",
-        "authors": ["Chen, Huigang", "Harinen, Totte", "Lee, Jeong-Yoon", "Yung, Mike", "Zhao, Zhenyu"],
+        "authors": [
+            "Chen, Huigang",
+            "Harinen, Totte",
+            "Lee, Jeong-Yoon",
+            "Yung, Mike",
+            "Zhao, Zhenyu",
+        ],
         "year": 2020,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal inference", "key_concept": "causalml"},
@@ -1250,7 +1437,12 @@ PAPERS = [
     {
         "file": "fixtures/papers/dudik_dr_policy_2014.pdf",
         "title": "Doubly Robust Policy Evaluation and Optimization",
-        "authors": ["Dudík, Miroslav", "Erhan, Dumitru", "Langford, John", "Li, Lihong"],
+        "authors": [
+            "Dudík, Miroslav",
+            "Erhan, Dumitru",
+            "Langford, John",
+            "Li, Lihong",
+        ],
         "year": 2014,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal inference", "key_concept": "dr_policy"},
@@ -1269,15 +1461,26 @@ PAPERS = [
         "authors": ["Foster, Dylan J.", "Syrgkanis, Vasilis"],
         "year": 2019,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "orthogonal_learning"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "orthogonal_learning",
+        },
     },
     {
         "file": "fixtures/papers/friedberg_llf_2018.pdf",
         "title": "Local Linear Forests",
-        "authors": ["Friedberg, Rina", "Tibshirani, Julie", "Athey, Susan", "Wager, Stefan"],
+        "authors": [
+            "Friedberg, Rina",
+            "Tibshirani, Julie",
+            "Athey, Susan",
+            "Wager, Stefan",
+        ],
         "year": 2018,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "local_linear_forest"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "local_linear_forest",
+        },
     },
     {
         "file": "fixtures/papers/hansotia_incremental_value_2002.pdf",
@@ -1290,7 +1493,12 @@ PAPERS = [
     {
         "file": "fixtures/papers/hartford_deep_iv_2017.pdf",
         "title": "Deep IV: A Flexible Approach for Counterfactual Prediction",
-        "authors": ["Hartford, Jason", "Lewis, Greg", "Leyton-Brown, Kevin", "Taddy, Matt"],
+        "authors": [
+            "Hartford, Jason",
+            "Lewis, Greg",
+            "Leyton-Brown, Kevin",
+            "Taddy, Matt",
+        ],
         "year": 2017,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal inference", "key_concept": "deep_iv"},
@@ -1330,7 +1538,12 @@ PAPERS = [
     {
         "file": "fixtures/papers/lim_tft_2021.pdf",
         "title": "Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting",
-        "authors": ["Lim, Bryan", "Arık, Sercan Ö.", "Loeff, Nicolas", "Pfister, Tomas"],
+        "authors": [
+            "Lim, Bryan",
+            "Arık, Sercan Ö.",
+            "Loeff, Nicolas",
+            "Pfister, Tomas",
+        ],
         "year": 2021,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "forecasting", "key_concept": "TFT"},
@@ -1338,7 +1551,14 @@ PAPERS = [
     {
         "file": "fixtures/papers/louizos_cevae_2017.pdf",
         "title": "Causal Effect Inference with Deep Latent-Variable Models",
-        "authors": ["Louizos, Christos", "Shalit, Uri", "Mooij, Joris M.", "Sontag, David", "Zemel, Richard", "Welling, Max"],
+        "authors": [
+            "Louizos, Christos",
+            "Shalit, Uri",
+            "Mooij, Joris M.",
+            "Sontag, David",
+            "Zemel, Richard",
+            "Welling, Max",
+        ],
         "year": 2017,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal inference", "key_concept": "CEVAE"},
@@ -1386,7 +1606,12 @@ PAPERS = [
     {
         "file": "fixtures/papers/oreshkin_nbeats_2020.pdf",
         "title": "N-BEATS: Neural Basis Expansion Analysis for Interpretable Time Series Forecasting",
-        "authors": ["Oreshkin, Boris N.", "Carpov, Dmitri", "Chapados, Nicolas", "Bengio, Yoshua"],
+        "authors": [
+            "Oreshkin, Boris N.",
+            "Carpov, Dmitri",
+            "Chapados, Nicolas",
+            "Bengio, Yoshua",
+        ],
         "year": 2020,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "forecasting", "key_concept": "N-BEATS"},
@@ -1413,7 +1638,10 @@ PAPERS = [
         "authors": ["Rambachan, Ashesh", "Roth, Jonathan"],
         "year": 2023,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "econometrics", "key_concept": "event_study_sensitivity"},
+        "metadata": {
+            "domain": "econometrics",
+            "key_concept": "event_study_sensitivity",
+        },
     },
     {
         "file": "fixtures/papers/robins_aipw_1994.pdf",
@@ -1421,7 +1649,11 @@ PAPERS = [
         "authors": ["Robins, James M.", "Rotnitzky, Andrea", "Zhao, Lue Ping"],
         "year": 1994,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "AIPW", "authority": "canonical"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "AIPW",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/rosenbaum_rubin_propensity_1983.pdf",
@@ -1429,12 +1661,21 @@ PAPERS = [
         "authors": ["Rosenbaum, Paul R.", "Rubin, Donald B."],
         "year": 1983,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "propensity_score", "authority": "canonical"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "propensity_score",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/salinas_deepar_2019.pdf",
         "title": "DeepAR: Probabilistic Forecasting with Autoregressive Recurrent Networks",
-        "authors": ["Salinas, David", "Flunkert, Valentin", "Gasthaus, Jan", "Januschowski, Tim"],
+        "authors": [
+            "Salinas, David",
+            "Flunkert, Valentin",
+            "Gasthaus, Jan",
+            "Januschowski, Tim",
+        ],
         "year": 2019,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "forecasting", "key_concept": "DeepAR"},
@@ -1469,12 +1710,22 @@ PAPERS = [
         "authors": ["Various Authors"],
         "year": 2022,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "synthetic_timeseries"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "synthetic_timeseries",
+        },
     },
     {
         "file": "fixtures/papers/syrgkanis_ml_iv_2019.pdf",
         "title": "Machine Learning Estimation of Heterogeneous Treatment Effects with Instruments",
-        "authors": ["Syrgkanis, Vasilis", "Lei, Victor", "Oprescu, Miruna", "Hei, Maggie", "Battocchi, Keith", "Lewis, Greg"],
+        "authors": [
+            "Syrgkanis, Vasilis",
+            "Lei, Victor",
+            "Oprescu, Miruna",
+            "Hei, Maggie",
+            "Battocchi, Keith",
+            "Lewis, Greg",
+        ],
         "year": 2019,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal inference", "key_concept": "ml_iv"},
@@ -1485,7 +1736,11 @@ PAPERS = [
         "authors": ["van der Laan, Mark J.", "Rubin, Daniel"],
         "year": 2006,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "causal inference", "key_concept": "TMLE", "authority": "canonical"},
+        "metadata": {
+            "domain": "causal inference",
+            "key_concept": "TMLE",
+            "authority": "canonical",
+        },
     },
     {
         "file": "fixtures/papers/xu_gsynth_2017.pdf",
@@ -1522,7 +1777,17 @@ PAPERS = [
     {
         "file": "fixtures/papers/zheng_causallearn_2024.pdf",
         "title": "Causal-learn: Causal Discovery in Python",
-        "authors": ["Zheng, Yujia", "Huang, Biwei", "Chen, Wei", "Ramsey, Joseph", "Gong, Mingming", "Cai, Ruichu", "Shimizu, Shohei", "Spirtes, Peter", "Zhang, Kun"],
+        "authors": [
+            "Zheng, Yujia",
+            "Huang, Biwei",
+            "Chen, Wei",
+            "Ramsey, Joseph",
+            "Gong, Mingming",
+            "Cai, Ruichu",
+            "Shimizu, Shohei",
+            "Spirtes, Peter",
+            "Zhang, Kun",
+        ],
         "year": 2024,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "causal discovery", "key_concept": "causal-learn"},
@@ -1530,7 +1795,15 @@ PAPERS = [
     {
         "file": "fixtures/papers/zhou_informer_2021.pdf",
         "title": "Informer: Beyond Efficient Transformer for Long Sequence Time-Series Forecasting",
-        "authors": ["Zhou, Haoyi", "Zhang, Shanghang", "Peng, Jieqi", "Zhang, Shuai", "Li, Jianxin", "Xiong, Hui", "Zhang, Wancai"],
+        "authors": [
+            "Zhou, Haoyi",
+            "Zhang, Shanghang",
+            "Peng, Jieqi",
+            "Zhang, Shuai",
+            "Li, Jianxin",
+            "Xiong, Hui",
+            "Zhang, Wancai",
+        ],
         "year": 2021,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "forecasting", "key_concept": "Informer"},
@@ -1566,7 +1839,12 @@ TIME_SERIES_TEXTBOOKS = [
     {
         "file": "fixtures/textbooks/box_jenkins_time_series_2015.pdf",
         "title": "Time Series Analysis: Forecasting and Control",
-        "authors": ["Box, George E.P.", "Jenkins, Gwilym M.", "Reinsel, Gregory C.", "Ljung, Greta M."],
+        "authors": [
+            "Box, George E.P.",
+            "Jenkins, Gwilym M.",
+            "Reinsel, Gregory C.",
+            "Ljung, Greta M.",
+        ],
         "year": 2015,
         "source_type": SourceType.TEXTBOOK,
         "metadata": {
@@ -1583,7 +1861,12 @@ TIME_SERIES_PAPERS = [
     {
         "file": "fixtures/papers/lim_tft_2021.pdf",
         "title": "Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting",
-        "authors": ["Lim, Bryan", "Arık, Sercan Ö.", "Loeff, Nicolas", "Pfister, Tomas"],
+        "authors": [
+            "Lim, Bryan",
+            "Arık, Sercan Ö.",
+            "Loeff, Nicolas",
+            "Pfister, Tomas",
+        ],
         "year": 2021,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "time_series", "key_concept": "TFT"},
@@ -1591,7 +1874,12 @@ TIME_SERIES_PAPERS = [
     {
         "file": "fixtures/papers/oreshkin_nbeats_2020.pdf",
         "title": "N-BEATS: Neural Basis Expansion Analysis for Interpretable Time Series Forecasting",
-        "authors": ["Oreshkin, Boris N.", "Carpov, Dmitri", "Chapados, Nicolas", "Bengio, Yoshua"],
+        "authors": [
+            "Oreshkin, Boris N.",
+            "Carpov, Dmitri",
+            "Chapados, Nicolas",
+            "Bengio, Yoshua",
+        ],
         "year": 2020,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "time_series", "key_concept": "N-BEATS"},
@@ -1599,7 +1887,12 @@ TIME_SERIES_PAPERS = [
     {
         "file": "fixtures/papers/salinas_deepar_2019.pdf",
         "title": "DeepAR: Probabilistic Forecasting with Autoregressive Recurrent Networks",
-        "authors": ["Salinas, David", "Flunkert, Valentin", "Gasthaus, Jan", "Januschowski, Tim"],
+        "authors": [
+            "Salinas, David",
+            "Flunkert, Valentin",
+            "Gasthaus, Jan",
+            "Januschowski, Tim",
+        ],
         "year": 2019,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "time_series", "key_concept": "DeepAR"},
@@ -1607,7 +1900,15 @@ TIME_SERIES_PAPERS = [
     {
         "file": "fixtures/papers/zhou_informer_2021.pdf",
         "title": "Informer: Beyond Efficient Transformer for Long Sequence Time-Series Forecasting",
-        "authors": ["Zhou, Haoyi", "Zhang, Shanghang", "Peng, Jieqi", "Zhang, Shuai", "Li, Jianxin", "Xiong, Hui", "Zhang, Wancai"],
+        "authors": [
+            "Zhou, Haoyi",
+            "Zhang, Shanghang",
+            "Peng, Jieqi",
+            "Zhang, Shuai",
+            "Li, Jianxin",
+            "Xiong, Hui",
+            "Zhang, Wancai",
+        ],
         "year": 2021,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "time_series", "key_concept": "Informer"},
@@ -1618,7 +1919,11 @@ TIME_SERIES_PAPERS = [
         "authors": ["Bojinov, Iavor", "Shephard, Neil"],
         "year": 2019,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "time_series", "key_concept": "timeseries_experiments", "cross_domain": "causal_inference"},
+        "metadata": {
+            "domain": "time_series",
+            "key_concept": "timeseries_experiments",
+            "cross_domain": "causal_inference",
+        },
     },
 ]
 
@@ -1631,15 +1936,33 @@ RAG_LLM_PAPERS = [
     {
         "file": "fixtures/papers/vaswani_attention_2017.pdf",
         "title": "Attention Is All You Need",
-        "authors": ["Vaswani, Ashish", "Shazeer, Noam", "Parmar, Niki", "Uszkoreit, Jakob", "Jones, Llion", "Gomez, Aidan N.", "Kaiser, Lukasz", "Polosukhin, Illia"],
+        "authors": [
+            "Vaswani, Ashish",
+            "Shazeer, Noam",
+            "Parmar, Niki",
+            "Uszkoreit, Jakob",
+            "Jones, Llion",
+            "Gomez, Aidan N.",
+            "Kaiser, Lukasz",
+            "Polosukhin, Illia",
+        ],
         "year": 2017,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "rag_llm", "key_concept": "transformer", "arxiv": "1706.03762"},
+        "metadata": {
+            "domain": "rag_llm",
+            "key_concept": "transformer",
+            "arxiv": "1706.03762",
+        },
     },
     {
         "file": "fixtures/papers/devlin_bert_2018.pdf",
         "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
-        "authors": ["Devlin, Jacob", "Chang, Ming-Wei", "Lee, Kenton", "Toutanova, Kristina"],
+        "authors": [
+            "Devlin, Jacob",
+            "Chang, Ming-Wei",
+            "Lee, Kenton",
+            "Toutanova, Kristina",
+        ],
         "year": 2018,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "rag_llm", "key_concept": "bert", "arxiv": "1810.04805"},
@@ -1648,7 +1971,12 @@ RAG_LLM_PAPERS = [
     {
         "file": "fixtures/papers/brown_gpt3_2020.pdf",
         "title": "Language Models are Few-Shot Learners",
-        "authors": ["Brown, Tom B.", "Mann, Benjamin", "Ryder, Nick", "Subbiah, Melanie"],
+        "authors": [
+            "Brown, Tom B.",
+            "Mann, Benjamin",
+            "Ryder, Nick",
+            "Subbiah, Melanie",
+        ],
         "year": 2020,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "rag_llm", "key_concept": "gpt3", "arxiv": "2005.14165"},
@@ -1657,7 +1985,13 @@ RAG_LLM_PAPERS = [
     {
         "file": "fixtures/papers/lewis_rag_2020.pdf",
         "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
-        "authors": ["Lewis, Patrick", "Perez, Ethan", "Piktus, Aleksandra", "Petroni, Fabio", "Karpukhin, Vladimir"],
+        "authors": [
+            "Lewis, Patrick",
+            "Perez, Ethan",
+            "Piktus, Aleksandra",
+            "Petroni, Fabio",
+            "Karpukhin, Vladimir",
+        ],
         "year": 2020,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "rag_llm", "key_concept": "rag", "arxiv": "2005.11401"},
@@ -1666,18 +2000,45 @@ RAG_LLM_PAPERS = [
     {
         "file": "fixtures/papers/wei_cot_2022.pdf",
         "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
-        "authors": ["Wei, Jason", "Wang, Xuezhi", "Schuurmans, Dale", "Bosma, Maarten", "Ichter, Brian", "Xia, Fei", "Chi, Ed", "Le, Quoc", "Zhou, Denny"],
+        "authors": [
+            "Wei, Jason",
+            "Wang, Xuezhi",
+            "Schuurmans, Dale",
+            "Bosma, Maarten",
+            "Ichter, Brian",
+            "Xia, Fei",
+            "Chi, Ed",
+            "Le, Quoc",
+            "Zhou, Denny",
+        ],
         "year": 2022,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "rag_llm", "key_concept": "chain_of_thought", "arxiv": "2201.11903"},
+        "metadata": {
+            "domain": "rag_llm",
+            "key_concept": "chain_of_thought",
+            "arxiv": "2201.11903",
+        },
     },
     {
         "file": "fixtures/papers/wang_selfconsistency_2022.pdf",
         "title": "Self-Consistency Improves Chain of Thought Reasoning in Language Models",
-        "authors": ["Wang, Xuezhi", "Wei, Jason", "Schuurmans, Dale", "Le, Quoc", "Chi, Ed", "Narang, Sharan", "Chowdhery, Aakanksha", "Zhou, Denny"],
+        "authors": [
+            "Wang, Xuezhi",
+            "Wei, Jason",
+            "Schuurmans, Dale",
+            "Le, Quoc",
+            "Chi, Ed",
+            "Narang, Sharan",
+            "Chowdhery, Aakanksha",
+            "Zhou, Denny",
+        ],
         "year": 2022,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "rag_llm", "key_concept": "self_consistency", "arxiv": "2203.11171"},
+        "metadata": {
+            "domain": "rag_llm",
+            "key_concept": "self_consistency",
+            "arxiv": "2203.11171",
+        },
     },
     # Alignment
     {
@@ -1686,12 +2047,23 @@ RAG_LLM_PAPERS = [
         "authors": ["Ouyang, Long", "Wu, Jeff", "Jiang, Xu", "Almeida, Diogo"],
         "year": 2022,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "rag_llm", "key_concept": "instructgpt", "arxiv": "2203.02155"},
+        "metadata": {
+            "domain": "rag_llm",
+            "key_concept": "instructgpt",
+            "arxiv": "2203.02155",
+        },
     },
     {
         "file": "fixtures/papers/rafailov_dpo_2023.pdf",
         "title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
-        "authors": ["Rafailov, Rafael", "Sharma, Archit", "Mitchell, Eric", "Ermon, Stefano", "Manning, Christopher D.", "Finn, Chelsea"],
+        "authors": [
+            "Rafailov, Rafael",
+            "Sharma, Archit",
+            "Mitchell, Eric",
+            "Ermon, Stefano",
+            "Manning, Christopher D.",
+            "Finn, Chelsea",
+        ],
         "year": 2023,
         "source_type": SourceType.PAPER,
         "metadata": {"domain": "rag_llm", "key_concept": "dpo", "arxiv": "2305.18290"},
@@ -1700,10 +2072,19 @@ RAG_LLM_PAPERS = [
     {
         "file": "fixtures/papers/touvron_llama_2023.pdf",
         "title": "LLaMA: Open and Efficient Foundation Language Models",
-        "authors": ["Touvron, Hugo", "Lavril, Thibaut", "Izacard, Gautier", "Martinet, Xavier"],
+        "authors": [
+            "Touvron, Hugo",
+            "Lavril, Thibaut",
+            "Izacard, Gautier",
+            "Martinet, Xavier",
+        ],
         "year": 2023,
         "source_type": SourceType.PAPER,
-        "metadata": {"domain": "rag_llm", "key_concept": "llama", "arxiv": "2302.13971"},
+        "metadata": {
+            "domain": "rag_llm",
+            "key_concept": "llama",
+            "arxiv": "2302.13971",
+        },
     },
 ]
 
@@ -1827,14 +2208,16 @@ def parse_args():
         description="Ingest textbooks and papers into research-kb corpus."
     )
     parser.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         action="store_true",
-        help="Minimal output (errors + final summary only)"
+        help="Minimal output (errors + final summary only)",
     )
     parser.add_argument(
-        "-d", "--domain",
+        "-d",
+        "--domain",
         default="causal_inference",
-        help="Knowledge domain for ingested sources (default: causal_inference)"
+        help="Knowledge domain for ingested sources (default: causal_inference)",
     )
     return parser.parse_args()
 
@@ -1874,7 +2257,12 @@ async def main():
     total_textbooks = len(all_textbooks)
 
     if not quiet:
-        logger.info("starting_corpus_ingestion", textbooks=total_textbooks, papers=len(all_papers), domain=domain_id)
+        logger.info(
+            "starting_corpus_ingestion",
+            textbooks=total_textbooks,
+            papers=len(all_papers),
+            domain=domain_id,
+        )
 
     # Initialize database connection pool
     config = DatabaseConfig()
@@ -1891,10 +2279,12 @@ async def main():
             logger.error("pdf_not_found", path=str(pdf_path))
             if not quiet:
                 print(f"✗ PDF not found: {pdf_path}")
-            results[category].append({
-                "title": doc_data["title"],
-                "status": "not_found",
-            })
+            results[category].append(
+                {
+                    "title": doc_data["title"],
+                    "status": "not_found",
+                }
+            )
             continue
 
         try:
@@ -1908,13 +2298,15 @@ async def main():
                 domain_id=domain_id,
             )
 
-            results[category].append({
-                "title": doc_data["title"],
-                "source_id": source_id,
-                "chunks": num_chunks,
-                "headings": num_headings,
-                "status": "success",
-            })
+            results[category].append(
+                {
+                    "title": doc_data["title"],
+                    "source_id": source_id,
+                    "chunks": num_chunks,
+                    "headings": num_headings,
+                    "status": "success",
+                }
+            )
 
             if not quiet:
                 short_title = doc_data["title"][:50]
@@ -1922,14 +2314,14 @@ async def main():
                 print(f"  Chunks: {num_chunks} | Headings: {num_headings}")
 
         except Exception as e:
-            logger.error(
-                "ingestion_failed", title=doc_data["title"], error=str(e), exc_info=True
+            logger.error("ingestion_failed", title=doc_data["title"], error=str(e), exc_info=True)
+            results[category].append(
+                {
+                    "title": doc_data["title"],
+                    "status": "failed",
+                    "error": str(e),
+                }
             )
-            results[category].append({
-                "title": doc_data["title"],
-                "status": "failed",
-                "error": str(e),
-            })
             # Always show errors even in quiet mode
             print(f"✗ {doc_data['title'][:40]}: {e}")
 
@@ -1943,12 +2335,17 @@ async def main():
     total_textbooks = len(all_textbooks)
 
     # Report failures (always shown)
-    all_failed = [r for r in results["textbooks"] + results["papers"]
-                  if r["status"] in ("failed", "not_found")]
+    all_failed = [
+        r
+        for r in results["textbooks"] + results["papers"]
+        if r["status"] in ("failed", "not_found")
+    ]
 
     if quiet:
         # Minimal summary for quiet mode
-        print(f"Ingested: {len(textbook_success)} textbooks, {len(paper_success)} papers | {total_chunks} chunks")
+        print(
+            f"Ingested: {len(textbook_success)} textbooks, {len(paper_success)} papers | {total_chunks} chunks"
+        )
         if all_failed:
             print(f"Failed: {len(all_failed)}")
             for r in all_failed:
@@ -1972,7 +2369,7 @@ async def main():
 
         print("\n" + "-" * 70)
         print(f"TOTAL CHUNKS: {total_chunks}")
-        print(f"TARGET: ~500 chunks")
+        print("TARGET: ~500 chunks")
 
         if total_chunks >= 450:
             print("✓ Target achieved!")

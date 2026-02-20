@@ -15,7 +15,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 from uuid import UUID
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "storage" / "src"))
@@ -88,7 +88,8 @@ async def process_method_result(
 
         if existing:
             # Update existing
-            await conn.execute("""
+            await conn.execute(
+                """
                 UPDATE methods SET
                     required_assumptions = $2,
                     problem_types = $3,
@@ -108,7 +109,8 @@ async def process_method_result(
             )
         else:
             # Insert new
-            await conn.execute("""
+            await conn.execute(
+                """
                 INSERT INTO methods (
                     concept_id, required_assumptions, problem_types,
                     common_estimators, evidence_chunk_ids,
@@ -154,7 +156,8 @@ async def process_assumption_result(
 
         if existing:
             # Update existing
-            await conn.execute("""
+            await conn.execute(
+                """
                 UPDATE assumptions SET
                     mathematical_statement = $2,
                     is_testable = $3,
@@ -176,7 +179,8 @@ async def process_assumption_result(
             )
         else:
             # Insert new
-            await conn.execute("""
+            await conn.execute(
+                """
                 INSERT INTO assumptions (
                     concept_id, mathematical_statement, is_testable,
                     common_tests, violation_consequences, evidence_chunk_ids,
@@ -203,10 +207,12 @@ async def fetch_batch_results(client, batch_id: str) -> list[dict]:
     """Fetch results from a completed batch."""
     results = []
     for result in client.messages.batches.results(batch_id):
-        results.append({
-            "custom_id": result.custom_id,
-            "result": result.result if hasattr(result, "result") else None,
-        })
+        results.append(
+            {
+                "custom_id": result.custom_id,
+                "result": result.result if hasattr(result, "result") else None,
+            }
+        )
     return results
 
 
@@ -225,6 +231,7 @@ async def main():
         return
 
     import anthropic
+
     client = anthropic.Anthropic(api_key=api_key)
 
     # Get batch IDs to process
@@ -273,7 +280,7 @@ async def main():
         print(f"  Status: {batch.processing_status}")
 
         if batch.processing_status != "ended":
-            print(f"  ⏳ Batch not complete yet")
+            print("  ⏳ Batch not complete yet")
             continue
 
         print(f"  Succeeded: {batch.request_counts.succeeded}")
@@ -326,13 +333,16 @@ async def main():
                 continue
 
             # Get evidence chunk ID from concept
-            evidence_chunk_id = await conn.fetchval("""
+            evidence_chunk_id = await conn.fetchval(
+                """
                 SELECT chunk_id::text
                 FROM chunk_concepts
                 WHERE concept_id = $1
                 ORDER BY relevance_score DESC NULLS LAST
                 LIMIT 1
-            """, concept_id)
+            """,
+                concept_id,
+            )
 
             # Process based on type
             if concept_type == "method":
@@ -365,7 +375,7 @@ async def main():
     # Verify in database
     method_count = await conn.fetchval("SELECT COUNT(*) FROM methods")
     assumption_count = await conn.fetchval("SELECT COUNT(*) FROM assumptions")
-    print(f"\nDatabase state:")
+    print("\nDatabase state:")
     print(f"  Methods table: {method_count} rows")
     print(f"  Assumptions table: {assumption_count} rows")
 

@@ -6,6 +6,8 @@ import pytest
 from unittest.mock import patch
 from uuid import uuid4
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.asyncio
 async def test_get_neighborhood(app_client, mock_storage):
@@ -14,9 +16,17 @@ async def test_get_neighborhood(app_client, mock_storage):
 
     with patch("research_kb_api.service.get_graph_neighborhood") as neighborhood_mock:
         neighborhood_mock.return_value = {
-            "center": {"id": concept_id, "name": "instrumental variables", "type": "method"},
+            "center": {
+                "id": concept_id,
+                "name": "instrumental variables",
+                "type": "method",
+            },
             "nodes": [
-                {"id": str(uuid4()), "name": "two-stage least squares", "type": "method"},
+                {
+                    "id": str(uuid4()),
+                    "name": "two-stage least squares",
+                    "type": "method",
+                },
                 {"id": str(uuid4()), "name": "exogeneity", "type": "assumption"},
             ],
             "edges": [
@@ -70,9 +80,17 @@ async def test_get_path(app_client, mock_storage):
             "from": "iv",
             "to": "dml",
             "path": [
-                {"id": str(uuid4()), "name": "instrumental variables", "type": "method"},
+                {
+                    "id": str(uuid4()),
+                    "name": "instrumental variables",
+                    "type": "method",
+                },
                 {"id": str(uuid4()), "name": "causal effect", "type": "definition"},
-                {"id": str(uuid4()), "name": "double machine learning", "type": "method"},
+                {
+                    "id": str(uuid4()),
+                    "name": "double machine learning",
+                    "type": "method",
+                },
             ],
         }
 

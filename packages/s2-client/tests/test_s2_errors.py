@@ -14,6 +14,8 @@ from s2_client.errors import (
     S2RateLimitError,
 )
 
+pytestmark = pytest.mark.unit
+
 
 # -----------------------------------------------------------------------------
 # Base Exception Tests

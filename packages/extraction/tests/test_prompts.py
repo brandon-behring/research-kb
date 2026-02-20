@@ -1,6 +1,5 @@
 """Tests for extraction prompt templates."""
 
-
 from research_kb_extraction.prompts import (
     SYSTEM_PROMPT,
     EXTRACTION_PROMPT,
@@ -9,6 +8,9 @@ from research_kb_extraction.prompts import (
     QUICK_EXTRACTION_PROMPT,
     format_extraction_prompt,
 )
+import pytest
+
+pytestmark = pytest.mark.unit
 
 
 def test_system_prompt_structure():
@@ -241,9 +243,7 @@ def test_system_prompt_sets_expert_persona():
 
 def test_extraction_prompt_provides_guidelines():
     """Test EXTRACTION_PROMPT includes extraction guidelines."""
-    assert (
-        "GUIDELINES" in EXTRACTION_PROMPT or "guidelines" in EXTRACTION_PROMPT.lower()
-    )
+    assert "GUIDELINES" in EXTRACTION_PROMPT or "guidelines" in EXTRACTION_PROMPT.lower()
 
 
 def test_prompts_request_conservative_extraction():
@@ -278,9 +278,7 @@ def test_relationship_types_are_uppercase():
     for rel_type in relationship_types:
         # Should appear in uppercase (not lowercase)
         assert rel_type in EXTRACTION_PROMPT
-        assert (
-            rel_type.lower() not in EXTRACTION_PROMPT or rel_type in EXTRACTION_PROMPT
-        )
+        assert rel_type.lower() not in EXTRACTION_PROMPT or rel_type in EXTRACTION_PROMPT
 
 
 def test_format_extraction_prompt_empty_chunk():

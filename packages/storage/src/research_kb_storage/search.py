@@ -26,7 +26,7 @@ from research_kb_contracts import Chunk, SearchResult, Source
 from research_kb_storage.connection import get_connection_pool
 
 if TYPE_CHECKING:
-    from research_kb_storage.query_expander import ExpandedQuery
+    from research_kb_storage.query_expander import ExpandedQuery, HydeConfig
 
 logger = get_logger(__name__)
 
@@ -395,16 +395,20 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             for result in base_results:
                 chunk_info = chunk_concepts_info.get(result.chunk.id, [])
                 chunk_concept_ids = [cid for cid, _, _ in chunk_info]
-                mention_info = {
-                    cid: (mtype, rel) for cid, mtype, rel in chunk_info
-                } if chunk_concept_ids else None
+                mention_info = (
+                    {cid: (mtype, rel) for cid, mtype, rel in chunk_info}
+                    if chunk_concept_ids
+                    else None
+                )
                 all_chunk_concept_ids.append(chunk_concept_ids)
                 all_mention_infos.append(mention_info)
 
             if query_concept_ids and any(all_chunk_concept_ids):
                 # Use batch scoring when KuzuDB is available (1 query for all results)
                 if _check_kuzu_ready():
-                    from research_kb_storage.kuzu_store import compute_batch_graph_scores
+                    from research_kb_storage.kuzu_store import (
+                        compute_batch_graph_scores,
+                    )
 
                     async with _graph_semaphore:
                         batch_scores = await compute_batch_graph_scores(
@@ -454,9 +458,7 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
                     """,
                     source_ids,
                 )
-                source_authorities = {
-                    row["id"]: row["citation_authority"] or 0.0 for row in rows
-                }
+                source_authorities = {row["id"]: row["citation_authority"] or 0.0 for row in rows}
 
             # Store citation score in each result
             for result in base_results:
@@ -520,19 +522,15 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             logger.debug(
                 "rrf_scoring_applied",
                 num_results=len(base_results),
-                sample_rankings=list(chunk_rankings.items())[:3] if chunk_rankings else [],
+                sample_rankings=(list(chunk_rankings.items())[:3] if chunk_rankings else []),
             )
         else:
             # Weighted sum (default): normalize and combine scores
             for result in base_results:
                 # Get individual scores (already normalized by base search)
                 fts_score_norm = result.fts_score if result.fts_score is not None else 0.0
-                vector_score_norm = (
-                    result.vector_score if result.vector_score is not None else 0.0
-                )
-                graph_score_norm = (
-                    result.graph_score if result.graph_score is not None else 0.0
-                )
+                vector_score_norm = result.vector_score if result.vector_score is not None else 0.0
+                graph_score_norm = result.graph_score if result.graph_score is not None else 0.0
                 citation_score_norm = (
                     result.citation_score if result.citation_score is not None else 0.0
                 )
@@ -764,9 +762,7 @@ async def _hybrid_search_for_rerank(
     return [await _row_to_search_result(row, rank + 1) for rank, row in enumerate(rows)]
 
 
-async def _hybrid_search(
-    conn: asyncpg.Connection, query: SearchQuery
-) -> list[SearchResult]:
+async def _hybrid_search(conn: asyncpg.Connection, query: SearchQuery) -> list[SearchResult]:
     """Execute hybrid search (FTS + vector).
 
     Combined score = (fts_weight * fts_score_normalized) + (vector_weight * vector_score_normalized)
@@ -867,9 +863,7 @@ async def _hybrid_search(
     return [await _row_to_search_result(row, rank + 1) for rank, row in enumerate(rows)]
 
 
-async def _fts_search(
-    conn: asyncpg.Connection, query: SearchQuery
-) -> list[SearchResult]:
+async def _fts_search(conn: asyncpg.Connection, query: SearchQuery) -> list[SearchResult]:
     """Execute FTS-only search."""
     sql = """
     SELECT
@@ -894,14 +888,11 @@ async def _fts_search(
     rows = await conn.fetch(sql, query.text, query.limit, query.source_filter, query.domain_id)
 
     return [
-        await _row_to_search_result(row, rank + 1, fts_only=True)
-        for rank, row in enumerate(rows)
+        await _row_to_search_result(row, rank + 1, fts_only=True) for rank, row in enumerate(rows)
     ]
 
 
-async def _vector_search(
-    conn: asyncpg.Connection, query: SearchQuery
-) -> list[SearchResult]:
+async def _vector_search(conn: asyncpg.Connection, query: SearchQuery) -> list[SearchResult]:
     """Execute vector-only search."""
     sql = """
     SELECT
@@ -996,15 +987,18 @@ async def search_with_expansion(
     use_llm_expansion: bool = False,
     use_rerank: bool = True,
     rerank_top_k: int = 10,
+    hyde_config: Optional["HydeConfig"] = None,
 ) -> tuple[list[SearchResult], Optional["ExpandedQuery"]]:
-    """Execute search with query expansion and optional reranking.
+    """Execute search with query expansion, optional HyDE, and optional reranking.
 
     Full-featured search combining:
     1. Query expansion (synonyms, graph, optional LLM)
+    1.5. HyDE embedding (optional -- replaces query embedding with hypothetical doc embedding)
     2. Hybrid search (FTS + vector + graph signals)
     3. Cross-encoder reranking (optional)
 
     The expansion is applied to FTS search text, improving recall.
+    HyDE improves vector similarity for terse queries (e.g., "IV", "DML").
 
     Args:
         query: Search query configuration
@@ -1013,6 +1007,7 @@ async def search_with_expansion(
         use_llm_expansion: Enable LLM expansion via Ollama (~200-500ms)
         use_rerank: Enable cross-encoder reranking
         rerank_top_k: Number of results to return after reranking
+        hyde_config: HyDE configuration (None or disabled = skip HyDE)
 
     Returns:
         Tuple of (results, expanded_query)
@@ -1020,13 +1015,11 @@ async def search_with_expansion(
         - expanded_query: ExpandedQuery with expansion details (or None if no expansion)
 
     Example:
+        >>> from research_kb_storage import HydeConfig
         >>> results, expansion = await search_with_expansion(
         ...     SearchQuery(text="IV", embedding=embed("IV")),
-        ...     use_synonyms=True,
-        ...     use_graph_expansion=True,
+        ...     hyde_config=HydeConfig(enabled=True, backend="ollama"),
         ... )
-        >>> print(expansion.expansion_sources)
-        {'synonyms': ['instrumental variables', '2sls'], 'graph': ['endogeneity']}
     """
     from research_kb_storage.query_expander import QueryExpander
 
@@ -1041,6 +1034,7 @@ async def search_with_expansion(
             if use_llm_expansion:
                 try:
                     from research_kb_extraction.ollama_client import OllamaClient
+
                     expander.ollama_client = OllamaClient()
                 except ImportError:
                     logger.debug("ollama_client_not_available")
@@ -1066,6 +1060,22 @@ async def search_with_expansion(
                 "query_expansion_failed",
                 error=str(e),
                 message="Proceeding with original query",
+            )
+
+    # Step 1.5: HyDE embedding (optional)
+    if hyde_config and hyde_config.enabled and query.text:
+        try:
+            from research_kb_storage.query_expander import get_hyde_embedding
+
+            hyde_embedding = await get_hyde_embedding(query.text, hyde_config)
+            if hyde_embedding:
+                query.embedding = hyde_embedding
+                logger.info("hyde_embedding_applied", query=query.text[:50])
+        except Exception as e:
+            logger.warning(
+                "hyde_embedding_failed_gracefully",
+                error=str(e),
+                message="Proceeding with original embedding",
             )
 
     # Step 2: Execute search

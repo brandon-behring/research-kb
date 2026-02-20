@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 import time
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock
 
 from starlette.requests import Request
 from starlette.responses import Response
@@ -45,7 +45,9 @@ from research_kb_api.metrics import (
     update_pool_metrics,
     metrics_endpoint,
 )
-from prometheus_client import REGISTRY, CONTENT_TYPE_LATEST
+from prometheus_client import CONTENT_TYPE_LATEST
+
+pytestmark = pytest.mark.integration
 
 
 # =============================================================================
@@ -140,7 +142,19 @@ class TestRequestDuration:
 
     def test_request_duration_buckets(self):
         """Test REQUEST_DURATION has correct buckets."""
-        expected_buckets = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, float("inf")]
+        expected_buckets = [
+            0.01,
+            0.025,
+            0.05,
+            0.1,
+            0.25,
+            0.5,
+            1.0,
+            2.5,
+            5.0,
+            10.0,
+            float("inf"),
+        ]
         # Upper bounds includes +Inf bucket - compare as list
         assert list(REQUEST_DURATION._upper_bounds) == expected_buckets
 
@@ -384,7 +398,18 @@ class TestSearchQualityMetrics:
 
     def test_search_results_returned_buckets(self):
         """Test SEARCH_RESULTS_RETURNED has correct buckets."""
-        expected_buckets = [0.0, 1.0, 2.0, 3.0, 5.0, 10.0, 20.0, 50.0, 100.0, float("inf")]
+        expected_buckets = [
+            0.0,
+            1.0,
+            2.0,
+            3.0,
+            5.0,
+            10.0,
+            20.0,
+            50.0,
+            100.0,
+            float("inf"),
+        ]
         # Compare as list for consistency
         assert list(SEARCH_RESULTS_RETURNED._upper_bounds) == expected_buckets
 
@@ -514,10 +539,10 @@ class TestMetricsEndpoint:
         for line in lines:
             if line:
                 assert (
-                    line.startswith("# ") or  # Comment lines
-                    line.startswith("research_kb_") or  # Our metrics
-                    line.startswith("python_") or  # Python process metrics
-                    line.startswith("process_")  # Process metrics
+                    line.startswith("# ")  # Comment lines
+                    or line.startswith("research_kb_")  # Our metrics
+                    or line.startswith("python_")  # Python process metrics
+                    or line.startswith("process_")  # Process metrics
                 ), f"Unexpected line format: {line}"
 
 

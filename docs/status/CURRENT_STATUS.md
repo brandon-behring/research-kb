@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-19 17:56:40
+**Auto-generated**: 2026-02-19 21:10:31
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -45,6 +45,32 @@
 | textbook | 240 |
 | paper | 215 |
 | code_repo | 22 |
+
+---
+
+## Domain Breakdown
+
+| Domain | Sources |
+|--------|--------:|
+| causal_inference | 88 |
+| rag_llm | 75 |
+| time_series | 49 |
+| econometrics | 35 |
+| software_engineering | 34 |
+| deep_learning | 32 |
+| mathematics | 25 |
+| interview_prep | 23 |
+| machine_learning | 22 |
+| finance | 22 |
+| statistics | 18 |
+| ml_engineering | 14 |
+| data_science | 12 |
+| portfolio_management | 11 |
+| functional_programming | 5 |
+| algorithms | 5 |
+| forecasting | 4 |
+| fitness | 2 |
+| economics | 1 |
 
 ---
 

@@ -11,15 +11,14 @@ from research_kb_mcp.formatters import (
     truncate,
     format_search_results,
     format_source_list,
-    format_source_detail,
-    format_citations,
     format_concept_list,
-    format_concept_detail,
     format_graph_neighborhood,
     format_graph_path,
     format_stats,
     format_health,
 )
+
+pytestmark = pytest.mark.unit
 
 
 # Mock dataclasses for testing

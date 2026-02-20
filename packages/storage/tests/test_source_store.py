@@ -11,6 +11,8 @@ from research_kb_common import StorageError
 from research_kb_contracts import SourceType
 from research_kb_storage import SourceStore
 
+pytestmark = pytest.mark.integration
+
 
 class TestSourceStoreCreate:
     """Test SourceStore.create() operations."""

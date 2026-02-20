@@ -126,9 +126,7 @@ async def populate_method(
     )
     result["cached_count"] = cached_count
     result["status"] = "populated"
-    result["assumptions"] = [
-        {"name": a.name, "importance": a.importance} for a in extracted
-    ]
+    result["assumptions"] = [{"name": a.name, "importance": a.importance} for a in extracted]
 
     return result
 
@@ -188,7 +186,9 @@ async def main(args: argparse.Namespace) -> int:
             failed += 1
             print(f"EXTRACTION FAILED ({args.backend})")
         elif status == "dry_run":
-            print(f"DRY RUN (would extract, has {result['graph_count']}g + {result['cache_count']}c)")
+            print(
+                f"DRY RUN (would extract, has {result['graph_count']}g + {result['cache_count']}c)"
+            )
         else:
             failed += 1
             print(f"UNKNOWN STATUS: {status}")

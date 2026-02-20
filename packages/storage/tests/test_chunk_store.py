@@ -7,6 +7,8 @@ from research_kb_common import StorageError
 from research_kb_contracts import SourceType
 from research_kb_storage import ChunkStore, SourceStore
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture
 async def test_source(db_pool):

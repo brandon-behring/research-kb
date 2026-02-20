@@ -9,12 +9,11 @@ Uses fuzzy title matching because DB titles are often messy
 (e.g., "Aditya Bhargava Grokking Algorithms An illustrated guide for...").
 """
 
-import asyncio
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .catalog import DEFAULT_BOOKS_DIR, ManningBook, load_catalog
+from .catalog import DEFAULT_BOOKS_DIR, load_catalog
 
 # Add packages to path for imports
 _project_root = Path(__file__).parent.parent.parent
@@ -189,10 +188,7 @@ async def run_audit(
             row.ingested
             and book.domain_id != "unclassified"
             and row.db_domains
-            and all(
-                d != book.domain_id and d != "none"
-                for d in row.db_domains
-            )
+            and all(d != book.domain_id and d != "none" for d in row.db_domains)
         ):
             row.issues.append("DOMAIN_MISMATCH")
             summary.domain_mismatch_count += 1

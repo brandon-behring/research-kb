@@ -17,7 +17,6 @@ Usage:
 
 import argparse
 import asyncio
-import sys
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -40,7 +39,9 @@ class DuplicatePair:
     plural_type: str
 
 
-async def find_singular_plural_pairs(conn: asyncpg.Connection, limit: int | None = None) -> list[DuplicatePair]:
+async def find_singular_plural_pairs(
+    conn: asyncpg.Connection, limit: int | None = None
+) -> list[DuplicatePair]:
     """Find all singular/plural concept pairs.
 
     Matches concepts where plural_name = singular_name + 's'
@@ -85,10 +86,12 @@ async def get_reference_counts(conn: asyncpg.Connection, concept_id: UUID) -> di
         "SELECT COUNT(*) FROM chunk_concepts WHERE concept_id = $1", concept_id
     )
     counts["relationships_source"] = await conn.fetchval(
-        "SELECT COUNT(*) FROM concept_relationships WHERE source_concept_id = $1", concept_id
+        "SELECT COUNT(*) FROM concept_relationships WHERE source_concept_id = $1",
+        concept_id,
     )
     counts["relationships_target"] = await conn.fetchval(
-        "SELECT COUNT(*) FROM concept_relationships WHERE target_concept_id = $1", concept_id
+        "SELECT COUNT(*) FROM concept_relationships WHERE target_concept_id = $1",
+        concept_id,
     )
     counts["methods"] = await conn.fetchval(
         "SELECT COUNT(*) FROM methods WHERE concept_id = $1", concept_id
@@ -153,7 +156,8 @@ async def merge_concept_pair(
         async with conn.transaction():
             # 1. Update chunk_concepts (handle duplicates with ON CONFLICT)
             # First, delete any that would create duplicates
-            await conn.execute("""
+            await conn.execute(
+                """
                 DELETE FROM chunk_concepts cc1
                 WHERE cc1.concept_id = $1
                 AND EXISTS (
@@ -161,19 +165,27 @@ async def merge_concept_pair(
                     WHERE cc2.chunk_id = cc1.chunk_id
                     AND cc2.concept_id = $2
                 )
-            """, pair.plural_id, pair.singular_id)
+            """,
+                pair.plural_id,
+                pair.singular_id,
+            )
 
             # Then update the rest
-            result = await conn.execute("""
+            result = await conn.execute(
+                """
                 UPDATE chunk_concepts
                 SET concept_id = $1
                 WHERE concept_id = $2
-            """, pair.singular_id, pair.plural_id)
+            """,
+                pair.singular_id,
+                pair.plural_id,
+            )
             stats["chunk_concepts_updated"] = int(result.split()[-1])
 
             # 2. Update concept_relationships (source)
             # Delete duplicates first
-            await conn.execute("""
+            await conn.execute(
+                """
                 DELETE FROM concept_relationships cr1
                 WHERE cr1.source_concept_id = $1
                 AND EXISTS (
@@ -182,17 +194,25 @@ async def merge_concept_pair(
                     AND cr2.target_concept_id = cr1.target_concept_id
                     AND cr2.relationship_type = cr1.relationship_type
                 )
-            """, pair.plural_id, pair.singular_id)
+            """,
+                pair.plural_id,
+                pair.singular_id,
+            )
 
-            result = await conn.execute("""
+            result = await conn.execute(
+                """
                 UPDATE concept_relationships
                 SET source_concept_id = $1
                 WHERE source_concept_id = $2
-            """, pair.singular_id, pair.plural_id)
+            """,
+                pair.singular_id,
+                pair.plural_id,
+            )
             stats["relationships_source_updated"] = int(result.split()[-1])
 
             # 3. Update concept_relationships (target)
-            await conn.execute("""
+            await conn.execute(
+                """
                 DELETE FROM concept_relationships cr1
                 WHERE cr1.target_concept_id = $1
                 AND EXISTS (
@@ -201,41 +221,64 @@ async def merge_concept_pair(
                     AND cr2.source_concept_id = cr1.source_concept_id
                     AND cr2.relationship_type = cr1.relationship_type
                 )
-            """, pair.plural_id, pair.singular_id)
+            """,
+                pair.plural_id,
+                pair.singular_id,
+            )
 
-            result = await conn.execute("""
+            result = await conn.execute(
+                """
                 UPDATE concept_relationships
                 SET target_concept_id = $1
                 WHERE target_concept_id = $2
-            """, pair.singular_id, pair.plural_id)
+            """,
+                pair.singular_id,
+                pair.plural_id,
+            )
             stats["relationships_target_updated"] = int(result.split()[-1])
 
             # 4. Update methods (delete duplicates first)
-            await conn.execute("""
+            await conn.execute(
+                """
                 DELETE FROM methods
                 WHERE concept_id = $1
                 AND EXISTS (SELECT 1 FROM methods WHERE concept_id = $2)
-            """, pair.plural_id, pair.singular_id)
+            """,
+                pair.plural_id,
+                pair.singular_id,
+            )
 
-            result = await conn.execute("""
+            result = await conn.execute(
+                """
                 UPDATE methods
                 SET concept_id = $1
                 WHERE concept_id = $2
-            """, pair.singular_id, pair.plural_id)
+            """,
+                pair.singular_id,
+                pair.plural_id,
+            )
             stats["methods_updated"] = int(result.split()[-1])
 
             # 5. Update assumptions (delete duplicates first)
-            await conn.execute("""
+            await conn.execute(
+                """
                 DELETE FROM assumptions
                 WHERE concept_id = $1
                 AND EXISTS (SELECT 1 FROM assumptions WHERE concept_id = $2)
-            """, pair.plural_id, pair.singular_id)
+            """,
+                pair.plural_id,
+                pair.singular_id,
+            )
 
-            result = await conn.execute("""
+            result = await conn.execute(
+                """
                 UPDATE assumptions
                 SET concept_id = $1
                 WHERE concept_id = $2
-            """, pair.singular_id, pair.plural_id)
+            """,
+                pair.singular_id,
+                pair.plural_id,
+            )
             stats["assumptions_updated"] = int(result.split()[-1])
 
             # 6. Merge aliases
@@ -244,28 +287,35 @@ async def merge_concept_pair(
             )
             if plural_aliases:
                 # Add plural name and its aliases to singular's aliases
-                await conn.execute("""
+                await conn.execute(
+                    """
                     UPDATE concepts
                     SET aliases = array_cat(
                         aliases,
                         array_append($1::text[], $2)
                     )
                     WHERE id = $3
-                """, plural_aliases, pair.plural_name, pair.singular_id)
+                """,
+                    plural_aliases,
+                    pair.plural_name,
+                    pair.singular_id,
+                )
                 stats["aliases_merged"] = len(plural_aliases) + 1
             else:
                 # Just add the plural name as an alias
-                await conn.execute("""
+                await conn.execute(
+                    """
                     UPDATE concepts
                     SET aliases = array_append(aliases, $1)
                     WHERE id = $2
-                """, pair.plural_name, pair.singular_id)
+                """,
+                    pair.plural_name,
+                    pair.singular_id,
+                )
                 stats["aliases_merged"] = 1
 
             # 7. Delete the plural concept
-            await conn.execute(
-                "DELETE FROM concepts WHERE id = $1", pair.plural_id
-            )
+            await conn.execute("DELETE FROM concepts WHERE id = $1", pair.plural_id)
             stats["concept_deleted"] = True
 
     except Exception as e:
@@ -277,7 +327,9 @@ async def merge_concept_pair(
 
 async def main():
     parser = argparse.ArgumentParser(description="Deduplicate singular/plural concept pairs")
-    parser.add_argument("--execute", action="store_true", help="Execute the merge (default: dry run)")
+    parser.add_argument(
+        "--execute", action="store_true", help="Execute the merge (default: dry run)"
+    )
     parser.add_argument("--limit", type=int, help="Limit to first N pairs (for testing)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Show details for each pair")
     args = parser.parse_args()

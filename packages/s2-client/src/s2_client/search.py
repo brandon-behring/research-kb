@@ -122,9 +122,7 @@ class SearchFilters:
             # Fields of study filter
             if self.fields_of_study:
                 paper_fields = {
-                    f.get("category")
-                    for f in (paper.s2_fields_of_study or [])
-                    if f.get("category")
+                    f.get("category") for f in (paper.s2_fields_of_study or []) if f.get("category")
                 }
                 if not paper_fields.intersection(set(self.fields_of_study)):
                     continue

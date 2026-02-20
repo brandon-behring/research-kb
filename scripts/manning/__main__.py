@@ -6,7 +6,6 @@ All DB-mutating operations are dry-run by default.
 
 import argparse
 import asyncio
-import json
 import sys
 from pathlib import Path
 
@@ -239,8 +238,8 @@ async def cmd_cleanup(args: argparse.Namespace) -> None:
             print(f"\n  {len(groups)} duplicate group(s) found.")
             print(f"  Report: {report_path}")
             print(
-                f"  To merge: python -m scripts.manning cleanup "
-                f"--merge-duplicates <KEEP_ID> <DELETE_ID> --apply"
+                "  To merge: python -m scripts.manning cleanup "
+                "--merge-duplicates <KEEP_ID> <DELETE_ID> --apply"
             )
         else:
             print("  No duplicates found.")
@@ -251,9 +250,7 @@ async def cmd_cleanup(args: argparse.Namespace) -> None:
         if results:
             errors = [r for r in results if "error" in r]
             skipped = [r for r in results if r.get("skipped")]
-            merges = [
-                r for r in results if "error" not in r and not r.get("skipped")
-            ]
+            merges = [r for r in results if "error" not in r and not r.get("skipped")]
             for r in merges:
                 status = "MERGED" if r.get("applied") else "would merge"
                 print(

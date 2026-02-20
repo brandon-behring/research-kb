@@ -8,7 +8,13 @@ from uuid import uuid4
 from dataclasses import dataclass
 from datetime import datetime
 
-from research_kb_contracts import Source, Concept, ConceptRelationship, SourceType, ConceptType
+from research_kb_contracts import (
+    Source,
+    Concept,
+    ConceptRelationship,
+    SourceType,
+    ConceptType,
+)
 
 
 @dataclass
@@ -97,18 +103,20 @@ def sample_chunk():
 @pytest.fixture
 def mock_storage(sample_source, sample_concept, sample_relationship, sample_chunk):
     """Mock all storage operations."""
-    with patch("research_kb_api.service.ConceptStore") as concept_mock, \
-         patch("research_kb_api.service.SourceStore") as source_mock, \
-         patch("research_kb_api.service.ChunkStore") as chunk_mock, \
-         patch("research_kb_api.service.RelationshipStore") as rel_mock, \
-         patch("research_kb_api.service.search_hybrid") as search_mock, \
-         patch("research_kb_api.service.search_hybrid_v2") as search_v2_mock, \
-         patch("research_kb_api.service.search_with_rerank") as rerank_mock, \
-         patch("research_kb_api.service.search_with_expansion") as expand_mock, \
-         patch("research_kb_api.service.get_neighborhood") as neighborhood_mock, \
-         patch("research_kb_api.service.find_shortest_path") as path_mock, \
-         patch("research_kb_api.service.get_citing_sources") as citing_mock, \
-         patch("research_kb_api.service.get_cited_sources") as cited_mock:
+    with (
+        patch("research_kb_api.service.ConceptStore") as concept_mock,
+        patch("research_kb_api.service.SourceStore") as source_mock,
+        patch("research_kb_api.service.ChunkStore") as chunk_mock,
+        patch("research_kb_api.service.RelationshipStore") as rel_mock,
+        patch("research_kb_api.service.search_hybrid") as search_mock,
+        patch("research_kb_api.service.search_hybrid_v2") as search_v2_mock,
+        patch("research_kb_api.service.search_with_rerank") as rerank_mock,
+        patch("research_kb_api.service.search_with_expansion") as expand_mock,
+        patch("research_kb_api.service.get_neighborhood") as neighborhood_mock,
+        patch("research_kb_api.service.find_shortest_path") as path_mock,
+        patch("research_kb_api.service.get_citing_sources") as citing_mock,
+        patch("research_kb_api.service.get_cited_sources") as cited_mock,
+    ):
 
         # Default return values
         concept_mock.count = AsyncMock(return_value=100)

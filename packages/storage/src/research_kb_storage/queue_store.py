@@ -363,7 +363,11 @@ class QueueStore:
                 deleted = int(result.split()[-1]) if result else 0
 
                 if deleted > 0:
-                    logger.info("queue_cleanup", deleted=deleted, older_than_days=older_than_days)
+                    logger.info(
+                        "queue_cleanup",
+                        deleted=deleted,
+                        older_than_days=older_than_days,
+                    )
 
                 return deleted
 
@@ -451,7 +455,11 @@ class QueueStore:
         try:
             async with pool.acquire() as conn:
                 domain_filter = ""
-                params: list[Any] = [QueueStatus.PENDING, QueueStatus.FAILED, max_retries]
+                params: list[Any] = [
+                    QueueStatus.PENDING,
+                    QueueStatus.FAILED,
+                    max_retries,
+                ]
                 if domain_id:
                     domain_filter = "AND domain_id = $4"
                     params.append(domain_id)

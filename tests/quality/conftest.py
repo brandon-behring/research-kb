@@ -19,6 +19,7 @@ sys.path.insert(0, str(repo_root / "packages" / "common" / "src"))
 @dataclass
 class SeedConcept:
     """Seed concept for validation."""
+
     name: str
     canonical_name: str
     aliases: list[str]
@@ -37,7 +38,7 @@ def seed_concepts_file():
     candidates = [
         fixtures / "seed_concepts_v2.0.yaml",
         fixtures / "seed_concepts.yaml",
-        fixtures / "seed_concepts_v1.yaml"
+        fixtures / "seed_concepts_v1.yaml",
     ]
 
     for candidate in candidates:
@@ -50,19 +51,21 @@ def seed_concepts_file():
 @pytest.fixture
 def seed_concepts(seed_concepts_file):
     """Load seed concepts from YAML."""
-    with open(seed_concepts_file, 'r') as f:
+    with open(seed_concepts_file, "r") as f:
         data = yaml.safe_load(f)
 
     concepts = []
-    for item in data.get('concepts', []):
-        concepts.append(SeedConcept(
-            name=item['name'],
-            canonical_name=item['canonical_name'],
-            aliases=item.get('aliases', []),
-            concept_type=item['concept_type'],
-            category=item.get('category'),
-            definition=item.get('definition')
-        ))
+    for item in data.get("concepts", []):
+        concepts.append(
+            SeedConcept(
+                name=item["name"],
+                canonical_name=item["canonical_name"],
+                aliases=item.get("aliases", []),
+                concept_type=item["concept_type"],
+                category=item.get("category"),
+                definition=item.get("definition"),
+            )
+        )
 
     return concepts
 

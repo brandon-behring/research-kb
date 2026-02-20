@@ -100,19 +100,21 @@ def format_paper_json(papers) -> str:
 
     data = []
     for paper in papers:
-        data.append({
-            "paper_id": paper.paper_id,
-            "title": paper.title,
-            "year": paper.year,
-            "authors": [a.name for a in (paper.authors or [])],
-            "citation_count": paper.citation_count,
-            "influential_citation_count": paper.influential_citation_count,
-            "is_open_access": paper.is_open_access,
-            "doi": paper.doi,
-            "arxiv_id": paper.arxiv_id,
-            "open_access_url": paper.open_access_pdf.url if paper.open_access_pdf else None,
-            "fields_of_study": [f.get("category") for f in (paper.s2_fields_of_study or [])],
-        })
+        data.append(
+            {
+                "paper_id": paper.paper_id,
+                "title": paper.title,
+                "year": paper.year,
+                "authors": [a.name for a in (paper.authors or [])],
+                "citation_count": paper.citation_count,
+                "influential_citation_count": paper.influential_citation_count,
+                "is_open_access": paper.is_open_access,
+                "doi": paper.doi,
+                "arxiv_id": paper.arxiv_id,
+                "open_access_url": (paper.open_access_pdf.url if paper.open_access_pdf else None),
+                "fields_of_study": [f.get("category") for f in (paper.s2_fields_of_study or [])],
+            }
+        )
 
     return json.dumps(data, indent=2)
 
@@ -178,7 +180,11 @@ def search(
         research-kb discover search "RAG retrieval augmented" --limit 50 --format json
     """
     try:
-        from s2_client import S2Client, PaperAcquisition, load_existing_identifiers  # noqa: F401
+        from s2_client import (
+            S2Client,
+            PaperAcquisition,
+            load_existing_identifiers,
+        )  # noqa: F401
     except ImportError:
         typer.echo("Error: s2-client package not installed.", err=True)
         typer.echo("Run: pip install -e packages/s2-client", err=True)

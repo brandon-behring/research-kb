@@ -7,6 +7,8 @@ from research_kb_common import StorageError
 from research_kb_contracts import ConceptType
 from research_kb_storage import ConceptStore, AssumptionStore
 
+pytestmark = pytest.mark.unit
+
 
 class TestAssumptionStoreCreate:
     """Tests for AssumptionStore.create()."""

@@ -360,7 +360,7 @@ async def compute_pagerank_authority(
 
         # Build adjacency lists
         incoming = {sid: [] for sid in source_ids}  # Who cites me
-        outgoing = {sid: 0 for sid in source_ids}   # How many I cite
+        outgoing = {sid: 0 for sid in source_ids}  # How many I cite
 
         for edge in edges:
             citing = edge["citing_source_id"]
@@ -463,7 +463,9 @@ async def get_citing_sources(
             GROUP BY s.id
             ORDER BY COUNT(sc.id) DESC, s.citation_authority DESC
             LIMIT ${}
-        """.format(len(params) + 1)
+        """.format(
+            len(params) + 1
+        )
 
         params.append(limit)
 
@@ -525,7 +527,9 @@ async def get_cited_sources(
         query += """
             ORDER BY s.citation_authority DESC
             LIMIT ${}
-        """.format(len(params) + 1)
+        """.format(
+            len(params) + 1
+        )
 
         params.append(limit)
 
@@ -658,7 +662,9 @@ async def get_most_cited_sources(
             HAVING COUNT(sc.id) > 0
             ORDER BY COUNT(sc.id) DESC, s.citation_authority DESC
             LIMIT ${}
-        """.format(len(params) + 1)
+        """.format(
+            len(params) + 1
+        )
 
         params.append(limit)
 

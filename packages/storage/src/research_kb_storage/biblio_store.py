@@ -50,7 +50,8 @@ class BiblioStore:
         pool = await get_connection_pool()
 
         async with pool.acquire() as conn:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 WITH my_citations AS (
                     -- Get all sources I cite (internal only)
                     SELECT DISTINCT sc.cited_source_id
@@ -97,7 +98,10 @@ class BiblioStore:
                     0
                 ) >= $2
                 ORDER BY coupling_strength DESC
-            """, source_id, min_coupling)
+            """,
+                source_id,
+                min_coupling,
+            )
 
             return [
                 {
@@ -105,7 +109,9 @@ class BiblioStore:
                     "shared_count": row["shared_count"],
                     "my_count": row["my_count"],
                     "other_count": row["other_count"],
-                    "coupling_strength": float(row["coupling_strength"]) if row["coupling_strength"] else 0.0,
+                    "coupling_strength": (
+                        float(row["coupling_strength"]) if row["coupling_strength"] else 0.0
+                    ),
                 }
                 for row in rows
             ]
@@ -132,11 +138,13 @@ class BiblioStore:
 
         async with pool.acquire() as conn:
             # Get all sources with internal citations
-            sources = await conn.fetch("""
+            sources = await conn.fetch(
+                """
                 SELECT DISTINCT citing_source_id
                 FROM source_citations
                 WHERE cited_source_id IS NOT NULL
-            """)
+            """
+            )
             stats["total_sources"] = len(sources)
 
             logger.info(
@@ -154,9 +162,7 @@ class BiblioStore:
                 source_id = row["citing_source_id"]
 
                 # Compute coupling
-                couplings = await BiblioStore.compute_coupling_for_source(
-                    source_id, min_coupling
-                )
+                couplings = await BiblioStore.compute_coupling_for_source(source_id, min_coupling)
                 stats["pairs_computed"] += len(couplings)
 
                 for c in couplings:
@@ -167,16 +173,19 @@ class BiblioStore:
                     else:
                         a_id, b_id = other_id, source_id
 
-                    batch.append((
-                        a_id,
-                        b_id,
-                        c["shared_count"],
-                        c["coupling_strength"],
-                    ))
+                    batch.append(
+                        (
+                            a_id,
+                            b_id,
+                            c["shared_count"],
+                            c["coupling_strength"],
+                        )
+                    )
 
                 # Insert batch
                 if len(batch) >= batch_size:
-                    await conn.executemany("""
+                    await conn.executemany(
+                        """
                         INSERT INTO bibliographic_coupling
                             (source_a_id, source_b_id, shared_references, coupling_strength)
                         VALUES ($1, $2, $3, $4)
@@ -184,7 +193,9 @@ class BiblioStore:
                         SET shared_references = EXCLUDED.shared_references,
                             coupling_strength = EXCLUDED.coupling_strength,
                             computed_at = NOW()
-                    """, batch)
+                    """,
+                        batch,
+                    )
                     stats["pairs_stored"] += len(batch)
                     batch = []
 
@@ -198,7 +209,8 @@ class BiblioStore:
 
             # Insert remaining
             if batch:
-                await conn.executemany("""
+                await conn.executemany(
+                    """
                     INSERT INTO bibliographic_coupling
                         (source_a_id, source_b_id, shared_references, coupling_strength)
                     VALUES ($1, $2, $3, $4)
@@ -206,7 +218,9 @@ class BiblioStore:
                     SET shared_references = EXCLUDED.shared_references,
                         coupling_strength = EXCLUDED.coupling_strength,
                         computed_at = NOW()
-                """, batch)
+                """,
+                    batch,
+                )
                 stats["pairs_stored"] += len(batch)
 
         logger.info(
@@ -233,7 +247,8 @@ class BiblioStore:
         pool = await get_connection_pool()
 
         async with pool.acquire() as conn:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT
                     CASE
                         WHEN bc.source_a_id = $1 THEN bc.source_b_id
@@ -253,7 +268,10 @@ class BiblioStore:
                 WHERE bc.source_a_id = $1 OR bc.source_b_id = $1
                 ORDER BY bc.coupling_strength DESC
                 LIMIT $2
-            """, source_id, limit)
+            """,
+                source_id,
+                limit,
+            )
 
             return [
                 {
@@ -289,11 +307,15 @@ class BiblioStore:
             source_a_id, source_b_id = source_b_id, source_a_id
 
         async with pool.acquire() as conn:
-            row = await conn.fetchrow("""
+            row = await conn.fetchrow(
+                """
                 SELECT coupling_strength
                 FROM bibliographic_coupling
                 WHERE source_a_id = $1 AND source_b_id = $2
-            """, source_a_id, source_b_id)
+            """,
+                source_a_id,
+                source_b_id,
+            )
 
             return float(row["coupling_strength"]) if row else None
 
@@ -307,18 +329,20 @@ class BiblioStore:
         pool = await get_connection_pool()
 
         async with pool.acquire() as conn:
-            row = await conn.fetchrow("""
+            row = await conn.fetchrow(
+                """
                 SELECT
                     COUNT(*) AS total_pairs,
                     AVG(coupling_strength) AS avg_coupling,
                     MAX(coupling_strength) AS max_coupling,
                     COUNT(DISTINCT source_a_id) + COUNT(DISTINCT source_b_id) AS sources_involved
                 FROM bibliographic_coupling
-            """)
+            """
+            )
 
             return {
                 "total_pairs": row["total_pairs"],
-                "avg_coupling": float(row["avg_coupling"]) if row["avg_coupling"] else 0.0,
-                "max_coupling": float(row["max_coupling"]) if row["max_coupling"] else 0.0,
+                "avg_coupling": (float(row["avg_coupling"]) if row["avg_coupling"] else 0.0),
+                "max_coupling": (float(row["max_coupling"]) if row["max_coupling"] else 0.0),
                 "sources_involved": row["sources_involved"],
             }

@@ -124,14 +124,10 @@ class Chunk(BaseModel):
 
     @field_validator("embedding")
     @classmethod
-    def validate_embedding_dimension(
-        cls, v: Optional[list[float]]
-    ) -> Optional[list[float]]:
+    def validate_embedding_dimension(cls, v: Optional[list[float]]) -> Optional[list[float]]:
         """Validate embedding is 1024 dimensions if provided (BGE-large-en-v1.5)."""
         if v is not None and len(v) != 1024:
-            raise ValueError(
-                f"embedding must be 1024 dimensions (BGE-large-en-v1.5), got {len(v)}"
-            )
+            raise ValueError(f"embedding must be 1024 dimensions (BGE-large-en-v1.5), got {len(v)}")
         return v
 
     @field_validator("content")
@@ -148,9 +144,7 @@ class IngestionStatus(BaseModel):
 
     source_id: UUID
     stage: IngestionStage
-    progress: Optional[float] = Field(
-        None, ge=0.0, le=1.0, description="Progress 0.0-1.0"
-    )
+    progress: Optional[float] = Field(None, ge=0.0, le=1.0, description="Progress 0.0-1.0")
     error_message: Optional[str] = None
     chunks_created: int = Field(default=0, ge=0)
     updated_at: datetime
@@ -199,9 +193,7 @@ class Citation(BaseModel):
         Format: firstauthor_year_firstword
         Example: pearl2009causality
         """
-        first_author = (
-            self.authors[0].split()[-1].lower() if self.authors else "unknown"
-        )
+        first_author = self.authors[0].split()[-1].lower() if self.authors else "unknown"
         year_str = str(self.year) if self.year else "0000"
         first_word = self.title.split()[0].lower() if self.title else "untitled"
         # Remove non-alphanumeric chars
@@ -219,9 +211,7 @@ class SearchResult(BaseModel):
     source: Source
 
     # Scores
-    fts_score: Optional[float] = Field(
-        None, description="Full-text search ts_rank score"
-    )
+    fts_score: Optional[float] = Field(None, description="Full-text search ts_rank score")
     vector_score: Optional[float] = Field(
         None, description="Vector cosine similarity (1=identical, 0=opposite)"
     )
@@ -242,7 +232,8 @@ class SearchResult(BaseModel):
         description="Cross-encoder reranking score (Phase 3, higher=better)",
     )
     combined_score: float = Field(
-        ..., description="Weighted combination of FTS + vector + graph + citation scores"
+        ...,
+        description="Weighted combination of FTS + vector + graph + citation scores",
     )
 
     # Ranking
@@ -338,9 +329,7 @@ class Concept(BaseModel):
 
     @field_validator("embedding")
     @classmethod
-    def validate_embedding_dimension(
-        cls, v: Optional[list[float]]
-    ) -> Optional[list[float]]:
+    def validate_embedding_dimension(cls, v: Optional[list[float]]) -> Optional[list[float]]:
         """Validate embedding is 1024 dimensions if provided."""
         if v is not None and len(v) != 1024:
             raise ValueError(f"embedding must be 1024 dimensions, got {len(v)}")
@@ -483,9 +472,7 @@ class CrossDomainLink(BaseModel):
     target_concept_id: UUID = Field(..., description="Concept in target domain")
 
     # Link metadata
-    link_type: CrossDomainLinkType = Field(
-        ..., description="Type of cross-domain relationship"
-    )
+    link_type: CrossDomainLinkType = Field(..., description="Type of cross-domain relationship")
     confidence_score: Optional[float] = Field(
         None, ge=0.0, le=1.0, description="Confidence in link validity"
     )

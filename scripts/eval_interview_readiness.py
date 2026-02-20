@@ -276,8 +276,10 @@ async def main():
     print()
 
     # Method hit rate
-    print(f"Method Hit Rate: {method_results['hits']}/{method_results['total']} "
-          f"({method_results['rate']*100:.0f}%)")
+    print(
+        f"Method Hit Rate: {method_results['hits']}/{method_results['total']} "
+        f"({method_results['rate']*100:.0f}%)"
+    )
     print("-" * 50)
     for method, data in method_results["methods"].items():
         status = "HIT" if data["hit"] else "MISS"
@@ -286,8 +288,10 @@ async def main():
     print()
 
     # Assumption completeness
-    print(f"Assumption Completeness: {assumption_results['complete']}/{assumption_results['total']} "
-          f"({assumption_results['rate']*100:.0f}%)")
+    print(
+        f"Assumption Completeness: {assumption_results['complete']}/{assumption_results['total']} "
+        f"({assumption_results['rate']*100:.0f}%)"
+    )
     print("-" * 50)
     for method, data in assumption_results["methods"].items():
         status = "OK" if data["complete"] else "LOW"
@@ -296,16 +300,22 @@ async def main():
     print()
 
     # Domain readiness
-    print(f"Domain Readiness: {domain_results['ready']}/{domain_results['total']} "
-          f"({domain_results['rate']*100:.0f}%)")
+    print(
+        f"Domain Readiness: {domain_results['ready']}/{domain_results['total']} "
+        f"({domain_results['rate']*100:.0f}%)"
+    )
     print("-" * 50)
     for domain, data in domain_results["domains"].items():
         status = "READY" if data["ready"] else "NEEDS WORK"
-        print(f"  {domain:<25} {status:>10} "
-              f"({data['chunks']:,} chunks / {data['threshold']:,} threshold)")
+        print(
+            f"  {domain:<25} {status:>10} "
+            f"({data['chunks']:,} chunks / {data['threshold']:,} threshold)"
+        )
 
-    print(f"\n  Total corpus: {domain_results['corpus_sources']:,} sources, "
-          f"{domain_results['corpus_chunks']:,} chunks")
+    print(
+        f"\n  Total corpus: {domain_results['corpus_sources']:,} sources, "
+        f"{domain_results['corpus_chunks']:,} chunks"
+    )
 
     print()
     print("=" * 70)

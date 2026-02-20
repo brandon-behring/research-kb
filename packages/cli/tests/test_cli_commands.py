@@ -6,6 +6,9 @@ from uuid import uuid4
 
 # Import the CLI app
 from research_kb_cli.main import app
+import pytest
+
+pytestmark = pytest.mark.unit
 
 
 # ============================================================================
@@ -69,9 +72,7 @@ class TestSourcesCommand:
 
     def test_sources_database_connection_error(self, cli_runner):
         """Test error handling when DB unavailable."""
-        with patch(
-            "research_kb_cli.main.asyncio.run", side_effect=ConnectionError("DB down")
-        ):
+        with patch("research_kb_cli.main.asyncio.run", side_effect=ConnectionError("DB down")):
             result = cli_runner.invoke(app, ["sources"])
 
             assert result.exit_code == 1
@@ -208,9 +209,7 @@ class TestConceptsCommand:
             assert result.exit_code == 0
             assert "No concepts found" in result.stdout
 
-    def test_concepts_with_relationships(
-        self, cli_runner, mock_concepts, mock_relationships
-    ):
+    def test_concepts_with_relationships(self, cli_runner, mock_concepts, mock_relationships):
         """Test concept with relationships displayed."""
         with patch("research_kb_cli.main.asyncio.run") as mock_run:
             mock_run.return_value = ([mock_concepts[0]], mock_relationships)
@@ -233,9 +232,7 @@ class TestGraphCommand:
         with patch("research_kb_cli.main.asyncio.run") as mock_run:
             mock_run.return_value = (mock_concepts[0], neighborhood, None)
 
-            result = cli_runner.invoke(
-                app, ["graph", "Instrumental Variables", "--hops", "1"]
-            )
+            result = cli_runner.invoke(app, ["graph", "Instrumental Variables", "--hops", "1"])
 
             assert result.exit_code == 0
 
@@ -265,9 +262,7 @@ class TestGraphCommand:
                 RelationshipType.REQUIRES,
             )
 
-            result = cli_runner.invoke(
-                app, ["graph", "IV", "--hops", "2", "--type", "REQUIRES"]
-            )
+            result = cli_runner.invoke(app, ["graph", "IV", "--hops", "2", "--type", "REQUIRES"])
 
             assert result.exit_code == 0
 
@@ -275,9 +270,7 @@ class TestGraphCommand:
 class TestPathCommand:
     """Tests for the path command."""
 
-    def test_path_direct_connection(
-        self, cli_runner, mock_concepts, mock_relationships
-    ):
+    def test_path_direct_connection(self, cli_runner, mock_concepts, mock_relationships):
         """Test shortest path between directly connected concepts."""
         # Create path with proper tuple structure (concept, relationship)
         path = [
@@ -288,15 +281,10 @@ class TestPathCommand:
         with patch("research_kb_cli.main.asyncio.run") as mock_run:
             mock_run.return_value = (mock_concepts[0], mock_concepts[1], path)
 
-            result = cli_runner.invoke(
-                app, ["path", "Instrumental Variables", "Exogeneity"]
-            )
+            result = cli_runner.invoke(app, ["path", "Instrumental Variables", "Exogeneity"])
 
             assert result.exit_code == 0
-            assert (
-                "Path length: 1 hop" in result.stdout
-                or "Path length: 1 hop" in result.output
-            )
+            assert "Path length: 1 hop" in result.stdout or "Path length: 1 hop" in result.output
 
     def test_path_no_connection(self, cli_runner, mock_concepts):
         """Test no path exists between concepts."""
@@ -327,13 +315,9 @@ class TestPathCommand:
 class TestQueryCommand:
     """Tests for the query command."""
 
-    def test_query_basic_markdown(
-        self, cli_runner, mock_embedding_client, mock_search_results
-    ):
+    def test_query_basic_markdown(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test basic query with markdown output."""
-        with patch(
-            "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
-        ):
+        with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
                 # run_query returns (results, expanded_query) tuple
                 mock_run.return_value = (mock_search_results, None)
@@ -346,31 +330,21 @@ class TestQueryCommand:
                 # Actual formatting depends on formatters which we test separately
                 assert result.exit_code == 0
 
-    def test_query_json_format(
-        self, cli_runner, mock_embedding_client, mock_search_results
-    ):
+    def test_query_json_format(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test JSON output format."""
-        with patch(
-            "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
-        ):
+        with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
                 # run_query returns (results, expanded_query) tuple
                 mock_run.return_value = (mock_search_results, None)
 
-                result = cli_runner.invoke(
-                    app, ["query", "test query", "--format", "json"]
-                )
+                result = cli_runner.invoke(app, ["query", "test query", "--format", "json"])
 
                 assert result.exit_code == 0
                 # Output should be valid JSON (tested in formatter tests)
 
-    def test_query_agent_format(
-        self, cli_runner, mock_embedding_client, mock_search_results
-    ):
+    def test_query_agent_format(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test agent-optimized output format."""
-        with patch(
-            "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
-        ):
+        with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
                 # run_query returns (results, expanded_query) tuple
                 mock_run.return_value = (mock_search_results, None)
@@ -379,13 +353,9 @@ class TestQueryCommand:
 
                 assert result.exit_code == 0
 
-    def test_query_with_limit(
-        self, cli_runner, mock_embedding_client, mock_search_results
-    ):
+    def test_query_with_limit(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test result limit parameter."""
-        with patch(
-            "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
-        ):
+        with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
                 # run_query returns (results, expanded_query) tuple
                 mock_run.return_value = (mock_search_results[:3], None)
@@ -409,33 +379,23 @@ class TestQueryCommand:
         self, cli_runner, mock_embedding_client, mock_search_results
     ):
         """Test context type affects search weights."""
-        with patch(
-            "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
-        ):
+        with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
                 # run_query returns (results, expanded_query) tuple
                 mock_run.return_value = (mock_search_results, None)
 
-                result = cli_runner.invoke(
-                    app, ["query", "test", "--context-type", "building"]
-                )
+                result = cli_runner.invoke(app, ["query", "test", "--context-type", "building"])
 
                 assert result.exit_code == 0
 
-    def test_query_source_filter(
-        self, cli_runner, mock_embedding_client, mock_search_results
-    ):
+    def test_query_source_filter(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test filtering by source type."""
-        with patch(
-            "research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client
-        ):
+        with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_cli.main.asyncio.run") as mock_run:
                 # run_query returns (results, expanded_query) tuple
                 mock_run.return_value = (mock_search_results, None)
 
-                result = cli_runner.invoke(
-                    app, ["query", "test", "--source-type", "paper"]
-                )
+                result = cli_runner.invoke(app, ["query", "test", "--source-type", "paper"])
 
                 assert result.exit_code == 0
 

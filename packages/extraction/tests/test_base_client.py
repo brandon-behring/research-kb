@@ -9,10 +9,11 @@ Tests:
 
 import pytest
 from abc import ABC
-from unittest.mock import AsyncMock, MagicMock
 
 from research_kb_extraction.base_client import LLMClient
 from research_kb_extraction.models import ChunkExtraction, ExtractedConcept
+
+pytestmark = [pytest.mark.requires_ollama, pytest.mark.unit]
 
 
 class TestLLMClientInterface:
@@ -122,9 +123,7 @@ class TestExtractBatch:
         """Test extract_batch processes all chunks."""
         client = ConcreteClient()
         client._extract_result = ChunkExtraction(
-            concepts=[
-                ExtractedConcept(name="test", concept_type="method", confidence=0.9)
-            ],
+            concepts=[ExtractedConcept(name="test", concept_type="method", confidence=0.9)],
             relationships=[],
         )
 
@@ -169,7 +168,10 @@ class TestExtractBatch:
 
         class CapturingClient(ConcreteClient):
             async def extract_concepts(
-                self, chunk: str, prompt_type: str = "full", domain_id: str = "causal_inference"
+                self,
+                chunk: str,
+                prompt_type: str = "full",
+                domain_id: str = "causal_inference",
             ):
                 captured_prompt_types.append(prompt_type)
                 return ChunkExtraction(concepts=[], relationships=[])
@@ -356,7 +358,10 @@ class TestPromptTypes:
 
         class CapturingClient(ConcreteClient):
             async def extract_concepts(
-                self, chunk: str, prompt_type: str = "full", domain_id: str = "causal_inference"
+                self,
+                chunk: str,
+                prompt_type: str = "full",
+                domain_id: str = "causal_inference",
             ):
                 nonlocal captured_prompt_type
                 captured_prompt_type = prompt_type
@@ -375,7 +380,10 @@ class TestPromptTypes:
 
             class CapturingClient(ConcreteClient):
                 async def extract_concepts(
-                    self, chunk: str, prompt_type: str = "full", domain_id: str = "causal_inference"
+                    self,
+                    chunk: str,
+                    prompt_type: str = "full",
+                    domain_id: str = "causal_inference",
                 ):
                     nonlocal captured
                     captured = prompt_type

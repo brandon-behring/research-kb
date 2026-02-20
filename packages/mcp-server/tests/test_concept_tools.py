@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch
 from uuid import uuid4
 from datetime import datetime
 
-from research_kb_contracts import Concept, ConceptType, Chunk, ChunkConcept
+from research_kb_contracts import Concept, ConceptType
 from research_kb_mcp.tools.concepts import register_concept_tools
+
+pytestmark = pytest.mark.unit
 
 
 class MockFastMCP:
@@ -19,12 +21,14 @@ class MockFastMCP:
 
     def tool(self, **kwargs):
         """Decorator that captures tool functions."""
+
         def decorator(func):
             self.tools[func.__name__] = {
                 "func": func,
                 "kwargs": kwargs,
             }
             return func
+
         return decorator
 
 
@@ -170,6 +174,7 @@ class TestGetConcept:
     @pytest.fixture
     def sample_relationships(self):
         """Create sample relationships for testing."""
+
         # Create mock relationship objects with required attributes
         class MockRelationship:
             def __init__(self, rel_type, target_id):
@@ -187,8 +192,10 @@ class TestGetConcept:
         mcp = MockFastMCP()
         register_concept_tools(mcp)
 
-        with patch("research_kb_mcp.tools.concepts.get_concept_by_id") as get_mock, \
-             patch("research_kb_mcp.tools.concepts.get_concept_relationships") as rel_mock:
+        with (
+            patch("research_kb_mcp.tools.concepts.get_concept_by_id") as get_mock,
+            patch("research_kb_mcp.tools.concepts.get_concept_relationships") as rel_mock,
+        ):
             get_mock.return_value = sample_concept
             rel_mock.return_value = sample_relationships
 
@@ -206,8 +213,10 @@ class TestGetConcept:
         mcp = MockFastMCP()
         register_concept_tools(mcp)
 
-        with patch("research_kb_mcp.tools.concepts.get_concept_by_id") as get_mock, \
-             patch("research_kb_mcp.tools.concepts.get_concept_relationships") as rel_mock:
+        with (
+            patch("research_kb_mcp.tools.concepts.get_concept_by_id") as get_mock,
+            patch("research_kb_mcp.tools.concepts.get_concept_relationships") as rel_mock,
+        ):
             get_mock.return_value = sample_concept
 
             await mcp.tools["research_kb_get_concept"]["func"](

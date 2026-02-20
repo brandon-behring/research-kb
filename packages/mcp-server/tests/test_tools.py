@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import patch, AsyncMock
 
 from research_kb_mcp.tools.search import register_search_tools
 from research_kb_mcp.tools.sources import register_source_tools
@@ -11,6 +10,8 @@ from research_kb_mcp.tools.concepts import register_concept_tools
 from research_kb_mcp.tools.graph import register_graph_tools
 from research_kb_mcp.tools.health import register_health_tools
 from research_kb_mcp.tools.citations import register_citation_tools
+
+pytestmark = pytest.mark.unit
 
 
 class MockFastMCP:
@@ -21,12 +22,14 @@ class MockFastMCP:
 
     def tool(self, **kwargs):
         """Decorator that captures tool functions."""
+
         def decorator(func):
             self.tools[func.__name__] = {
                 "func": func,
                 "kwargs": kwargs,
             }
             return func
+
         return decorator
 
 

@@ -16,6 +16,8 @@ from research_kb_pdf.chunker import (
     MAX_EMBEDDING_TOKENS,
 )
 
+pytestmark = pytest.mark.unit
+
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 TEST_PDF = FIXTURES_DIR / "test_simple.pdf"
@@ -95,7 +97,9 @@ class TestSentenceSplitting:
         text = "Mr. Jones and Mrs. Smith arrived. They were happy."
         sentences = split_sentences(text)
         # Should preserve "Mr. Jones and Mrs. Smith" together
-        assert any("Mr. Jones" in s and "Mrs. Smith" in s for s in sentences), f"Split on Mr./Mrs.: {sentences}"
+        assert any(
+            "Mr. Jones" in s and "Mrs. Smith" in s for s in sentences
+        ), f"Split on Mr./Mrs.: {sentences}"
 
     def test_split_sentences_vs_abbreviation(self):
         """Test vs. abbreviation is preserved."""
@@ -172,9 +176,7 @@ class TestOverlapCalculation:
         """Test that overlap retrieves reasonable amount of content."""
         # Create paragraphs with known token counts
         short_para = "Short paragraph."  # ~3 tokens
-        medium_para = (
-            "This is a medium length paragraph with some content. " * 5
-        )  # ~50 tokens
+        medium_para = "This is a medium length paragraph with some content. " * 5  # ~50 tokens
         paragraphs = [short_para, medium_para, short_para, medium_para]
 
         overlap = get_overlap_paragraphs(paragraphs, target_tokens=50)
@@ -202,9 +204,7 @@ class TestChunkDocument:
         assert all(
             isinstance(chunk.content, str) for chunk in chunks
         ), "All chunks should have content"
-        assert all(
-            chunk.token_count > 0 for chunk in chunks
-        ), "All chunks should have tokens"
+        assert all(chunk.token_count > 0 for chunk in chunks), "All chunks should have tokens"
 
         print(f"\n✅ Created {len(chunks)} chunks from {doc.total_pages} pages")
 
@@ -227,19 +227,13 @@ class TestChunkDocument:
 
         # At least 45% of chunks should be in target range (PDF paragraphs vary in size)
         in_range_ratio = in_range_count / len(chunks)
-        assert (
-            in_range_ratio >= 0.45
-        ), f"Only {in_range_ratio:.0%} of chunks in target range"
+        assert in_range_ratio >= 0.45, f"Only {in_range_ratio:.0%} of chunks in target range"
 
         # Average should be close to target
         avg_tokens = sum(c.token_count for c in chunks) / len(chunks)
-        assert (
-            250 <= avg_tokens <= 350
-        ), f"Average {avg_tokens:.0f} tokens outside target range"
+        assert 250 <= avg_tokens <= 350, f"Average {avg_tokens:.0f} tokens outside target range"
 
-        print(
-            f"\n✅ {in_range_count}/{len(chunks)} chunks in range, avg: {avg_tokens:.0f} tokens"
-        )
+        print(f"\n✅ {in_range_count}/{len(chunks)} chunks in range, avg: {avg_tokens:.0f} tokens")
 
     def test_chunk_document_no_content_loss(self):
         """Test that chunking doesn't lose significant content."""
@@ -255,9 +249,7 @@ class TestChunkDocument:
         total_chars = sum(c.char_count for c in chunks)
 
         # Allow for overlap (expect 10-30% more chars due to overlap)
-        assert total_chars >= len(
-            original_text
-        ), "Chunks have less content than original"
+        assert total_chars >= len(original_text), "Chunks have less content than original"
         assert (
             total_chars <= len(original_text) * 1.5
         ), f"Too much overlap: {total_chars} vs {len(original_text)} original chars"
@@ -298,9 +290,7 @@ class TestChunkDocument:
 
         # Total should be more than original (due to overlap) but not 2x
         assert total_tokens >= original_tokens, "Should preserve all content"
-        assert (
-            total_tokens <= original_tokens * 1.5
-        ), "Too much duplication from overlap"
+        assert total_tokens <= original_tokens * 1.5, "Too much duplication from overlap"
 
         print(
             f"\n✅ Coverage: {total_tokens} chunk tokens vs {original_tokens} original ({total_tokens/original_tokens:.1%})"
@@ -317,9 +307,7 @@ class TestChunkDocument:
         for chunk in chunks:
             # Page numbers should be valid
             assert chunk.start_page >= 1, f"Invalid start_page: {chunk.start_page}"
-            assert (
-                chunk.end_page >= chunk.start_page
-            ), "end_page should be >= start_page"
+            assert chunk.end_page >= chunk.start_page, "end_page should be >= start_page"
             assert chunk.end_page <= doc.total_pages, "end_page exceeds document pages"
 
         # First chunk should start on page 1
@@ -338,18 +326,14 @@ class TestChunkDocument:
             pytest.skip(f"Test PDF not found: {TEST_PDF}")
 
         doc = extract_pdf(TEST_PDF)
-        chunks = chunk_document(
-            doc, target_tokens=200, max_variance=30, overlap_tokens=30
-        )
+        chunks = chunk_document(doc, target_tokens=200, max_variance=30, overlap_tokens=30)
 
         # Should create more chunks with smaller target
         assert len(chunks) > 0
 
         # Average should be close to new target (allow small deviation)
         avg_tokens = sum(c.token_count for c in chunks) / len(chunks)
-        assert (
-            165 <= avg_tokens <= 235
-        ), f"Average {avg_tokens:.0f} tokens outside target range"
+        assert 165 <= avg_tokens <= 235, f"Average {avg_tokens:.0f} tokens outside target range"
 
         print(
             f"\n✅ Custom params: {len(chunks)} chunks, avg {avg_tokens:.0f} tokens (target: 200)"

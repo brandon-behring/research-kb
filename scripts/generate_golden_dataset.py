@@ -16,7 +16,6 @@ Usage:
 import argparse
 import asyncio
 import json
-import random
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -35,6 +34,7 @@ from research_kb_storage import DatabaseConfig, get_connection_pool
 @dataclass
 class ConceptCandidate:
     """A concept that could become a test case."""
+
     name: str
     concept_type: str
     source_title: str
@@ -45,6 +45,7 @@ class ConceptCandidate:
 @dataclass
 class TestCaseCandidate:
     """A candidate test case for review."""
+
     query: str
     expected_source_pattern: str
     expected_in_top_k: int
@@ -196,15 +197,17 @@ def candidates_to_yaml(candidates: list[TestCaseCandidate]) -> str:
     """Convert test case candidates to YAML format."""
     test_cases = []
     for c in candidates:
-        test_cases.append({
-            "query": c.query,
-            "expected_source_pattern": c.expected_source_pattern,
-            "expected_in_top_k": c.expected_in_top_k,
-            "expected_concepts": c.expected_concepts,
-            "relevance_grade": c.relevance_grade,
-            "tags": c.tags,
-            "notes": c.notes,
-        })
+        test_cases.append(
+            {
+                "query": c.query,
+                "expected_source_pattern": c.expected_source_pattern,
+                "expected_in_top_k": c.expected_in_top_k,
+                "expected_concepts": c.expected_concepts,
+                "relevance_grade": c.relevance_grade,
+                "tags": c.tags,
+                "notes": c.notes,
+            }
+        )
 
     return yaml.dump(
         {"test_cases": test_cases},
@@ -215,34 +218,39 @@ def candidates_to_yaml(candidates: list[TestCaseCandidate]) -> str:
 
 
 async def main():
-    parser = argparse.ArgumentParser(
-        description="Generate candidate test cases for golden dataset"
+    parser = argparse.ArgumentParser(description="Generate candidate test cases for golden dataset")
+    parser.add_argument(
+        "--limit",
+        "-l",
+        type=int,
+        default=20,
+        help="Number of concepts to process (default: 20)",
     )
     parser.add_argument(
-        "--limit", "-l", type=int, default=20,
-        help="Number of concepts to process (default: 20)"
+        "--source-type",
+        "-s",
+        choices=["paper", "textbook"],
+        help="Filter by source type",
     )
     parser.add_argument(
-        "--source-type", "-s", choices=["paper", "textbook"],
-        help="Filter by source type"
-    )
-    parser.add_argument(
-        "--concept-type", "-c", action="append",
+        "--concept-type",
+        "-c",
+        action="append",
         choices=["METHOD", "ASSUMPTION", "PROBLEM", "DEFINITION", "THEOREM"],
-        help="Filter by concept type (can specify multiple)"
+        help="Filter by concept type (can specify multiple)",
     )
     parser.add_argument(
-        "--output", "-o", default="candidates.yaml",
-        help="Output file for candidates (default: candidates.yaml)"
+        "--output",
+        "-o",
+        default="candidates.yaml",
+        help="Output file for candidates (default: candidates.yaml)",
     )
     parser.add_argument(
-        "--concepts-only", action="store_true",
-        help="Just list concepts without generating test cases"
+        "--concepts-only",
+        action="store_true",
+        help="Just list concepts without generating test cases",
     )
-    parser.add_argument(
-        "--ollama-url", default="http://localhost:11434",
-        help="Ollama API URL"
-    )
+    parser.add_argument("--ollama-url", default="http://localhost:11434", help="Ollama API URL")
     args = parser.parse_args()
 
     print(f"Fetching top {args.limit} concepts from database...")
@@ -287,17 +295,17 @@ async def main():
     yaml_content = candidates_to_yaml(candidates)
 
     with open(output_path, "w") as f:
-        f.write(f"# Generated test case candidates\n")
-        f.write(f"# Review and edit before merging into retrieval_test_cases.yaml\n")
+        f.write("# Generated test case candidates\n")
+        f.write("# Review and edit before merging into retrieval_test_cases.yaml\n")
         f.write(f"# Generated {len(candidates)} candidates from {len(concepts)} concepts\n\n")
         f.write(yaml_content)
 
     print(f"\n✓ Generated {len(candidates)} candidates")
     print(f"✓ Written to: {output_path}")
-    print(f"\nNext steps:")
+    print("\nNext steps:")
     print(f"  1. Review candidates in {output_path}")
-    print(f"  2. Remove or edit low-quality entries")
-    print(f"  3. Merge approved cases into fixtures/eval/retrieval_test_cases.yaml")
+    print("  2. Remove or edit low-quality entries")
+    print("  3. Merge approved cases into fixtures/eval/retrieval_test_cases.yaml")
 
 
 if __name__ == "__main__":

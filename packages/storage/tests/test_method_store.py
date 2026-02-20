@@ -7,6 +7,8 @@ from research_kb_common import StorageError
 from research_kb_contracts import ConceptType
 from research_kb_storage import ConceptStore, MethodStore
 
+pytestmark = pytest.mark.unit
+
 
 class TestMethodStoreCreate:
     """Tests for MethodStore.create()."""

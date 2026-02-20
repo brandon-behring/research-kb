@@ -4,7 +4,7 @@ import json
 import os
 import socket
 import tempfile
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -13,7 +13,6 @@ from research_kb_client import (
     DaemonClient,
     ResearchKBError,
     SearchResponse,
-    TimeoutError,
     get_methodology_context,
     search_or_none,
 )
@@ -69,7 +68,11 @@ class TestSearchResponse:
 
     def test_parse_full_response(self):
         """Parse response with all fields."""
-        from research_kb_client import SearchResult, SearchResultChunk, SearchResultSource
+        from research_kb_client import (
+            SearchResult,
+            SearchResultChunk,
+            SearchResultSource,
+        )
 
         result = SearchResult(
             source=SearchResultSource(
@@ -142,15 +145,18 @@ class TestMockDaemon:
             data = conn.recv(1024)
             request = json.loads(data.decode())
             # JSON-RPC 2.0 response format
-            response = json.dumps({
-                "jsonrpc": "2.0",
-                "result": {"status": "healthy", "uptime_seconds": 100},
-                "id": request.get("id", 1),
-            })
+            response = json.dumps(
+                {
+                    "jsonrpc": "2.0",
+                    "result": {"status": "healthy", "uptime_seconds": 100},
+                    "id": request.get("id", 1),
+                }
+            )
             conn.sendall(response.encode())
             conn.close()
 
         import threading
+
         thread = threading.Thread(target=serve, daemon=True)
         thread.start()
 
@@ -218,11 +224,13 @@ class TestProtocolCompatibility:
                     if callable(result):
                         result = result(request)
 
-                    response = json.dumps({
-                        "jsonrpc": "2.0",
-                        "result": result,
-                        "id": request.get("id", 1),
-                    })
+                    response = json.dumps(
+                        {
+                            "jsonrpc": "2.0",
+                            "result": result,
+                            "id": request.get("id", 1),
+                        }
+                    )
                     conn.sendall(response.encode())
                     conn.close()
                 except socket.timeout:
@@ -255,7 +263,9 @@ class TestProtocolCompatibility:
 
             # Find the search request (not the health check)
             search_reqs = [r for r in captured if r.get("method") == "search"]
-            assert len(search_reqs) >= 1, f"Expected search request, got methods: {[r.get('method') for r in captured]}"
+            assert (
+                len(search_reqs) >= 1
+            ), f"Expected search request, got methods: {[r.get('method') for r in captured]}"
 
             req = search_reqs[0]
             # Verify JSON-RPC 2.0 structure required by server.py:122
@@ -349,18 +359,22 @@ class TestProtocolCompatibility:
 
                     if method == "health":
                         # Health OK so it tries daemon for search
-                        response = json.dumps({
-                            "jsonrpc": "2.0",
-                            "result": {"status": "healthy"},
-                            "id": request.get("id", 1),
-                        })
+                        response = json.dumps(
+                            {
+                                "jsonrpc": "2.0",
+                                "result": {"status": "healthy"},
+                                "id": request.get("id", 1),
+                            }
+                        )
                     else:
                         # Error for search
-                        response = json.dumps({
-                            "jsonrpc": "2.0",
-                            "error": {"code": -32600, "message": "Invalid Request"},
-                            "id": request.get("id", 1),
-                        })
+                        response = json.dumps(
+                            {
+                                "jsonrpc": "2.0",
+                                "error": {"code": -32600, "message": "Invalid Request"},
+                                "id": request.get("id", 1),
+                            }
+                        )
                     conn.sendall(response.encode())
                     conn.close()
                 except socket.timeout:

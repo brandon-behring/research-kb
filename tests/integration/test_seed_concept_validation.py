@@ -28,6 +28,8 @@ from validate_seed_concepts import (
 )
 from research_kb_extraction import Deduplicator
 
+pytestmark = pytest.mark.integration
+
 
 SEED_FILE = Path(__file__).parent.parent.parent / "fixtures/concepts/seed_concepts.yaml"
 
@@ -366,7 +368,11 @@ def test_precision_calculation():
 def test_text_report_generation():
     """Test text report generation."""
     from datetime import datetime
-    from validate_seed_concepts import RecallMetrics, PrecisionMetrics, RelationshipMetrics
+    from validate_seed_concepts import (
+        RecallMetrics,
+        PrecisionMetrics,
+        RelationshipMetrics,
+    )
 
     report = ValidationReport(
         seed_count=25,
@@ -401,7 +407,11 @@ def test_text_report_generation():
 def test_json_report_generation():
     """Test JSON report generation."""
     from datetime import datetime
-    from validate_seed_concepts import RecallMetrics, PrecisionMetrics, RelationshipMetrics
+    from validate_seed_concepts import (
+        RecallMetrics,
+        PrecisionMetrics,
+        RelationshipMetrics,
+    )
     import json
 
     report = ValidationReport(

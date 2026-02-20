@@ -106,9 +106,7 @@ def extract_pdf(pdf_path: str | Path) -> ExtractedDocument:
 
     doc.close()
 
-    logger.info(
-        "pdf_extracted", path=str(pdf_path), pages=len(pages), chars=total_chars
-    )
+    logger.info("pdf_extracted", path=str(pdf_path), pages=len(pages), chars=total_chars)
 
     return ExtractedDocument(
         file_path=str(pdf_path),

@@ -236,9 +236,7 @@ async def evaluate_config(
         pattern = re.compile(tc.expected_source_pattern, re.IGNORECASE)
 
         start_time = time.perf_counter()
-        results = await run_search(
-            embed_client, pool, tc.query, config, limit=tc.expected_in_top_k
-        )
+        results = await run_search(embed_client, pool, tc.query, config, limit=tc.expected_in_top_k)
         latency_ms = (time.perf_counter() - start_time) * 1000
         latencies.append(latency_ms)
 
@@ -277,9 +275,7 @@ async def evaluate_config(
     hit_rate = passed / total if total > 0 else 0
     mrr = sum(reciprocal_ranks) / len(reciprocal_ranks) if reciprocal_ranks else 0
     ndcg_5 = float(np.mean(ndcg_scores)) if ndcg_scores else 0
-    concept_recall = (
-        sum(concept_recalls) / len(concept_recalls) if concept_recalls else None
-    )
+    concept_recall = sum(concept_recalls) / len(concept_recalls) if concept_recalls else None
 
     return ConfigResult(
         config_name=config.name,
@@ -318,7 +314,9 @@ def print_table(results: list[ConfigResult]):
     if best.config_name != "baseline":
         hit_delta = (best.hit_rate - baseline.hit_rate) * 100
         mrr_delta = (best.mrr - baseline.mrr) * 100
-        print(f"Winner: {best.config_name} (+{hit_delta:.1f}% Hit@5, +{mrr_delta:.1f}% MRR vs baseline)")
+        print(
+            f"Winner: {best.config_name} (+{hit_delta:.1f}% Hit@5, +{mrr_delta:.1f}% MRR vs baseline)"
+        )
     else:
         print("Winner: baseline (no improvement from enhancements)")
 

@@ -157,8 +157,11 @@ class CitationTraversal:
                         )
                         for paper in citations_result.papers:
                             if self._process_paper(
-                                paper, result, next_level,
-                                min_citations, open_access_only
+                                paper,
+                                result,
+                                next_level,
+                                min_citations,
+                                open_access_only,
                             ):
                                 level_papers_added += 1
                     except Exception as e:
@@ -176,8 +179,11 @@ class CitationTraversal:
                         )
                         for paper in refs_result.papers:
                             if self._process_paper(
-                                paper, result, next_level,
-                                min_citations, open_access_only
+                                paper,
+                                result,
+                                next_level,
+                                min_citations,
+                                open_access_only,
                             ):
                                 level_papers_added += 1
                     except Exception as e:

@@ -49,7 +49,8 @@ def parse_arxiv_filename(filename: str) -> dict:
     name = filename.replace(".pdf", "")
     # arXiv IDs are like YYMM.NNNNN or YYMM.NNNNNvN
     import re
-    match = re.match(r'^(\d{4}\.\d{4,5})(v\d+)?$', name)
+
+    match = re.match(r"^(\d{4}\.\d{4,5})(v\d+)?$", name)
     if match:
         arxiv_id = match.group(1)
         return {
@@ -71,8 +72,8 @@ async def get_existing_hashes() -> set[str]:
     pool = await get_connection_pool(config)
 
     async with pool.acquire() as conn:
-        rows = await conn.fetch('SELECT file_hash FROM sources WHERE file_hash IS NOT NULL')
-        return {r['file_hash'] for r in rows}
+        rows = await conn.fetch("SELECT file_hash FROM sources WHERE file_hash IS NOT NULL")
+        return {r["file_hash"] for r in rows}
 
 
 async def main():
@@ -108,7 +109,7 @@ async def main():
     print(f"Missing PDFs in subdirectories: {len(missing)}")
 
     if args.limit:
-        missing = missing[:args.limit]
+        missing = missing[: args.limit]
 
     if args.dry_run:
         for pdf, _ in missing:

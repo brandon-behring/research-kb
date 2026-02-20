@@ -11,6 +11,9 @@ from uuid import uuid4
 import pytest
 from typer.testing import CliRunner
 
+pytestmark = pytest.mark.integration
+
+
 # Fixture loading
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "s2_responses"
 
@@ -45,7 +48,9 @@ def mock_db_pool():
     conn = AsyncMock()
 
     # Mock connection context manager
-    pool.acquire = MagicMock(return_value=AsyncMock(__aenter__=AsyncMock(return_value=conn), __aexit__=AsyncMock()))
+    pool.acquire = MagicMock(
+        return_value=AsyncMock(__aenter__=AsyncMock(return_value=conn), __aexit__=AsyncMock())
+    )
 
     # Default: return empty results
     conn.fetch.return_value = []
@@ -180,7 +185,11 @@ class TestEnrichCitationsCommand:
         result = cli_runner.invoke(app, ["citations", "--all", "--dry-run"])
 
         assert result.exit_code == 0
-        assert "DRY RUN" in result.output or "Would process" in result.output or "Matched" in result.output
+        assert (
+            "DRY RUN" in result.output
+            or "Would process" in result.output
+            or "Matched" in result.output
+        )
 
     @patch("research_kb_cli.enrich.asyncio.run")
     def test_source_filter(self, mock_run, cli_runner):

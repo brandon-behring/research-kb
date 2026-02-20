@@ -7,15 +7,15 @@ Tests verify:
 - Quiet mode produces minimal output
 """
 
-import asyncio
 import hashlib
-import os
 import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 import pytest
+
+pytestmark = pytest.mark.requires_embedding
+
 
 # Add packages to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "packages" / "pdf-tools" / "src"))
@@ -39,7 +39,7 @@ class TestBatchChunkInsertion:
     async def test_batch_create_chunks(self):
         """Test ChunkStore.batch_create with multiple chunks."""
         from uuid import uuid4
-        from research_kb_storage import ChunkStore, get_connection_pool, DatabaseConfig
+        from research_kb_storage import get_connection_pool, DatabaseConfig
 
         # Initialize pool
         config = DatabaseConfig()
@@ -126,8 +126,10 @@ class TestLargePDFMemory:
         assert doc.total_pages > 0
         assert doc.total_chars > 0
 
-        print(f"\n✅ Large PDF extraction: {doc.total_pages} pages, "
-              f"{doc.total_chars:,} chars, peak memory {peak_mb:.1f}MB")
+        print(
+            f"\n✅ Large PDF extraction: {doc.total_pages} pages, "
+            f"{doc.total_chars:,} chars, peak memory {peak_mb:.1f}MB"
+        )
 
     def test_single_pass_vs_double_memory(self):
         """Compare single-pass vs old double-open approach."""
@@ -163,8 +165,10 @@ class TestLargePDFMemory:
         # Heading counts should be same (ordering may differ slightly)
         assert len(headings1) == len(headings2)
 
-        print(f"\n✅ Memory comparison: double={peak_double/1e6:.1f}MB, "
-              f"single={peak_single/1e6:.1f}MB")
+        print(
+            f"\n✅ Memory comparison: double={peak_double/1e6:.1f}MB, "
+            f"single={peak_single/1e6:.1f}MB"
+        )
 
 
 @pytest.mark.integration
@@ -173,7 +177,9 @@ class TestQuietModeOutput:
 
     def test_quiet_mode_line_count(self):
         """Test that quiet mode produces minimal output."""
-        script_path = Path(__file__).parent.parent.parent / "scripts" / "ingest_missing_textbooks.py"
+        script_path = (
+            Path(__file__).parent.parent.parent / "scripts" / "ingest_missing_textbooks.py"
+        )
 
         if not script_path.exists():
             pytest.skip(f"Script not found: {script_path}")
@@ -191,15 +197,15 @@ class TestQuietModeOutput:
         line_count = output.count("\n")
 
         # Quiet mode should produce < 100 lines (vs 3699+ previously)
-        assert line_count < 100, (
-            f"Quiet mode produced {line_count} lines, expected < 100"
-        )
+        assert line_count < 100, f"Quiet mode produced {line_count} lines, expected < 100"
 
         print(f"\n✅ Quiet mode output: {line_count} lines")
 
     def test_json_output_format(self):
         """Test that --json produces valid JSON output."""
-        script_path = Path(__file__).parent.parent.parent / "scripts" / "ingest_missing_textbooks.py"
+        script_path = (
+            Path(__file__).parent.parent.parent / "scripts" / "ingest_missing_textbooks.py"
+        )
 
         if not script_path.exists():
             pytest.skip(f"Script not found: {script_path}")
@@ -214,6 +220,7 @@ class TestQuietModeOutput:
         )
 
         import json
+
         try:
             output_json = json.loads(result.stdout)
 
@@ -224,8 +231,10 @@ class TestQuietModeOutput:
             assert "failed_files" in output_json
             assert isinstance(output_json["failed_files"], list)
 
-            print(f"\n✅ JSON output valid: {output_json['success_count']} success, "
-                  f"{output_json['failed_count']} failed")
+            print(
+                f"\n✅ JSON output valid: {output_json['success_count']} success, "
+                f"{output_json['failed_count']} failed"
+            )
 
         except json.JSONDecodeError as e:
             pytest.fail(f"Invalid JSON output: {e}\nOutput: {result.stdout[:500]}")
@@ -241,7 +250,9 @@ class TestErrorIsolation:
         # This is a design test - we verify the error handling structure
         # exists in the code rather than triggering actual failures
 
-        script_path = Path(__file__).parent.parent.parent / "scripts" / "ingest_missing_textbooks.py"
+        script_path = (
+            Path(__file__).parent.parent.parent / "scripts" / "ingest_missing_textbooks.py"
+        )
 
         if not script_path.exists():
             pytest.skip(f"Script not found: {script_path}")
@@ -256,7 +267,7 @@ class TestErrorIsolation:
         assert "recoverable" in script_content, "Should track recoverable status"
 
         # Should continue processing after errors (not re-raise)
-        assert "results[\"failed\"].append" in script_content, "Should track failed files"
-        assert "results[\"success\"].append" in script_content, "Should track success files"
+        assert 'results["failed"].append' in script_content, "Should track failed files"
+        assert 'results["success"].append' in script_content, "Should track success files"
 
         print("\n✅ Error isolation structure verified")

@@ -14,16 +14,15 @@ Key features:
 import asyncio
 import json
 import os
-import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from research_kb_common import get_logger
 
-from research_kb_extraction.anthropic_client import EXTRACTION_TOOL, AnthropicClient
+from research_kb_extraction.anthropic_client import EXTRACTION_TOOL
 from research_kb_extraction.models import ChunkExtraction
 from research_kb_extraction.prompts import SYSTEM_PROMPT, format_extraction_prompt
 
@@ -135,9 +134,7 @@ class BatchClient:
                 "max_tokens": 4096,
                 "temperature": 0.1,
                 "system": SYSTEM_PROMPT,
-                "messages": [
-                    {"role": "user", "content": format_extraction_prompt(chunk, "full")}
-                ],
+                "messages": [{"role": "user", "content": format_extraction_prompt(chunk, "full")}],
                 "tools": [EXTRACTION_TOOL],
                 "tool_choice": {"type": "tool", "name": "extract_concepts"},
             },

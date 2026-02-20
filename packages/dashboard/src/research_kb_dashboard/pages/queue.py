@@ -49,13 +49,17 @@ async def get_extraction_status():
         # NOTE: This is an approximation - ideally the API would return
         # a distinct count of chunk_ids in chunk_concepts
         # For now, assume ~3 concepts per chunk on average
-        processed_chunks = min(chunk_concept_links // 3, total_chunks) if chunk_concept_links > 0 else 0
+        processed_chunks = (
+            min(chunk_concept_links // 3, total_chunks) if chunk_concept_links > 0 else 0
+        )
 
         overall = {
             "total_chunks": total_chunks,
             "processed_chunks": processed_chunks,
             "remaining_chunks": total_chunks - processed_chunks,
-            "percent_complete": (processed_chunks / total_chunks * 100) if total_chunks > 0 else 0,
+            "percent_complete": (
+                (processed_chunks / total_chunks * 100) if total_chunks > 0 else 0
+            ),
             "total_concepts": total_concepts,
             "chunk_concept_links": chunk_concept_links,
         }
@@ -70,13 +74,15 @@ async def get_extraction_status():
         for s in sources_response.get("sources", []):
             # We don't have per-source chunk counts without additional API calls
             # Show placeholder data that indicates limitation
-            per_source.append({
-                "id": s.get("id"),
-                "title": s.get("title", "Untitled"),
-                "source_type": s.get("source_type", "paper"),
-                "total_chunks": None,  # Not available from list endpoint
-                "processed_chunks": None,  # Not available from API
-            })
+            per_source.append(
+                {
+                    "id": s.get("id"),
+                    "title": s.get("title", "Untitled"),
+                    "source_type": s.get("source_type", "paper"),
+                    "total_chunks": None,  # Not available from list endpoint
+                    "processed_chunks": None,  # Not available from API
+                }
+            )
 
         return overall, per_source
     finally:
@@ -125,11 +131,11 @@ def queue_page():
     col4.metric("Complete (est.)", f"{overall['percent_complete']:.1f}%")
 
     # Progress bar
-    st.progress(min(overall['percent_complete'] / 100, 1.0))
+    st.progress(min(overall["percent_complete"] / 100, 1.0))
 
     # ETA calculation (assuming ~1.5 chunks/min throughput)
     throughput = 1.5  # chunks per minute
-    eta_minutes = overall['remaining_chunks'] / throughput if throughput > 0 else 0
+    eta_minutes = overall["remaining_chunks"] / throughput if throughput > 0 else 0
     st.caption(
         f"📊 At {throughput} chunks/min: **{format_time(eta_minutes)}** remaining "
         f"| Concepts: {overall['total_concepts']:,} | Links: {overall['chunk_concept_links']:,}"
@@ -161,24 +167,28 @@ def queue_page():
     data = []
     for source in per_source:
         # Apply filter
-        if source_type_filter != "All" and source['source_type'] != source_type_filter:
+        if source_type_filter != "All" and source["source_type"] != source_type_filter:
             continue
 
-        data.append({
-            "id": str(source['id']),
-            "title": source['title'][:60] if source['title'] else "Untitled",
-            "type": source['source_type'],
-        })
+        data.append(
+            {
+                "id": str(source["id"]),
+                "title": source["title"][:60] if source["title"] else "Untitled",
+                "type": source["source_type"],
+            }
+        )
 
     if data:
         df = pd.DataFrame(data)
 
         # Display table (limited info without chunk counts)
         st.dataframe(
-            df[["title", "type"]].rename(columns={
-                "title": "Source",
-                "type": "Type",
-            }),
+            df[["title", "type"]].rename(
+                columns={
+                    "title": "Source",
+                    "type": "Type",
+                }
+            ),
             use_container_width=True,
             hide_index=True,
         )
@@ -192,7 +202,7 @@ def queue_page():
             if len(data) > 0:
                 st.code(
                     f"python scripts/extract_concepts.py --source-id {data[0]['id']}",
-                    language="bash"
+                    language="bash",
                 )
         with col2:
             st.markdown("**Resume all (auto-selects unprocessed):**")

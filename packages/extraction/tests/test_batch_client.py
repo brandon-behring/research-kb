@@ -5,11 +5,12 @@ import os
 import sys
 import pytest
 from datetime import datetime
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from research_kb_extraction.models import ChunkExtraction
+
+pytestmark = pytest.mark.unit
 
 
 # Create a mock anthropic module for testing
@@ -391,9 +392,7 @@ class TestFetchResults:
         mock_tool_use.type = "tool_use"
         mock_tool_use.name = "extract_concepts"
         mock_tool_use.input = {
-            "concepts": [
-                {"name": "test concept", "concept_type": "method", "confidence": 0.9}
-            ],
+            "concepts": [{"name": "test concept", "concept_type": "method", "confidence": 0.9}],
             "relationships": [],
         }
 
@@ -442,9 +441,7 @@ class TestParseResponse:
         mock_tool_use.type = "tool_use"
         mock_tool_use.name = "extract_concepts"
         mock_tool_use.input = {
-            "concepts": [
-                {"name": "IV", "concept_type": "method", "confidence": 0.9}
-            ],
+            "concepts": [{"name": "IV", "concept_type": "method", "confidence": 0.9}],
             "relationships": [],
         }
 

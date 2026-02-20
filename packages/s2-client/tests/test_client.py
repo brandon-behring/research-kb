@@ -19,6 +19,8 @@ from s2_client.rate_limiter import RateLimiter
 from s2_client.cache import S2Cache
 from s2_client.search import SearchFilters, TopicDiscovery, DiscoveryTopic
 
+pytestmark = pytest.mark.unit
+
 
 # -----------------------------------------------------------------------------
 # Fixtures
@@ -92,7 +94,10 @@ class TestS2Paper:
         paper = S2Paper(**sample_paper_response)
 
         assert paper.paper_id == "649def34f8be52c8b66281af98ae884c09aef38b"
-        assert paper.title == "Double/debiased machine learning for treatment and structural parameters"
+        assert (
+            paper.title
+            == "Double/debiased machine learning for treatment and structural parameters"
+        )
         assert paper.year == 2018
         assert paper.citation_count == 1542
         assert paper.is_open_access is True
@@ -225,9 +230,7 @@ class TestS2Client:
 
     @pytest.mark.asyncio
     @respx.mock
-    async def test_search_papers(
-        self, sample_search_response: dict, tmp_cache_dir: Path
-    ):
+    async def test_search_papers(self, sample_search_response: dict, tmp_cache_dir: Path):
         """Search should parse results correctly."""
         respx.get("https://api.semanticscholar.org/graph/v1/paper/search").mock(
             return_value=Response(200, json=sample_search_response)

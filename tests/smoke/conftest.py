@@ -65,12 +65,12 @@ async def ingestion_helper():
         SourceStore,
         ChunkStore,
         DatabaseConfig,
-        get_connection_pool
+        get_connection_pool,
     )
     from research_kb_pdf import (
         extract_with_headings,
         chunk_with_sections,
-        EmbeddingClient
+        EmbeddingClient,
     )
     from research_kb_contracts import SourceType
     import hashlib
@@ -86,7 +86,7 @@ async def ingestion_helper():
             await get_connection_pool(config)
 
             # Calculate file hash
-            with open(pdf_path, 'rb') as f:
+            with open(pdf_path, "rb") as f:
                 file_hash = hashlib.sha256(f.read()).hexdigest()
 
             # Create source
@@ -97,7 +97,7 @@ async def ingestion_helper():
                 year=2024,
                 file_path=str(pdf_path),
                 file_hash=file_hash,
-                metadata={"test": True}
+                metadata={"test": True},
             )
 
             # Extract text and headings
@@ -126,7 +126,7 @@ async def ingestion_helper():
                         pass
 
                 # Sanitize content (remove null bytes that PostgreSQL doesn't accept)
-                clean_content = text_chunk.content.replace('\x00', '')
+                clean_content = text_chunk.content.replace("\x00", "")
 
                 # Calculate content hash
                 content_hash = hashlib.sha256(clean_content.encode()).hexdigest()
@@ -138,7 +138,7 @@ async def ingestion_helper():
                     page_start=text_chunk.start_page,
                     page_end=text_chunk.end_page,
                     embedding=embedding,
-                    metadata=text_chunk.metadata or {}
+                    metadata=text_chunk.metadata or {},
                 )
                 chunks.append(chunk)
 

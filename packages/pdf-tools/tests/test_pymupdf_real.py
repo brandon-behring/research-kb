@@ -9,6 +9,8 @@ from research_kb_pdf.pymupdf_extractor import (
     get_full_text,
 )
 
+pytestmark = pytest.mark.unit
+
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 TEST_PDF = FIXTURES_DIR / "test_simple.pdf"
@@ -32,16 +34,12 @@ class TestPyMuPDFRealExtraction:
 
         # Page numbering (1-indexed)
         assert doc.pages[0].page_num == 1, "First page should be numbered 1"
-        assert (
-            doc.pages[-1].page_num == doc.total_pages
-        ), "Last page number should match total"
+        assert doc.pages[-1].page_num == doc.total_pages, "Last page number should match total"
 
         # Each page should have text
         for page in doc.pages:
             assert page.char_count >= 0, f"Page {page.page_num} has negative char count"
-            assert page.char_count == len(
-                page.text
-            ), f"Page {page.page_num} char count mismatch"
+            assert page.char_count == len(page.text), f"Page {page.page_num} char count mismatch"
 
         print(f"\n✅ Extracted {doc.total_pages} pages, {doc.total_chars} chars")
         print(f"First page preview: {doc.pages[0].text[:200]}...")
@@ -72,9 +70,7 @@ class TestPyMuPDFRealExtraction:
 
         # Full text should contain all page text
         assert len(full_text) > 0
-        assert len(full_text) >= doc.total_chars - (
-            doc.total_pages * 2
-        )  # Allow for separators
+        assert len(full_text) >= doc.total_chars - (doc.total_pages * 2)  # Allow for separators
 
         # Spot check: first page text should be in full text
         if doc.pages[0].text.strip():
@@ -97,6 +93,4 @@ class TestPyMuPDFRealExtraction:
             ), f"Page {page.page_num} has whitespace-only lines"
 
             # No excessive consecutive newlines (>2)
-            assert (
-                "\n\n\n\n" not in page.text
-            ), f"Page {page.page_num} has excessive newlines"
+            assert "\n\n\n\n" not in page.text, f"Page {page.page_num} has excessive newlines"

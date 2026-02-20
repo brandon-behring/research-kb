@@ -21,11 +21,26 @@ from research_kb_extraction.domain_prompts import (
     list_domains,
 )
 
+pytestmark = pytest.mark.unit
+
+
 # All 5 expected domain IDs
-EXPECTED_DOMAINS = {"healthcare", "causal_inference", "time_series", "rag_llm", "interview_prep"}
+EXPECTED_DOMAINS = {
+    "healthcare",
+    "causal_inference",
+    "time_series",
+    "rag_llm",
+    "interview_prep",
+}
 
 # Required keys in every domain config
-REQUIRED_KEYS = {"name", "description", "concept_type_guidance", "examples", "abbreviations"}
+REQUIRED_KEYS = {
+    "name",
+    "description",
+    "concept_type_guidance",
+    "examples",
+    "abbreviations",
+}
 
 
 class TestDomainRegistry:
@@ -114,9 +129,9 @@ class TestGetDomainAbbreviations:
         """All abbreviation values are non-empty strings."""
         abbrevs = get_domain_abbreviations(domain_id)
         for key, val in abbrevs.items():
-            assert isinstance(val, str) and len(val) > 0, (
-                f"Abbreviation '{key}' has invalid value in domain '{domain_id}'"
-            )
+            assert (
+                isinstance(val, str) and len(val) > 0
+            ), f"Abbreviation '{key}' has invalid value in domain '{domain_id}'"
 
     def test_causal_inference_known_abbreviations(self):
         """Causal inference has expected abbreviations."""
@@ -212,9 +227,7 @@ class TestGetAllAbbreviations:
         """All values in combined map are non-empty strings."""
         all_abbrevs = get_all_abbreviations()
         for key, val in all_abbrevs.items():
-            assert isinstance(val, str) and len(val) > 0, (
-                f"Abbreviation '{key}' has invalid value"
-            )
+            assert isinstance(val, str) and len(val) > 0, f"Abbreviation '{key}' has invalid value"
 
     def test_later_domains_override_earlier(self):
         """Verify that overlapping keys use last-wins semantics."""

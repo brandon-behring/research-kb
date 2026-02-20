@@ -27,13 +27,47 @@ build-backend = "poetry.core.masonry.api"
 # Install with specific groups: poetry install --with dev
 
 [tool.pytest.ini_options]
+testpaths = ["packages", "tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--import-mode=importlib"
 asyncio_mode = "auto"
-testpaths = ["packages/*/tests", "tests"]
+asyncio_default_fixture_loop_scope = "function"
+log_cli = false
+log_cli_level = "INFO"
+filterwarnings = [
+    "ignore:coroutine .* was never awaited:RuntimeWarning",
+    "ignore::DeprecationWarning",
+]
 markers = [
     "unit: Unit tests (fast, isolated)",
-    "integration: Integration tests (multi-component)",
-    "e2e: End-to-end tests (full pipeline, real database)",
-    "slow: Slow tests (may take >10s)",
-    "requires_reranker: Tests that require the reranker service",
-    "requires_ollama: Tests that require Ollama running",
+    "integration: Integration tests (multiple components)",
+    "e2e: End-to-end tests (full pipeline)",
+    "smoke: Smoke tests (real PDFs, quality checks)",
+    "quality: Quality metric validation tests",
+    "scripts: Script validation tests",
+    "slow: Slow-running tests (>5 seconds)",
+    "requires_ollama: Tests requiring Ollama server",
+    "requires_grobid: Tests requiring GROBID server",
+    "requires_embedding: Tests requiring embedding server",
+    "requires_reranker: Tests requiring cross-encoder reranker model",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+ignore = [
+    "E402",  # Module-level import not at top (needed for sys.path manipulation in tests)
+    "E741",  # Ambiguous variable name (l, I, O) — pre-existing, low risk
+    "F841",  # Local variable assigned but never used (common in mock context managers)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["F401", "F541"]  # Scripts may have conditional imports / f-string formatting
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

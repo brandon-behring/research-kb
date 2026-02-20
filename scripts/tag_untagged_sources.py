@@ -41,41 +41,152 @@ DOMAIN_NORMALIZATION: dict[str, str] = {
 
 TITLE_RULES: list[tuple[re.Pattern, str]] = [
     # Causal inference
-    (re.compile(r"causal|CUPED|doubly robust|instrumental variable|IV\b|treatment effect|synthetic control|experiment(?:s|ation)|RCT|A/B test|network experiment|confound", re.I), "causal_inference"),
-    (re.compile(r"Huntington.Klein|Cunningham.+Mixtape|Brady Neal|Judea Pearl|Rubin.*Bayesian.*Causal|Manning Causal Inference|Wager.*Causal|Chai.*Double M", re.I), "causal_inference"),
+    (
+        re.compile(
+            r"causal|CUPED|doubly robust|instrumental variable|IV\b|treatment effect|synthetic control|experiment(?:s|ation)|RCT|A/B test|network experiment|confound",
+            re.I,
+        ),
+        "causal_inference",
+    ),
+    (
+        re.compile(
+            r"Huntington.Klein|Cunningham.+Mixtape|Brady Neal|Judea Pearl|Rubin.*Bayesian.*Causal|Manning Causal Inference|Wager.*Causal|Chai.*Double M",
+            re.I,
+        ),
+        "causal_inference",
+    ),
     # Time series
-    (re.compile(r"time.series|forecast(?:ing)?|volatil|GARCH|ARIMA|Box.Jenkins|unit.root|serial.correlation|HAC|Diebold.Mariano|Tashman|Pesaran.Timmermann|DEPTS|Lag-Llama|TSMixer|Ti-MAE|temporal.+neural", re.I), "time_series"),
-    (re.compile(r"Shumway.*Stoffer|Aileen Nielsen|Bergmeir|Andrews.*Bandwidth|Newey.West|Said.Dickey|Harvey.*Adjustment|Goodhart.*Interest Rate|Conformal.*Time Series|Conformal PID", re.I), "time_series"),
+    (
+        re.compile(
+            r"time.series|forecast(?:ing)?|volatil|GARCH|ARIMA|Box.Jenkins|unit.root|serial.correlation|HAC|Diebold.Mariano|Tashman|Pesaran.Timmermann|DEPTS|Lag-Llama|TSMixer|Ti-MAE|temporal.+neural",
+            re.I,
+        ),
+        "time_series",
+    ),
+    (
+        re.compile(
+            r"Shumway.*Stoffer|Aileen Nielsen|Bergmeir|Andrews.*Bandwidth|Newey.West|Said.Dickey|Harvey.*Adjustment|Goodhart.*Interest Rate|Conformal.*Time Series|Conformal PID",
+            re.I,
+        ),
+        "time_series",
+    ),
     # RAG / LLM
-    (re.compile(r"RAG|retriev.+augment|LLM|large language model|GPT|Llama\b|hallucin|tool.?use|text.to.sql|knowledge graph|GraphRAG|chatbot|RAIN.*align|BeaverTails|PandaLM|EduChat|ToolLLM|ART.*multi.step.*reason|Building AI Agents.*LLM|Intro.?To Knowledge Graphs", re.I), "rag_llm"),
+    (
+        re.compile(
+            r"RAG|retriev.+augment|LLM|large language model|GPT|Llama\b|hallucin|tool.?use|text.to.sql|knowledge graph|GraphRAG|chatbot|RAIN.*align|BeaverTails|PandaLM|EduChat|ToolLLM|ART.*multi.step.*reason|Building AI Agents.*LLM|Intro.?To Knowledge Graphs",
+            re.I,
+        ),
+        "rag_llm",
+    ),
     (re.compile(r"Openai.*Technical|Touvron.*Llama|SMART.LLM", re.I), "rag_llm"),
     # Deep learning
-    (re.compile(r"deep.learn|neural.network|transformer(?!.*time)|attention.mechanism|self.supervised|diffusion.model|vision|ViT|image|video|Paint Transformer|GNN|graph neural", re.I), "deep_learning"),
+    (
+        re.compile(
+            r"deep.learn|neural.network|transformer(?!.*time)|attention.mechanism|self.supervised|diffusion.model|vision|ViT|image|video|Paint Transformer|GNN|graph neural",
+            re.I,
+        ),
+        "deep_learning",
+    ),
     (re.compile(r"Santanu Pattanayak|Dosovitskiy", re.I), "deep_learning"),
     # Machine learning
-    (re.compile(r"machine.learn|xgboost|ensemble.method|imbalanced.class|causal.forest|regression.tree|random.forest|genetic.algorithm|reinforcement.learn|conformal.predict(?!.*time)|agent.based", re.I), "machine_learning"),
-    (re.compile(r"Shalev.Shwartz|Deisenroth.*Mathematics|optimization.*machine learning|machine learning mastery|machine learning algorithms", re.I), "machine_learning"),
+    (
+        re.compile(
+            r"machine.learn|xgboost|ensemble.method|imbalanced.class|causal.forest|regression.tree|random.forest|genetic.algorithm|reinforcement.learn|conformal.predict(?!.*time)|agent.based",
+            re.I,
+        ),
+        "machine_learning",
+    ),
+    (
+        re.compile(
+            r"Shalev.Shwartz|Deisenroth.*Mathematics|optimization.*machine learning|machine learning mastery|machine learning algorithms",
+            re.I,
+        ),
+        "machine_learning",
+    ),
     # Statistics
-    (re.compile(r"statistic(?:s|al)|bayesian|biostat|binomial|probability|multilevel|hierarchical.+model|Agresti|Wasserman|openintro", re.I), "statistics"),
-    (re.compile(r"computer.age.statistical|probabilistic.graphical|Koller.*Friedman|Lee.*Bayesian|Donovan.*Bayesian", re.I), "statistics"),
+    (
+        re.compile(
+            r"statistic(?:s|al)|bayesian|biostat|binomial|probability|multilevel|hierarchical.+model|Agresti|Wasserman|openintro",
+            re.I,
+        ),
+        "statistics",
+    ),
+    (
+        re.compile(
+            r"computer.age.statistical|probabilistic.graphical|Koller.*Friedman|Lee.*Bayesian|Donovan.*Bayesian",
+            re.I,
+        ),
+        "statistics",
+    ),
     # Finance
-    (re.compile(r"option.pricing|Black.Scholes|Hull.*Derivative|Bitcoin|equity.*annuit|investment.guarantee|credit.*model|FinRegLab|fintech", re.I), "finance"),
-    (re.compile(r"Boyle.*Annuit|Hardy.*Guarantee|Responsible.+Credit|Wu.*Fintech", re.I), "finance"),
+    (
+        re.compile(
+            r"option.pricing|Black.Scholes|Hull.*Derivative|Bitcoin|equity.*annuit|investment.guarantee|credit.*model|FinRegLab|fintech",
+            re.I,
+        ),
+        "finance",
+    ),
+    (
+        re.compile(r"Boyle.*Annuit|Hardy.*Guarantee|Responsible.+Credit|Wu.*Fintech", re.I),
+        "finance",
+    ),
     # Econometrics (specific papers/books not caught by causal)
-    (re.compile(r"econometric|The Effect(?!.*COVID)|COVID.*lockdown|vaccination|PM2\.5|air.pollu", re.I), "econometrics"),
+    (
+        re.compile(
+            r"econometric|The Effect(?!.*COVID)|COVID.*lockdown|vaccination|PM2\.5|air.pollu",
+            re.I,
+        ),
+        "econometrics",
+    ),
     # Software engineering
-    (re.compile(r"API.design|web.API|cloud.platform|GitHub.Action|software.developer|software.engineering|ML.pipeline|data.science.on.AWS|TensorFlow|data.structure|algorithm(?:s)?.illuminat|problem.solving.with.algo|programming.with", re.I), "software_engineering"),
-    (re.compile(r"Geewax|Chris Fregly|Hannes Hapke|Jay Wengrow|Scopatz.*Physics|ScalaByExample|Skills of a Software|Nick Alteen|Moroney.*Coders|Ameisen.*Building|Ryan.*White.*Distributed|Miller.*Problem Solving|Roughgarden.*Algorithms|Kulikov.*Puzzle", re.I), "software_engineering"),
+    (
+        re.compile(
+            r"API.design|web.API|cloud.platform|GitHub.Action|software.developer|software.engineering|ML.pipeline|data.science.on.AWS|TensorFlow|data.structure|algorithm(?:s)?.illuminat|problem.solving.with.algo|programming.with",
+            re.I,
+        ),
+        "software_engineering",
+    ),
+    (
+        re.compile(
+            r"Geewax|Chris Fregly|Hannes Hapke|Jay Wengrow|Scopatz.*Physics|ScalaByExample|Skills of a Software|Nick Alteen|Moroney.*Coders|Ameisen.*Building|Ryan.*White.*Distributed|Miller.*Problem Solving|Roughgarden.*Algorithms|Kulikov.*Puzzle",
+            re.I,
+        ),
+        "software_engineering",
+    ),
     # Data science
     (re.compile(r"data.science|getting.started.with.data", re.I), "data_science"),
     (re.compile(r"Murtaza Haider", re.I), "data_science"),
     # Mathematics
-    (re.compile(r"linear.algebra|differential.equation|numerical.method|ODE|quantum.mechanic|quantum.field|quantum.theory|classical.dynamic|classical.mechanic|math.programming|multivari.+calculus|complex.analysis|spectral.method", re.I), "mathematics"),
-    (re.compile(r"Strang.*Linear|Lay.*Linear|Trefethen|Boyd.*Vandenberghe|Aggarwal.*Linear|Lipschutz|Sakurai|Griffiths.*Schroeter|Goldstein.*Poole|Klauber.*Quantum|Arnold.*ODE|Chicone|Bronson.*Differential|Hubbard.*Schaum|Miller.*Quantum|José.*Saletan|quantitative.economics.*julia", re.I), "mathematics"),
+    (
+        re.compile(
+            r"linear.algebra|differential.equation|numerical.method|ODE|quantum.mechanic|quantum.field|quantum.theory|classical.dynamic|classical.mechanic|math.programming|multivari.+calculus|complex.analysis|spectral.method",
+            re.I,
+        ),
+        "mathematics",
+    ),
+    (
+        re.compile(
+            r"Strang.*Linear|Lay.*Linear|Trefethen|Boyd.*Vandenberghe|Aggarwal.*Linear|Lipschutz|Sakurai|Griffiths.*Schroeter|Goldstein.*Poole|Klauber.*Quantum|Arnold.*ODE|Chicone|Bronson.*Differential|Hubbard.*Schaum|Miller.*Quantum|José.*Saletan|quantitative.economics.*julia",
+            re.I,
+        ),
+        "mathematics",
+    ),
     # Physics (specialized, beyond math)
-    (re.compile(r"quantum.field.theory.*gifted|strength.training|locomotion|robotic|grasping", re.I), "physics"),
+    (
+        re.compile(
+            r"quantum.field.theory.*gifted|strength.training|locomotion|robotic|grasping",
+            re.I,
+        ),
+        "physics",
+    ),
     # Algorithms (if not caught by SE)
-    (re.compile(r"Kochenderfer.*Algorithms|community.detect|Traag.*Algorithm|graph.algorithm", re.I), "algorithms"),
+    (
+        re.compile(
+            r"Kochenderfer.*Algorithms|community.detect|Traag.*Algorithm|graph.algorithm",
+            re.I,
+        ),
+        "algorithms",
+    ),
     # Network science / graph algorithms
     (re.compile(r"network.data|Kolaczyk", re.I), "data_science"),
     # Functional programming
@@ -156,17 +267,68 @@ async def identify_arxiv_papers(pool) -> dict[str, str]:
         title = row["title"]
 
         # Try to classify from chunk content
-        if any(kw in chunk for kw in ["causal", "treatment effect", "instrumental", "confound", "potential outcome"]):
+        if any(
+            kw in chunk
+            for kw in [
+                "causal",
+                "treatment effect",
+                "instrumental",
+                "confound",
+                "potential outcome",
+            ]
+        ):
             classifications[sid] = "causal_inference"
-        elif any(kw in chunk for kw in ["time series", "forecast", "temporal", "volatil", "arima", "lstm"]):
+        elif any(
+            kw in chunk
+            for kw in [
+                "time series",
+                "forecast",
+                "temporal",
+                "volatil",
+                "arima",
+                "lstm",
+            ]
+        ):
             classifications[sid] = "time_series"
-        elif any(kw in chunk for kw in ["retrieval", "augment", "language model", "llm", "gpt", "prompt", "rag"]):
+        elif any(
+            kw in chunk
+            for kw in [
+                "retrieval",
+                "augment",
+                "language model",
+                "llm",
+                "gpt",
+                "prompt",
+                "rag",
+            ]
+        ):
             classifications[sid] = "rag_llm"
-        elif any(kw in chunk for kw in ["transformer", "attention", "bert", "pre-train", "self-supervis", "diffusion", "neural network", "deep learn"]):
+        elif any(
+            kw in chunk
+            for kw in [
+                "transformer",
+                "attention",
+                "bert",
+                "pre-train",
+                "self-supervis",
+                "diffusion",
+                "neural network",
+                "deep learn",
+            ]
+        ):
             classifications[sid] = "deep_learning"
         elif any(kw in chunk for kw in ["reinforcement learn", "robot", "locomot", "grasp"]):
             classifications[sid] = "deep_learning"
-        elif any(kw in chunk for kw in ["machine learn", "classif", "regression", "ensemble", "random forest"]):
+        elif any(
+            kw in chunk
+            for kw in [
+                "machine learn",
+                "classif",
+                "regression",
+                "ensemble",
+                "random forest",
+            ]
+        ):
             classifications[sid] = "machine_learning"
         elif any(kw in chunk for kw in ["conformal", "prediction interval", "coverage"]):
             classifications[sid] = "statistics"
@@ -197,7 +359,8 @@ async def main(apply: bool = False):
                 await pool.execute(
                     "UPDATE sources SET metadata = jsonb_set(metadata, '{domain}', $1::jsonb) "
                     "WHERE metadata->>'domain' = $2",
-                    f'"{new}"', old,
+                    f'"{new}"',
+                    old,
                 )
 
     if norm_count == 0:
@@ -279,7 +442,8 @@ async def main(apply: bool = False):
                     "UPDATE sources SET metadata = jsonb_set("
                     "  COALESCE(metadata, '{}'::jsonb), '{domain}', $1::jsonb"
                     ") WHERE id = $2",
-                    f'"{domain}"', __import__("uuid").UUID(sid),
+                    f'"{domain}"',
+                    __import__("uuid").UUID(sid),
                 )
         print("  Done.")
     elif not apply and classified:

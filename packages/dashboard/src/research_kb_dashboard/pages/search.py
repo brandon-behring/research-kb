@@ -99,20 +99,22 @@ def search_page():
                 ["balanced", "building", "auditing"],
                 index=0,
                 help="building: favor semantic breadth (80% vector), "
-                     "auditing: favor precision (50/50), "
-                     "balanced: default (70% vector)",
+                "auditing: favor precision (50/50), "
+                "balanced: default (70% vector)",
             )
 
     # Execute search
     if query:
         try:
             with st.spinner("Searching..."):
-                results = run_async(search_chunks(
-                    query_text=query,
-                    limit=limit,
-                    context_type=context_type,
-                    source_type_filter=source_type,
-                ))
+                results = run_async(
+                    search_chunks(
+                        query_text=query,
+                        limit=limit,
+                        context_type=context_type,
+                        source_type_filter=source_type,
+                    )
+                )
 
             if not results:
                 st.warning("No results found. Try different keywords.")

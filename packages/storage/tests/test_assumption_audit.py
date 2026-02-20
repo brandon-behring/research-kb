@@ -16,9 +16,8 @@ Mocks httpx for Ollama interaction tests.
 
 import json
 import pytest
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from research_kb_contracts import ConceptType, RelationshipType
 from research_kb_storage import (
@@ -29,9 +28,10 @@ from research_kb_storage.assumption_audit import (
     AssumptionDetail,
     MethodAssumptions,
     MethodAssumptionAuditor,
-    MIN_ASSUMPTIONS_THRESHOLD,
     _generate_docstring_snippet,
 )
+
+pytestmark = pytest.mark.integration
 
 
 # =============================================================================
@@ -63,9 +63,27 @@ async def method_with_assumptions(db_pool):
     assumptions = {}
     assumption_data = [
         ("unconfoundedness", "No unmeasured confounders", "REQUIRES", 0.95, 0.9),
-        ("overlap", "Positive probability of treatment for all X", "REQUIRES", 0.90, 0.85),
-        ("convergence_rate", "Nuisance estimators converge at n^{-1/4}", "USES", 0.80, 0.8),
-        ("sample_splitting", "Independent samples for nuisance and target", "USES", 0.70, 0.75),
+        (
+            "overlap",
+            "Positive probability of treatment for all X",
+            "REQUIRES",
+            0.90,
+            0.85,
+        ),
+        (
+            "convergence_rate",
+            "Nuisance estimators converge at n^{-1/4}",
+            "USES",
+            0.80,
+            0.8,
+        ),
+        (
+            "sample_splitting",
+            "Independent samples for nuisance and target",
+            "USES",
+            0.70,
+            0.75,
+        ),
     ]
 
     for name, definition, rel_type, strength, confidence in assumption_data:
@@ -489,26 +507,31 @@ class TestExtractAssumptionsWithOllama:
     async def test_successful_extraction(self):
         """Successful Ollama call returns parsed AssumptionDetail objects."""
         ollama_response = {
-            "response": json.dumps({
-                "assumptions": [
-                    {
-                        "name": "unconfoundedness",
-                        "formal_statement": "Y(t) \\perp T | X",
-                        "plain_english": "No unmeasured confounders",
-                        "importance": "critical",
-                        "violation_consequence": "Biased causal estimates",
-                        "verification_approaches": ["DAG review", "sensitivity analysis"],
-                    },
-                    {
-                        "name": "overlap",
-                        "formal_statement": "0 < P(T=1|X) < 1",
-                        "plain_english": "Positive treatment probability",
-                        "importance": "critical",
-                        "violation_consequence": "Extreme weights",
-                        "verification_approaches": ["propensity score histogram"],
-                    },
-                ]
-            })
+            "response": json.dumps(
+                {
+                    "assumptions": [
+                        {
+                            "name": "unconfoundedness",
+                            "formal_statement": "Y(t) \\perp T | X",
+                            "plain_english": "No unmeasured confounders",
+                            "importance": "critical",
+                            "violation_consequence": "Biased causal estimates",
+                            "verification_approaches": [
+                                "DAG review",
+                                "sensitivity analysis",
+                            ],
+                        },
+                        {
+                            "name": "overlap",
+                            "formal_statement": "0 < P(T=1|X) < 1",
+                            "plain_english": "Positive treatment probability",
+                            "importance": "critical",
+                            "violation_consequence": "Extreme weights",
+                            "verification_approaches": ["propensity score histogram"],
+                        },
+                    ]
+                }
+            )
         }
 
         mock_client = AsyncMock()
@@ -528,8 +551,10 @@ class TestExtractAssumptionsWithOllama:
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
 
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("httpx.Timeout", return_value=MagicMock()):
+        with (
+            patch("httpx.AsyncClient", return_value=mock_client),
+            patch("httpx.Timeout", return_value=MagicMock()),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_ollama(
                 method_name="DML",
                 definition="Double Machine Learning",
@@ -550,8 +575,10 @@ class TestExtractAssumptionsWithOllama:
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
 
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("httpx.Timeout", return_value=MagicMock()):
+        with (
+            patch("httpx.AsyncClient", return_value=mock_client),
+            patch("httpx.Timeout", return_value=MagicMock()),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_ollama(
                 method_name="DML"
             )
@@ -575,8 +602,10 @@ class TestExtractAssumptionsWithOllama:
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
 
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("httpx.Timeout", return_value=MagicMock()):
+        with (
+            patch("httpx.AsyncClient", return_value=mock_client),
+            patch("httpx.Timeout", return_value=MagicMock()),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_ollama(
                 method_name="DML"
             )
@@ -586,15 +615,17 @@ class TestExtractAssumptionsWithOllama:
     async def test_invalid_importance_normalized(self):
         """Unrecognized importance value is normalized to 'standard'."""
         ollama_response = {
-            "response": json.dumps({
-                "assumptions": [
-                    {
-                        "name": "test_assumption",
-                        "importance": "high",  # Invalid value
-                        "plain_english": "test",
-                    }
-                ]
-            })
+            "response": json.dumps(
+                {
+                    "assumptions": [
+                        {
+                            "name": "test_assumption",
+                            "importance": "high",  # Invalid value
+                            "plain_english": "test",
+                        }
+                    ]
+                }
+            )
         }
 
         mock_client = AsyncMock()
@@ -612,8 +643,10 @@ class TestExtractAssumptionsWithOllama:
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
 
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("httpx.Timeout", return_value=MagicMock()):
+        with (
+            patch("httpx.AsyncClient", return_value=mock_client),
+            patch("httpx.Timeout", return_value=MagicMock()),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_ollama(
                 method_name="test"
             )
@@ -632,8 +665,10 @@ class TestExtractAssumptionsWithOllama:
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
 
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("httpx.Timeout", return_value=MagicMock()):
+        with (
+            patch("httpx.AsyncClient", return_value=mock_client),
+            patch("httpx.Timeout", return_value=MagicMock()),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_ollama(
                 method_name="test"
             )
@@ -695,7 +730,8 @@ class TestCacheAssumptions:
 
         # Create the cache table for this test
         async with pool.acquire() as conn:
-            await conn.execute("""
+            await conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS method_assumption_cache (
                     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                     method_concept_id UUID NOT NULL REFERENCES concepts(id) ON DELETE CASCADE,
@@ -713,7 +749,8 @@ class TestCacheAssumptions:
                     updated_at TIMESTAMPTZ DEFAULT NOW(),
                     UNIQUE(method_concept_id, assumption_name)
                 )
-            """)
+            """
+            )
 
         try:
             assumptions = [
@@ -805,20 +842,22 @@ class TestAuditAssumptions:
         method, _ = method_sparse
 
         ollama_response = {
-            "response": json.dumps({
-                "assumptions": [
-                    {
-                        "name": "no_anticipation",
-                        "plain_english": "No anticipation of treatment",
-                        "importance": "critical",
-                    },
-                    {
-                        "name": "convex_hull",
-                        "plain_english": "Treated unit in convex hull of controls",
-                        "importance": "standard",
-                    },
-                ]
-            })
+            "response": json.dumps(
+                {
+                    "assumptions": [
+                        {
+                            "name": "no_anticipation",
+                            "plain_english": "No anticipation of treatment",
+                            "importance": "critical",
+                        },
+                        {
+                            "name": "convex_hull",
+                            "plain_english": "Treated unit in convex hull of controls",
+                            "importance": "standard",
+                        },
+                    ]
+                }
+            )
         }
 
         mock_client = AsyncMock()
@@ -836,8 +875,10 @@ class TestAuditAssumptions:
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
 
-        with patch("httpx.AsyncClient", return_value=mock_client), \
-             patch("httpx.Timeout", return_value=MagicMock()):
+        with (
+            patch("httpx.AsyncClient", return_value=mock_client),
+            patch("httpx.Timeout", return_value=MagicMock()),
+        ):
             result = await MethodAssumptionAuditor.audit_assumptions(
                 method.name,
                 use_ollama_fallback=True,
@@ -991,34 +1032,39 @@ class TestExtractAssumptionsWithAnthropic:
 
     async def test_successful_extraction(self):
         """Successful Anthropic call returns parsed AssumptionDetail objects."""
-        response_json = json.dumps({
-            "assumptions": [
-                {
-                    "name": "unconfoundedness",
-                    "formal_statement": "Y(t) \\perp T | X",
-                    "plain_english": "No unmeasured confounders",
-                    "importance": "critical",
-                    "violation_consequence": "Biased causal estimates",
-                    "verification_approaches": ["DAG review", "sensitivity analysis"],
-                },
-                {
-                    "name": "overlap",
-                    "formal_statement": "0 < P(T=1|X) < 1",
-                    "plain_english": "Positive treatment probability",
-                    "importance": "critical",
-                    "violation_consequence": "Extreme weights",
-                    "verification_approaches": ["propensity score histogram"],
-                },
-                {
-                    "name": "convergence_rate",
-                    "formal_statement": "n^{-1/4} rate",
-                    "plain_english": "Nuisance estimators converge fast enough",
-                    "importance": "technical",
-                    "violation_consequence": "Biased debiased estimator",
-                    "verification_approaches": ["cross-validation"],
-                },
-            ]
-        })
+        response_json = json.dumps(
+            {
+                "assumptions": [
+                    {
+                        "name": "unconfoundedness",
+                        "formal_statement": "Y(t) \\perp T | X",
+                        "plain_english": "No unmeasured confounders",
+                        "importance": "critical",
+                        "violation_consequence": "Biased causal estimates",
+                        "verification_approaches": [
+                            "DAG review",
+                            "sensitivity analysis",
+                        ],
+                    },
+                    {
+                        "name": "overlap",
+                        "formal_statement": "0 < P(T=1|X) < 1",
+                        "plain_english": "Positive treatment probability",
+                        "importance": "critical",
+                        "violation_consequence": "Extreme weights",
+                        "verification_approaches": ["propensity score histogram"],
+                    },
+                    {
+                        "name": "convergence_rate",
+                        "formal_statement": "n^{-1/4} rate",
+                        "plain_english": "Nuisance estimators converge fast enough",
+                        "importance": "technical",
+                        "violation_consequence": "Biased debiased estimator",
+                        "verification_approaches": ["cross-validation"],
+                    },
+                ]
+            }
+        )
 
         mock_message = MagicMock()
         mock_message.content = [MagicMock(text=response_json)]
@@ -1029,8 +1075,10 @@ class TestExtractAssumptionsWithAnthropic:
         mock_anthropic_module = MagicMock()
         mock_anthropic_module.Anthropic.return_value = mock_client
 
-        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
-             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
                 method_name="DML",
                 definition="Double Machine Learning",
@@ -1051,6 +1099,7 @@ class TestExtractAssumptionsWithAnthropic:
         with patch.dict("os.environ", {}, clear=False):
             # Ensure ANTHROPIC_API_KEY is not set
             import os
+
             original = os.environ.pop("ANTHROPIC_API_KEY", None)
             try:
                 results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
@@ -1073,8 +1122,10 @@ class TestExtractAssumptionsWithAnthropic:
                 raise ImportError("No module named 'anthropic'")
             return original_import(name, *args, **kwargs)
 
-        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
-             patch("builtins.__import__", side_effect=mock_import):
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}),
+            patch("builtins.__import__", side_effect=mock_import),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
                 method_name="DML",
             )
@@ -1092,8 +1143,10 @@ class TestExtractAssumptionsWithAnthropic:
         mock_anthropic_module = MagicMock()
         mock_anthropic_module.Anthropic.return_value = mock_client
 
-        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
-             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
                 method_name="DML",
             )
@@ -1108,8 +1161,10 @@ class TestExtractAssumptionsWithAnthropic:
         mock_anthropic_module = MagicMock()
         mock_anthropic_module.Anthropic.return_value = mock_client
 
-        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
-             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
                 method_name="DML",
             )
@@ -1118,15 +1173,17 @@ class TestExtractAssumptionsWithAnthropic:
 
     async def test_invalid_importance_normalized(self):
         """Unrecognized importance value is normalized to 'standard'."""
-        response_json = json.dumps({
-            "assumptions": [
-                {
-                    "name": "test_assumption",
-                    "importance": "high",  # Invalid value
-                    "plain_english": "test",
-                }
-            ]
-        })
+        response_json = json.dumps(
+            {
+                "assumptions": [
+                    {
+                        "name": "test_assumption",
+                        "importance": "high",  # Invalid value
+                        "plain_english": "test",
+                    }
+                ]
+            }
+        )
 
         mock_message = MagicMock()
         mock_message.content = [MagicMock(text=response_json)]
@@ -1137,8 +1194,10 @@ class TestExtractAssumptionsWithAnthropic:
         mock_anthropic_module = MagicMock()
         mock_anthropic_module.Anthropic.return_value = mock_client
 
-        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
-             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
                 method_name="test",
             )
@@ -1148,15 +1207,17 @@ class TestExtractAssumptionsWithAnthropic:
 
     async def test_code_fenced_json_parsed_correctly(self):
         """JSON wrapped in markdown code fences is parsed correctly."""
-        inner_json = json.dumps({
-            "assumptions": [
-                {
-                    "name": "overlap",
-                    "plain_english": "Positive treatment probability",
-                    "importance": "critical",
-                }
-            ]
-        })
+        inner_json = json.dumps(
+            {
+                "assumptions": [
+                    {
+                        "name": "overlap",
+                        "plain_english": "Positive treatment probability",
+                        "importance": "critical",
+                    }
+                ]
+            }
+        )
         # Wrap in code fences like Haiku actually does
         fenced_response = f"```json\n{inner_json}\n```"
 
@@ -1169,8 +1230,10 @@ class TestExtractAssumptionsWithAnthropic:
         mock_anthropic_module = MagicMock()
         mock_anthropic_module.Anthropic.return_value = mock_client
 
-        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}), \
-             patch.dict("sys.modules", {"anthropic": mock_anthropic_module}):
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
             results = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
                 method_name="IPW",
             )
@@ -1217,22 +1280,24 @@ class TestAuditAssumptionsBackendDispatch:
             ),
         ]
 
-        with patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_anthropic",
-            new_callable=AsyncMock,
-            return_value=anthropic_response,
-        ) as mock_anthropic, \
-        patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_ollama",
-            new_callable=AsyncMock,
-        ) as mock_ollama, \
-        patch.object(
-            MethodAssumptionAuditor,
-            "cache_assumptions",
-            new_callable=AsyncMock,
-            return_value=3,
+        with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_anthropic",
+                new_callable=AsyncMock,
+                return_value=anthropic_response,
+            ) as mock_anthropic,
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_ollama",
+                new_callable=AsyncMock,
+            ) as mock_ollama,
+            patch.object(
+                MethodAssumptionAuditor,
+                "cache_assumptions",
+                new_callable=AsyncMock,
+                return_value=3,
+            ),
         ):
             result = await MethodAssumptionAuditor.audit_assumptions(
                 method.name,
@@ -1269,22 +1334,24 @@ class TestAuditAssumptionsBackendDispatch:
             ),
         ]
 
-        with patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_ollama",
-            new_callable=AsyncMock,
-            return_value=ollama_response,
-        ) as mock_ollama, \
-        patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_anthropic",
-            new_callable=AsyncMock,
-        ) as mock_anthropic, \
-        patch.object(
-            MethodAssumptionAuditor,
-            "cache_assumptions",
-            new_callable=AsyncMock,
-            return_value=3,
+        with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_ollama",
+                new_callable=AsyncMock,
+                return_value=ollama_response,
+            ) as mock_ollama,
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_anthropic",
+                new_callable=AsyncMock,
+            ) as mock_anthropic,
+            patch.object(
+                MethodAssumptionAuditor,
+                "cache_assumptions",
+                new_callable=AsyncMock,
+                return_value=3,
+            ),
         ):
             result = await MethodAssumptionAuditor.audit_assumptions(
                 method.name,
@@ -1300,16 +1367,18 @@ class TestAuditAssumptionsBackendDispatch:
         """use_llm_fallback=False skips LLM extraction entirely."""
         method, _ = method_sparse
 
-        with patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_anthropic",
-            new_callable=AsyncMock,
-        ) as mock_anthropic, \
-        patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_ollama",
-            new_callable=AsyncMock,
-        ) as mock_ollama:
+        with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_anthropic",
+                new_callable=AsyncMock,
+            ) as mock_anthropic,
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_ollama",
+                new_callable=AsyncMock,
+            ) as mock_ollama,
+        ):
             result = await MethodAssumptionAuditor.audit_assumptions(
                 method.name,
                 use_llm_fallback=False,
@@ -1324,21 +1393,23 @@ class TestAuditAssumptionsBackendDispatch:
         """Legacy use_ollama_fallback=True still works with default llm_backend."""
         method, _ = method_sparse
 
-        with patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_ollama",
-            new_callable=AsyncMock,
-            return_value=[
-                AssumptionDetail(name="a1", importance="critical", confidence=0.7),
-                AssumptionDetail(name="a2", importance="standard", confidence=0.7),
-                AssumptionDetail(name="a3", importance="standard", confidence=0.7),
-            ],
-        ) as mock_ollama, \
-        patch.object(
-            MethodAssumptionAuditor,
-            "cache_assumptions",
-            new_callable=AsyncMock,
-            return_value=3,
+        with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_ollama",
+                new_callable=AsyncMock,
+                return_value=[
+                    AssumptionDetail(name="a1", importance="critical", confidence=0.7),
+                    AssumptionDetail(name="a2", importance="standard", confidence=0.7),
+                    AssumptionDetail(name="a3", importance="standard", confidence=0.7),
+                ],
+            ) as mock_ollama,
+            patch.object(
+                MethodAssumptionAuditor,
+                "cache_assumptions",
+                new_callable=AsyncMock,
+                return_value=3,
+            ),
         ):
             result = await MethodAssumptionAuditor.audit_assumptions(
                 method.name,
@@ -1353,16 +1424,18 @@ class TestAuditAssumptionsBackendDispatch:
         """Methods with >=3 graph assumptions don't trigger LLM fallback."""
         method, _ = method_with_assumptions
 
-        with patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_anthropic",
-            new_callable=AsyncMock,
-        ) as mock_anthropic, \
-        patch.object(
-            MethodAssumptionAuditor,
-            "extract_assumptions_with_ollama",
-            new_callable=AsyncMock,
-        ) as mock_ollama:
+        with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_anthropic",
+                new_callable=AsyncMock,
+            ) as mock_anthropic,
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_ollama",
+                new_callable=AsyncMock,
+            ) as mock_ollama,
+        ):
             result = await MethodAssumptionAuditor.audit_assumptions(
                 method.name,
                 use_llm_fallback=True,

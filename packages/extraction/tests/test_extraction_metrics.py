@@ -14,6 +14,8 @@ from tempfile import TemporaryDirectory
 
 from research_kb_extraction.metrics import ExtractionMetrics
 
+pytestmark = pytest.mark.unit
+
 
 class TestExtractionMetricsInit:
     """Tests for ExtractionMetrics initialization."""

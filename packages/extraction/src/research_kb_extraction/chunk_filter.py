@@ -50,9 +50,7 @@ PATTERNS = {
         r"^[\s\d\.\,\-\|]+$",
         re.MULTILINE,
     ),
-    "equation_heavy": re.compile(
-        r"[∑∏∫∂∇√∞≈≠≤≥∈∉⊂⊃∪∩]"
-    ),
+    "equation_heavy": re.compile(r"[∑∏∫∂∇√∞≈≠≤≥∈∉⊂⊃∪∩]"),
     "repeated_header": re.compile(
         r"^(Chapter|Section|Figure|Table)\s+\d",
         re.MULTILINE | re.IGNORECASE,

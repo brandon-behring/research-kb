@@ -221,14 +221,20 @@ async def search(options: SearchOptions) -> SearchResponse:
                     title=result.source.title,
                     authors=result.source.authors or [],
                     year=result.source.year,
-                    source_type=result.source.source_type.value if result.source.source_type else None,
+                    source_type=(
+                        result.source.source_type.value if result.source.source_type else None
+                    ),
                 ),
                 chunk=ChunkSummary(
                     id=str(result.chunk.id),
                     content=result.chunk.content,
                     page_start=result.chunk.page_start,
                     page_end=result.chunk.page_end,
-                    section=result.chunk.metadata.get("section_header") if result.chunk.metadata else None,
+                    section=(
+                        result.chunk.metadata.get("section_header")
+                        if result.chunk.metadata
+                        else None
+                    ),
                 ),
                 scores=ScoreBreakdown(
                     fts=0.0,
@@ -305,7 +311,9 @@ async def search(options: SearchOptions) -> SearchResponse:
             rerank_top_k=options.limit,
         )
         if expanded_query:
-            response.expanded_query = ", ".join(expanded_query.expanded_terms) if expanded_query.expanded_terms else None
+            response.expanded_query = (
+                ", ".join(expanded_query.expanded_terms) if expanded_query.expanded_terms else None
+            )
     elif options.use_rerank:
         results = await search_with_rerank(search_query, rerank_top_k=options.limit)
     elif use_graph:
@@ -323,14 +331,18 @@ async def search(options: SearchOptions) -> SearchResponse:
                 title=result.source.title,
                 authors=result.source.authors or [],
                 year=result.source.year,
-                source_type=result.source.source_type.value if result.source.source_type else None,
+                source_type=(
+                    result.source.source_type.value if result.source.source_type else None
+                ),
             ),
             chunk=ChunkSummary(
                 id=str(result.chunk.id),
                 content=result.chunk.content,
                 page_start=result.chunk.page_start,
                 page_end=result.chunk.page_end,
-                section=result.chunk.metadata.get("section_header") if result.chunk.metadata else None,
+                section=(
+                    result.chunk.metadata.get("section_header") if result.chunk.metadata else None
+                ),
             ),
             scores=ScoreBreakdown(
                 fts=getattr(result, "fts_score", 0.0) or 0.0,
@@ -403,7 +415,11 @@ async def get_graph_neighborhood(
     # Find concept by name
     concepts = await ConceptStore.search(concept_name, limit=1)
     if not concepts:
-        return {"error": f"Concept '{concept_name}' not found", "nodes": [], "edges": []}
+        return {
+            "error": f"Concept '{concept_name}' not found",
+            "nodes": [],
+            "edges": [],
+        }
 
     concept = concepts[0]
     neighborhood = await get_neighborhood(str(concept.id), max_hops=hops)
@@ -482,7 +498,11 @@ async def get_graph_path(
         concept_data = {
             "id": str(concept.id),
             "name": concept.canonical_name or concept.name,
-            "type": concept.concept_type.value if hasattr(concept.concept_type, "value") else str(concept.concept_type),
+            "type": (
+                concept.concept_type.value
+                if hasattr(concept.concept_type, "value")
+                else str(concept.concept_type)
+            ),
         }
         if include_definitions and concept.definition:
             concept_data["definition"] = concept.definition
@@ -491,7 +511,11 @@ async def get_graph_path(
 
         # Collect relationship types (skip first - no incoming edge)
         if i > 0 and relationship:
-            rel_type = relationship.relationship_type.value if hasattr(relationship.relationship_type, "value") else str(relationship.relationship_type)
+            rel_type = (
+                relationship.relationship_type.value
+                if hasattr(relationship.relationship_type, "value")
+                else str(relationship.relationship_type)
+            )
             relationships.append(rel_type)
 
     result = {
@@ -542,12 +566,6 @@ async def get_citations_for_source(source_id: str) -> dict:
 
     return {
         "source_id": source_id,
-        "citing_sources": [
-            {"id": str(s.id), "title": s.title, "year": s.year}
-            for s in citing
-        ],
-        "cited_sources": [
-            {"id": str(s.id), "title": s.title, "year": s.year}
-            for s in cited
-        ],
+        "citing_sources": [{"id": str(s.id), "title": s.title, "year": s.year} for s in citing],
+        "cited_sources": [{"id": str(s.id), "title": s.title, "year": s.year} for s in cited],
     }

@@ -33,7 +33,12 @@ from research_kb_pdf import (
     chunk_with_sections,
     extract_with_headings,
 )
-from research_kb_storage import ChunkStore, DatabaseConfig, SourceStore, get_connection_pool
+from research_kb_storage import (
+    ChunkStore,
+    DatabaseConfig,
+    SourceStore,
+    get_connection_pool,
+)
 
 logger = get_logger(__name__)
 
@@ -75,7 +80,12 @@ MMM_PAPERS = [
         "metadata": {
             "domain": "causal_inference",
             "topic": "mmm",
-            "subtopics": ["calibration", "priors", "roas_reparameterization", "experiment_integration"],
+            "subtopics": [
+                "calibration",
+                "priors",
+                "roas_reparameterization",
+                "experiment_integration",
+            ],
             "google_pubid": "7494",
         },
     },
@@ -101,7 +111,12 @@ MMM_PAPERS = [
         "metadata": {
             "domain": "causal_inference",
             "topic": "mmm",
-            "subtopics": ["bias_correction", "paid_search", "backdoor_criterion", "confounding"],
+            "subtopics": [
+                "bias_correction",
+                "paid_search",
+                "backdoor_criterion",
+                "confounding",
+            ],
             "arxiv_id": "1807.03292",
         },
     },
@@ -114,7 +129,12 @@ MMM_PAPERS = [
         "metadata": {
             "domain": "causal_inference",
             "topic": "mmm",
-            "subtopics": ["selection_bias", "data_challenges", "simulation", "overview"],
+            "subtopics": [
+                "selection_bias",
+                "data_challenges",
+                "simulation",
+                "overview",
+            ],
             "google_pubid": "3803",
         },
     },
@@ -300,9 +320,7 @@ async def main():
             print(f"  Headings: {num_headings}")
 
         except Exception as e:
-            logger.error(
-                "ingestion_failed", title=pdf_data["title"], error=str(e), exc_info=True
-            )
+            logger.error("ingestion_failed", title=pdf_data["title"], error=str(e), exc_info=True)
             results.append(
                 {
                     "title": pdf_data["title"],
@@ -332,7 +350,7 @@ async def main():
 
         print("\nPer-PDF Breakdown:")
         for r in successful:
-            title_short = r['title'][:55]
+            title_short = r["title"][:55]
             print(f"  {title_short:55} | {r['chunks']:3} chunks | {r['headings']:2} headings")
 
     if failed:

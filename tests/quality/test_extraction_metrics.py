@@ -8,8 +8,6 @@ These tests validate the quality of the entire pipeline:
 """
 
 import pytest
-import pytest_asyncio
-from pathlib import Path
 import time
 from collections import Counter
 
@@ -36,15 +34,12 @@ async def test_seed_concept_recall_threshold(seed_concepts, extracted_concepts):
         pytest.skip("No concepts extracted")
 
     # Build set of extracted canonical names (normalized)
-    extracted_names = {
-        c.canonical_name.lower()
-        for c in extracted_concepts
-    }
+    extracted_names = {c.canonical_name.lower() for c in extracted_concepts}
 
     # Also check aliases
     extracted_aliases = set()
     for c in extracted_concepts:
-        if hasattr(c, 'aliases') and c.aliases:
+        if hasattr(c, "aliases") and c.aliases:
             extracted_aliases.update(a.lower() for a in c.aliases)
 
     all_extracted = extracted_names | extracted_aliases
@@ -75,8 +70,9 @@ async def test_seed_concept_recall_threshold(seed_concepts, extracted_concepts):
         print(f"Missing concepts: {', '.join(missing[:10])}")
 
     # Quality threshold: 70%
-    assert recall >= 0.70, \
-        f"Recall {recall:.1%} below threshold (70%). Missing {len(missing)} concepts."
+    assert (
+        recall >= 0.70
+    ), f"Recall {recall:.1%} below threshold (70%). Missing {len(missing)} concepts."
 
 
 @pytest.mark.quality
@@ -95,11 +91,11 @@ async def test_concept_confidence_distribution(extracted_concepts):
     # Get confidence scores
     confidences = []
     for c in extracted_concepts:
-        if hasattr(c, 'confidence') and c.confidence is not None:
+        if hasattr(c, "confidence") and c.confidence is not None:
             confidences.append(c.confidence)
-        elif hasattr(c, 'metadata') and isinstance(c.metadata, dict):
-            if 'confidence' in c.metadata:
-                confidences.append(c.metadata['confidence'])
+        elif hasattr(c, "metadata") and isinstance(c.metadata, dict):
+            if "confidence" in c.metadata:
+                confidences.append(c.metadata["confidence"])
 
     if len(confidences) == 0:
         pytest.skip("No concepts have confidence scores")
@@ -115,7 +111,7 @@ async def test_concept_confidence_distribution(extracted_concepts):
 
     # Report
     print(f"\n{'='*60}")
-    print(f"Confidence Distribution:")
+    print("Confidence Distribution:")
     print(f"  Average: {avg_confidence:.1%}")
     print(f"  Range: {min_confidence:.1%} - {max_confidence:.1%}")
     print(f"  High (≥80%): {high_conf} ({high_conf/len(confidences):.1%})")
@@ -124,8 +120,7 @@ async def test_concept_confidence_distribution(extracted_concepts):
     print(f"{'='*60}")
 
     # Quality threshold: 70% average
-    assert avg_confidence >= 0.70, \
-        f"Average confidence {avg_confidence:.1%} below threshold (70%)"
+    assert avg_confidence >= 0.70, f"Average confidence {avg_confidence:.1%} below threshold (70%)"
 
 
 @pytest.mark.quality
@@ -158,16 +153,16 @@ async def test_retrieval_precision_threshold(corpus_chunks):
     # Known good queries (domain-specific - adjust for your corpus)
     test_queries = [
         {
-            'query': 'regression discontinuity design',
-            'expected_terms': ['regression', 'discontinuity', 'causal']
+            "query": "regression discontinuity design",
+            "expected_terms": ["regression", "discontinuity", "causal"],
         },
         {
-            'query': 'instrumental variables estimation',
-            'expected_terms': ['instrumental', 'variable', 'endogen']
+            "query": "instrumental variables estimation",
+            "expected_terms": ["instrumental", "variable", "endogen"],
         },
         {
-            'query': 'difference in differences',
-            'expected_terms': ['difference', 'did', 'treatment']
+            "query": "difference in differences",
+            "expected_terms": ["difference", "did", "treatment"],
         },
     ]
 
@@ -176,15 +171,13 @@ async def test_retrieval_precision_threshold(corpus_chunks):
     for test in test_queries:
         # Generate embedding (uses BGE query instruction prefix)
         try:
-            query_embedding = embed_client.embed_query(test['query'])
+            query_embedding = embed_client.embed_query(test["query"])
         except Exception:
             continue
 
         # Search
         results = await search_hybrid(
-            query_text=test['query'],
-            query_embedding=query_embedding,
-            limit=5
+            query_text=test["query"], query_embedding=query_embedding, limit=5
         )
 
         if len(results) == 0:
@@ -194,7 +187,7 @@ async def test_retrieval_precision_threshold(corpus_chunks):
         relevant = 0
         for result in results[:5]:
             content_lower = result.content.lower()
-            if any(term.lower() in content_lower for term in test['expected_terms']):
+            if any(term.lower() in content_lower for term in test["expected_terms"]):
                 relevant += 1
 
         precision = relevant / min(5, len(results))
@@ -214,8 +207,7 @@ async def test_retrieval_precision_threshold(corpus_chunks):
 
     # Quality threshold: 90%
     # Note: This is a high bar - adjust if needed for your domain
-    assert avg_precision >= 0.70, \
-        f"Precision@5 {avg_precision:.1%} below threshold (70%)"
+    assert avg_precision >= 0.70, f"Precision@5 {avg_precision:.1%} below threshold (70%)"
 
 
 @pytest.mark.quality
@@ -238,20 +230,19 @@ async def test_no_duplicate_concepts(extracted_concepts):
 
     # Report
     print(f"\n{'='*60}")
-    print(f"Duplicate Analysis:")
+    print("Duplicate Analysis:")
     print(f"  Total concepts: {len(extracted_concepts)}")
     print(f"  Unique canonical names: {len(canonical_counts)}")
     print(f"  Duplicates: {len(duplicates)}")
     print(f"{'='*60}")
 
     if duplicates:
-        print(f"Duplicate canonical names:")
+        print("Duplicate canonical names:")
         for name, count in duplicates[:5]:
             print(f"  - '{name}': {count} occurrences")
 
     # Should have no duplicates
-    assert len(duplicates) == 0, \
-        f"Found {len(duplicates)} duplicate canonical names"
+    assert len(duplicates) == 0, f"Found {len(duplicates)} duplicate canonical names"
 
 
 @pytest.mark.quality
@@ -264,7 +255,11 @@ async def test_relationship_coverage(extracted_concepts):
 
     Quality gate: MEDIUM
     """
-    from research_kb_storage import RelationshipStore, get_connection_pool, DatabaseConfig
+    from research_kb_storage import (
+        RelationshipStore,
+        get_connection_pool,
+        DatabaseConfig,
+    )
 
     if len(extracted_concepts) == 0:
         pytest.skip("No concepts extracted")
@@ -295,20 +290,19 @@ async def test_relationship_coverage(extracted_concepts):
 
     # Report
     print(f"\n{'='*60}")
-    print(f"Relationship Coverage:")
+    print("Relationship Coverage:")
     print(f"  Total concepts: {len(extracted_concepts)}")
     print(f"  Concepts with relationships: {len(concepts_with_rels)}")
     print(f"  Coverage: {coverage:.1%}")
     print(f"  Total relationships: {len(relationships)}")
     print(f"  Avg relationships per concept: {len(relationships) / len(extracted_concepts):.1f}")
-    print(f"\n  Relationship types:")
+    print("\n  Relationship types:")
     for rel_type, count in rel_types.most_common(5):
         print(f"    - {rel_type}: {count}")
     print(f"{'='*60}")
 
     # Quality threshold: 30%
-    assert coverage >= 0.30, \
-        f"Relationship coverage {coverage:.1%} below threshold (30%)"
+    assert coverage >= 0.30, f"Relationship coverage {coverage:.1%} below threshold (30%)"
 
 
 @pytest.mark.quality
@@ -326,10 +320,10 @@ async def test_citation_extraction_rate(corpus_chunks):
 
     # Count chunks with citation info
     with_citations = 0
-    citation_fields = ['authors', 'year', 'title', 'citation', 'source']
+    citation_fields = ["authors", "year", "title", "citation", "source"]
 
     for chunk in corpus_chunks:
-        if hasattr(chunk, 'metadata') and isinstance(chunk.metadata, dict):
+        if hasattr(chunk, "metadata") and isinstance(chunk.metadata, dict):
             if any(field in chunk.metadata for field in citation_fields):
                 with_citations += 1
 
@@ -337,7 +331,7 @@ async def test_citation_extraction_rate(corpus_chunks):
 
     # Report
     print(f"\n{'='*60}")
-    print(f"Citation Extraction:")
+    print("Citation Extraction:")
     print(f"  Total chunks: {len(corpus_chunks)}")
     print(f"  Chunks with citations: {with_citations}")
     print(f"  Rate: {rate:.1%}")
@@ -345,8 +339,7 @@ async def test_citation_extraction_rate(corpus_chunks):
 
     # Quality threshold: 50%
     # Note: May be lower if corpus includes non-paper content
-    assert rate >= 0.30, \
-        f"Citation extraction rate {rate:.1%} below threshold (30%)"
+    assert rate >= 0.30, f"Citation extraction rate {rate:.1%} below threshold (30%)"
 
 
 @pytest.mark.quality
@@ -371,20 +364,14 @@ async def test_embedding_quality(corpus_chunks):
 
     # Check dimensions (BGE-large-en-v1.5 = 1024)
     expected_dim = 1024
-    wrong_dim = [
-        c for c in with_embeddings
-        if len(c.embedding) != expected_dim
-    ]
+    wrong_dim = [c for c in with_embeddings if len(c.embedding) != expected_dim]
 
     # Check for zero vectors (indicates error)
-    zero_vectors = [
-        c for c in with_embeddings
-        if sum(c.embedding) == 0.0
-    ]
+    zero_vectors = [c for c in with_embeddings if sum(c.embedding) == 0.0]
 
     # Report
     print(f"\n{'='*60}")
-    print(f"Embedding Quality:")
+    print("Embedding Quality:")
     print(f"  Total chunks: {len(corpus_chunks)}")
     print(f"  With embeddings: {len(with_embeddings)} ({coverage:.1%})")
     print(f"  Expected dimensions: {expected_dim}")
@@ -393,14 +380,13 @@ async def test_embedding_quality(corpus_chunks):
     print(f"{'='*60}")
 
     # Quality checks
-    assert coverage >= 0.95, \
-        f"Only {coverage:.1%} of chunks have embeddings (expected ≥95%)"
+    assert coverage >= 0.95, f"Only {coverage:.1%} of chunks have embeddings (expected ≥95%)"
 
-    assert len(wrong_dim) == 0, \
-        f"Found {len(wrong_dim)} chunks with wrong embedding dimensions"
+    assert len(wrong_dim) == 0, f"Found {len(wrong_dim)} chunks with wrong embedding dimensions"
 
-    assert len(zero_vectors) == 0, \
-        f"Found {len(zero_vectors)} zero vector embeddings (indicates errors)"
+    assert (
+        len(zero_vectors) == 0
+    ), f"Found {len(zero_vectors)} zero vector embeddings (indicates errors)"
 
 
 @pytest.mark.quality
@@ -432,10 +418,10 @@ async def test_chunk_length_distribution(corpus_chunks):
 
     # Report
     print(f"\n{'='*60}")
-    print(f"Chunk Length Distribution:")
+    print("Chunk Length Distribution:")
     print(f"  Average: {avg_tokens:.0f} tokens")
     print(f"  Range: {min_tokens} - {max_tokens}")
-    print(f"\n  Distribution:")
+    print("\n  Distribution:")
     print(f"    Too short (<100): {too_short} ({too_short/len(token_counts):.1%})")
     print(f"    Short (100-500): {short} ({short/len(token_counts):.1%})")
     print(f"    Ideal (500-2000): {ideal} ({ideal/len(token_counts):.1%})")
@@ -444,11 +430,13 @@ async def test_chunk_length_distribution(corpus_chunks):
     print(f"{'='*60}")
 
     # Quality checks
-    assert 500 <= avg_tokens <= 2000, \
-        f"Average chunk length {avg_tokens:.0f} outside ideal range (500-2000)"
+    assert (
+        500 <= avg_tokens <= 2000
+    ), f"Average chunk length {avg_tokens:.0f} outside ideal range (500-2000)"
 
-    assert ideal / len(token_counts) >= 0.60, \
-        f"Only {ideal/len(token_counts):.1%} of chunks in ideal range (expected ≥60%)"
+    assert (
+        ideal / len(token_counts) >= 0.60
+    ), f"Only {ideal/len(token_counts):.1%} of chunks in ideal range (expected ≥60%)"
 
 
 @pytest.mark.quality
@@ -481,11 +469,11 @@ async def test_search_latency(corpus_chunks):
 
     # Test queries
     test_queries = [
-        'causal inference',
-        'regression analysis',
-        'statistical methods',
-        'econometric theory',
-        'panel data',
+        "causal inference",
+        "regression analysis",
+        "statistical methods",
+        "econometric theory",
+        "panel data",
     ]
 
     latencies = []
@@ -499,11 +487,7 @@ async def test_search_latency(corpus_chunks):
 
         # Measure search time
         start = time.perf_counter()
-        results = await search_hybrid(
-            query_text=query,
-            query_embedding=query_embedding,
-            limit=10
-        )
+        results = await search_hybrid(query_text=query, query_embedding=query_embedding, limit=10)
         end = time.perf_counter()
 
         latency_ms = (end - start) * 1000
@@ -521,7 +505,7 @@ async def test_search_latency(corpus_chunks):
 
     # Report
     print(f"\n{'='*60}")
-    print(f"Search Latency:")
+    print("Search Latency:")
     print(f"  Queries tested: {len(latencies)}")
     print(f"  Average: {avg:.0f}ms")
     print(f"  p50: {p50:.0f}ms")
@@ -531,8 +515,7 @@ async def test_search_latency(corpus_chunks):
     print(f"{'='*60}")
 
     # Quality threshold: p95 < 300ms
-    assert p95 < 300, \
-        f"p95 latency {p95:.0f}ms exceeds threshold (300ms)"
+    assert p95 < 300, f"p95 latency {p95:.0f}ms exceeds threshold (300ms)"
 
 
 @pytest.mark.quality
@@ -545,7 +528,11 @@ async def test_graph_connectivity(extracted_concepts):
 
     Quality gate: LOW
     """
-    from research_kb_storage import RelationshipStore, get_connection_pool, DatabaseConfig
+    from research_kb_storage import (
+        RelationshipStore,
+        get_connection_pool,
+        DatabaseConfig,
+    )
 
     if len(extracted_concepts) == 0:
         pytest.skip("No concepts extracted")
@@ -614,17 +601,18 @@ async def test_graph_connectivity(extracted_concepts):
 
     # Report
     print(f"\n{'='*60}")
-    print(f"Graph Connectivity:")
+    print("Graph Connectivity:")
     print(f"  Total concepts: {len(extracted_concepts)}")
     print(f"  Concepts with relationships: {total_nodes}")
     print(f"  Connected components: {len(components)}")
     print(f"  Largest component: {largest_component_size} nodes")
     print(f"  Connectivity: {connectivity:.1%}")
-    print(f"\n  Component sizes:")
+    print("\n  Component sizes:")
     for i, comp in enumerate(components[:5], 1):
         print(f"    {i}. {len(comp)} nodes ({len(comp)/total_nodes:.1%})")
     print(f"{'='*60}")
 
     # Quality threshold: 80% in largest component
-    assert connectivity >= 0.60, \
-        f"Only {connectivity:.1%} of concepts in largest component (expected ≥60%)"
+    assert (
+        connectivity >= 0.60
+    ), f"Only {connectivity:.1%} of concepts in largest component (expected ≥60%)"

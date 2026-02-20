@@ -4,6 +4,8 @@ import pytest
 
 from research_kb_common.retry import retry_on_exception, with_exponential_backoff
 
+pytestmark = pytest.mark.unit
+
 
 class FlakyCounter:
     """Test helper that fails N times before succeeding."""
@@ -84,9 +86,7 @@ class TestRetryOnException:
         # Alternate between ConnectionError and TimeoutError
         attempt = 0
 
-        @retry_on_exception(
-            (ConnectionError, TimeoutError), max_attempts=5, min_wait_seconds=0.01
-        )
+        @retry_on_exception((ConnectionError, TimeoutError), max_attempts=5, min_wait_seconds=0.01)
         def multi_exception_flaky() -> str:
             nonlocal attempt
             attempt += 1

@@ -10,9 +10,6 @@ Test graph used by most fixtures:
 """
 
 import asyncio
-import shutil
-import tempfile
-from pathlib import Path
 from uuid import UUID, uuid4
 
 import pytest
@@ -34,10 +31,13 @@ from research_kb_storage.kuzu_store import (
     get_stats,
 )
 
+pytestmark = pytest.mark.unit
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_concept(
     concept_id: UUID | None = None,
@@ -71,6 +71,7 @@ def _make_rel(
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(autouse=True)
 def _reset_kuzu_singleton():
@@ -142,6 +143,7 @@ async def populated_graph(tmp_kuzu_dir):
 # 1. Connection Management
 # ===================================================================
 
+
 class TestConnectionManagement:
     """get_kuzu_connection, close_kuzu_connection, singleton, schema."""
 
@@ -189,6 +191,7 @@ class TestConnectionManagement:
 # 2. Relationship Weights
 # ===================================================================
 
+
 class TestRelationshipWeights:
     """get_relationship_weight for all known + unknown types."""
 
@@ -226,6 +229,7 @@ class TestRelationshipWeights:
 # ===================================================================
 # 3. Bulk Insert
 # ===================================================================
+
 
 class TestBulkInsert:
     """bulk_insert_concepts and bulk_insert_relationships."""
@@ -271,6 +275,7 @@ class TestBulkInsert:
 # 4. Get Stats
 # ===================================================================
 
+
 class TestGetStats:
     """get_stats after data insertion."""
 
@@ -292,6 +297,7 @@ class TestGetStats:
 # ===================================================================
 # 5. Shortest Path
 # ===================================================================
+
 
 class TestShortestPath:
     """find_shortest_path_kuzu - returns list[dict] or None."""
@@ -339,6 +345,7 @@ class TestShortestPath:
 # 6. Shortest Path Length
 # ===================================================================
 
+
 class TestShortestPathLength:
     """find_shortest_path_length_kuzu - returns int or None."""
 
@@ -369,6 +376,7 @@ class TestShortestPathLength:
 # 7. Neighborhood
 # ===================================================================
 
+
 class TestNeighborhood:
     """get_neighborhood_kuzu - N-hop neighbors and edges."""
 
@@ -388,9 +396,7 @@ class TestNeighborhood:
         # 2 hops from A should also reach D (A->B->D)
         assert str(ids["d"]) in neighbor_ids
 
-    async def test_relationship_type_filter_raises_on_recursive_rel(
-        self, populated_graph
-    ):
+    async def test_relationship_type_filter_raises_on_recursive_rel(self, populated_graph):
         """Known bug: relationship_type filter on recursive rel raises StorageError.
 
         The source injects `AND r.relationship_type = '...'` into a query
@@ -402,9 +408,7 @@ class TestNeighborhood:
 
         ids = populated_graph
         with pytest.raises(StorageError, match="Failed to get neighborhood"):
-            await get_neighborhood_kuzu(
-                ids["a"], hops=1, relationship_type="REQUIRES"
-            )
+            await get_neighborhood_kuzu(ids["a"], hops=1, relationship_type="REQUIRES")
 
     async def test_isolated_node_neighborhood(self, kuzu_conn):
         isolated = uuid4()
@@ -417,6 +421,7 @@ class TestNeighborhood:
 # ===================================================================
 # 8. Batch Graph Scores
 # ===================================================================
+
 
 class TestBatchGraphScores:
     """compute_batch_graph_scores - scores for multiple chunks."""
@@ -475,6 +480,7 @@ class TestBatchGraphScores:
 # ===================================================================
 # 9. Single Graph Score
 # ===================================================================
+
 
 class TestSingleGraphScore:
     """compute_single_graph_score - (score, explanations) tuple."""
@@ -548,6 +554,7 @@ class TestSingleGraphScore:
 # ===================================================================
 # 10. Clear Data
 # ===================================================================
+
 
 class TestClearData:
     """clear_all_data - remove everything then verify empty."""

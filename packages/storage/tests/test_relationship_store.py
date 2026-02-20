@@ -7,6 +7,8 @@ from research_kb_common import StorageError
 from research_kb_contracts import RelationshipType, ConceptType
 from research_kb_storage import RelationshipStore, ConceptStore
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.asyncio
 async def test_create_relationship(test_db):

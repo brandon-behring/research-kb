@@ -12,7 +12,6 @@ Benefits over raw OllamaClient:
 """
 
 import instructor
-from typing import Optional
 
 from research_kb_common import get_logger
 
@@ -80,6 +79,7 @@ class InstructorOllamaClient(LLMClient):
         """Check if Ollama server is available."""
         try:
             import httpx
+
             async with httpx.AsyncClient(base_url=self.base_url) as client:
                 response = await client.get("/api/tags")
                 return response.status_code == 200

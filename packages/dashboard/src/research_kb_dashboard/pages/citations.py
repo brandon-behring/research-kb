@@ -52,16 +52,21 @@ async def load_citation_data(source_type_filter: Optional[str] = None):
         # Convert API response to expected format
         sources = []
         for s in response.get("sources", []):
-            sources.append({
-                "id": s.get("id"),
-                "source_type": s.get("source_type", "paper"),
-                "title": s.get("title", "Untitled"),
-                "authors": s.get("authors", []),
-                "year": s.get("year"),
-                # Use metadata for authority if available, default to 0.1
-                "authority": s.get("metadata", {}).get("citation_authority", 0.1)
-                             if s.get("metadata") else 0.1,
-            })
+            sources.append(
+                {
+                    "id": s.get("id"),
+                    "source_type": s.get("source_type", "paper"),
+                    "title": s.get("title", "Untitled"),
+                    "authors": s.get("authors", []),
+                    "year": s.get("year"),
+                    # Use metadata for authority if available, default to 0.1
+                    "authority": (
+                        s.get("metadata", {}).get("citation_authority", 0.1)
+                        if s.get("metadata")
+                        else 0.1
+                    ),
+                }
+            )
 
         # Get source IDs for edge filtering
         source_ids = {s["id"] for s in sources}
@@ -76,10 +81,12 @@ async def load_citation_data(source_type_filter: Optional[str] = None):
                 # Add edges for cited sources (this source cites them)
                 for cited in citations.get("cited_sources", []):
                     if cited.get("id") in source_ids:
-                        edges.append({
-                            "citing_source_id": source["id"],
-                            "cited_source_id": cited.get("id"),
-                        })
+                        edges.append(
+                            {
+                                "citing_source_id": source["id"],
+                                "cited_source_id": cited.get("id"),
+                            }
+                        )
             except Exception:
                 # Skip sources with citation errors
                 continue
@@ -214,13 +221,17 @@ def citation_network_page():
         import pandas as pd
 
         top_sources = sorted(sources, key=lambda x: x["authority"], reverse=True)[:20]
-        df = pd.DataFrame([
-            {
-                "Title": s["title"][:60] + "..." if len(s["title"] or "") > 60 else s["title"],
-                "Type": s["source_type"],
-                "Year": s["year"],
-                "Authority": f"{s['authority']:.4f}",
-            }
-            for s in top_sources
-        ])
+        df = pd.DataFrame(
+            [
+                {
+                    "Title": (
+                        s["title"][:60] + "..." if len(s["title"] or "") > 60 else s["title"]
+                    ),
+                    "Type": s["source_type"],
+                    "Year": s["year"],
+                    "Authority": f"{s['authority']:.4f}",
+                }
+                for s in top_sources
+            ]
+        )
         st.dataframe(df, use_container_width=True)

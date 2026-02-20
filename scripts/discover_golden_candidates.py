@@ -24,62 +24,230 @@ from research_kb_storage.search import search_hybrid
 # Candidate queries for underrepresented domains
 CANDIDATE_QUERIES = [
     # Software engineering (currently 0 entries)
-    {"query": "API design patterns", "domain": "software_engineering", "difficulty": "easy"},
-    {"query": "REST API versioning", "domain": "software_engineering", "difficulty": "easy"},
-    {"query": "microservice architecture", "domain": "software_engineering", "difficulty": "medium"},
-    {"query": "continuous integration pipeline", "domain": "software_engineering", "difficulty": "easy"},
-    {"query": "code review best practices", "domain": "software_engineering", "difficulty": "medium"},
-    {"query": "dependency injection pattern", "domain": "software_engineering", "difficulty": "easy"},
-    {"query": "test driven development", "domain": "software_engineering", "difficulty": "easy"},
-    {"query": "feature flags deployment", "domain": "software_engineering", "difficulty": "medium"},
+    {
+        "query": "API design patterns",
+        "domain": "software_engineering",
+        "difficulty": "easy",
+    },
+    {
+        "query": "REST API versioning",
+        "domain": "software_engineering",
+        "difficulty": "easy",
+    },
+    {
+        "query": "microservice architecture",
+        "domain": "software_engineering",
+        "difficulty": "medium",
+    },
+    {
+        "query": "continuous integration pipeline",
+        "domain": "software_engineering",
+        "difficulty": "easy",
+    },
+    {
+        "query": "code review best practices",
+        "domain": "software_engineering",
+        "difficulty": "medium",
+    },
+    {
+        "query": "dependency injection pattern",
+        "domain": "software_engineering",
+        "difficulty": "easy",
+    },
+    {
+        "query": "test driven development",
+        "domain": "software_engineering",
+        "difficulty": "easy",
+    },
+    {
+        "query": "feature flags deployment",
+        "domain": "software_engineering",
+        "difficulty": "medium",
+    },
     # Deep learning (currently 0 entries)
-    {"query": "attention mechanism in transformers", "domain": "deep_learning", "difficulty": "easy"},
-    {"query": "backpropagation algorithm", "domain": "deep_learning", "difficulty": "easy"},
+    {
+        "query": "attention mechanism in transformers",
+        "domain": "deep_learning",
+        "difficulty": "easy",
+    },
+    {
+        "query": "backpropagation algorithm",
+        "domain": "deep_learning",
+        "difficulty": "easy",
+    },
     {"query": "batch normalization", "domain": "deep_learning", "difficulty": "easy"},
-    {"query": "convolutional neural network architecture", "domain": "deep_learning", "difficulty": "easy"},
-    {"query": "dropout regularization", "domain": "deep_learning", "difficulty": "easy"},
-    {"query": "gradient vanishing problem", "domain": "deep_learning", "difficulty": "medium"},
-    {"query": "transfer learning fine tuning", "domain": "deep_learning", "difficulty": "medium"},
-    {"query": "vision transformer ViT", "domain": "deep_learning", "difficulty": "medium"},
+    {
+        "query": "convolutional neural network architecture",
+        "domain": "deep_learning",
+        "difficulty": "easy",
+    },
+    {
+        "query": "dropout regularization",
+        "domain": "deep_learning",
+        "difficulty": "easy",
+    },
+    {
+        "query": "gradient vanishing problem",
+        "domain": "deep_learning",
+        "difficulty": "medium",
+    },
+    {
+        "query": "transfer learning fine tuning",
+        "domain": "deep_learning",
+        "difficulty": "medium",
+    },
+    {
+        "query": "vision transformer ViT",
+        "domain": "deep_learning",
+        "difficulty": "medium",
+    },
     # Econometrics (currently 0 entries)
-    {"query": "difference in differences", "domain": "econometrics", "difficulty": "easy"},
-    {"query": "regression discontinuity design", "domain": "econometrics", "difficulty": "easy"},
-    {"query": "fixed effects panel data", "domain": "econometrics", "difficulty": "medium"},
-    {"query": "heteroskedasticity robust standard errors", "domain": "econometrics", "difficulty": "easy"},
+    {
+        "query": "difference in differences",
+        "domain": "econometrics",
+        "difficulty": "easy",
+    },
+    {
+        "query": "regression discontinuity design",
+        "domain": "econometrics",
+        "difficulty": "easy",
+    },
+    {
+        "query": "fixed effects panel data",
+        "domain": "econometrics",
+        "difficulty": "medium",
+    },
+    {
+        "query": "heteroskedasticity robust standard errors",
+        "domain": "econometrics",
+        "difficulty": "easy",
+    },
     {"query": "omitted variable bias", "domain": "econometrics", "difficulty": "easy"},
     {"query": "endogeneity problem", "domain": "econometrics", "difficulty": "medium"},
-    {"query": "two stage least squares", "domain": "econometrics", "difficulty": "medium"},
+    {
+        "query": "two stage least squares",
+        "domain": "econometrics",
+        "difficulty": "medium",
+    },
     # Statistics (currently 0 entries)
     {"query": "Bayesian prior posterior", "domain": "statistics", "difficulty": "easy"},
-    {"query": "maximum likelihood estimation", "domain": "statistics", "difficulty": "easy"},
+    {
+        "query": "maximum likelihood estimation",
+        "domain": "statistics",
+        "difficulty": "easy",
+    },
     {"query": "central limit theorem", "domain": "statistics", "difficulty": "easy"},
-    {"query": "p-value hypothesis testing", "domain": "statistics", "difficulty": "easy"},
-    {"query": "conformal prediction coverage", "domain": "statistics", "difficulty": "medium"},
+    {
+        "query": "p-value hypothesis testing",
+        "domain": "statistics",
+        "difficulty": "easy",
+    },
+    {
+        "query": "conformal prediction coverage",
+        "domain": "statistics",
+        "difficulty": "medium",
+    },
     {"query": "bootstrap resampling", "domain": "statistics", "difficulty": "easy"},
     # Machine learning (currently 0 entries)
-    {"query": "random forest feature importance", "domain": "machine_learning", "difficulty": "easy"},
-    {"query": "cross validation model selection", "domain": "machine_learning", "difficulty": "easy"},
-    {"query": "gradient boosting XGBoost", "domain": "machine_learning", "difficulty": "easy"},
-    {"query": "bias variance tradeoff", "domain": "machine_learning", "difficulty": "easy"},
-    {"query": "regularization L1 L2", "domain": "machine_learning", "difficulty": "easy"},
-    {"query": "causal forest heterogeneous effects", "domain": "machine_learning", "difficulty": "medium"},
+    {
+        "query": "random forest feature importance",
+        "domain": "machine_learning",
+        "difficulty": "easy",
+    },
+    {
+        "query": "cross validation model selection",
+        "domain": "machine_learning",
+        "difficulty": "easy",
+    },
+    {
+        "query": "gradient boosting XGBoost",
+        "domain": "machine_learning",
+        "difficulty": "easy",
+    },
+    {
+        "query": "bias variance tradeoff",
+        "domain": "machine_learning",
+        "difficulty": "easy",
+    },
+    {
+        "query": "regularization L1 L2",
+        "domain": "machine_learning",
+        "difficulty": "easy",
+    },
+    {
+        "query": "causal forest heterogeneous effects",
+        "domain": "machine_learning",
+        "difficulty": "medium",
+    },
     # RAG/LLM (add harder queries)
-    {"query": "retrieval augmented generation architecture", "domain": "rag_llm", "difficulty": "medium"},
-    {"query": "chunk overlap strategy for RAG", "domain": "rag_llm", "difficulty": "medium"},
-    {"query": "hallucination detection in LLMs", "domain": "rag_llm", "difficulty": "medium"},
-    {"query": "prompt engineering techniques", "domain": "rag_llm", "difficulty": "easy"},
-    {"query": "embedding model comparison for retrieval", "domain": "rag_llm", "difficulty": "hard"},
-    {"query": "what assumptions does double machine learning require", "domain": "causal_inference", "difficulty": "hard"},
+    {
+        "query": "retrieval augmented generation architecture",
+        "domain": "rag_llm",
+        "difficulty": "medium",
+    },
+    {
+        "query": "chunk overlap strategy for RAG",
+        "domain": "rag_llm",
+        "difficulty": "medium",
+    },
+    {
+        "query": "hallucination detection in LLMs",
+        "domain": "rag_llm",
+        "difficulty": "medium",
+    },
+    {
+        "query": "prompt engineering techniques",
+        "domain": "rag_llm",
+        "difficulty": "easy",
+    },
+    {
+        "query": "embedding model comparison for retrieval",
+        "domain": "rag_llm",
+        "difficulty": "hard",
+    },
+    {
+        "query": "what assumptions does double machine learning require",
+        "domain": "causal_inference",
+        "difficulty": "hard",
+    },
     # Causal inference (add harder queries)
-    {"query": "SUTVA stable unit treatment value", "domain": "causal_inference", "difficulty": "medium"},
-    {"query": "propensity score matching limitations", "domain": "causal_inference", "difficulty": "medium"},
-    {"query": "mediation analysis direct indirect effects", "domain": "causal_inference", "difficulty": "medium"},
+    {
+        "query": "SUTVA stable unit treatment value",
+        "domain": "causal_inference",
+        "difficulty": "medium",
+    },
+    {
+        "query": "propensity score matching limitations",
+        "domain": "causal_inference",
+        "difficulty": "medium",
+    },
+    {
+        "query": "mediation analysis direct indirect effects",
+        "domain": "causal_inference",
+        "difficulty": "medium",
+    },
     # Time series (add harder queries)
-    {"query": "ARIMA model selection AIC BIC", "domain": "time_series", "difficulty": "medium"},
-    {"query": "stationarity unit root test", "domain": "time_series", "difficulty": "medium"},
-    {"query": "exponential smoothing state space", "domain": "time_series", "difficulty": "medium"},
+    {
+        "query": "ARIMA model selection AIC BIC",
+        "domain": "time_series",
+        "difficulty": "medium",
+    },
+    {
+        "query": "stationarity unit root test",
+        "domain": "time_series",
+        "difficulty": "medium",
+    },
+    {
+        "query": "exponential smoothing state space",
+        "domain": "time_series",
+        "difficulty": "medium",
+    },
     # Finance (currently 0 entries)
-    {"query": "Black-Scholes option pricing", "domain": "finance", "difficulty": "easy"},
+    {
+        "query": "Black-Scholes option pricing",
+        "domain": "finance",
+        "difficulty": "easy",
+    },
     {"query": "GARCH volatility model", "domain": "finance", "difficulty": "easy"},
     {"query": "risk neutral pricing", "domain": "finance", "difficulty": "medium"},
 ]
@@ -147,7 +315,9 @@ async def main():
 
         if not targets:
             # Try without domain filter — the query might match a different domain's source
-            print(f"  NO DOMAIN MATCH: {query} [{domain}] (top result domain: {search_results[0].source_title[:40] if search_results else '?'})")
+            print(
+                f"  NO DOMAIN MATCH: {query} [{domain}] (top result domain: {search_results[0].source_title[:40] if search_results else '?'})"
+            )
             continue
 
         entry = {
@@ -159,7 +329,9 @@ async def main():
         }
         results.append(entry)
         status = "HIT" if len(targets) == 2 else "PARTIAL"
-        print(f"  [{status:7s}] {query:50s} | {domain:25s} | {source_title[:40] if source_title else '?'}")
+        print(
+            f"  [{status:7s}] {query:50s} | {domain:25s} | {source_title[:40] if source_title else '?'}"
+        )
 
     print(f"\n  Generated {len(results)} golden entries from {len(CANDIDATE_QUERIES)} candidates.")
 

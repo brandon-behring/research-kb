@@ -115,7 +115,7 @@ class DaemonUser(User):
         super().__init__(*args, **kwargs)
         socket_path = os.environ.get(
             "SOCKET_PATH",
-            f"/tmp/research_kb_daemon_{os.environ.get('USER', 'unknown')}.sock"
+            f"/tmp/research_kb_daemon_{os.environ.get('USER', 'unknown')}.sock",
         )
         self.client = UnixSocketClient(socket_path)
 
@@ -150,22 +150,23 @@ class DaemonUser(User):
         """Perform a search query."""
         query = random.choice(SAMPLE_QUERIES)
         try:
-            response, latency_ms = self.client._send_request(
-                "search",
-                {"query": query, "limit": 5}
-            )
+            response, latency_ms = self.client._send_request("search", {"query": query, "limit": 5})
 
             if "error" in response:
                 self._report_result(
-                    "search", "search",
-                    latency_ms, 0,
-                    Exception(response["error"].get("message", "Unknown error"))
+                    "search",
+                    "search",
+                    latency_ms,
+                    0,
+                    Exception(response["error"].get("message", "Unknown error")),
                 )
             else:
                 result_count = len(response.get("result", {}).get("results", []))
                 self._report_result(
-                    "search", "search",
-                    latency_ms, result_count,
+                    "search",
+                    "search",
+                    latency_ms,
+                    result_count,
                 )
 
         except Exception as e:
@@ -179,9 +180,11 @@ class DaemonUser(User):
 
             if "error" in response:
                 self._report_result(
-                    "health", "health",
-                    latency_ms, 0,
-                    Exception(response["error"].get("message", "Unknown error"))
+                    "health",
+                    "health",
+                    latency_ms,
+                    0,
+                    Exception(response["error"].get("message", "Unknown error")),
                 )
             else:
                 self._report_result("health", "health", latency_ms, 1)
@@ -197,9 +200,11 @@ class DaemonUser(User):
 
             if "error" in response:
                 self._report_result(
-                    "stats", "stats",
-                    latency_ms, 0,
-                    Exception(response["error"].get("message", "Unknown error"))
+                    "stats",
+                    "stats",
+                    latency_ms,
+                    0,
+                    Exception(response["error"].get("message", "Unknown error")),
                 )
             else:
                 self._report_result("stats", "stats", latency_ms, 1)
@@ -217,7 +222,7 @@ def on_test_start(environment, **kwargs):
     print("=" * 60)
     socket_path = os.environ.get(
         "SOCKET_PATH",
-        f"/tmp/research_kb_daemon_{os.environ.get('USER', 'unknown')}.sock"
+        f"/tmp/research_kb_daemon_{os.environ.get('USER', 'unknown')}.sock",
     )
     print(f"Socket: {socket_path}")
     print(f"Sample queries: {len(SAMPLE_QUERIES)}")

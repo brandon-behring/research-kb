@@ -12,7 +12,6 @@ Usage:
 import asyncio
 import json
 import sys
-import uuid
 from pathlib import Path
 
 _root = Path(__file__).parent.parent
@@ -29,57 +28,177 @@ CANDIDATES = [
     ("API design patterns", "software_engineering", "API design pattern", "easy"),
     ("REST API versioning", "software_engineering", "API versioning REST", "easy"),
     ("microservice architecture", "software_engineering", "microservice", "medium"),
-    ("continuous integration", "software_engineering", "continuous integration", "easy"),
+    (
+        "continuous integration",
+        "software_engineering",
+        "continuous integration",
+        "easy",
+    ),
     ("dependency injection", "software_engineering", "dependency injection", "easy"),
-    ("test driven development", "software_engineering", "test driven development TDD", "easy"),
-    ("feature flags deployment strategy", "software_engineering", "feature flag", "medium"),
-    ("GitHub Actions workflow", "software_engineering", "GitHub Actions workflow", "easy"),
+    (
+        "test driven development",
+        "software_engineering",
+        "test driven development TDD",
+        "easy",
+    ),
+    (
+        "feature flags deployment strategy",
+        "software_engineering",
+        "feature flag",
+        "medium",
+    ),
+    (
+        "GitHub Actions workflow",
+        "software_engineering",
+        "GitHub Actions workflow",
+        "easy",
+    ),
     # Deep learning
-    ("attention mechanism in transformers", "deep_learning", "attention mechanism transformer", "easy"),
+    (
+        "attention mechanism in transformers",
+        "deep_learning",
+        "attention mechanism transformer",
+        "easy",
+    ),
     ("backpropagation algorithm", "deep_learning", "backpropagation gradient", "easy"),
     ("batch normalization technique", "deep_learning", "batch normalization", "easy"),
-    ("convolutional neural network", "deep_learning", "convolutional neural network", "easy"),
+    (
+        "convolutional neural network",
+        "deep_learning",
+        "convolutional neural network",
+        "easy",
+    ),
     ("dropout regularization", "deep_learning", "dropout regularization", "easy"),
     ("vanishing gradient problem", "deep_learning", "vanishing gradient", "medium"),
     ("transfer learning", "deep_learning", "transfer learning fine-tuning", "medium"),
     ("vision transformer ViT", "deep_learning", "vision transformer ViT", "medium"),
     # Econometrics
-    ("difference in differences estimator", "econometrics", "difference in differences", "easy"),
-    ("regression discontinuity design", "econometrics", "regression discontinuity", "easy"),
+    (
+        "difference in differences estimator",
+        "econometrics",
+        "difference in differences",
+        "easy",
+    ),
+    (
+        "regression discontinuity design",
+        "econometrics",
+        "regression discontinuity",
+        "easy",
+    ),
     ("fixed effects panel data", "econometrics", "fixed effects panel", "medium"),
-    ("heteroskedasticity robust errors", "econometrics", "heteroskedasticity robust", "easy"),
+    (
+        "heteroskedasticity robust errors",
+        "econometrics",
+        "heteroskedasticity robust",
+        "easy",
+    ),
     ("omitted variable bias", "econometrics", "omitted variable bias", "easy"),
     ("endogeneity problem", "econometrics", "endogeneity", "medium"),
-    ("two stage least squares", "econometrics", "two-stage least squares 2SLS", "medium"),
+    (
+        "two stage least squares",
+        "econometrics",
+        "two-stage least squares 2SLS",
+        "medium",
+    ),
     # Statistics
     ("Bayesian prior and posterior", "statistics", "prior posterior Bayesian", "easy"),
-    ("maximum likelihood estimation", "statistics", "maximum likelihood estimation MLE", "easy"),
+    (
+        "maximum likelihood estimation",
+        "statistics",
+        "maximum likelihood estimation MLE",
+        "easy",
+    ),
     ("central limit theorem", "statistics", "central limit theorem", "easy"),
     ("p-value hypothesis testing", "statistics", "p-value hypothesis test", "easy"),
-    ("conformal prediction coverage", "statistics", "conformal prediction coverage", "medium"),
+    (
+        "conformal prediction coverage",
+        "statistics",
+        "conformal prediction coverage",
+        "medium",
+    ),
     ("bootstrap resampling method", "statistics", "bootstrap resampling", "easy"),
     # Machine learning
-    ("random forest feature importance", "machine_learning", "random forest feature importance", "easy"),
-    ("cross validation model selection", "machine_learning", "cross-validation model selection", "easy"),
+    (
+        "random forest feature importance",
+        "machine_learning",
+        "random forest feature importance",
+        "easy",
+    ),
+    (
+        "cross validation model selection",
+        "machine_learning",
+        "cross-validation model selection",
+        "easy",
+    ),
     ("gradient boosting", "machine_learning", "gradient boosting XGBoost", "easy"),
     ("bias variance tradeoff", "machine_learning", "bias variance tradeoff", "easy"),
-    ("L1 L2 regularization", "machine_learning", "regularization L1 L2 lasso ridge", "easy"),
-    ("causal forest heterogeneous effects", "machine_learning", "causal forest heterogeneous treatment", "medium"),
+    (
+        "L1 L2 regularization",
+        "machine_learning",
+        "regularization L1 L2 lasso ridge",
+        "easy",
+    ),
+    (
+        "causal forest heterogeneous effects",
+        "machine_learning",
+        "causal forest heterogeneous treatment",
+        "medium",
+    ),
     # RAG/LLM (add harder queries — domain already well-represented)
-    ("retrieval augmented generation architecture", "rag_llm", "retrieval augmented generation RAG", "medium"),
+    (
+        "retrieval augmented generation architecture",
+        "rag_llm",
+        "retrieval augmented generation RAG",
+        "medium",
+    ),
     ("chunking strategy for RAG", "rag_llm", "chunking overlap strategy", "medium"),
-    ("hallucination detection in LLMs", "rag_llm", "hallucination detection LLM", "medium"),
+    (
+        "hallucination detection in LLMs",
+        "rag_llm",
+        "hallucination detection LLM",
+        "medium",
+    ),
     ("prompt engineering techniques", "rag_llm", "prompt engineering", "easy"),
     ("embedding model for retrieval", "rag_llm", "embedding model retrieval", "hard"),
     # Causal inference (add harder queries)
-    ("what assumptions does DML require", "causal_inference", "double machine learning assumptions", "hard"),
-    ("SUTVA assumption", "causal_inference", "SUTVA stable unit treatment value", "medium"),
-    ("propensity score matching", "causal_inference", "propensity score matching", "medium"),
-    ("mediation analysis", "causal_inference", "mediation direct indirect effect", "medium"),
+    (
+        "what assumptions does DML require",
+        "causal_inference",
+        "double machine learning assumptions",
+        "hard",
+    ),
+    (
+        "SUTVA assumption",
+        "causal_inference",
+        "SUTVA stable unit treatment value",
+        "medium",
+    ),
+    (
+        "propensity score matching",
+        "causal_inference",
+        "propensity score matching",
+        "medium",
+    ),
+    (
+        "mediation analysis",
+        "causal_inference",
+        "mediation direct indirect effect",
+        "medium",
+    ),
     # Time series (add harder queries)
     ("ARIMA model selection", "time_series", "ARIMA model selection AIC BIC", "medium"),
-    ("unit root test stationarity", "time_series", "unit root stationarity Dickey-Fuller", "medium"),
-    ("exponential smoothing", "time_series", "exponential smoothing state space", "medium"),
+    (
+        "unit root test stationarity",
+        "time_series",
+        "unit root stationarity Dickey-Fuller",
+        "medium",
+    ),
+    (
+        "exponential smoothing",
+        "time_series",
+        "exponential smoothing state space",
+        "medium",
+    ),
     # Finance
     ("Black-Scholes option pricing", "finance", "Black-Scholes option pricing", "easy"),
     ("GARCH volatility model", "finance", "GARCH volatility", "easy"),
@@ -150,9 +269,7 @@ async def main():
             "difficulty": difficulty,
         }
         results.append(entry)
-        print(
-            f"  [{len(target_ids)} chunks] {query:50s} | {domain:25s} | {source_title[:40]}"
-        )
+        print(f"  [{len(target_ids)} chunks] {query:50s} | {domain:25s} | {source_title[:40]}")
 
     print(f"\n  Generated {len(results)} golden entries from {len(CANDIDATES)} candidates.")
 

@@ -28,6 +28,7 @@ import asyncpg
 @dataclass
 class ModelResults:
     """Results for a single model."""
+
     model: str
     total_chunks: int = 0
     successful: int = 0
@@ -60,18 +61,13 @@ async def load_test_chunks(chunk_ids_file: str) -> list[tuple[str, str]]:
     with open(chunk_ids_file) as f:
         chunk_ids = [line.strip() for line in f if line.strip()]
 
-    conn = await asyncpg.connect(
-        'postgresql://postgres:postgres@localhost:5432/research_kb'
-    )
+    conn = await asyncpg.connect("postgresql://postgres:postgres@localhost:5432/research_kb")
 
     chunks = []
     for chunk_id in chunk_ids:
-        row = await conn.fetchrow(
-            "SELECT id, content FROM chunks WHERE id = $1",
-            chunk_id
-        )
+        row = await conn.fetchrow("SELECT id, content FROM chunks WHERE id = $1", chunk_id)
         if row:
-            chunks.append((str(row['id']), row['content']))
+            chunks.append((str(row["id"]), row["content"]))
 
     await conn.close()
     return chunks
@@ -96,8 +92,8 @@ async def run_extraction(model: str, chunks: list[tuple[str, str]], results: Mod
             results.total_relationships += extraction.relationship_count
             results.latencies.append(latency)
             results.extractions[chunk_id] = {
-                'concepts': [c.model_dump() for c in extraction.concepts],
-                'relationships': [r.model_dump() for r in extraction.relationships],
+                "concepts": [c.model_dump() for c in extraction.concepts],
+                "relationships": [r.model_dump() for r in extraction.relationships],
             }
 
             # Progress indicator
@@ -120,13 +116,17 @@ def print_comparison(all_results: dict[str, ModelResults]):
 
     # Summary table
     print("\n### Summary Statistics\n")
-    print(f"{'Model':<12} {'Success':<10} {'Fail%':<8} {'Concepts':<12} {'Rels':<10} {'Latency':<10}")
+    print(
+        f"{'Model':<12} {'Success':<10} {'Fail%':<8} {'Concepts':<12} {'Rels':<10} {'Latency':<10}"
+    )
     print("-" * 62)
 
     for model, results in all_results.items():
-        print(f"{model:<12} {results.successful:<10} {results.failure_rate:<8.1f} "
-              f"{results.avg_concepts:<12.1f} {results.avg_relationships:<10.1f} "
-              f"{results.avg_latency:<10.2f}s")
+        print(
+            f"{model:<12} {results.successful:<10} {results.failure_rate:<8.1f} "
+            f"{results.avg_concepts:<12.1f} {results.avg_relationships:<10.1f} "
+            f"{results.avg_latency:<10.2f}s"
+        )
 
     # Concept count comparison
     print("\n### Per-Chunk Comparison (first 10 chunks)\n")
@@ -143,8 +143,8 @@ def print_comparison(all_results: dict[str, ModelResults]):
         for model, results in all_results.items():
             if chunk_id in results.extractions:
                 ext = results.extractions[chunk_id]
-                c = len(ext['concepts'])
-                r = len(ext['relationships'])
+                c = len(ext["concepts"])
+                r = len(ext["relationships"])
                 print(f"{c}c/{r}r{'':>8} ", end="")
             else:
                 print(f"{'FAIL':<15} ", end="")
@@ -156,7 +156,7 @@ def print_comparison(all_results: dict[str, ModelResults]):
         has_concepts = False
         for results in all_results.values():
             if chunk_id in results.extractions:
-                if len(results.extractions[chunk_id]['concepts']) > 0:
+                if len(results.extractions[chunk_id]["concepts"]) > 0:
                     has_concepts = True
                     break
 
@@ -164,8 +164,8 @@ def print_comparison(all_results: dict[str, ModelResults]):
             print(f"Chunk: {chunk_id}")
             for model, results in all_results.items():
                 if chunk_id in results.extractions:
-                    concepts = results.extractions[chunk_id]['concepts']
-                    concept_names = [c['name'] for c in concepts[:5]]
+                    concepts = results.extractions[chunk_id]["concepts"]
+                    concept_names = [c["name"] for c in concepts[:5]]
                     print(f"  {model}: {concept_names}")
             break
 
@@ -192,30 +192,34 @@ async def main():
         all_results[model] = results
 
         # Save intermediate results
-        with open(f"/tmp/haiku_test_{model.replace('.', '_')}.json", 'w') as f:
-            json.dump({
-                'model': model,
-                'successful': results.successful,
-                'failed': results.failed,
-                'total_concepts': results.total_concepts,
-                'total_relationships': results.total_relationships,
-                'avg_latency': results.avg_latency,
-                'extractions': results.extractions,
-            }, f, indent=2)
+        with open(f"/tmp/haiku_test_{model.replace('.', '_')}.json", "w") as f:
+            json.dump(
+                {
+                    "model": model,
+                    "successful": results.successful,
+                    "failed": results.failed,
+                    "total_concepts": results.total_concepts,
+                    "total_relationships": results.total_relationships,
+                    "avg_latency": results.avg_latency,
+                    "extractions": results.extractions,
+                },
+                f,
+                indent=2,
+            )
 
     # Print comparison
     print_comparison(all_results)
 
     # Save final comparison
-    with open("/tmp/haiku_comparison.json", 'w') as f:
+    with open("/tmp/haiku_comparison.json", "w") as f:
         summary = {
             model: {
-                'successful': r.successful,
-                'failed': r.failed,
-                'failure_rate': r.failure_rate,
-                'avg_concepts': r.avg_concepts,
-                'avg_relationships': r.avg_relationships,
-                'avg_latency': r.avg_latency,
+                "successful": r.successful,
+                "failed": r.failed,
+                "failure_rate": r.failure_rate,
+                "avg_concepts": r.avg_concepts,
+                "avg_relationships": r.avg_relationships,
+                "avg_latency": r.avg_latency,
             }
             for model, r in all_results.items()
         }

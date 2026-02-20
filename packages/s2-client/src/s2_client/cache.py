@@ -70,7 +70,8 @@ class S2Cache:
         self._conn = await aiosqlite.connect(self._db_path)
 
         # Create table if not exists
-        await self._conn.execute("""
+        await self._conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS cache (
                 key TEXT PRIMARY KEY,
                 endpoint TEXT NOT NULL,
@@ -78,12 +79,15 @@ class S2Cache:
                 created_at REAL NOT NULL,
                 expires_at REAL NOT NULL
             )
-        """)
+        """
+        )
 
         # Create index on expiration for cleanup
-        await self._conn.execute("""
+        await self._conn.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_cache_expires ON cache(expires_at)
-        """)
+        """
+        )
 
         await self._conn.commit()
 
@@ -184,7 +188,9 @@ class S2Cache:
 
         now = time.time()
 
-        async with self._conn.execute("SELECT COUNT(*) FROM cache WHERE expires_at > ?", (now,)) as cursor:
+        async with self._conn.execute(
+            "SELECT COUNT(*) FROM cache WHERE expires_at > ?", (now,)
+        ) as cursor:
             row = await cursor.fetchone()
             valid_count = row[0] if row else 0
 

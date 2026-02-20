@@ -5,6 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from research_kb_extraction.models import ChunkExtraction
 
+pytestmark = pytest.mark.unit
+
 
 class TestInstructorClientInit:
     """Tests for InstructorOllamaClient initialization."""

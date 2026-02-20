@@ -13,6 +13,8 @@ from research_kb_extraction.models import (
     ExtractedRelationship,
 )
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.fixture
 def mock_ollama():
@@ -113,12 +115,8 @@ class TestExtractFromChunk:
         """Test low confidence concepts are filtered."""
         mock_ollama.extract_concepts.return_value = ChunkExtraction(
             concepts=[
-                ExtractedConcept(
-                    name="high conf", concept_type="method", confidence=0.9
-                ),
-                ExtractedConcept(
-                    name="low conf", concept_type="method", confidence=0.5
-                ),
+                ExtractedConcept(name="high conf", concept_type="method", confidence=0.9),
+                ExtractedConcept(name="low conf", concept_type="method", confidence=0.5),
             ],
             relationships=[],
         )

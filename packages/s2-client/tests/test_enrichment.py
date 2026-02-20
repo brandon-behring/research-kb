@@ -15,6 +15,8 @@ from s2_client.enrichment import (
 )
 from s2_client.models import S2Author, S2Paper
 
+pytestmark = pytest.mark.unit
+
 
 # -----------------------------------------------------------------------------
 # Fixtures

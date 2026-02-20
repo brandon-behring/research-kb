@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch
 
 from research_kb_mcp.tools.health import register_health_tools
+
+pytestmark = pytest.mark.unit
 
 
 class MockFastMCP:
@@ -16,12 +18,14 @@ class MockFastMCP:
 
     def tool(self, **kwargs):
         """Decorator that captures tool functions."""
+
         def decorator(func):
             self.tools[func.__name__] = {
                 "func": func,
                 "kwargs": kwargs,
             }
             return func
+
         return decorator
 
 
@@ -133,7 +137,9 @@ class TestHealthTool:
             result = await mcp.tools["research_kb_health"]["func"]()
 
             assert isinstance(result, str)
-            assert "Unhealthy" in result or "unhealthy" in result.lower() or "error" in result.lower()
+            assert (
+                "Unhealthy" in result or "unhealthy" in result.lower() or "error" in result.lower()
+            )
 
     @pytest.mark.asyncio
     async def test_health_connection_error(self):

@@ -129,9 +129,7 @@ class CitationStore:
                 return _row_to_citation(row)
 
         except Exception as e:
-            logger.error(
-                "citation_creation_failed", source_id=str(source_id), error=str(e)
-            )
+            logger.error("citation_creation_failed", source_id=str(source_id), error=str(e))
             raise StorageError(f"Failed to create citation: {e}") from e
 
     @staticmethod
@@ -166,9 +164,7 @@ class CitationStore:
                 return _row_to_citation(row)
 
         except Exception as e:
-            logger.error(
-                "citation_get_failed", citation_id=str(citation_id), error=str(e)
-            )
+            logger.error("citation_get_failed", citation_id=str(citation_id), error=str(e))
             raise StorageError(f"Failed to retrieve citation: {e}") from e
 
     @staticmethod
@@ -242,9 +238,7 @@ class CitationStore:
                 return count
 
         except Exception as e:
-            logger.error(
-                "citation_count_failed", source_id=str(source_id), error=str(e)
-            )
+            logger.error("citation_count_failed", source_id=str(source_id), error=str(e))
             raise StorageError(f"Failed to count citations: {e}") from e
 
     @staticmethod
@@ -356,16 +350,12 @@ class CitationStore:
                 if deleted:
                     logger.info("citation_deleted", citation_id=str(citation_id))
                 else:
-                    logger.warning(
-                        "citation_not_found_for_delete", citation_id=str(citation_id)
-                    )
+                    logger.warning("citation_not_found_for_delete", citation_id=str(citation_id))
 
                 return deleted
 
         except Exception as e:
-            logger.error(
-                "citation_delete_failed", citation_id=str(citation_id), error=str(e)
-            )
+            logger.error("citation_delete_failed", citation_id=str(citation_id), error=str(e))
             raise StorageError(f"Failed to delete citation: {e}") from e
 
     @staticmethod
@@ -435,9 +425,7 @@ class CitationStore:
                 return _row_to_citation(row)
 
         except Exception as e:
-            logger.error(
-                "citation_find_by_arxiv_failed", arxiv_id=arxiv_id, error=str(e)
-            )
+            logger.error("citation_find_by_arxiv_failed", arxiv_id=arxiv_id, error=str(e))
             raise StorageError(f"Failed to find citation by arXiv ID: {e}") from e
 
 

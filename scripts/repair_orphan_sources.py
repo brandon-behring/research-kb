@@ -29,13 +29,15 @@ logger = get_logger(__name__)
 
 async def get_orphan_sources(pool):
     """Get sources that have 0 chunks."""
-    return await pool.fetch('''
+    return await pool.fetch(
+        """
         SELECT s.id, s.title, s.file_path
         FROM sources s
         WHERE NOT EXISTS (SELECT 1 FROM chunks c WHERE c.source_id = s.id)
           AND s.file_path IS NOT NULL
         ORDER BY s.title
-    ''')
+    """
+    )
 
 
 async def repair_source(source_id: str, file_path: str, title: str, pool):
@@ -115,7 +117,7 @@ async def main():
 
     if args.dry_run:
         print("\nSources that would be repaired:")
-        for s in orphans[:args.limit]:
+        for s in orphans[: args.limit]:
             exists = "YES" if Path(s["file_path"] or "").exists() else "NO"
             print(f"  [{exists}] {s['title'][:60]}")
         return
@@ -126,7 +128,7 @@ async def main():
 
     results = {"success": 0, "failed": 0, "total_chunks": 0}
 
-    for i, source in enumerate(to_repair[:args.limit]):
+    for i, source in enumerate(to_repair[: args.limit]):
         print(f"\n[{i+1}/{min(len(to_repair), args.limit)}] {source['title'][:50]}...")
 
         try:

@@ -12,6 +12,8 @@ from research_kb_storage import (
     SourceStore,
 )
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture
 async def test_source(db_pool):
@@ -433,9 +435,7 @@ class TestChunkConceptStore:
         await ChunkConceptStore.create(chunks[1].id, concept.id)
 
         # Query
-        result = await ChunkConceptStore.get_concept_ids_for_chunks(
-            [c.id for c in chunks]
-        )
+        result = await ChunkConceptStore.get_concept_ids_for_chunks([c.id for c in chunks])
 
         assert len(result) == 2
         assert concept.id in result[chunks[0].id]

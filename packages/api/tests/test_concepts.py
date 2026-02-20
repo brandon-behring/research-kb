@@ -8,6 +8,8 @@ from datetime import datetime
 
 from research_kb_contracts import Concept, ConceptType, RelationshipType
 
+pytestmark = pytest.mark.unit
+
 
 def make_concept(name: str = "instrumental variables") -> Concept:
     """Create a mock concept."""

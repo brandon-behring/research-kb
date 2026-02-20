@@ -33,7 +33,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" /
 from research_kb_common import get_logger
 from research_kb_storage import (
     CrossDomainStore,
-    CrossDomainLinkType,
     DatabaseConfig,
     get_connection_pool,
 )
@@ -101,7 +100,7 @@ async def discover_and_store(
     analogous = [l for l in links if 0.90 <= l["similarity"] < 0.95]
     related = [l for l in links if l["similarity"] < 0.90]
 
-    print(f"Classification (by similarity):")
+    print("Classification (by similarity):")
     print(f"  EQUIVALENT (≥0.95): {len(equivalent)}")
     print(f"  ANALOGOUS (0.90-0.95): {len(analogous)}")
     print(f"  RELATED (<0.90): {len(related)}")
@@ -111,8 +110,9 @@ async def discover_and_store(
     print("Top 15 matches:")
     for i, link in enumerate(links[:15], 1):
         link_type = (
-            "EQUIVALENT" if link["similarity"] >= 0.95 else
-            "ANALOGOUS" if link["similarity"] >= 0.90 else "RELATED"
+            "EQUIVALENT"
+            if link["similarity"] >= 0.95
+            else "ANALOGOUS" if link["similarity"] >= 0.90 else "RELATED"
         )
         print(
             f"  {i:2}. {link['source_name'][:30]:30} ↔ "
@@ -137,7 +137,7 @@ async def discover_and_store(
     stats = await CrossDomainStore.get_stats()
     print("Database Statistics:")
     print(f"  Total cross-domain links: {stats['total_links']}")
-    if stats['by_type']:
+    if stats["by_type"]:
         print(f"  By type: {stats['by_type']}")
 
     return {
@@ -188,8 +188,12 @@ async def bidirectional_discovery(
     print("\n" + "=" * 60)
     print("SUMMARY")
     print("=" * 60)
-    print(f"causal_inference → time_series: {result1['discovered']} discovered, {result1['stored']} stored")
-    print(f"time_series → causal_inference: {result2['discovered']} discovered, {result2['stored']} stored")
+    print(
+        f"causal_inference → time_series: {result1['discovered']} discovered, {result1['stored']} stored"
+    )
+    print(
+        f"time_series → causal_inference: {result2['discovered']} discovered, {result2['stored']} stored"
+    )
     print(f"Total stored: {result1['stored'] + result2['stored']}")
 
 

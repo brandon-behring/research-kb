@@ -26,8 +26,16 @@ from typing import Optional
 
 # Markers from pytest.ini
 VALID_MARKERS = {
-    "unit", "integration", "e2e", "smoke", "quality", "scripts",
-    "slow", "requires_ollama", "requires_grobid", "requires_embedding",
+    "unit",
+    "integration",
+    "e2e",
+    "smoke",
+    "quality",
+    "scripts",
+    "slow",
+    "requires_ollama",
+    "requires_grobid",
+    "requires_embedding",
     "requires_reranker",
 }
 
@@ -48,31 +56,24 @@ FILENAME_RULES: dict[str, str] = {
 }
 
 # Content patterns for service requirements
+# NOTE: Patterns must be specific enough to avoid matching string literals,
+# config field names, error messages, and docstrings.
 SERVICE_PATTERNS: dict[str, list[str]] = {
     "requires_ollama": [
-        r"from.*ollama",
-        r"import.*ollama",
-        r"OllamaClient",
-        r"ollama\.generate",
-        r"OLLAMA_",
+        r"OllamaClient\(",  # actual instantiation
+        r"ollama\.generate",  # API call
     ],
     "requires_embedding": [
-        r"embed_server",
-        r"EmbeddingClient",
-        r"get_embedding",
-        r"sentence.transformers",
-        r"BAAI/bge",
+        r"EmbeddingClient\(",  # actual instantiation
+        r"from sentence_transformers import",  # actual model loading
     ],
     "requires_grobid": [
-        r"grobid",
-        r"GROBID",
-        r"grobid_client",
+        r"grobid_client",  # module reference
+        r"GrobidClient\(",  # actual instantiation
     ],
     "requires_reranker": [
-        r"cross.encoder",
-        r"reranker",
-        r"RerankerClient",
-        r"BAAI/bge-reranker",
+        r"RerankerClient\(",  # actual instantiation
+        r"BAAI/bge-reranker",  # model name
     ],
 }
 
@@ -86,19 +87,18 @@ UNIT_PATTERNS = [
     r"Mock\(",
 ]
 
-# Patterns that suggest integration tests
+# Patterns that suggest integration tests (actual DB usage, not string literals)
 INTEGRATION_PATTERNS = [
     r"db_pool",
     r"asyncpg\.create_pool",
     r"async with pool",
-    r"database",
-    r"PostgreSQL",
 ]
 
 
 @dataclass
 class TaggingResult:
     """Result of analyzing a test file."""
+
     file_path: Path
     current_markers: set[str]
     suggested_markers: set[str]
@@ -109,6 +109,7 @@ class TaggingResult:
 # ============================================================================
 # Analysis Functions
 # ============================================================================
+
 
 def get_file_content(path: Path) -> str:
     """Read file content."""
@@ -131,11 +132,7 @@ def extract_current_markers(content: str) -> set[str]:
     markers.update(m for m in pytestmark_single if m in VALID_MARKERS)
 
     # pytestmark = [pytest.mark.X, ...]
-    pytestmark_list = re.findall(
-        r"pytestmark\s*=\s*\[(.*?)\]",
-        content,
-        re.DOTALL
-    )
+    pytestmark_list = re.findall(r"pytestmark\s*=\s*\[(.*?)\]", content, re.DOTALL)
     for match in pytestmark_list:
         list_markers = re.findall(r"pytest\.mark\.(\w+)", match)
         markers.update(m for m in list_markers if m in VALID_MARKERS)
@@ -176,19 +173,13 @@ def check_content_patterns(content: str) -> set[str]:
 
 def is_likely_unit_test(content: str) -> bool:
     """Check if file appears to be unit tests (extensive mocking)."""
-    mock_count = sum(
-        len(re.findall(pattern, content))
-        for pattern in UNIT_PATTERNS
-    )
+    mock_count = sum(len(re.findall(pattern, content)) for pattern in UNIT_PATTERNS)
     return mock_count >= 3
 
 
 def is_likely_integration_test(content: str) -> bool:
     """Check if file appears to be integration tests."""
-    return any(
-        re.search(pattern, content, re.IGNORECASE)
-        for pattern in INTEGRATION_PATTERNS
-    )
+    return any(re.search(pattern, content, re.IGNORECASE) for pattern in INTEGRATION_PATTERNS)
 
 
 def analyze_file(path: Path) -> TaggingResult:
@@ -210,8 +201,12 @@ def analyze_file(path: Path) -> TaggingResult:
         suggested.add(file_marker)
         reasons.append(f"filename pattern: {file_marker}")
 
-    # 3. Service requirements
+    # 3. Service requirements (skip for unit tests that mock the service)
     service_markers = check_content_patterns(content)
+    if service_markers and is_likely_unit_test(content):
+        # Heavy mocking means tests don't actually need the external service
+        service_markers = set()
+        reasons.append("service patterns found but mocked (skipped requires_*)")
     suggested.update(service_markers)
     if service_markers:
         reasons.append(f"service requirements: {', '.join(sorted(service_markers))}")
@@ -219,8 +214,15 @@ def analyze_file(path: Path) -> TaggingResult:
     # 4. Default to unit if in packages/*/tests/ and no other marker
     is_package_test = "packages/" in str(path) and "/tests/" in str(path)
 
-    if is_package_test and not (suggested - {"requires_ollama", "requires_embedding",
-                                               "requires_grobid", "requires_reranker"}):
+    if is_package_test and not (
+        suggested
+        - {
+            "requires_ollama",
+            "requires_embedding",
+            "requires_grobid",
+            "requires_reranker",
+        }
+    ):
         # No primary marker assigned yet
         if is_likely_integration_test(content):
             suggested.add("integration")
@@ -231,8 +233,15 @@ def analyze_file(path: Path) -> TaggingResult:
 
     # 5. Tests in tests/ directory (repo root)
     if str(path).startswith("tests/"):
-        if not (suggested - {"requires_ollama", "requires_embedding",
-                             "requires_grobid", "requires_reranker"}):
+        if not (
+            suggested
+            - {
+                "requires_ollama",
+                "requires_embedding",
+                "requires_grobid",
+                "requires_reranker",
+            }
+        ):
             # Check subdirectory
             if "e2e" in str(path):
                 suggested.add("e2e")
@@ -249,9 +258,7 @@ def analyze_file(path: Path) -> TaggingResult:
     has_primary_current = bool(current & primary_markers)
     has_primary_suggested = bool(suggested & primary_markers)
 
-    needs_update = (
-        has_primary_suggested and not has_primary_current
-    ) or (
+    needs_update = (has_primary_suggested and not has_primary_current) or (
         service_markers and not service_markers.issubset(current)
     )
 
@@ -267,6 +274,7 @@ def analyze_file(path: Path) -> TaggingResult:
 # ============================================================================
 # File Modification
 # ============================================================================
+
 
 def add_markers_to_file(path: Path, markers: set[str]) -> bool:
     """Add markers to a test file.
@@ -286,15 +294,17 @@ def add_markers_to_file(path: Path, markers: set[str]) -> bool:
     lines = content.split("\n")
     insert_line = 0
 
-    # Skip docstring
+    # Track state
     in_docstring = False
+    in_multiline_import = False
     docstring_type = None
+    has_pytest_import = "import pytest" in content
 
     for i, line in enumerate(lines):
         stripped = line.strip()
 
         # Track docstrings
-        if not in_docstring:
+        if not in_docstring and not in_multiline_import:
             if stripped.startswith('"""') or stripped.startswith("'''"):
                 docstring_type = stripped[:3]
                 if stripped.count(docstring_type) >= 2 and len(stripped) > 3:
@@ -302,21 +312,31 @@ def add_markers_to_file(path: Path, markers: set[str]) -> bool:
                     insert_line = i + 1
                 else:
                     in_docstring = True
-        else:
+        elif in_docstring:
             if docstring_type in stripped:
                 in_docstring = False
                 insert_line = i + 1
-                continue
+            continue
+
+        # Track multi-line imports (parenthesized)
+        if in_multiline_import:
+            if ")" in stripped:
+                in_multiline_import = False
+                insert_line = i + 1
+            continue
 
         # Track imports
-        if not in_docstring and (stripped.startswith("import ") or
-                                   stripped.startswith("from ")):
-            insert_line = i + 1
+        if not in_docstring and (stripped.startswith("import ") or stripped.startswith("from ")):
+            if "(" in stripped and ")" not in stripped:
+                # Start of multi-line import
+                in_multiline_import = True
+            else:
+                insert_line = i + 1
 
-        # Stop at first class/function
-        if not in_docstring and (stripped.startswith("class ") or
-                                   stripped.startswith("def ") or
-                                   stripped.startswith("@")):
+        # Stop at first class/function/decorator
+        if not in_docstring and (
+            stripped.startswith("class ") or stripped.startswith("def ") or stripped.startswith("@")
+        ):
             break
 
     # Build marker line
@@ -327,9 +347,15 @@ def add_markers_to_file(path: Path, markers: set[str]) -> bool:
         marker_items = ", ".join(f"pytest.mark.{m}" for m in sorted_markers)
         marker_line = f"pytestmark = [{marker_items}]"
 
-    # Insert
+    # Ensure pytest is imported
+    if not has_pytest_import:
+        lines.insert(insert_line, "import pytest")
+        insert_line += 1
+
+    # Insert marker with blank line separation
     lines.insert(insert_line, "")
     lines.insert(insert_line + 1, marker_line)
+    lines.insert(insert_line + 2, "")
 
     # Write back
     new_content = "\n".join(lines)
@@ -340,6 +366,7 @@ def add_markers_to_file(path: Path, markers: set[str]) -> bool:
 # ============================================================================
 # Main
 # ============================================================================
+
 
 def find_test_files(root: Path) -> list[Path]:
     """Find all test files."""

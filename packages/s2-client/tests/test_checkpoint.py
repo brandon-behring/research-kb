@@ -4,16 +4,16 @@ import json
 import signal
 import pytest
 from datetime import datetime, timezone, timedelta
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from uuid import UUID, uuid4
 
 from s2_client.checkpoint import (
     EnrichmentCheckpoint,
     GracefulShutdown,
     list_checkpoints,
-    CHECKPOINT_DIR,
 )
+
+pytestmark = pytest.mark.unit
 
 
 class TestEnrichmentCheckpointInit:

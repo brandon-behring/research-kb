@@ -18,6 +18,8 @@ from research_kb_storage.citation_graph import (
     get_most_cited_sources,
 )
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture
 async def citation_test_sources(db_pool):

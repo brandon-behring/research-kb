@@ -62,7 +62,7 @@ async def extract_query_concepts(
         async with pool.acquire() as conn:
             # Strategy: Search for concepts where canonical_name appears in query
             # For efficiency, we search by extracting query words and matching
-            query_words = re.findall(r'\b\w+\b', query_lower)
+            query_words = re.findall(r"\b\w+\b", query_lower)
 
             # Build search patterns from query words
             # For multi-word queries, also search for the full phrase

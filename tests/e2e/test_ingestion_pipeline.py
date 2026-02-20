@@ -10,7 +10,6 @@ Test strategy:
 """
 
 import pytest
-import pytest_asyncio
 from uuid import UUID
 
 from research_kb_contracts import SourceType
@@ -219,7 +218,15 @@ async def test_large_pdf_multiple_pages(test_db, pdf_dispatcher):
         pdf_path=str(large_pdf),
         source_type=SourceType.PAPER,
         title="Double Machine Learning",
-        authors=["Chernozhukov", "Chetverikov", "Demirer", "Duflo", "Hansen", "Newey", "Robins"],
+        authors=[
+            "Chernozhukov",
+            "Chetverikov",
+            "Demirer",
+            "Duflo",
+            "Hansen",
+            "Newey",
+            "Robins",
+        ],
         year=2018,
         skip_embedding=True,  # Skip embeddings for large PDF test (faster)
     )
@@ -340,7 +347,10 @@ async def test_chunk_location_tracking(test_db, pdf_dispatcher, small_pdf_path):
     chunks_with_location = [c for c in chunks if c.location]
     if chunks_with_location:
         # Location should mention page
-        assert any("page" in c.location.lower() or "p." in c.location.lower() for c in chunks_with_location[:5])
+        assert any(
+            "page" in c.location.lower() or "p." in c.location.lower()
+            for c in chunks_with_location[:5]
+        )
 
 
 @pytest.mark.e2e

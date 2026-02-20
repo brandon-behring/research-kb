@@ -19,6 +19,8 @@ from research_kb_contracts import (
     SourceType,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestSourceType:
     """Test SourceType enum."""
@@ -123,9 +125,7 @@ class TestSource:
             updated_at=now,
         )
 
-        assert (
-            source.metadata["git_url"] == "https://github.com/scikit-learn/scikit-learn"
-        )
+        assert source.metadata["git_url"] == "https://github.com/scikit-learn/scikit-learn"
         assert source.metadata["language"] == "python"
 
     def test_source_file_hash_validation(self):

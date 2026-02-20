@@ -57,7 +57,9 @@ def register_health_tools(mcp: FastMCP) -> None:
 
             details = {
                 "database": "connected",
-                "kuzu_graph": "healthy" if kuzu_healthy else "unhealthy (using slow PostgreSQL fallback)",
+                "kuzu_graph": (
+                    "healthy" if kuzu_healthy else "unhealthy (using slow PostgreSQL fallback)"
+                ),
                 "sources": f"{stats.get('sources', 0):,} indexed",
                 "chunks": f"{stats.get('chunks', 0):,} indexed",
                 "concepts": f"{stats.get('concepts', 0):,} extracted",

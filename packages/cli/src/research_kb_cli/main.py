@@ -17,21 +17,11 @@ from typing import Optional
 import typer
 
 # Add packages to path (for development mode)
-sys.path.insert(
-    0, str(Path(__file__).parent.parent.parent.parent.parent / "pdf-tools" / "src")
-)
-sys.path.insert(
-    0, str(Path(__file__).parent.parent.parent.parent.parent / "storage" / "src")
-)
-sys.path.insert(
-    0, str(Path(__file__).parent.parent.parent.parent.parent / "contracts" / "src")
-)
-sys.path.insert(
-    0, str(Path(__file__).parent.parent.parent.parent.parent / "common" / "src")
-)
-sys.path.insert(
-    0, str(Path(__file__).parent.parent.parent.parent.parent / "s2-client" / "src")
-)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "pdf-tools" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "storage" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "contracts" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "common" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "s2-client" / "src"))
 
 from research_kb_pdf import EmbeddingClient
 from research_kb_storage import (
@@ -178,9 +168,7 @@ async def run_query(
                 "Warning: Graph search requested but no concepts extracted.",
                 file=sys.stderr,
             )
-            print(
-                "Falling back to standard search (FTS + vector only).", file=sys.stderr
-            )
+            print("Falling back to standard search (FTS + vector only).", file=sys.stderr)
             print(
                 "To extract concepts: python scripts/extract_concepts.py",
                 file=sys.stderr,
@@ -400,9 +388,7 @@ def query(
 
         # Format output
         if format == OutputFormat.markdown:
-            output = format_results_markdown(
-                results, query_text, show_content=not no_content
-            )
+            output = format_results_markdown(results, query_text, show_content=not no_content)
         elif format == OutputFormat.json:
             output = format_results_json(results, query_text)
         elif format == OutputFormat.agent:
@@ -448,9 +434,7 @@ def sources():
             authors = ", ".join(source.authors[:2])
             if len(source.authors) > 2:
                 authors += " et al."
-            typer.echo(
-                f"  {type_badge:12} {source.title[:50]:50} ({authors}, {source.year})"
-            )
+            typer.echo(f"  {type_badge:12} {source.title[:50]:50} ({authors}, {source.year})")
 
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
@@ -588,12 +572,8 @@ def concepts(
 
             # Show relationships
             if show_relationships:
-                outgoing = [
-                    r for r in related_rels if r.source_concept_id == concept.id
-                ]
-                incoming = [
-                    r for r in related_rels if r.target_concept_id == concept.id
-                ]
+                outgoing = [r for r in related_rels if r.source_concept_id == concept.id]
+                incoming = [r for r in related_rels if r.target_concept_id == concept.id]
 
                 if outgoing:
                     typer.echo(f"    Relationships ({len(outgoing)}):")
@@ -615,9 +595,7 @@ def concepts(
 @app.command()
 def graph(
     concept_name: str = typer.Argument(..., help="Concept name to visualize"),
-    hops: int = typer.Option(
-        1, "--hops", "-h", help="Number of hops to traverse (1-3)"
-    ),
+    hops: int = typer.Option(1, "--hops", "-h", help="Number of hops to traverse (1-3)"),
     rel_type: Optional[str] = typer.Option(
         None, "--type", "-t", help="Filter by relationship type"
     ),
@@ -709,9 +687,7 @@ def graph(
         for rel in neighborhood["relationships"]:
             source_name = concept_lookup.get(rel.source_concept_id, "Unknown")
             target_name = concept_lookup.get(rel.target_concept_id, "Unknown")
-            typer.echo(
-                f"  {source_name} -[{rel.relationship_type.value}]-> {target_name}"
-            )
+            typer.echo(f"  {source_name} -[{rel.relationship_type.value}]-> {target_name}")
 
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
@@ -816,7 +792,11 @@ def path(
                 typer.echo(f"START: {concept.name} ({concept.concept_type.value})")
                 if verbose and concept.definition:
                     # Indent and wrap definition
-                    definition = concept.definition[:300] + "..." if len(concept.definition) > 300 else concept.definition
+                    definition = (
+                        concept.definition[:300] + "..."
+                        if len(concept.definition) > 300
+                        else concept.definition
+                    )
                     typer.echo(f"       {definition}")
             else:
                 # Show relationship and next concept
@@ -824,7 +804,11 @@ def path(
                     typer.echo(f"  ↓ [{relationship.relationship_type.value}]")
                 typer.echo(f"  {concept.name} ({concept.concept_type.value})")
                 if verbose and concept.definition:
-                    definition = concept.definition[:300] + "..." if len(concept.definition) > 300 else concept.definition
+                    definition = (
+                        concept.definition[:300] + "..."
+                        if len(concept.definition) > 300
+                        else concept.definition
+                    )
                     typer.echo(f"       {definition}")
 
         typer.echo()
@@ -915,6 +899,7 @@ def audit_assumptions(
 
         if format == OutputFormat.json:
             import json
+
             output = json.dumps(result.to_dict(), indent=2)
         else:
             # Markdown format
@@ -943,7 +928,9 @@ def audit_assumptions(
             elif not result.assumptions:
                 lines.append("### No assumptions found")
                 lines.append("")
-                lines.append("The knowledge graph doesn't have assumption relationships for this method.")
+                lines.append(
+                    "The knowledge graph doesn't have assumption relationships for this method."
+                )
             else:
                 lines.append(f"### Required Assumptions ({len(result.assumptions)} found)")
                 lines.append("")
@@ -966,9 +953,9 @@ def audit_assumptions(
 
                     for i, a in enumerate(group, 1):
                         importance_badge = (
-                            "[CRITICAL]" if a.importance == "critical"
-                            else "[technical]" if a.importance == "technical"
-                            else ""
+                            "[CRITICAL]"
+                            if a.importance == "critical"
+                            else "[technical]" if a.importance == "technical" else ""
                         )
 
                         lines.append(f"**{i}. {a.name}** {importance_badge}")
@@ -1039,9 +1026,7 @@ def extraction_status():
             )
 
             # Relationship counts
-            relationship_count = await conn.fetchval(
-                "SELECT COUNT(*) FROM concept_relationships"
-            )
+            relationship_count = await conn.fetchval("SELECT COUNT(*) FROM concept_relationships")
 
             relationships_by_type = await conn.fetch(
                 """
@@ -1148,9 +1133,7 @@ def extraction_status():
         typer.echo()
 
         # Chunk coverage
-        coverage_pct = (
-            stats["chunks_with_concepts"] / max(stats["total_chunks"], 1) * 100
-        )
+        coverage_pct = stats["chunks_with_concepts"] / max(stats["total_chunks"], 1) * 100
         typer.echo(
             f"Chunk coverage: {stats['chunks_with_concepts']}/{stats['total_chunks']} ({coverage_pct:.1f}%)"
         )
@@ -1329,7 +1312,9 @@ def cited_by(
 
         # Stats breakdown
         typer.echo(f"Citation Authority Score: {stats.get('authority_score', 0):.4f}")
-        typer.echo(f"Cited by {stats.get('cited_by_papers', 0)} papers, {stats.get('cited_by_textbooks', 0)} textbooks")
+        typer.echo(
+            f"Cited by {stats.get('cited_by_papers', 0)} papers, {stats.get('cited_by_textbooks', 0)} textbooks"
+        )
         typer.echo()
 
         if not citing_sources:
@@ -1419,7 +1404,9 @@ def cites_command(
         typer.echo()
 
         # Stats breakdown
-        typer.echo(f"Cites {stats.get('cites_papers', 0)} papers, {stats.get('cites_textbooks', 0)} textbooks in corpus")
+        typer.echo(
+            f"Cites {stats.get('cites_papers', 0)} papers, {stats.get('cites_textbooks', 0)} textbooks in corpus"
+        )
         typer.echo()
 
         if not cited_sources:
@@ -1431,7 +1418,7 @@ def cites_command(
 
         for i, s in enumerate(cited_sources, 1):
             type_badge = f"[{s.source_type.value}]"
-            authority = s.citation_authority or 0.0 if hasattr(s, 'citation_authority') else 0.0
+            authority = s.citation_authority or 0.0 if hasattr(s, "citation_authority") else 0.0
             typer.echo(f"{i:2}. {type_badge:12} {s.title[:50]}...")
             if s.authors:
                 authors = ", ".join(s.authors[:2])
@@ -1491,7 +1478,9 @@ def citation_stats_command():
             for i, source in enumerate(most_cited, 1):
                 type_badge = f"[{source['source_type']}]"
                 typer.echo(f"{i:2}. {type_badge:12} {source['title'][:45]}...")
-                typer.echo(f"    Cited by: {source['cited_by_count']} | Authority: {source['citation_authority']:.4f}")
+                typer.echo(
+                    f"    Cited by: {source['cited_by_count']} | Authority: {source['citation_authority']:.4f}"
+                )
         else:
             typer.echo("No citation graph data. Run: python scripts/build_citation_graph.py")
 
@@ -1561,12 +1550,14 @@ def biblio_similar_command(
 
         for i, s in enumerate(similar_sources, 1):
             type_badge = f"[{s['source_type']}]"
-            coupling = s['coupling_strength']
-            shared = s['shared_references']
+            coupling = s["coupling_strength"]
+            shared = s["shared_references"]
             typer.echo(f"{i:2}. {type_badge:12} {s['title'][:50]}...")
-            if s['authors']:
-                authors = ", ".join(s['authors'][:2]) if s['authors'] else "Unknown"
-                typer.echo(f"    {authors} ({s['year']}) | Coupling: {coupling:.3f} ({shared} shared refs)")
+            if s["authors"]:
+                authors = ", ".join(s["authors"][:2]) if s["authors"] else "Unknown"
+                typer.echo(
+                    f"    {authors} ({s['year']}) | Coupling: {coupling:.3f} ({shared} shared refs)"
+                )
 
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)

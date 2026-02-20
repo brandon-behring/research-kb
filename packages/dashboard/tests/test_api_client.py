@@ -21,6 +21,8 @@ sys.path.insert(0, str(repo_root / "packages/dashboard/src"))
 
 from research_kb_dashboard.api_client import ResearchKBClient, get_api_client
 
+pytestmark = pytest.mark.unit
+
 
 class TestClientLifecycle:
     """Tests for client creation and lifecycle."""

@@ -5,6 +5,8 @@ from __future__ import annotations
 import pytest
 from unittest.mock import patch
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.asyncio
 async def test_health_check(app_client):

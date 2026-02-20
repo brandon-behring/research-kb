@@ -181,7 +181,11 @@ async def evaluate_method(
     Returns:
         MethodEvaluation with results
     """
-    from research_kb_storage import MethodAssumptionAuditor, DatabaseConfig, get_connection_pool
+    from research_kb_storage import (
+        MethodAssumptionAuditor,
+        DatabaseConfig,
+        get_connection_pool,
+    )
 
     method_name = method_config["name"]
     expected_assumptions = method_config["expected_assumptions"]
@@ -254,7 +258,9 @@ async def evaluate_method(
 
         if eval_result.precision + eval_result.recall > 0:
             eval_result.f1 = (
-                2 * eval_result.precision * eval_result.recall
+                2
+                * eval_result.precision
+                * eval_result.recall
                 / (eval_result.precision + eval_result.recall)
             )
 
@@ -264,11 +270,16 @@ async def evaluate_method(
         if verbose:
             print(f"\n  {method_name}:")
             print(f"    Source: {result.source}")
-            print(f"    Expected: {eval_result.expected_count}, Returned: {eval_result.returned_count}")
+            print(
+                f"    Expected: {eval_result.expected_count}, Returned: {eval_result.returned_count}"
+            )
             print(f"    Precision: {eval_result.precision:.2%}, Recall: {eval_result.recall:.2%}")
             for match in eval_result.matches:
                 status = "✓" if match.matched else "✗"
-                print(f"      {status} {match.expected_name} [{match.expected_importance}]", end="")
+                print(
+                    f"      {status} {match.expected_name} [{match.expected_importance}]",
+                    end="",
+                )
                 if match.matched:
                     print(f" → {match.matched_name} ({match.similarity:.2f})")
                 else:
@@ -309,11 +320,14 @@ async def run_evaluation(
     config = golden.get("evaluation_config", {})
 
     threshold = config.get("fuzzy_match_threshold", 0.7)
-    importance_weights = config.get("importance_weights", {
-        "critical": 2.0,
-        "standard": 1.0,
-        "technical": 0.5,
-    })
+    importance_weights = config.get(
+        "importance_weights",
+        {
+            "critical": 2.0,
+            "standard": 1.0,
+            "technical": 0.5,
+        },
+    )
 
     # Filter if requested
     if method_filter:
@@ -355,7 +369,9 @@ async def run_evaluation(
         summary.avg_precision = sum(m.precision for m in valid_methods) / len(valid_methods)
         summary.avg_recall = sum(m.recall for m in valid_methods) / len(valid_methods)
         summary.avg_f1 = sum(m.f1 for m in valid_methods) / len(valid_methods)
-        summary.avg_weighted_recall = sum(m.weighted_recall for m in valid_methods) / len(valid_methods)
+        summary.avg_weighted_recall = sum(m.weighted_recall for m in valid_methods) / len(
+            valid_methods
+        )
 
     # Print summary
     print("\n" + "=" * 60)

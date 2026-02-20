@@ -12,4 +12,3 @@
 | LOW | 0 | 0 | ✅ PASS |
 
 ## Test Details
-

@@ -38,9 +38,7 @@ class TestFTSSearch:
 
     async def test_fts_finds_relevant_chunks(self, search_corpus):
         """Searching 'instrumental variables' finds IV-related chunks."""
-        results = await search_hybrid(
-            SearchQuery(text="instrumental variables", limit=10)
-        )
+        results = await search_hybrid(SearchQuery(text="instrumental variables", limit=10))
 
         assert len(results) >= 1
 
@@ -156,8 +154,7 @@ class TestDomainFilter:
         for result in results:
             source_domain = result.source.metadata.get("domain", "")
             assert source_domain != "rag_llm", (
-                f"Domain filter leaked: got rag_llm chunk from "
-                f"source '{result.source.title}'"
+                f"Domain filter leaked: got rag_llm chunk from " f"source '{result.source.title}'"
             )
 
     async def test_domain_filter_rag_llm(self, search_corpus):
@@ -313,17 +310,13 @@ class TestEdgeCases:
 
     async def test_text_only_no_embedding(self, search_corpus):
         """FTS-only search (no embedding) works correctly."""
-        results = await search_hybrid(
-            SearchQuery(text="double machine learning", limit=5)
-        )
+        results = await search_hybrid(SearchQuery(text="double machine learning", limit=5))
 
         assert len(results) >= 1
 
     async def test_limit_one(self, search_corpus):
         """Limit=1 returns exactly one result."""
-        results = await search_hybrid(
-            SearchQuery(text="instrumental variables", limit=1)
-        )
+        results = await search_hybrid(SearchQuery(text="instrumental variables", limit=1))
 
         assert len(results) == 1
 

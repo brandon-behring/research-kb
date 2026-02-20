@@ -13,6 +13,8 @@ from uuid import uuid4
 
 from research_kb_storage.biblio_store import BiblioStore
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.fixture
 def source_ids():
@@ -50,8 +52,10 @@ def mock_pool():
 
 def make_get_pool(pool):
     """Create an async function that returns the mock pool."""
+
     async def get_pool():
         return pool
+
     return get_pool
 
 
@@ -166,10 +170,7 @@ class TestComputeAllCoupling:
                 await BiblioStore.compute_all_coupling()
 
         # Verify TRUNCATE was called
-        truncate_calls = [
-            call for call in conn.execute.call_args_list
-            if "TRUNCATE" in str(call)
-        ]
+        truncate_calls = [call for call in conn.execute.call_args_list if "TRUNCATE" in str(call)]
         assert len(truncate_calls) == 1
 
     @pytest.mark.asyncio
@@ -192,7 +193,9 @@ class TestComputeAllCoupling:
         ]
 
         with patch("research_kb_storage.biblio_store.get_connection_pool", make_get_pool(pool)):
-            with patch.object(BiblioStore, "compute_coupling_for_source", return_value=mock_couplings):
+            with patch.object(
+                BiblioStore, "compute_coupling_for_source", return_value=mock_couplings
+            ):
                 stats = await BiblioStore.compute_all_coupling(batch_size=10)
 
         assert stats["total_sources"] == 2
@@ -231,7 +234,9 @@ class TestComputeAllCoupling:
         ]
 
         with patch("research_kb_storage.biblio_store.get_connection_pool", make_get_pool(pool)):
-            with patch.object(BiblioStore, "compute_coupling_for_source", return_value=mock_couplings):
+            with patch.object(
+                BiblioStore, "compute_coupling_for_source", return_value=mock_couplings
+            ):
                 await BiblioStore.compute_all_coupling(batch_size=1)
 
         # Verify ordering: first ID should be smaller

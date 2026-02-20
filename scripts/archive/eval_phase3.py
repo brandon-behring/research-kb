@@ -200,9 +200,7 @@ def is_relevant(result, query: QueryWithRelevance) -> bool:
             return True
 
     # Check for relevant keywords (require at least 2)
-    keyword_matches = sum(
-        1 for kw in query.relevant_keywords if kw.lower() in content_lower
-    )
+    keyword_matches = sum(1 for kw in query.relevant_keywords if kw.lower() in content_lower)
     if keyword_matches >= 2:
         return True
 
@@ -333,9 +331,7 @@ async def evaluate_config(
         embedding = embed_client.embed_query(query.query)
 
         # Run search
-        results, latency_ms = await run_search_config(
-            query.query, embedding, config, limit=limit
-        )
+        results, latency_ms = await run_search_config(query.query, embedding, config, limit=limit)
         latencies.append(latency_ms)
 
         # Compute metrics
@@ -354,7 +350,9 @@ async def evaluate_config(
         mrr=statistics.mean(mrr_scores) if mrr_scores else 0.0,
         latency_p50_ms=statistics.median(latencies) if latencies else 0.0,
         latency_p99_ms=(
-            sorted(latencies)[int(len(latencies) * 0.99)] if len(latencies) > 1 else latencies[0] if latencies else 0.0
+            sorted(latencies)[int(len(latencies) * 0.99)]
+            if len(latencies) > 1
+            else latencies[0] if latencies else 0.0
         ),
         query_count=len(queries),
     )
@@ -367,7 +365,9 @@ def print_results_table(results: list[EvalResult]) -> None:
     print("=" * 80)
 
     # Header
-    print(f"{'Configuration':<20} {'P@5':<8} {'P@10':<8} {'MRR':<8} {'P50(ms)':<10} {'P99(ms)':<10}")
+    print(
+        f"{'Configuration':<20} {'P@5':<8} {'P@10':<8} {'MRR':<8} {'P50(ms)':<10} {'P99(ms)':<10}"
+    )
     print("-" * 80)
 
     # Results
@@ -387,12 +387,18 @@ def print_results_table(results: list[EvalResult]) -> None:
         best = max(results, key=lambda r: r.precision_at_5)
 
         if baseline.precision_at_5 > 0:
-            p5_improvement = (best.precision_at_5 - baseline.precision_at_5) / baseline.precision_at_5 * 100
-            print(f"\nBest P@5 improvement over baseline: +{p5_improvement:.1f}% ({best.config_name})")
+            p5_improvement = (
+                (best.precision_at_5 - baseline.precision_at_5) / baseline.precision_at_5 * 100
+            )
+            print(
+                f"\nBest P@5 improvement over baseline: +{p5_improvement:.1f}% ({best.config_name})"
+            )
 
         if baseline.mrr > 0:
             mrr_improvement = (best.mrr - baseline.mrr) / baseline.mrr * 100
-            print(f"Best MRR improvement over baseline: +{mrr_improvement:.1f}% ({best.config_name})")
+            print(
+                f"Best MRR improvement over baseline: +{mrr_improvement:.1f}% ({best.config_name})"
+            )
 
 
 async def generate_candidate_queries() -> None:
@@ -408,11 +414,13 @@ async def generate_candidate_queries() -> None:
     candidates = []
     for concept in concepts:
         if concept.confidence_score and concept.confidence_score >= 0.7:
-            candidates.append({
-                "query": concept.canonical_name or concept.name,
-                "concept_type": concept.concept_type.value,
-                "confidence": concept.confidence_score,
-            })
+            candidates.append(
+                {
+                    "query": concept.canonical_name or concept.name,
+                    "concept_type": concept.concept_type.value,
+                    "confidence": concept.confidence_score,
+                }
+            )
 
     # Sort by confidence
     candidates.sort(key=lambda x: x["confidence"], reverse=True)

@@ -273,7 +273,13 @@ def generate_catalog(
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
-        yaml.dump(catalog_data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+        yaml.dump(
+            catalog_data,
+            f,
+            default_flow_style=False,
+            sort_keys=False,
+            allow_unicode=True,
+        )
 
     return books
 

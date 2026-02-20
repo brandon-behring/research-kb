@@ -9,6 +9,8 @@ import pytest
 from research_kb_pdf import DLQEntry, DeadLetterQueue, PDFDispatcher, IngestResult
 from research_kb_contracts import SourceType
 
+pytestmark = pytest.mark.unit
+
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 TEST_PDF = FIXTURES_DIR / "test_simple.pdf"
@@ -270,9 +272,7 @@ class TestPDFDispatcher:
     @pytest.mark.asyncio
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
-    async def test_ingest_pdf_already_exists(
-        self, mock_source_store, mock_chunk_store, tmp_path
-    ):
+    async def test_ingest_pdf_already_exists(self, mock_source_store, mock_chunk_store, tmp_path):
         """Test ingest_pdf returns existing source if already ingested."""
         if not TEST_PDF.exists():
             pytest.skip(f"Test PDF not found: {TEST_PDF}")
@@ -317,9 +317,7 @@ class TestPDFDispatcher:
     @pytest.mark.asyncio
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
-    async def test_ingest_pdf_force_pymupdf(
-        self, mock_source_store, mock_chunk_store, tmp_path
-    ):
+    async def test_ingest_pdf_force_pymupdf(self, mock_source_store, mock_chunk_store, tmp_path):
         """Test ingest_pdf with force_pymupdf skips GROBID."""
         if not TEST_PDF.exists():
             pytest.skip(f"Test PDF not found: {TEST_PDF}")
@@ -365,9 +363,7 @@ class TestPDFDispatcher:
     @pytest.mark.asyncio
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
-    async def test_ingest_pdf_grobid_fallback(
-        self, mock_source_store, mock_chunk_store, tmp_path
-    ):
+    async def test_ingest_pdf_grobid_fallback(self, mock_source_store, mock_chunk_store, tmp_path):
         """Test GROBID→PyMuPDF fallback when GROBID fails."""
         if not TEST_PDF.exists():
             pytest.skip(f"Test PDF not found: {TEST_PDF}")

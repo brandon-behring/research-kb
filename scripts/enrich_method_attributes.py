@@ -22,7 +22,6 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from uuid import UUID
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
@@ -70,7 +69,8 @@ async def get_concepts_to_enrich(conn) -> tuple[list[dict], list[dict]]:
     """Fetch method and assumption concepts that need enrichment."""
 
     # Get methods not yet in methods table
-    methods = await conn.fetch("""
+    methods = await conn.fetch(
+        """
         SELECT c.id::text, c.canonical_name, c.definition,
                (SELECT cc.chunk_id::text
                 FROM chunk_concepts cc
@@ -83,10 +83,12 @@ async def get_concepts_to_enrich(conn) -> tuple[list[dict], list[dict]]:
             SELECT 1 FROM methods m WHERE m.concept_id = c.id
         )
         ORDER BY c.canonical_name
-    """)
+    """
+    )
 
     # Get assumptions not yet in assumptions table
-    assumptions = await conn.fetch("""
+    assumptions = await conn.fetch(
+        """
         SELECT c.id::text, c.canonical_name, c.definition,
                (SELECT cc.chunk_id::text
                 FROM chunk_concepts cc
@@ -99,7 +101,8 @@ async def get_concepts_to_enrich(conn) -> tuple[list[dict], list[dict]]:
             SELECT 1 FROM assumptions a WHERE a.concept_id = c.id
         )
         ORDER BY c.canonical_name
-    """)
+    """
+    )
 
     return [dict(r) for r in methods], [dict(r) for r in assumptions]
 
@@ -122,7 +125,7 @@ def build_batch_request(concept: dict, concept_type: str) -> dict:
 
     # custom_id must match ^[a-zA-Z0-9_-]{1,64}$ - use underscore separator
     # UUID hyphens are replaced with underscores to fit pattern
-    safe_id = concept['id'].replace('-', '_')
+    safe_id = concept["id"].replace("-", "_")
     return {
         "custom_id": f"{concept_type}_{safe_id}",
         "params": {
@@ -136,7 +139,6 @@ def build_batch_request(concept: dict, concept_type: str) -> dict:
 
 async def submit_batch(client, requests: list[dict], batch_name: str) -> str:
     """Submit a batch to Anthropic API."""
-    import anthropic
 
     # Write requests to JSONL file
     jsonl_file = OUTPUT_DIR / f"{batch_name}.jsonl"
@@ -209,7 +211,7 @@ async def main():
     est_output_tokens = total_concepts * 200  # ~200 tokens per response
     est_cost = (est_input_tokens * 0.80 + est_output_tokens * 4.00) / 1_000_000 * 0.5
 
-    print(f"\n=== Cost Estimate ===")
+    print("\n=== Cost Estimate ===")
     print(f"Input tokens: ~{est_input_tokens/1e6:.2f}M")
     print(f"Output tokens: ~{est_output_tokens/1e6:.2f}M")
     print(f"Estimated cost: ~${est_cost:.2f} (with 50% batch discount)")
@@ -236,6 +238,7 @@ async def main():
 
     # Initialize Anthropic client
     import anthropic
+
     client = anthropic.Anthropic(api_key=api_key)
 
     # Build all requests
@@ -250,7 +253,7 @@ async def main():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     for i in range(0, len(all_requests), BATCH_SIZE):
-        batch_requests = all_requests[i:i + BATCH_SIZE]
+        batch_requests = all_requests[i : i + BATCH_SIZE]
         batch_name = f"enrichment_{timestamp}_batch{len(batch_ids) + 1}"
 
         print(f"\nSubmitting batch {len(batch_ids) + 1}: {len(batch_requests)} requests...")
@@ -272,18 +275,22 @@ async def main():
     # Save batch info
     info_file = OUTPUT_DIR / f"enrichment_{timestamp}_info.json"
     with open(info_file, "w") as f:
-        json.dump({
-            "timestamp": timestamp,
-            "batch_ids": batch_ids,
-            "method_count": len(methods),
-            "assumption_count": len(assumptions),
-            "total_requests": len(all_requests),
-        }, f, indent=2)
+        json.dump(
+            {
+                "timestamp": timestamp,
+                "batch_ids": batch_ids,
+                "method_count": len(methods),
+                "assumption_count": len(assumptions),
+                "total_requests": len(all_requests),
+            },
+            f,
+            indent=2,
+        )
 
     print(f"\n✅ Submitted {len(batch_ids)} batch(es)")
     print(f"Batch IDs saved to: {info_file}")
-    print(f"\nCheck status with: python scripts/check_batch_status.py")
-    print(f"Process results with: python scripts/process_method_enrichment.py")
+    print("\nCheck status with: python scripts/check_batch_status.py")
+    print("Process results with: python scripts/process_method_enrichment.py")
 
     await conn.close()
 

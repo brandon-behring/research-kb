@@ -1,15 +1,16 @@
 """Tests for KuzuDB pre-warming module."""
 
-import asyncio
+from unittest.mock import MagicMock, patch
 
 import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
 
 from research_kb_daemon.warmup import (
+    _reset_state,
     warm_kuzu,
     warmup_status,
-    _reset_state,
 )
+
+pytestmark = pytest.mark.unit
 
 
 @pytest.fixture(autouse=True)

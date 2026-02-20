@@ -260,9 +260,7 @@ class EmbeddingBackfillRunner:
 
             # If resuming, also filter out previously processed
             if resume and self._processed_ids:
-                concepts_needing = [
-                    c for c in concepts_needing if c.id not in self._processed_ids
-                ]
+                concepts_needing = [c for c in concepts_needing if c.id not in self._processed_ids]
 
             all_concepts.extend(concepts_needing)
             offset += batch_size
@@ -458,9 +456,7 @@ def check_dlq() -> int:
 
 
 async def main():
-    parser = argparse.ArgumentParser(
-        description="Backfill embeddings for concepts without them"
-    )
+    parser = argparse.ArgumentParser(description="Backfill embeddings for concepts without them")
     parser.add_argument(
         "--batch-size",
         type=int,

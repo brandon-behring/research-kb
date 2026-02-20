@@ -114,12 +114,8 @@ class SourceStore:
                 return _row_to_source(row)
 
         except asyncpg.UniqueViolationError as e:
-            logger.error(
-                "source_creation_failed_duplicate", file_hash=file_hash, error=str(e)
-            )
-            raise StorageError(
-                f"Source with file_hash '{file_hash}' already exists"
-            ) from e
+            logger.error("source_creation_failed_duplicate", file_hash=file_hash, error=str(e))
+            raise StorageError(f"Source with file_hash '{file_hash}' already exists") from e
         except Exception as e:
             logger.error("source_creation_failed", error=str(e))
             raise StorageError(f"Failed to create source: {e}") from e
@@ -466,9 +462,7 @@ class SourceStore:
                 if deleted:
                     logger.info("source_deleted", source_id=str(source_id))
                 else:
-                    logger.warning(
-                        "source_not_found_for_delete", source_id=str(source_id)
-                    )
+                    logger.warning("source_not_found_for_delete", source_id=str(source_id))
 
                 return deleted
 
@@ -584,9 +578,7 @@ class SourceStore:
                 return [_row_to_source(row) for row in rows]
 
         except Exception as e:
-            logger.error(
-                "source_list_failed", source_type=source_type.value, error=str(e)
-            )
+            logger.error("source_list_failed", source_type=source_type.value, error=str(e))
             raise StorageError(f"Failed to list sources: {e}") from e
 
 

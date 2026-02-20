@@ -52,7 +52,7 @@ def extract_glossary_terms(filepath: Path) -> list[dict]:
             continue
 
         # Pattern: **Term**: Definition or **Term** — Definition
-        bold_match = re.match(r'^[-*]?\s*\*\*(.+?)\*\*\s*[:—-]\s*(.*)', line)
+        bold_match = re.match(r"^[-*]?\s*\*\*(.+?)\*\*\s*[:—-]\s*(.*)", line)
         if bold_match:
             term = bold_match.group(1).strip()
             definition = bold_match.group(2).strip()
@@ -61,21 +61,38 @@ def extract_glossary_terms(filepath: Path) -> list[dict]:
             continue
 
         # Pattern: ## Term or ### Term (but not # which is title)
-        heading_match = re.match(r'^#{2,4}\s+(.+)', line)
+        heading_match = re.match(r"^#{2,4}\s+(.+)", line)
         if heading_match:
             term = heading_match.group(1).strip()
             # Skip entries that look like instructions or contain parenthetical counts
-            if re.search(r'\(\d+\s+\w+\)', term) or term.lower().startswith("to "):
+            if re.search(r"\(\d+\s+\w+\)", term) or term.lower().startswith("to "):
                 continue
             # Skip headings that are section names like "Core Concepts"
-            if term.lower() not in {
-                "core concepts", "methods", "assumptions", "glossary",
-                "references", "index", "table of contents", "overview",
-                "variance estimators", "estimands", "problems", "theorems",
-                "implementation-specific terms", "test terminology",
-                "monte carlo metrics", "dgp parameters", "method-specific terms",
-                "acronym reference",
-            } and not term.endswith("-Specific") and not term.endswith("Terms"):
+            if (
+                term.lower()
+                not in {
+                    "core concepts",
+                    "methods",
+                    "assumptions",
+                    "glossary",
+                    "references",
+                    "index",
+                    "table of contents",
+                    "overview",
+                    "variance estimators",
+                    "estimands",
+                    "problems",
+                    "theorems",
+                    "implementation-specific terms",
+                    "test terminology",
+                    "monte carlo metrics",
+                    "dgp parameters",
+                    "method-specific terms",
+                    "acronym reference",
+                }
+                and not term.endswith("-Specific")
+                and not term.endswith("Terms")
+            ):
                 terms.append({"term": term, "definition": ""})
             continue
 
@@ -194,9 +211,9 @@ async def main():
         "concept_only": concept_only,
         "content_only": content_only,
         "missing": missing,
-        "coverage_pct": round((matched + concept_only + content_only) / len(terms) * 100, 1)
-        if terms
-        else 0,
+        "coverage_pct": (
+            round((matched + concept_only + content_only) / len(terms) * 100, 1) if terms else 0
+        ),
     }
 
     if args.json:

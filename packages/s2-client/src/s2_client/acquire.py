@@ -308,9 +308,7 @@ class PaperAcquisition:
 
         return save_path, None
 
-    def _save_metadata_sidecar(
-        self, paper: S2Paper, sidecar_path: Path, file_hash: str
-    ) -> None:
+    def _save_metadata_sidecar(self, paper: S2Paper, sidecar_path: Path, file_hash: str) -> None:
         """Save S2 metadata as JSON sidecar for ingestion pipeline.
 
         The sidecar contains rich metadata that would otherwise be lost
@@ -337,9 +335,7 @@ class PaperAcquisition:
             "citation_count": paper.citation_count,
             "influential_citation_count": paper.influential_citation_count,
             "is_open_access": paper.is_open_access,
-            "fields_of_study": [
-                f.get("category") for f in (paper.s2_fields_of_study or [])
-            ],
+            "fields_of_study": [f.get("category") for f in (paper.s2_fields_of_study or [])],
             "venue": paper.venue,
             "abstract": paper.abstract,
             # Provenance
@@ -418,14 +414,16 @@ async def load_existing_identifiers() -> tuple[set[str], set[str], set[str], set
 
         async with pool.acquire() as conn:
             # Query for identifiers
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT
                     file_hash,
                     metadata->>'s2_paper_id' as s2_id,
                     metadata->>'doi' as doi,
                     metadata->>'arxiv_id' as arxiv_id
                 FROM sources
-            """)
+            """
+            )
 
         s2_ids = {r["s2_id"] for r in rows if r["s2_id"]}
         dois = {r["doi"] for r in rows if r["doi"]}

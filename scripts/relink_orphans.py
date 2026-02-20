@@ -40,8 +40,7 @@ BATCH_SIZE = 100
 
 
 async def get_orphans_with_embeddings(
-    conn: asyncpg.Connection,
-    limit: int | None = None
+    conn: asyncpg.Connection, limit: int | None = None
 ) -> list[dict]:
     """Get orphan concepts that have embeddings."""
 
@@ -71,7 +70,7 @@ async def find_similar_connected_concepts(
     embedding: list[float],
     exclude_id: UUID,
     threshold: float,
-    limit: int = 5
+    limit: int = 5,
 ) -> list[dict]:
     """Find concepts similar to the given embedding that have relationships.
 
@@ -85,7 +84,8 @@ async def find_similar_connected_concepts(
     # So we want distance < (1 - threshold)
     max_distance = 1.0 - threshold
 
-    rows = await conn.fetch("""
+    rows = await conn.fetch(
+        """
         SELECT
             c.id,
             c.canonical_name,
@@ -101,7 +101,12 @@ async def find_similar_connected_concepts(
         AND (c.embedding <=> $1::vector) < $3
         ORDER BY c.embedding <=> $1::vector
         LIMIT $4
-    """, str(embedding), exclude_id, max_distance, limit)
+    """,
+        str(embedding),
+        exclude_id,
+        max_distance,
+        limit,
+    )
 
     return [dict(row) for row in rows]
 
@@ -111,16 +116,22 @@ async def create_relationship(
     source_id: UUID,
     target_id: UUID,
     relationship_type: str = "RELATED_TO",
-    strength: float = 1.0
+    strength: float = 1.0,
 ) -> bool:
     """Create a relationship between two concepts."""
 
     try:
-        await conn.execute("""
+        await conn.execute(
+            """
             INSERT INTO concept_relationships (source_concept_id, target_concept_id, relationship_type, strength)
             VALUES ($1, $2, $3, $4)
             ON CONFLICT (source_concept_id, target_concept_id, relationship_type) DO NOTHING
-        """, source_id, target_id, relationship_type, strength)
+        """,
+            source_id,
+            target_id,
+            relationship_type,
+            strength,
+        )
         return True
     except Exception as e:
         logger.error("create_relationship_failed", error=str(e))
@@ -128,10 +139,7 @@ async def create_relationship(
 
 
 async def relink_orphan(
-    conn: asyncpg.Connection,
-    orphan: dict,
-    threshold: float,
-    execute: bool = False
+    conn: asyncpg.Connection, orphan: dict, threshold: float, execute: bool = False
 ) -> dict:
     """Attempt to re-link a single orphan concept.
 
@@ -156,7 +164,7 @@ async def relink_orphan(
         orphan["embedding"],
         orphan["id"],
         threshold,
-        limit=3  # Connect to top 3 similar concepts
+        limit=3,  # Connect to top 3 similar concepts
     )
 
     result["similar_concepts"] = similar
@@ -168,11 +176,7 @@ async def relink_orphan(
 
             # Create RELATED_TO relationship
             success = await create_relationship(
-                conn,
-                orphan["id"],
-                concept["id"],
-                "RELATED_TO",
-                strength
+                conn, orphan["id"], concept["id"], "RELATED_TO", strength
             )
             if success:
                 result["relationships_created"] += 1
@@ -183,8 +187,12 @@ async def relink_orphan(
 async def main():
     """Run orphan re-linking."""
     parser = argparse.ArgumentParser(description="Re-link orphan concepts via semantic similarity")
-    parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD,
-                        help=f"Cosine similarity threshold (default: {DEFAULT_THRESHOLD})")
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=DEFAULT_THRESHOLD,
+        help=f"Cosine similarity threshold (default: {DEFAULT_THRESHOLD})",
+    )
     parser.add_argument("--limit", type=int, help="Limit number of orphans to process")
     parser.add_argument("--execute", action="store_true", help="Actually create relationships")
     args = parser.parse_args()
@@ -228,7 +236,11 @@ async def main():
 
         if result["similar_concepts"]:
             total_relinked += 1
-            total_relationships += len(result["similar_concepts"]) if not args.execute else result["relationships_created"]
+            total_relationships += (
+                len(result["similar_concepts"])
+                if not args.execute
+                else result["relationships_created"]
+            )
 
             # Save samples for reporting
             if len(samples) < 20:
@@ -253,8 +265,10 @@ async def main():
         for s in samples[:10]:
             print(f"\n  {s['orphan_name']} ({s['orphan_type']})")
             for sim in s["similar_concepts"][:2]:
-                print(f"    -> {sim['canonical_name']} ({sim['concept_type']}) "
-                      f"sim={sim['similarity']:.3f}")
+                print(
+                    f"    -> {sim['canonical_name']} ({sim['concept_type']}) "
+                    f"sim={sim['similarity']:.3f}"
+                )
 
     if not args.execute:
         print("\n" + "=" * 60)
@@ -264,13 +278,15 @@ async def main():
     # Verify final state
     if args.execute:
         print("\nVerifying final orphan count...")
-        remaining = await conn.fetchval("""
+        remaining = await conn.fetchval(
+            """
             SELECT COUNT(*) FROM concepts c
             WHERE NOT EXISTS (
                 SELECT 1 FROM concept_relationships cr
                 WHERE cr.source_concept_id = c.id OR cr.target_concept_id = c.id
             )
-        """)
+        """
+        )
         print(f"Remaining orphans: {remaining:,}")
 
     await conn.close()

@@ -18,14 +18,38 @@ from research_kb_storage import DatabaseConfig, get_connection_pool
 
 # New domains to add (id, display_name, description)
 NEW_DOMAINS = [
-    ("deep_learning", "Deep Learning", "Neural networks, architectures, training techniques"),
+    (
+        "deep_learning",
+        "Deep Learning",
+        "Neural networks, architectures, training techniques",
+    ),
     ("econometrics", "Econometrics", "Statistical methods for economic data analysis"),
     ("finance", "Finance", "Financial instruments, pricing, risk management"),
-    ("machine_learning", "Machine Learning", "Classical and modern ML algorithms and methods"),
-    ("mathematics", "Mathematics", "Linear algebra, calculus, differential equations, physics"),
-    ("software_engineering", "Software Engineering", "API design, DevOps, testing, architecture"),
-    ("statistics", "Statistics", "Bayesian, frequentist, hypothesis testing, estimation"),
-    ("data_science", "Data Science", "Applied data analysis, complexity science, networks"),
+    (
+        "machine_learning",
+        "Machine Learning",
+        "Classical and modern ML algorithms and methods",
+    ),
+    (
+        "mathematics",
+        "Mathematics",
+        "Linear algebra, calculus, differential equations, physics",
+    ),
+    (
+        "software_engineering",
+        "Software Engineering",
+        "API design, DevOps, testing, architecture",
+    ),
+    (
+        "statistics",
+        "Statistics",
+        "Bayesian, frequentist, hypothesis testing, estimation",
+    ),
+    (
+        "data_science",
+        "Data Science",
+        "Applied data analysis, complexity science, networks",
+    ),
     ("ml_engineering", "ML Engineering", "ML pipelines, MLOps, deployment"),
     ("algorithms", "Algorithms", "Data structures, graph algorithms, optimization"),
     ("functional_programming", "Functional Programming", "Haskell, Scala, FP patterns"),

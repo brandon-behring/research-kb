@@ -168,9 +168,9 @@ def _format_assumption_audit(result: MethodAssumptions, include_docstring: bool)
 
         for i, a in enumerate(group, 1):
             importance_badge = (
-                "[CRITICAL]" if a.importance == "critical"
-                else "[technical]" if a.importance == "technical"
-                else ""
+                "[CRITICAL]"
+                if a.importance == "critical"
+                else "[technical]" if a.importance == "technical" else ""
             )
 
             lines.append(f"**{i}. {a.name}** {importance_badge}")

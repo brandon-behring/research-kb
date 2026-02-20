@@ -28,9 +28,9 @@ logger = get_logger(__name__)
 
 async def test_iv_related_concepts():
     """Test 1: Query 'IV' returns related concepts (endogeneity, exclusion, relevance)."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST 1: IV Related Concepts")
-    print("="*70)
+    print("=" * 70)
 
     # Find IV
     iv = await ConceptStore.get_by_canonical_name("instrumental variables")
@@ -75,9 +75,9 @@ async def test_iv_related_concepts():
 
 async def test_dml_assumptions():
     """Test 2: Query 'DML' returns all required assumptions."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST 2: DML Required Assumptions")
-    print("="*70)
+    print("=" * 70)
 
     # Find DML
     dml = await ConceptStore.get_by_canonical_name("double machine learning")
@@ -109,9 +109,9 @@ async def test_dml_assumptions():
 
 async def test_iv_endogeneity_relationship():
     """Test 3: Graph shows correct relationship (IV → endogeneity)."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST 3: IV → Endogeneity Relationship")
-    print("="*70)
+    print("=" * 70)
 
     # Find concepts
     iv = await ConceptStore.get_by_canonical_name("instrumental variables")
@@ -128,9 +128,7 @@ async def test_iv_endogeneity_relationship():
     print(f"✓ Found: {endogeneity.name}")
 
     # Check relationship
-    rel = await RelationshipStore.get_by_concepts(
-        iv.id, endogeneity.id, RelationshipType.ADDRESSES
-    )
+    rel = await RelationshipStore.get_by_concepts(iv.id, endogeneity.id, RelationshipType.ADDRESSES)
 
     if rel:
         print(f"✅ PASS: Found IV -[ADDRESSES]-> Endogeneity")
@@ -142,9 +140,9 @@ async def test_iv_endogeneity_relationship():
 
 async def test_path_finding():
     """Test 4: Path finding works (DoubleML → cross-fitting → k-fold CV)."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST 4: Path Finding (DML → Cross-Fitting → K-Fold CV)")
-    print("="*70)
+    print("=" * 70)
 
     # Find concepts
     dml = await ConceptStore.get_by_canonical_name("double machine learning")
@@ -180,9 +178,9 @@ async def test_path_finding():
 
 async def test_graph_query_performance():
     """Test 5: Graph query latency < 100ms for 2-hop traversal."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST 5: Graph Query Performance")
-    print("="*70)
+    print("=" * 70)
 
     # Find a concept with relationships
     concepts = await ConceptStore.list_all(limit=100)
@@ -221,10 +219,10 @@ async def test_graph_query_performance():
 
 async def run_all_tests():
     """Run all master plan validation tests."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("MASTER PLAN VALIDATION TESTS")
     print("Phase 2 Knowledge Graph Requirements (Lines 657-661)")
-    print("="*70)
+    print("=" * 70)
 
     # Initialize database
     config = DatabaseConfig()
@@ -239,9 +237,9 @@ async def run_all_tests():
     results["test5_performance"] = await test_graph_query_performance()
 
     # Summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("SUMMARY")
-    print("="*70)
+    print("=" * 70)
 
     passed = sum(1 for v in results.values() if v is True)
     failed = sum(1 for v in results.values() if v is False)

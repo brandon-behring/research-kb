@@ -9,10 +9,12 @@ Tests:
 
 import json
 import pytest
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock, patch
 
 from research_kb_pdf.rerank_server import RerankServer, SOCKET_PATH, BUFFER_SIZE
 from research_kb_pdf.reranker import RerankResult, CrossEncoderReranker
+
+pytestmark = pytest.mark.unit
 
 
 @pytest.fixture
@@ -258,7 +260,11 @@ class TestHandleRequestUnknown:
         response = mock_server.handle_request(request)
 
         # Either success or rerank-related error
-        assert "results" in response or "error" not in response or "Missing" not in response.get("error", "")
+        assert (
+            "results" in response
+            or "error" not in response
+            or "Missing" not in response.get("error", "")
+        )
 
 
 class TestHandleRequestErrorHandling:
@@ -364,8 +370,6 @@ class TestServerSocket:
 
     def test_run_server_creates_socket(self, mock_server):
         """Test run_server creates Unix socket."""
-        import socket
-        import os
 
         # We can't fully test the server loop, but we can test socket creation
         # by patching socket operations
@@ -443,7 +447,10 @@ class TestMain:
 
                 # Should use FALLBACK_MODEL
                 call_args = mock_class.call_args
-                assert call_args.kwargs.get("model_name", call_args[0][0] if call_args[0] else None) == FALLBACK_MODEL
+                assert (
+                    call_args.kwargs.get("model_name", call_args[0][0] if call_args[0] else None)
+                    == FALLBACK_MODEL
+                )
 
 
 class TestIntegration:
@@ -500,11 +507,13 @@ class TestIntegration:
         mock_reranker.predict_scores.return_value = [0.5]
 
         # Simulate what the socket would do
-        request_json = json.dumps({
-            "action": "predict",
-            "query": "test",
-            "documents": ["doc"],
-        })
+        request_json = json.dumps(
+            {
+                "action": "predict",
+                "query": "test",
+                "documents": ["doc"],
+            }
+        )
 
         request = json.loads(request_json)
         response = mock_server.handle_request(request)

@@ -38,35 +38,39 @@ S2_RPS_LIMIT = float(os.environ.get("S2_RPS_LIMIT", "10"))
 S2_TIMEOUT_SECONDS = int(os.environ.get("S2_TIMEOUT_SECONDS", "30"))
 
 # Default fields to request (balance between completeness and response size)
-DEFAULT_PAPER_FIELDS = ",".join([
-    "paperId",
-    "corpusId",
-    "externalIds",
-    "title",
-    "abstract",
-    "venue",
-    "year",
-    "publicationDate",
-    "authors",
-    "referenceCount",
-    "citationCount",
-    "influentialCitationCount",
-    "isOpenAccess",
-    "openAccessPdf",
-    "s2FieldsOfStudy",
-    "publicationTypes",
-])
+DEFAULT_PAPER_FIELDS = ",".join(
+    [
+        "paperId",
+        "corpusId",
+        "externalIds",
+        "title",
+        "abstract",
+        "venue",
+        "year",
+        "publicationDate",
+        "authors",
+        "referenceCount",
+        "citationCount",
+        "influentialCitationCount",
+        "isOpenAccess",
+        "openAccessPdf",
+        "s2FieldsOfStudy",
+        "publicationTypes",
+    ]
+)
 
-DEFAULT_AUTHOR_FIELDS = ",".join([
-    "authorId",
-    "externalIds",
-    "name",
-    "url",
-    "affiliations",
-    "paperCount",
-    "citationCount",
-    "hIndex",
-])
+DEFAULT_AUTHOR_FIELDS = ",".join(
+    [
+        "authorId",
+        "externalIds",
+        "name",
+        "url",
+        "affiliations",
+        "paperCount",
+        "citationCount",
+        "hIndex",
+    ]
+)
 
 
 class S2Client:
@@ -499,7 +503,7 @@ class S2Client:
             if response.status_code == 429:
                 if attempt < max_429_retries:
                     retry_after = response.headers.get("Retry-After")
-                    wait_time = float(retry_after) if retry_after else base_wait * (2 ** attempt)
+                    wait_time = float(retry_after) if retry_after else base_wait * (2**attempt)
                     logger.warning(
                         "rate_limited_retrying",
                         endpoint=endpoint,
@@ -511,7 +515,11 @@ class S2Client:
                 else:
                     # Max retries exceeded
                     raise S2RateLimitError(
-                        retry_after=float(response.headers.get("Retry-After")) if response.headers.get("Retry-After") else None,
+                        retry_after=(
+                            float(response.headers.get("Retry-After"))
+                            if response.headers.get("Retry-After")
+                            else None
+                        ),
                         endpoint=endpoint,
                     )
 

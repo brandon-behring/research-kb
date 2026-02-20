@@ -90,11 +90,13 @@ Query
 
 The weight profile adapts to the search intent:
 
-| Context | FTS | Vector | Graph | Use Case |
-|---------|-----|--------|-------|----------|
-| `building` | 20% | 70% | 10% | Broad research -- cast a wide semantic net |
-| `auditing` | 45% | 45% | 10% | Precise lookup -- keyword accuracy matters |
-| `balanced` | 30% | 60% | 10% | Default -- good general performance |
+| Context | FTS | Vector | Graph | Citation | Use Case |
+|---------|-----|--------|-------|----------|----------|
+| `building` | 20% | 80% | -- | -- | Broad research -- cast a wide semantic net |
+| `auditing` | 50% | 50% | -- | -- | Precise lookup -- keyword accuracy matters |
+| `balanced` | 30% | 70% | -- | -- | Default -- good general performance |
+
+Graph (15%) and citation (15%) signals are opt-in via `use_graph` and `use_citations` flags. When enabled, FTS and vector weights are reduced proportionally.
 
 ## Architecture
 
@@ -197,7 +199,7 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 ## Testing
 
 - **1,900+ test functions** across 89 test files
-- **Tiered CI/CD**: PR checks (<10 min) -> Daily validation (3 min) -> Weekly full rebuild (60 min)
+- **Tiered CI/CD**: PR checks (<10 min) -> Weekly integration (10 min) -> Full rebuild (planned)
 - **Golden evaluation dataset**: 47 queries across 4 domains with known-relevant chunks
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 

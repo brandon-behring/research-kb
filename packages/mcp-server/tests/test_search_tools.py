@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch
 from uuid import uuid4
 from datetime import datetime
 from dataclasses import dataclass
 
 from research_kb_contracts import Source, SourceType, Chunk
 from research_kb_mcp.tools.search import register_search_tools
+
+pytestmark = pytest.mark.unit
 
 
 class MockFastMCP:
@@ -20,18 +22,21 @@ class MockFastMCP:
 
     def tool(self, **kwargs):
         """Decorator that captures tool functions."""
+
         def decorator(func):
             self.tools[func.__name__] = {
                 "func": func,
                 "kwargs": kwargs,
             }
             return func
+
         return decorator
 
 
 @dataclass
 class MockSearchResponse:
     """Mock search response for testing."""
+
     query: str
     results: list
     total_count: int = 0
@@ -43,6 +48,7 @@ class MockSearchResponse:
 @dataclass
 class MockSearchResult:
     """Mock search result for testing."""
+
     source: Source
     chunk: Chunk
     fts_score: float = 0.5
@@ -140,8 +146,10 @@ class TestSearchToolExecution:
         mcp = MockFastMCP()
         register_search_tools(mcp)
 
-        with patch("research_kb_mcp.tools.search.search") as search_mock, \
-             patch("research_kb_mcp.tools.search.format_search_results") as format_mock:
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
             search_mock.return_value = mock_search_response
             format_mock.return_value = "## Search Results\n\nFormatted results here"
 
@@ -166,8 +174,10 @@ class TestSearchToolExecution:
         mcp = MockFastMCP()
         register_search_tools(mcp)
 
-        with patch("research_kb_mcp.tools.search.search") as search_mock, \
-             patch("research_kb_mcp.tools.search.format_search_results") as format_mock:
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
             search_mock.return_value = mock_search_response
             format_mock.return_value = "## Search Results"
 
@@ -185,8 +195,10 @@ class TestSearchToolExecution:
         mcp = MockFastMCP()
         register_search_tools(mcp)
 
-        with patch("research_kb_mcp.tools.search.search") as search_mock, \
-             patch("research_kb_mcp.tools.search.format_search_results") as format_mock:
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
             search_mock.return_value = mock_search_response
             format_mock.return_value = "## Search Results"
 
@@ -204,8 +216,10 @@ class TestSearchToolExecution:
         mcp = MockFastMCP()
         register_search_tools(mcp)
 
-        with patch("research_kb_mcp.tools.search.search") as search_mock, \
-             patch("research_kb_mcp.tools.search.format_search_results") as format_mock:
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
             search_mock.return_value = mock_search_response
             format_mock.return_value = "## Search Results"
 
@@ -229,8 +243,10 @@ class TestSearchToolExecution:
         mcp = MockFastMCP()
         register_search_tools(mcp)
 
-        with patch("research_kb_mcp.tools.search.search") as search_mock, \
-             patch("research_kb_mcp.tools.search.format_search_results") as format_mock:
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
             search_mock.return_value = mock_search_response
             format_mock.return_value = "## Search Results"
 
@@ -248,8 +264,10 @@ class TestSearchToolExecution:
         mcp = MockFastMCP()
         register_search_tools(mcp)
 
-        with patch("research_kb_mcp.tools.search.search") as search_mock, \
-             patch("research_kb_mcp.tools.search.format_search_results") as format_mock:
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
             search_mock.return_value = mock_search_response
             format_mock.return_value = "## Search Results"
 
@@ -267,8 +285,10 @@ class TestSearchToolExecution:
         mcp = MockFastMCP()
         register_search_tools(mcp)
 
-        with patch("research_kb_mcp.tools.search.search") as search_mock, \
-             patch("research_kb_mcp.tools.search.format_search_results") as format_mock:
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
             search_mock.return_value = mock_search_response
             format_mock.return_value = "## Search Results"
 
@@ -292,8 +312,10 @@ class TestSearchToolExecution:
             total_count=0,
         )
 
-        with patch("research_kb_mcp.tools.search.search") as search_mock, \
-             patch("research_kb_mcp.tools.search.format_search_results") as format_mock:
+        with (
+            patch("research_kb_mcp.tools.search.search") as search_mock,
+            patch("research_kb_mcp.tools.search.format_search_results") as format_mock,
+        ):
             search_mock.return_value = empty_response
             format_mock.return_value = "## Search Results\n\nNo results found."
 

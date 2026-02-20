@@ -254,9 +254,7 @@ class ConceptStore:
         except StorageError:
             raise
         except Exception as e:
-            logger.error(
-                "concept_update_failed", concept_id=str(concept_id), error=str(e)
-            )
+            logger.error("concept_update_failed", concept_id=str(concept_id), error=str(e))
             raise StorageError(f"Failed to update concept: {e}") from e
 
     @staticmethod
@@ -276,16 +274,12 @@ class ConceptStore:
                 if deleted:
                     logger.info("concept_deleted", concept_id=str(concept_id))
                 else:
-                    logger.warning(
-                        "concept_not_found_for_delete", concept_id=str(concept_id)
-                    )
+                    logger.warning("concept_not_found_for_delete", concept_id=str(concept_id))
 
                 return deleted
 
         except Exception as e:
-            logger.error(
-                "concept_delete_failed", concept_id=str(concept_id), error=str(e)
-            )
+            logger.error("concept_delete_failed", concept_id=str(concept_id), error=str(e))
             raise StorageError(f"Failed to delete concept: {e}") from e
 
     @staticmethod

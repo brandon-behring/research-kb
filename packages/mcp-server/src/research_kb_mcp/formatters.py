@@ -10,7 +10,12 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from research_kb_api.service import SearchResponse, SearchResultDetail
-    from research_kb_contracts import Source, Concept, ConceptRelationship, Chunk, ChunkConcept
+    from research_kb_contracts import (
+        Source,
+        Concept,
+        ConceptRelationship,
+        Chunk,
+    )
 
 
 # Maximum content length before truncation
@@ -39,7 +44,9 @@ def format_search_results(response: SearchResponse) -> str:
     if response.expanded_query:
         lines.append(f"*Query expanded to: {response.expanded_query}*")
 
-    lines.append(f"\n**Found {len(response.results)} results** (in {response.execution_time_ms:.0f}ms)\n")
+    lines.append(
+        f"\n**Found {len(response.results)} results** (in {response.execution_time_ms:.0f}ms)\n"
+    )
 
     if not response.results:
         lines.append("No results found.")
@@ -131,7 +138,9 @@ def format_source_summary(source: Source) -> str:
         parts.append(f"  - Year: {source.year}")
 
     if source.source_type:
-        parts.append(f"  - Type: {source.source_type.value if hasattr(source.source_type, 'value') else source.source_type}")
+        parts.append(
+            f"  - Type: {source.source_type.value if hasattr(source.source_type, 'value') else source.source_type}"
+        )
 
     parts.append(f"  - ID: `{source.id}`")
 
@@ -147,7 +156,9 @@ def format_source_detail(source: Source, chunks: Optional[list] = None) -> str:
     if source.year:
         lines.append(f"**Year:** {source.year}")
     if source.source_type:
-        type_val = source.source_type.value if hasattr(source.source_type, "value") else source.source_type
+        type_val = (
+            source.source_type.value if hasattr(source.source_type, "value") else source.source_type
+        )
         lines.append(f"**Type:** {type_val}")
 
     lines.append(f"**ID:** `{source.id}`")
@@ -161,7 +172,11 @@ def format_source_detail(source: Source, chunks: Optional[list] = None) -> str:
     if chunks:
         lines.append(f"\n### Content Chunks ({len(chunks)} total)")
         for i, chunk in enumerate(chunks[:5], 1):  # Show first 5 chunks
-            page_info = f"p. {chunk.page_start}" if hasattr(chunk, "page_start") and chunk.page_start else ""
+            page_info = (
+                f"p. {chunk.page_start}"
+                if hasattr(chunk, "page_start") and chunk.page_start
+                else ""
+            )
             lines.append(f"\n**Chunk {i}** {page_info}")
             content = chunk.content if hasattr(chunk, "content") else str(chunk)
             lines.append(f"> {truncate(content, 500)}")
@@ -255,18 +270,25 @@ def format_concept_list(concepts: list[Concept]) -> str:
 
 def format_concept_summary(concept: Concept) -> str:
     """Format a single concept summary."""
-    type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+    type_val = (
+        concept.concept_type.value
+        if hasattr(concept.concept_type, "value")
+        else concept.concept_type
+    )
     return f"- **{concept.name}** [{type_val}] `{concept.id}`"
 
 
 def format_concept_detail(
-    concept: Concept,
-    relationships: Optional[list[ConceptRelationship]] = None
+    concept: Concept, relationships: Optional[list[ConceptRelationship]] = None
 ) -> str:
     """Format detailed concept information."""
     lines = [f"## {concept.name}"]
 
-    type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+    type_val = (
+        concept.concept_type.value
+        if hasattr(concept.concept_type, "value")
+        else concept.concept_type
+    )
     lines.append(f"**Type:** {type_val}")
     lines.append(f"**ID:** `{concept.id}`")
 
@@ -276,7 +298,11 @@ def format_concept_detail(
     if relationships:
         lines.append(f"\n### Relationships ({len(relationships)} total)")
         for rel in relationships[:20]:  # Show first 20
-            rel_type = rel.relationship_type.value if hasattr(rel.relationship_type, "value") else rel.relationship_type
+            rel_type = (
+                rel.relationship_type.value
+                if hasattr(rel.relationship_type, "value")
+                else rel.relationship_type
+            )
             lines.append(f"- {rel_type} → `{rel.target_id}`")
 
         if len(relationships) > 20:
@@ -549,7 +575,9 @@ def format_biblio_similar(similar_sources: list[dict], source: Source) -> str:
 
         lines.append(f"- **{s['title']}**{year}")
         lines.append(f"  - {author_str}")
-        lines.append(f"  - Coupling: **{coupling_pct:.1f}%** ({s['shared_references']} shared refs)")
+        lines.append(
+            f"  - Coupling: **{coupling_pct:.1f}%** ({s['shared_references']} shared refs)"
+        )
         lines.append(f"  - ID: `{s['source_id']}`")
 
     return "\n".join(lines)
@@ -573,7 +601,7 @@ def format_chunk_concepts(chunk: Chunk, concepts_with_links: list) -> str:
         else:
             page_ref = f"p. {chunk.page_start}"
 
-    lines = [f"## Concepts in Chunk"]
+    lines = ["## Concepts in Chunk"]
     lines.append(f"*Chunk ID: `{chunk.id}`*")
     if page_ref:
         lines.append(f"*Location: {page_ref}*")
@@ -592,7 +620,11 @@ def format_chunk_concepts(chunk: Chunk, concepts_with_links: list) -> str:
     if by_type.get("defines"):
         lines.append("### Defines")
         for concept, cc in by_type["defines"]:
-            type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+            type_val = (
+                concept.concept_type.value
+                if hasattr(concept.concept_type, "value")
+                else concept.concept_type
+            )
             relevance = f" (relevance: {cc.relevance_score:.2f})" if cc.relevance_score else ""
             lines.append(f"- **{concept.name}** [{type_val}]{relevance}")
             lines.append(f"  - ID: `{concept.id}`")
@@ -601,7 +633,11 @@ def format_chunk_concepts(chunk: Chunk, concepts_with_links: list) -> str:
     if by_type.get("reference"):
         lines.append("\n### References")
         for concept, cc in by_type["reference"]:
-            type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+            type_val = (
+                concept.concept_type.value
+                if hasattr(concept.concept_type, "value")
+                else concept.concept_type
+            )
             relevance = f" (relevance: {cc.relevance_score:.2f})" if cc.relevance_score else ""
             lines.append(f"- **{concept.name}** [{type_val}]{relevance}")
             lines.append(f"  - ID: `{concept.id}`")
@@ -610,7 +646,11 @@ def format_chunk_concepts(chunk: Chunk, concepts_with_links: list) -> str:
     if by_type.get("example"):
         lines.append("\n### Examples")
         for concept, cc in by_type["example"]:
-            type_val = concept.concept_type.value if hasattr(concept.concept_type, "value") else concept.concept_type
+            type_val = (
+                concept.concept_type.value
+                if hasattr(concept.concept_type, "value")
+                else concept.concept_type
+            )
             relevance = f" (relevance: {cc.relevance_score:.2f})" if cc.relevance_score else ""
             lines.append(f"- **{concept.name}** [{type_val}]{relevance}")
             lines.append(f"  - ID: `{concept.id}`")

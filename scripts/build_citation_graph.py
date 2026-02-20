@@ -64,15 +64,17 @@ async def main():
 
     stats = await build_citation_graph()
 
-    print(f"\nGraph building complete:")
+    print("\nGraph building complete:")
     print(f"  Total processed: {stats['total_processed']}")
-    print(f"  Matched to corpus: {stats['matched']} ({100*stats['matched']/max(stats['total_processed'],1):.1f}%)")
+    print(
+        f"  Matched to corpus: {stats['matched']} ({100*stats['matched']/max(stats['total_processed'],1):.1f}%)"
+    )
     print(f"  External (unmatched): {stats['unmatched']}")
     print(f"  Errors: {stats['errors']}")
 
-    if stats['by_type']:
+    if stats["by_type"]:
         print("\nBy source type:")
-        for key, count in sorted(stats['by_type'].items(), key=lambda x: -x[1]):
+        for key, count in sorted(stats["by_type"].items(), key=lambda x: -x[1]):
             print(f"  {key}: {count}")
 
     # Compute PageRank
@@ -83,7 +85,7 @@ async def main():
 
         pr_stats = await compute_pagerank_authority(iterations=20, damping=0.85)
 
-        print(f"\nPageRank computation complete:")
+        print("\nPageRank computation complete:")
         print(f"  Sources: {pr_stats['sources']}")
         print(f"  Min score: {pr_stats['min_score']:.4f}")
         print(f"  Max score: {pr_stats['max_score']:.4f}")
@@ -95,12 +97,12 @@ async def main():
     print("=" * 70)
 
     summary = await get_corpus_citation_summary()
-    print(f"\nCorpus-wide statistics:")
+    print("\nCorpus-wide statistics:")
     print(f"  Total citations: {summary.get('total_citations', 0)}")
     print(f"  Total edges: {summary.get('total_edges', 0)}")
     print(f"  Internal edges: {summary.get('internal_edges', 0)}")
     print(f"  External edges: {summary.get('external_edges', 0)}")
-    print(f"\nBy type combination:")
+    print("\nBy type combination:")
     print(f"  Paper → Paper: {summary.get('paper_to_paper', 0)}")
     print(f"  Paper → Textbook: {summary.get('paper_to_textbook', 0)}")
     print(f"  Textbook → Paper: {summary.get('textbook_to_paper', 0)}")
@@ -114,7 +116,9 @@ async def main():
     most_cited = await get_most_cited_sources(limit=10)
     for i, source in enumerate(most_cited, 1):
         print(f"{i:2}. [{source['source_type']:8}] {source['title'][:50]}...")
-        print(f"    Cited by: {source['cited_by_count']} | Authority: {source['citation_authority']:.4f}")
+        print(
+            f"    Cited by: {source['cited_by_count']} | Authority: {source['citation_authority']:.4f}"
+        )
 
 
 if __name__ == "__main__":

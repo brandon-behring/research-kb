@@ -4,9 +4,9 @@
 
 - **Phase**: Core phases ✅ Complete | Phase 4.3 (ProactiveContext Integration) ✅ Complete
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
-- **KuzuDB**: ✅ Operational (284K concepts, 726K relationships, <300ms graph queries)
+- **KuzuDB**: ✅ Operational (307K concepts, 742K relationships, <300ms graph queries)
 - **MCP Server**: 19 tools available
-- **Domains**: 5 active (Causal Inference, Time Series, RAG & LLM, Interview Prep, Healthcare)
+- **Domains**: 4 active (Causal Inference, Time Series, RAG & LLM, Interview Prep) + 1 infrastructure-ready (Healthcare)
 - **ProactiveContext**: Integrated via `fast_search` (~200ms latency)
 
 ---
@@ -35,6 +35,9 @@
 | 3. Enhanced Retrieval | ✅ Complete | Re-ranking, query expansion, citation authority | [→](phases/phase3/ENHANCED_RETRIEVAL.md) |
 | 4. Production | ✅ Complete | FastAPI, dashboard, metrics, daemon | [→](phases/phase4/PRODUCTION.md) |
 | 4.3 ProactiveContext | ✅ Complete | Context injection hook integration | [→](status/REMEDIATION_LOG.md#phase-43-proactivecontext-integration--complete--2026-02-06) |
+| D. Observability | ✅ Complete | Prometheus metrics, Grafana dashboard, KuzuDB benchmarks | [→](../CLAUDE.md#daemon-service) |
+| E. RAG/LLM Extraction | ✅ Complete | 23K concepts from 13 RAG/LLM textbooks (Haiku 4.5) | [→](status/REMEDIATION_LOG.md) |
+| F. Cross-Repo Integration | ✅ Complete | Lever health monitoring, interview readiness scorer | [→](INTEGRATION.md) |
 
 ---
 

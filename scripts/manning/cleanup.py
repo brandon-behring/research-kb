@@ -35,11 +35,11 @@ def _normalize_strict(title: str) -> str:
     t = re.sub(r"\s+", " ", t).strip()
     return t
 
+
 _project_root = Path(__file__).parent.parent.parent
 for pkg in ("storage", "contracts", "common"):
     sys.path.insert(0, str(_project_root / "packages" / pkg / "src"))
 
-from research_kb_storage import DatabaseConfig, get_connection_pool  # noqa: E402
 
 # Domain normalization map: messy → canonical
 DOMAIN_NORMALIZATION: dict[str, str] = {
@@ -136,7 +136,7 @@ async def assign_domains(pool, apply: bool = False) -> list[dict]:
     proposals: list[dict] = []
     for row in rows:
         db_title = row["title"]
-        best_match: ManningBook | None = None  # noqa: F841
+        best_match: dict | None = None  # noqa: F841
         matched_catalog_title: str | None = None
 
         for catalog_title, book in catalog_map.items():
@@ -438,14 +438,10 @@ async def auto_merge_duplicates(pool, apply: bool = False) -> list[dict]:
     for group in groups:
         if group["match_type"] == "file_hash":
             # File hash match — always safe to merge
-            sources = sorted(
-                group["sources"], key=lambda s: s["chunk_count"], reverse=True
-            )
+            sources = sorted(group["sources"], key=lambda s: s["chunk_count"], reverse=True)
             keep = sources[0]
             for delete in sources[1:]:
-                result = await merge_duplicates(
-                    pool, keep["id"], delete["id"], apply=apply
-                )
+                result = await merge_duplicates(pool, keep["id"], delete["id"], apply=apply)
                 result["match_type"] = group["match_type"]
                 results.append(result)
         else:
@@ -464,9 +460,7 @@ async def auto_merge_duplicates(pool, apply: bool = False) -> list[dict]:
                 )
                 keep = sources[0]
                 for delete in sources[1:]:
-                    result = await merge_duplicates(
-                        pool, keep["id"], delete["id"], apply=apply
-                    )
+                    result = await merge_duplicates(pool, keep["id"], delete["id"], apply=apply)
                     result["match_type"] = group["match_type"]
                     results.append(result)
             else:
@@ -487,9 +481,7 @@ async def auto_merge_duplicates(pool, apply: bool = False) -> list[dict]:
                             results.append(result)
 
                 # Report the skipped entries
-                skipped_titles = [
-                    norm for norm, subs in by_norm.items() if len(subs) == 1
-                ]
+                skipped_titles = [norm for norm, subs in by_norm.items() if len(subs) == 1]
                 if skipped_titles:
                     results.append(
                         {

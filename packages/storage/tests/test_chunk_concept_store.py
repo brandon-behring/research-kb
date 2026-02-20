@@ -7,6 +7,8 @@ from research_kb_common import StorageError
 from research_kb_contracts import ConceptType
 from research_kb_storage import ChunkConceptStore, ChunkStore, ConceptStore
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.asyncio
 async def test_create_chunk_concept_link(test_db, test_source):
@@ -363,9 +365,7 @@ async def test_get_concept_ids_for_chunks(test_db, test_source):
     # chunk3 -> no concepts
 
     # Get concept IDs for chunks
-    result = await ChunkConceptStore.get_concept_ids_for_chunks(
-        [chunk1.id, chunk2.id, chunk3.id]
-    )
+    result = await ChunkConceptStore.get_concept_ids_for_chunks([chunk1.id, chunk2.id, chunk3.id])
 
     assert len(result) == 3
     assert len(result[chunk1.id]) == 2  # Has 2 concepts

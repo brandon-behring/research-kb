@@ -128,7 +128,7 @@ async def retry_entry(dlq: DeadLetterQueue, entry: DLQEntry) -> bool:
         result = await dispatcher.ingest_pdf(pdf_path)
 
         if result.status == "success":
-            print(f"  ✅ Success!")
+            print("  ✅ Success!")
             dlq.remove(entry.id)
             return True
         else:

@@ -23,6 +23,7 @@ PRODUCTION_DATABASE_NAME = "research_kb"
 
 class ProductionDatabaseError(Exception):
     """Raised when test attempts to modify production database."""
+
     pass
 
 

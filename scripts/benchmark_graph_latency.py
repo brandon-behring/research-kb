@@ -18,7 +18,6 @@ Usage:
 """
 
 import argparse
-import asyncio
 import json
 import os
 import socket
@@ -46,7 +45,11 @@ BENCHMARK_QUERIES = [
         "name": "north_star",
         "description": "North Star assumption audit",
         "method": "search",
-        "params": {"query": "double machine learning assumptions", "limit": 5, "use_graph": True},
+        "params": {
+            "query": "double machine learning assumptions",
+            "limit": 5,
+            "use_graph": True,
+        },
     },
     {
         "name": "terse_query",
@@ -74,7 +77,11 @@ BENCHMARK_QUERIES = [
         "name": "graph_path",
         "description": "Graph path finding",
         "method": "graph_path",
-        "params": {"start": "instrumental variables", "end": "endogeneity", "max_hops": 3},
+        "params": {
+            "start": "instrumental variables",
+            "end": "endogeneity",
+            "max_hops": 3,
+        },
     },
     {
         "name": "health_check",
@@ -196,7 +203,7 @@ def run_benchmarks(runs: int = 3) -> dict:
                 "min_ms": round(min(timings), 1),
                 "max_ms": round(max(timings), 1),
                 "mean_ms": round(statistics.mean(timings), 1),
-                "stddev_ms": round(statistics.stdev(timings), 1) if len(timings) > 1 else 0.0,
+                "stddev_ms": (round(statistics.stdev(timings), 1) if len(timings) > 1 else 0.0),
                 "raw_ms": [round(t, 1) for t in timings],
             }
         else:

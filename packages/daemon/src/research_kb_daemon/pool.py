@@ -12,7 +12,11 @@ import socket
 from typing import Optional
 
 from research_kb_common import get_logger
-from research_kb_storage import DatabaseConfig, get_connection_pool, close_connection_pool
+from research_kb_storage import (
+    DatabaseConfig,
+    close_connection_pool,
+    get_connection_pool,
+)
 
 logger = get_logger(__name__)
 
@@ -205,7 +209,9 @@ class EmbedClient:
                 embedding = response.get("embedding")
                 if not embedding or len(embedding) != 1024:
                     self._record_failure()
-                    raise ValueError(f"Invalid embedding dimension: {len(embedding) if embedding else 0}")
+                    raise ValueError(
+                        f"Invalid embedding dimension: {len(embedding) if embedding else 0}"
+                    )
 
                 self._record_success()
                 return embedding
@@ -226,7 +232,10 @@ class EmbedClient:
         try:
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(
-                None, self._sync_request, {"action": "ping"}, 5.0  # 5s health check timeout
+                None,
+                self._sync_request,
+                {"action": "ping"},
+                5.0,  # 5s health check timeout
             )
 
             if "error" in response:

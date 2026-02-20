@@ -9,6 +9,8 @@ from datetime import datetime
 
 from research_kb_contracts import Source, Chunk, SourceType
 
+pytestmark = pytest.mark.unit
+
 
 def make_source(title: str = "Test Paper") -> Source:
     """Create a mock source."""
@@ -106,12 +108,8 @@ async def test_get_source_citations(app_client, mock_storage):
     with patch("research_kb_api.service.get_citations_for_source") as cite_mock:
         cite_mock.return_value = {
             "source_id": str(source.id),
-            "citing_sources": [
-                {"id": str(uuid4()), "title": "Citing Paper", "year": 2024}
-            ],
-            "cited_sources": [
-                {"id": str(uuid4()), "title": "Cited Paper", "year": 2020}
-            ],
+            "citing_sources": [{"id": str(uuid4()), "title": "Citing Paper", "year": 2024}],
+            "cited_sources": [{"id": str(uuid4()), "title": "Cited Paper", "year": 2020}],
         }
 
         response = await app_client.get(f"/sources/{source.id}/citations")

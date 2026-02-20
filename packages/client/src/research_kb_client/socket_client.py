@@ -22,8 +22,6 @@ from pathlib import Path
 from typing import Any, Optional
 
 from .models import (
-    ConceptInfo,
-    ConceptNeighborhood,
     HealthStatus,
     SearchResponse,
     SearchResult,
@@ -38,26 +36,26 @@ class ResearchKBError(Exception):
 
     Raised with explicit error information rather than returning empty results.
     """
+
     pass
 
 
 class ConnectionError(ResearchKBError):
     """Cannot connect to daemon or CLI."""
+
     pass
 
 
 class TimeoutError(ResearchKBError):
     """Request timed out."""
+
     pass
 
 
 def _default_socket_path() -> str:
     """Get user-specific socket path."""
     user = os.environ.get("USER", "unknown")
-    return os.environ.get(
-        "RESEARCH_KB_SOCKET_PATH",
-        f"/tmp/research_kb_daemon_{user}.sock"
-    )
+    return os.environ.get("RESEARCH_KB_SOCKET_PATH", f"/tmp/research_kb_daemon_{user}.sock")
 
 
 def _default_cli_path() -> str:
@@ -343,8 +341,10 @@ class DaemonClient:
             self.cli_path,
             "query",
             query,
-            "--format", "json",
-            "--limit", str(limit),
+            "--format",
+            "json",
+            "--limit",
+            str(limit),
         ]
         if not use_graph:
             cmd.append("--no-graph")
@@ -409,16 +409,18 @@ class DaemonClient:
             # Score field varies
             score = item.get("score", item.get("combined_score", 0.0))
 
-            results.append(SearchResult(
-                source=source,
-                chunk=chunk,
-                score=score,
-                fts_score=item.get("fts_score"),
-                vector_score=item.get("vector_score"),
-                graph_score=item.get("graph_score"),
-                citation_score=item.get("citation_score"),
-                concepts=item.get("concepts", []),
-            ))
+            results.append(
+                SearchResult(
+                    source=source,
+                    chunk=chunk,
+                    score=score,
+                    fts_score=item.get("fts_score"),
+                    vector_score=item.get("vector_score"),
+                    graph_score=item.get("graph_score"),
+                    citation_score=item.get("citation_score"),
+                    concepts=item.get("concepts", []),
+                )
+            )
 
         return SearchResponse(
             results=results,
@@ -429,6 +431,7 @@ class DaemonClient:
 
 
 # Convenience functions
+
 
 def search_or_none(query: str, limit: int = 5) -> Optional[SearchResponse]:
     """Search with graceful failure.

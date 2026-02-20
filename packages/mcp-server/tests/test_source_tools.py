@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch
 from uuid import uuid4
 from datetime import datetime
 
 from research_kb_contracts import Source, SourceType, Chunk
 from research_kb_mcp.tools.sources import register_source_tools
+
+pytestmark = pytest.mark.unit
 
 
 class MockFastMCP:
@@ -19,12 +21,14 @@ class MockFastMCP:
 
     def tool(self, **kwargs):
         """Decorator that captures tool functions."""
+
         def decorator(func):
             self.tools[func.__name__] = {
                 "func": func,
                 "kwargs": kwargs,
             }
             return func
+
         return decorator
 
 
@@ -233,8 +237,10 @@ class TestGetSource:
         mcp = MockFastMCP()
         register_source_tools(mcp)
 
-        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock, \
-             patch("research_kb_mcp.tools.sources.get_source_chunks") as chunks_mock:
+        with (
+            patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock,
+            patch("research_kb_mcp.tools.sources.get_source_chunks") as chunks_mock,
+        ):
             get_mock.return_value = sample_source
             chunks_mock.return_value = sample_chunks
 
@@ -269,8 +275,10 @@ class TestGetSource:
         mcp = MockFastMCP()
         register_source_tools(mcp)
 
-        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock, \
-             patch("research_kb_mcp.tools.sources.get_source_chunks") as chunks_mock:
+        with (
+            patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock,
+            patch("research_kb_mcp.tools.sources.get_source_chunks") as chunks_mock,
+        ):
             get_mock.return_value = sample_source
             chunks_mock.return_value = sample_chunks
 
@@ -348,8 +356,10 @@ class TestSourceCitations:
             "cited_sources": [],
         }
 
-        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock, \
-             patch("research_kb_mcp.tools.sources.get_citations_for_source") as cite_mock:
+        with (
+            patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock,
+            patch("research_kb_mcp.tools.sources.get_citations_for_source") as cite_mock,
+        ):
             get_mock.return_value = sample_source
             cite_mock.return_value = mock_citations
 
@@ -382,8 +392,10 @@ class TestSourceCitations:
         mcp = MockFastMCP()
         register_source_tools(mcp)
 
-        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock, \
-             patch("research_kb_mcp.tools.sources.get_citing_sources") as cite_mock:
+        with (
+            patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock,
+            patch("research_kb_mcp.tools.sources.get_citing_sources") as cite_mock,
+        ):
             get_mock.return_value = sample_source
             cite_mock.return_value = citing_sources
 
@@ -400,8 +412,10 @@ class TestSourceCitations:
         mcp = MockFastMCP()
         register_source_tools(mcp)
 
-        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock, \
-             patch("research_kb_mcp.tools.sources.get_cited_sources") as cite_mock:
+        with (
+            patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock,
+            patch("research_kb_mcp.tools.sources.get_cited_sources") as cite_mock,
+        ):
             get_mock.return_value = sample_source
             cite_mock.return_value = cited_sources
 

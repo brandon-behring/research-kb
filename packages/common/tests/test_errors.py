@@ -11,6 +11,8 @@ from research_kb_common.errors import (
     StorageError,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestErrorHierarchy:
     """Test error inheritance and hierarchy."""

@@ -29,7 +29,9 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 # Default path for synonym map
-DEFAULT_SYNONYM_MAP_PATH = Path(__file__).parent.parent.parent.parent.parent / "fixtures" / "concepts" / "synonym_map.yaml"
+DEFAULT_SYNONYM_MAP_PATH = (
+    Path(__file__).parent.parent.parent.parent.parent / "fixtures" / "concepts" / "synonym_map.yaml"
+)
 
 
 @dataclass
@@ -304,15 +306,13 @@ Example: ["term1", "term2", "term3"]
             )
 
             import json
+
             terms = json.loads(response)
 
             if isinstance(terms, list):
                 # Filter out terms already in query
                 query_lower = query.lower()
-                filtered = [
-                    t for t in terms
-                    if isinstance(t, str) and t.lower() not in query_lower
-                ]
+                filtered = [t for t in terms if isinstance(t, str) and t.lower() not in query_lower]
                 return filtered[:max_terms]
 
             return []
@@ -375,6 +375,7 @@ Example: ["term1", "term2", "term3"]
         """
         # Remove common problematic characters
         import re
+
         cleaned = re.sub(r"[^\w\s-]", "", term)
         return cleaned.strip()
 
@@ -426,8 +427,7 @@ Example: ["term1", "term2", "term3"]
             if graph_terms:
                 # Avoid duplicates with synonyms
                 new_terms = [
-                    t for t in graph_terms
-                    if t.lower() not in {e.lower() for e in all_expansions}
+                    t for t in graph_terms if t.lower() not in {e.lower() for e in all_expansions}
                 ]
                 if new_terms:
                     all_expansions.extend(new_terms)
@@ -444,8 +444,7 @@ Example: ["term1", "term2", "term3"]
             if llm_terms:
                 # Avoid duplicates
                 new_terms = [
-                    t for t in llm_terms
-                    if t.lower() not in {e.lower() for e in all_expansions}
+                    t for t in llm_terms if t.lower() not in {e.lower() for e in all_expansions}
                 ]
                 if new_terms:
                     all_expansions.extend(new_terms)
@@ -505,6 +504,7 @@ async def expand_query(
     if use_llm:
         try:
             from research_kb_extraction.ollama_client import OllamaClient
+
             expander.ollama_client = OllamaClient()
         except ImportError:
             logger.warning("ollama_client_import_failed")
@@ -520,6 +520,7 @@ async def expand_query(
 # ============================================================================
 # HyDE (Hypothetical Document Embeddings)
 # ============================================================================
+
 
 @dataclass
 class HydeConfig:
@@ -663,9 +664,7 @@ async def _generate_hyde_anthropic(prompt: str, model: str) -> Optional[str]:
         message = client.messages.create(
             model=model,
             max_tokens=500,
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
+            messages=[{"role": "user", "content": prompt}],
             system="You are a technical writer for causal inference research.",
         )
 

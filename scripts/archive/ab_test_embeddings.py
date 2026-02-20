@@ -37,6 +37,7 @@ BGE_LARGE_QUERY_PREFIX = "Represent this sentence for searching relevant passage
 @dataclass
 class TestCase:
     """A single retrieval test case."""
+
     query: str
     expected_source_pattern: str
     expected_in_top_k: int
@@ -45,6 +46,7 @@ class TestCase:
 @dataclass
 class ModelResult:
     """Results for a single model."""
+
     name: str
     hit_rate_5: float
     hit_rate_10: float
@@ -59,15 +61,19 @@ def load_test_cases(yaml_path: Path) -> list[TestCase]:
 
     cases = []
     for tc in data.get("test_cases", []):
-        cases.append(TestCase(
-            query=tc["query"],
-            expected_source_pattern=tc["expected_source_pattern"],
-            expected_in_top_k=tc.get("expected_in_top_k", 5),
-        ))
+        cases.append(
+            TestCase(
+                query=tc["query"],
+                expected_source_pattern=tc["expected_source_pattern"],
+                expected_in_top_k=tc.get("expected_in_top_k", 5),
+            )
+        )
     return cases
 
 
-async def sample_chunks(pool: asyncpg.Pool, sample_size: int, test_cases: list[TestCase]) -> list[dict]:
+async def sample_chunks(
+    pool: asyncpg.Pool, sample_size: int, test_cases: list[TestCase]
+) -> list[dict]:
     """Sample chunks from database, ensuring eval sources are included.
 
     Strategy:
@@ -82,28 +88,35 @@ async def sample_chunks(pool: asyncpg.Pool, sample_size: int, test_cases: list[T
 
     async with pool.acquire() as conn:
         # First: Get chunks from eval-relevant sources
-        eval_chunks = await conn.fetch("""
+        eval_chunks = await conn.fetch(
+            """
             SELECT c.id, c.content, s.title as source_title
             FROM chunks c
             JOIN sources s ON c.source_id = s.id
             WHERE s.title ~* $1
             LIMIT 5000
-        """, combined_pattern)
+        """,
+            combined_pattern,
+        )
 
-        eval_chunk_ids = {r['id'] for r in eval_chunks}
+        eval_chunk_ids = {r["id"] for r in eval_chunks}
         print(f"  Found {len(eval_chunks)} chunks from eval-relevant sources")
 
         # Second: Fill with random sample (stratified by source)
         remaining = sample_size - len(eval_chunks)
         if remaining > 0:
-            random_chunks = await conn.fetch("""
+            random_chunks = await conn.fetch(
+                """
                 SELECT c.id, c.content, s.title as source_title
                 FROM chunks c
                 JOIN sources s ON c.source_id = s.id
                 WHERE c.id != ALL($1::uuid[])
                 ORDER BY RANDOM()
                 LIMIT $2
-            """, list(eval_chunk_ids), remaining)
+            """,
+                list(eval_chunk_ids),
+                remaining,
+            )
             print(f"  Added {len(random_chunks)} random chunks")
             all_chunks = list(eval_chunks) + list(random_chunks)
         else:
@@ -185,7 +198,7 @@ def evaluate_model(
         found_source = None
 
         for rank, idx in enumerate(top_indices, 1):
-            source_title = chunks[idx]['source_title']
+            source_title = chunks[idx]["source_title"]
             if pattern.search(source_title):
                 found_rank = rank
                 found_source = source_title
@@ -212,7 +225,7 @@ def evaluate_model(
             if found_rank:
                 print(f"  {status} [{found_rank}] {tc.query[:40]}... → {found_source[:40]}...")
             else:
-                top_source = chunks[top_indices[0]]['source_title']
+                top_source = chunks[top_indices[0]]["source_title"]
                 print(f"  {status} [--] {tc.query[:40]}... → (top: {top_source[:40]}...)")
 
     total = len(test_cases)
@@ -237,17 +250,23 @@ def print_comparison(large_result: ModelResult, m3_result: ModelResult):
     # Hit Rate@5
     delta_5 = m3_result.hit_rate_5 - large_result.hit_rate_5
     winner_5 = "M3" if delta_5 > 0.01 else ("large" if delta_5 < -0.01 else "tie")
-    print(f"{'Hit Rate@5':<20} {large_result.hit_rate_5:>14.1%} {m3_result.hit_rate_5:>14.1%} {delta_5:>+9.1%} {winner_5:>10}")
+    print(
+        f"{'Hit Rate@5':<20} {large_result.hit_rate_5:>14.1%} {m3_result.hit_rate_5:>14.1%} {delta_5:>+9.1%} {winner_5:>10}"
+    )
 
     # Hit Rate@10
     delta_10 = m3_result.hit_rate_10 - large_result.hit_rate_10
     winner_10 = "M3" if delta_10 > 0.01 else ("large" if delta_10 < -0.01 else "tie")
-    print(f"{'Hit Rate@10':<20} {large_result.hit_rate_10:>14.1%} {m3_result.hit_rate_10:>14.1%} {delta_10:>+9.1%} {winner_10:>10}")
+    print(
+        f"{'Hit Rate@10':<20} {large_result.hit_rate_10:>14.1%} {m3_result.hit_rate_10:>14.1%} {delta_10:>+9.1%} {winner_10:>10}"
+    )
 
     # MRR
     delta_mrr = m3_result.mrr - large_result.mrr
     winner_mrr = "M3" if delta_mrr > 0.02 else ("large" if delta_mrr < -0.02 else "tie")
-    print(f"{'MRR':<20} {large_result.mrr:>15.3f} {m3_result.mrr:>15.3f} {delta_mrr:>+10.3f} {winner_mrr:>10}")
+    print(
+        f"{'MRR':<20} {large_result.mrr:>15.3f} {m3_result.mrr:>15.3f} {delta_mrr:>+10.3f} {winner_mrr:>10}"
+    )
 
     print("-" * 70)
 
@@ -295,7 +314,7 @@ async def main():
     try:
         # Sample chunks
         chunks = await sample_chunks(pool, args.sample_size, test_cases)
-        texts = [c['content'] for c in chunks]
+        texts = [c["content"] for c in chunks]
 
         # === BGE-large ===
         large_embeddings, large_model = embed_with_model(

@@ -78,9 +78,7 @@ def fuzzy_match_score(s1: str | None, s2: str | None) -> float:
     return SequenceMatcher(None, n1, n2).ratio()
 
 
-def compute_author_overlap(
-    citation_authors: list[str] | None, paper_authors: list | None
-) -> float:
+def compute_author_overlap(citation_authors: list[str] | None, paper_authors: list | None) -> float:
     """Compute author overlap score using fuzzy matching.
 
     Handles name variations (e.g., "V. Chernozhukov" vs "Victor Chernozhukov").
@@ -184,9 +182,7 @@ def normalize_citation_rank(paper: S2Paper, candidates: list[S2Paper]) -> float:
     return paper_cites / max_cites
 
 
-def score_candidates(
-    citation: Citation, candidates: list[S2Paper]
-) -> tuple[S2Paper, float]:
+def score_candidates(citation: Citation, candidates: list[S2Paper]) -> tuple[S2Paper, float]:
     """Score candidates using weighted multi-signal approach.
 
     Weights (per /iterate decision):
@@ -297,14 +293,14 @@ async def match_citation(citation: Citation, client: "S2Client") -> MatchResult:
                 if score >= 0.8:
                     logger.info(
                         "match_by_multi_signal",
-                        citation_title=citation.title[:40] if citation.title else "Unknown",
+                        citation_title=(citation.title[:40] if citation.title else "Unknown"),
                         score=f"{score:.2f}",
                     )
                     return MatchResult("matched", best_paper, score, "multi_signal")
                 else:
                     logger.info(
                         "match_ambiguous",
-                        citation_title=citation.title[:40] if citation.title else "Unknown",
+                        citation_title=(citation.title[:40] if citation.title else "Unknown"),
                         candidates=len(results.data),
                         best_score=f"{score:.2f}",
                     )
@@ -347,9 +343,7 @@ def citation_to_enrichment_metadata(result: MatchResult) -> dict:
         "s2_match_confidence": result.confidence,
         "s2_match_method": result.match_method,
         "s2_enriched_at": datetime.now(timezone.utc).isoformat(),
-        "s2_fields_of_study": [
-            f.get("category") for f in (paper.s2_fields_of_study or [])
-        ],
+        "s2_fields_of_study": [f.get("category") for f in (paper.s2_fields_of_study or [])],
         "s2_venue": paper.venue,
         "s2_year": paper.year,
         # Enhanced fields (Phase 2.2)
@@ -357,7 +351,5 @@ def citation_to_enrichment_metadata(result: MatchResult) -> dict:
         "s2_reference_count": paper.reference_count,
         "s2_publication_types": paper.publication_types or [],
         "s2_is_open_access": paper.is_open_access,
-        "s2_open_access_pdf_url": (
-            paper.open_access_pdf.url if paper.open_access_pdf else None
-        ),
+        "s2_open_access_pdf_url": (paper.open_access_pdf.url if paper.open_access_pdf else None),
     }

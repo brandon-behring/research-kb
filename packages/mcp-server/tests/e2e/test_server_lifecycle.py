@@ -8,13 +8,14 @@ from pathlib import Path
 # Path to the package root (where pyproject.toml is)
 PACKAGE_ROOT = Path(__file__).parents[3]
 
+
 @pytest.mark.e2e
 def test_server_starts_and_initializes():
     """
     E2E Test: Starts the MCP server process and performs the initialization handshake.
     Verifies that the server connects to dependencies and speaks JSON-RPC.
     """
-    
+
     # Ensure PYTHONPATH includes the src directories of all packages
     # This mimics an installed environment or 'poetry run'
     env = os.environ.copy()
@@ -35,7 +36,7 @@ def test_server_starts_and_initializes():
         stderr=subprocess.PIPE,
         text=True,
         env=env,
-        cwd=str(PACKAGE_ROOT)
+        cwd=str(PACKAGE_ROOT),
     )
 
     try:
@@ -47,10 +48,10 @@ def test_server_starts_and_initializes():
             "params": {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {},
-                "clientInfo": {"name": "test-harness", "version": "0.1"}
-            }
+                "clientInfo": {"name": "test-harness", "version": "0.1"},
+            },
         }
-        
+
         print(f"Sending: {json.dumps(init_req)}")
         process.stdin.write(json.dumps(init_req) + "\n")
         process.stdin.flush()
@@ -61,7 +62,7 @@ def test_server_starts_and_initializes():
         response = None
         while True:
             response_line = process.stdout.readline()
-            
+
             # Check for immediate crash or EOF
             if not response_line:
                 stderr_out = process.stderr.read()
@@ -70,7 +71,7 @@ def test_server_starts_and_initializes():
                 break
 
             print(f"Received: {response_line.strip()}")
-            
+
             # Try to parse as JSON if it looks like it
             if response_line.strip().startswith("{"):
                 try:
@@ -78,19 +79,19 @@ def test_server_starts_and_initializes():
                     break
                 except json.JSONDecodeError:
                     continue  # Not valid JSON, probably a log line starting with {
-        
+
         if response is None:
-             pytest.fail("Never received a valid JSON response")
+            pytest.fail("Never received a valid JSON response")
 
         # 3. Validation
         assert response.get("jsonrpc") == "2.0"
         assert response.get("id") == 1
         assert "result" in response
         result = response["result"]
-        
+
         # Verify server identity
         assert result["serverInfo"]["name"] == "research-kb"
-        
+
         # Verify capabilities
         assert "tools" in result["capabilities"]
 

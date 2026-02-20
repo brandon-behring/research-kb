@@ -9,6 +9,8 @@ from research_kb_storage.connection import (
     check_connection_health,
 )
 
+pytestmark = pytest.mark.integration
+
 
 def test_database_config_defaults():
     """Test DatabaseConfig default values."""
@@ -208,9 +210,7 @@ async def test_connection_pool_transaction(test_db):
             """
             )
 
-            await conn.execute(
-                "INSERT INTO test_transaction (value) VALUES ($1)", "test"
-            )
+            await conn.execute("INSERT INTO test_transaction (value) VALUES ($1)", "test")
 
             result = await conn.fetchval("SELECT COUNT(*) FROM test_transaction")
 
@@ -236,9 +236,7 @@ async def test_connection_pool_rollback(test_db):
         # Try transaction that will roll back
         try:
             async with conn.transaction():
-                await conn.execute(
-                    "INSERT INTO test_rollback (value) VALUES ($1)", "test"
-                )
+                await conn.execute("INSERT INTO test_rollback (value) VALUES ($1)", "test")
                 # Force rollback by raising exception
                 raise ValueError("Intentional rollback")
         except ValueError:

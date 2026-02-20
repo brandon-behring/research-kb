@@ -13,6 +13,8 @@ from s2_client.acquire import (
 )
 from s2_client.models import S2Paper, OpenAccessPdf, S2Author
 
+pytestmark = pytest.mark.unit
+
 
 # -----------------------------------------------------------------------------
 # Fixtures

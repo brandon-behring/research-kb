@@ -12,13 +12,13 @@ from __future__ import annotations
 
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
-from fastapi.testclient import TestClient
 from httpx import AsyncClient, ASGITransport
 
 from research_kb_api.main import create_app, lifespan, app
+
+pytestmark = pytest.mark.unit
 
 
 # =============================================================================
@@ -38,15 +38,17 @@ def mock_pool():
 @pytest.fixture
 def mock_storage_layer():
     """Mock all storage-related imports to prevent database connections."""
-    with patch("research_kb_api.service.ConceptStore") as concept_mock, \
-         patch("research_kb_api.service.SourceStore") as source_mock, \
-         patch("research_kb_api.service.ChunkStore") as chunk_mock, \
-         patch("research_kb_api.service.RelationshipStore") as rel_mock, \
-         patch("research_kb_api.service.search_hybrid") as search_mock, \
-         patch("research_kb_api.service.search_hybrid_v2") as search_v2_mock, \
-         patch("research_kb_api.service.search_with_rerank") as rerank_mock, \
-         patch("research_kb_api.service.search_with_expansion") as expand_mock, \
-         patch("research_kb_api.service.get_cached_embedding") as embed_mock:
+    with (
+        patch("research_kb_api.service.ConceptStore") as concept_mock,
+        patch("research_kb_api.service.SourceStore") as source_mock,
+        patch("research_kb_api.service.ChunkStore") as chunk_mock,
+        patch("research_kb_api.service.RelationshipStore") as rel_mock,
+        patch("research_kb_api.service.search_hybrid") as search_mock,
+        patch("research_kb_api.service.search_hybrid_v2") as search_v2_mock,
+        patch("research_kb_api.service.search_with_rerank") as rerank_mock,
+        patch("research_kb_api.service.search_with_expansion") as expand_mock,
+        patch("research_kb_api.service.get_cached_embedding") as embed_mock,
+    ):
 
         concept_mock.count = AsyncMock(return_value=0)
         embed_mock.return_value = [0.1] * 1024
@@ -175,9 +177,7 @@ class TestCORSMiddleware:
         app_instance = create_app()
 
         # Check middleware stack
-        middleware_classes = [
-            type(m).__name__ for m in app_instance.user_middleware
-        ]
+        middleware_classes = [type(m).__name__ for m in app_instance.user_middleware]
 
         # The CORSMiddleware should be in the middleware stack
         # Note: FastAPI wraps it, so we check user_middleware
@@ -197,7 +197,7 @@ class TestCORSMiddleware:
                     headers={
                         "Origin": "http://localhost:3000",
                         "Access-Control-Request-Method": "GET",
-                    }
+                    },
                 )
 
                 # Should not return 405 (Method Not Allowed)
@@ -215,8 +215,10 @@ class TestLifespan:
     @pytest.mark.asyncio
     async def test_lifespan_initializes_pool(self, mock_pool):
         """Test lifespan initializes database pool on startup."""
-        with patch("research_kb_api.main.get_connection_pool") as pool_mock, \
-             patch("research_kb_api.main.DatabaseConfig") as config_mock:
+        with (
+            patch("research_kb_api.main.get_connection_pool") as pool_mock,
+            patch("research_kb_api.main.DatabaseConfig") as config_mock,
+        ):
 
             pool_mock.return_value = mock_pool
             config_mock.return_value = MagicMock()
@@ -231,8 +233,10 @@ class TestLifespan:
     @pytest.mark.asyncio
     async def test_lifespan_closes_pool_on_shutdown(self, mock_pool):
         """Test lifespan closes database pool on shutdown."""
-        with patch("research_kb_api.main.get_connection_pool") as pool_mock, \
-             patch("research_kb_api.main.DatabaseConfig") as config_mock:
+        with (
+            patch("research_kb_api.main.get_connection_pool") as pool_mock,
+            patch("research_kb_api.main.DatabaseConfig") as config_mock,
+        ):
 
             pool_mock.return_value = mock_pool
             config_mock.return_value = MagicMock()
@@ -248,9 +252,11 @@ class TestLifespan:
     @pytest.mark.asyncio
     async def test_lifespan_logs_startup(self, mock_pool):
         """Test lifespan logs startup message."""
-        with patch("research_kb_api.main.get_connection_pool") as pool_mock, \
-             patch("research_kb_api.main.DatabaseConfig") as config_mock, \
-             patch("research_kb_api.main.logger") as logger_mock:
+        with (
+            patch("research_kb_api.main.get_connection_pool") as pool_mock,
+            patch("research_kb_api.main.DatabaseConfig") as config_mock,
+            patch("research_kb_api.main.logger") as logger_mock,
+        ):
 
             pool_mock.return_value = mock_pool
             config_mock.return_value = MagicMock()
@@ -267,9 +273,11 @@ class TestLifespan:
     @pytest.mark.asyncio
     async def test_lifespan_logs_shutdown(self, mock_pool):
         """Test lifespan logs shutdown message."""
-        with patch("research_kb_api.main.get_connection_pool") as pool_mock, \
-             patch("research_kb_api.main.DatabaseConfig") as config_mock, \
-             patch("research_kb_api.main.logger") as logger_mock:
+        with (
+            patch("research_kb_api.main.get_connection_pool") as pool_mock,
+            patch("research_kb_api.main.DatabaseConfig") as config_mock,
+            patch("research_kb_api.main.logger") as logger_mock,
+        ):
 
             pool_mock.return_value = mock_pool
             config_mock.return_value = MagicMock()
@@ -295,8 +303,10 @@ class TestAppState:
     @pytest.mark.asyncio
     async def test_pool_accessible_from_app_state(self, mock_pool):
         """Test database pool is accessible from app.state."""
-        with patch("research_kb_api.main.get_connection_pool") as pool_mock, \
-             patch("research_kb_api.main.DatabaseConfig"):
+        with (
+            patch("research_kb_api.main.get_connection_pool") as pool_mock,
+            patch("research_kb_api.main.DatabaseConfig"),
+        ):
 
             pool_mock.return_value = mock_pool
 
@@ -366,8 +376,10 @@ class TestRouteIntegration:
     @pytest.mark.asyncio
     async def test_sources_endpoint_accessible(self, mock_pool, mock_storage_layer):
         """Test sources endpoint is accessible."""
-        with patch("research_kb_api.main.get_connection_pool", return_value=mock_pool), \
-             patch("research_kb_api.service.get_sources") as sources_mock:
+        with (
+            patch("research_kb_api.main.get_connection_pool", return_value=mock_pool),
+            patch("research_kb_api.service.get_sources") as sources_mock,
+        ):
 
             sources_mock.return_value = []
 
@@ -432,8 +444,10 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_lifespan_handles_pool_error(self):
         """Test lifespan handles database connection error."""
-        with patch("research_kb_api.main.get_connection_pool") as pool_mock, \
-             patch("research_kb_api.main.DatabaseConfig"):
+        with (
+            patch("research_kb_api.main.get_connection_pool") as pool_mock,
+            patch("research_kb_api.main.DatabaseConfig"),
+        ):
 
             pool_mock.side_effect = ConnectionError("Database unavailable")
 
@@ -448,8 +462,10 @@ class TestErrorHandling:
         """Test lifespan handles error during pool close."""
         mock_pool.close.side_effect = RuntimeError("Close failed")
 
-        with patch("research_kb_api.main.get_connection_pool") as pool_mock, \
-             patch("research_kb_api.main.DatabaseConfig"):
+        with (
+            patch("research_kb_api.main.get_connection_pool") as pool_mock,
+            patch("research_kb_api.main.DatabaseConfig"),
+        ):
 
             pool_mock.return_value = mock_pool
 
@@ -474,8 +490,10 @@ class TestConfiguration:
         """Test DatabaseConfig is used for connection."""
         mock_config = MagicMock()
 
-        with patch("research_kb_api.main.get_connection_pool") as pool_mock, \
-             patch("research_kb_api.main.DatabaseConfig") as config_class:
+        with (
+            patch("research_kb_api.main.get_connection_pool") as pool_mock,
+            patch("research_kb_api.main.DatabaseConfig") as config_class,
+        ):
 
             pool_mock.return_value = mock_pool
             config_class.return_value = mock_config

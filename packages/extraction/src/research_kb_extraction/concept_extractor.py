@@ -76,9 +76,7 @@ class ConceptExtractor:
         """
         # Skip very short chunks
         if len(chunk.content) < self.min_chunk_length:
-            logger.debug(
-                "chunk_too_short", chunk_id=str(chunk.id), length=len(chunk.content)
-            )
+            logger.debug("chunk_too_short", chunk_id=str(chunk.id), length=len(chunk.content))
             return ChunkExtraction()
 
         # Extract with LLM (pass domain_id for domain-specific prompts)
@@ -88,15 +86,11 @@ class ConceptExtractor:
 
         # Filter by confidence
         filtered_concepts = [
-            c
-            for c in raw_extraction.concepts
-            if c.confidence >= self.confidence_threshold
+            c for c in raw_extraction.concepts if c.confidence >= self.confidence_threshold
         ]
 
         filtered_relationships = [
-            r
-            for r in raw_extraction.relationships
-            if r.confidence >= self.confidence_threshold
+            r for r in raw_extraction.relationships if r.confidence >= self.confidence_threshold
         ]
 
         # Normalize concept names
@@ -104,9 +98,7 @@ class ConceptExtractor:
 
         # Validate relationships reference known concepts
         concept_names = {c.name.lower() for c in normalized_concepts}
-        concept_names.update(
-            {a.lower() for c in normalized_concepts for a in c.aliases}
-        )
+        concept_names.update({a.lower() for c in normalized_concepts for a in c.aliases})
 
         valid_relationships = [
             r
@@ -164,9 +156,7 @@ class ConceptExtractor:
         ]
 
         filtered_relationships = [
-            r
-            for r in raw_extraction.relationships
-            if r.confidence >= self.confidence_threshold
+            r for r in raw_extraction.relationships if r.confidence >= self.confidence_threshold
         ]
 
         return ChunkExtraction(

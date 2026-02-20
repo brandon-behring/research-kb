@@ -105,6 +105,7 @@ class Deduplicator:
         # Load domain-specific abbreviations
         try:
             from research_kb_extraction.domain_prompts import get_domain_abbreviations
+
             self._abbreviation_map = get_domain_abbreviations(domain_id)
         except ImportError:
             # Fallback to legacy map if domain_prompts not available

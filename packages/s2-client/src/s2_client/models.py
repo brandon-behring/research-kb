@@ -153,11 +153,7 @@ class S2CitationsResult(BaseModel):
     @property
     def papers(self) -> list[S2Paper]:
         """Extract S2Paper objects from wrapped response."""
-        return [
-            S2Paper(**item["citingPaper"])
-            for item in self.data
-            if item.get("citingPaper")
-        ]
+        return [S2Paper(**item["citingPaper"]) for item in self.data if item.get("citingPaper")]
 
 
 class S2ReferencesResult(BaseModel):
@@ -175,8 +171,4 @@ class S2ReferencesResult(BaseModel):
     @property
     def papers(self) -> list[S2Paper]:
         """Extract S2Paper objects from wrapped response."""
-        return [
-            S2Paper(**item["citedPaper"])
-            for item in self.data
-            if item.get("citedPaper")
-        ]
+        return [S2Paper(**item["citedPaper"]) for item in self.data if item.get("citedPaper")]

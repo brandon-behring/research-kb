@@ -18,6 +18,8 @@ from research_kb_storage.search import (
     _compute_ranks_by_signal,
 )
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture
 async def test_data(db_pool):
@@ -186,9 +188,7 @@ class TestVectorSearch:
 
         # Chunk1 should be most similar (highest similarity)
         # Chunk1 has embedding [0.1]*1024, similarity to [0.15]*1024 should be high
-        assert (
-            results[0].vector_score > 0.5
-        )  # High similarity (1=identical, 0=opposite)
+        assert results[0].vector_score > 0.5  # High similarity (1=identical, 0=opposite)
 
     async def test_vector_search_ranking_by_similarity(self, test_data):
         """Test vector search ranks by cosine similarity."""
@@ -398,11 +398,17 @@ class TestComputeRanksBySignal:
         """All four signals ranked correctly."""
         r1 = self._make_result(
             "00000000-0000-0000-0000-000000000001",
-            fts=0.9, vector=0.7, graph=0.5, citation=0.3,
+            fts=0.9,
+            vector=0.7,
+            graph=0.5,
+            citation=0.3,
         )
         r2 = self._make_result(
             "00000000-0000-0000-0000-000000000002",
-            fts=0.3, vector=0.9, graph=0.8, citation=0.6,
+            fts=0.3,
+            vector=0.9,
+            graph=0.8,
+            citation=0.6,
         )
         rankings = _compute_ranks_by_signal([r1, r2])
         # r1 wins FTS, r2 wins vector/graph/citation
@@ -456,12 +462,7 @@ class TestSearchQueryGraphCitation:
             use_graph=True,
             use_citations=True,
         )
-        total = (
-            query.fts_weight
-            + query.vector_weight
-            + query.graph_weight
-            + query.citation_weight
-        )
+        total = query.fts_weight + query.vector_weight + query.graph_weight + query.citation_weight
         assert abs(total - 1.0) < 0.001
 
     def test_graph_disabled_weight_not_normalized(self):

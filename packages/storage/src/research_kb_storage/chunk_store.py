@@ -398,9 +398,7 @@ class ChunkStore:
                 return created_chunks
 
         except Exception as e:
-            logger.error(
-                "chunk_batch_creation_failed", count=len(chunks_data), error=str(e)
-            )
+            logger.error("chunk_batch_creation_failed", count=len(chunks_data), error=str(e))
             raise StorageError(f"Failed to batch create chunks: {e}") from e
 
     @staticmethod

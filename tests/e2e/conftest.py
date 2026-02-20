@@ -121,9 +121,7 @@ def mock_embedding_client():
     client.embed = AsyncMock(return_value=[0.0] * 1024)
 
     # Mock batch_embed() to return list of zero vectors
-    client.batch_embed = AsyncMock(
-        side_effect=lambda texts: [[0.0] * 1024 for _ in texts]
-    )
+    client.batch_embed = AsyncMock(side_effect=lambda texts: [[0.0] * 1024 for _ in texts])
 
     return client
 

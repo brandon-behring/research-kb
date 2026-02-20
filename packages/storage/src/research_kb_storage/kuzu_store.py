@@ -24,7 +24,6 @@ from uuid import UUID
 import kuzu
 
 from research_kb_common import get_logger, StorageError
-from research_kb_contracts import RelationshipType
 
 logger = get_logger(__name__)
 
@@ -122,23 +121,27 @@ def _ensure_schema(conn: kuzu.Connection) -> None:
             logger.info("creating_kuzu_schema")
 
             # Node table for concepts
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE NODE TABLE Concept(
                     id STRING PRIMARY KEY,
                     name STRING,
                     canonical_name STRING,
                     concept_type STRING
                 )
-            """)
+            """
+            )
 
             # Edge table for relationships
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE REL TABLE RELATES(
                     FROM Concept TO Concept,
                     relationship_type STRING,
                     strength DOUBLE DEFAULT 1.0
                 )
-            """)
+            """
+            )
 
             logger.info("kuzu_schema_created")
         else:
@@ -218,7 +221,7 @@ async def find_shortest_path_kuzu(
                 "name": node["name"],
                 "canonical_name": node["canonical_name"],
                 "concept_type": node["concept_type"],
-                "rel_type": rels[i - 1]["relationship_type"] if i > 0 and rels else None,
+                "rel_type": (rels[i - 1]["relationship_type"] if i > 0 and rels else None),
                 "rel_strength": rels[i - 1]["strength"] if i > 0 and rels else None,
             }
             path.append(entry)
@@ -674,9 +677,7 @@ async def bulk_insert_concepts(concepts: list[dict]) -> int:
 
     try:
         # Write to CSV for bulk loading (KuzuDB optimized path)
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".csv", delete=False, newline=""
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, newline="") as f:
             csv_path = f.name
             writer = csv.writer(f)
             # KuzuDB expects no header row for COPY FROM by default
@@ -685,21 +686,20 @@ async def bulk_insert_concepts(concepts: list[dict]) -> int:
                 # Escape newlines and tabs in text fields
                 name = str(c["name"]).replace("\n", " ").replace("\t", " ")
                 canonical = str(c["canonical_name"]).replace("\n", " ").replace("\t", " ")
-                writer.writerow([
-                    str(c["id"]),
-                    name,
-                    canonical,
-                    c["concept_type"],
-                ])
+                writer.writerow(
+                    [
+                        str(c["id"]),
+                        name,
+                        canonical,
+                        c["concept_type"],
+                    ]
+                )
 
         logger.info("concepts_csv_written", path=csv_path, count=len(concepts))
 
         async with _kuzu_lock:
             # Use COPY FROM for bulk insert
-            await asyncio.to_thread(
-                conn.execute,
-                f"COPY Concept FROM '{csv_path}' (HEADER=false)"
-            )
+            await asyncio.to_thread(conn.execute, f"COPY Concept FROM '{csv_path}' (HEADER=false)")
 
         # Cleanup CSV
         os.unlink(csv_path)
@@ -732,28 +732,25 @@ async def bulk_insert_relationships(relationships: list[dict]) -> int:
 
     try:
         # Write to CSV for bulk loading
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".csv", delete=False, newline=""
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, newline="") as f:
             csv_path = f.name
             writer = csv.writer(f)
 
             for r in relationships:
-                writer.writerow([
-                    str(r["source_id"]),
-                    str(r["target_id"]),
-                    r["relationship_type"],
-                    float(r.get("strength", 1.0)),
-                ])
+                writer.writerow(
+                    [
+                        str(r["source_id"]),
+                        str(r["target_id"]),
+                        r["relationship_type"],
+                        float(r.get("strength", 1.0)),
+                    ]
+                )
 
         logger.info("relationships_csv_written", path=csv_path, count=len(relationships))
 
         async with _kuzu_lock:
             # Use COPY FROM for bulk insert
-            await asyncio.to_thread(
-                conn.execute,
-                f"COPY RELATES FROM '{csv_path}' (HEADER=false)"
-            )
+            await asyncio.to_thread(conn.execute, f"COPY RELATES FROM '{csv_path}' (HEADER=false)")
 
         # Cleanup CSV
         os.unlink(csv_path)

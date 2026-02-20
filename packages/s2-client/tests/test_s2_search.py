@@ -19,6 +19,8 @@ from s2_client.search import (
     TopicDiscovery,
 )
 
+pytestmark = pytest.mark.unit
+
 
 # -----------------------------------------------------------------------------
 # Fixtures
@@ -106,8 +108,7 @@ def sample_search_response(sample_paper_1, sample_paper_2) -> dict:
                 "year": sample_paper_1.year,
                 "venue": sample_paper_1.venue,
                 "authors": [
-                    {"authorId": a.author_id, "name": a.name}
-                    for a in sample_paper_1.authors
+                    {"authorId": a.author_id, "name": a.name} for a in sample_paper_1.authors
                 ],
                 "citationCount": sample_paper_1.citation_count,
                 "influentialCitationCount": sample_paper_1.influential_citation_count,
@@ -121,8 +122,7 @@ def sample_search_response(sample_paper_1, sample_paper_2) -> dict:
                 "year": sample_paper_2.year,
                 "venue": sample_paper_2.venue,
                 "authors": [
-                    {"authorId": a.author_id, "name": a.name}
-                    for a in sample_paper_2.authors
+                    {"authorId": a.author_id, "name": a.name} for a in sample_paper_2.authors
                 ],
                 "citationCount": sample_paper_2.citation_count,
                 "influentialCitationCount": sample_paper_2.influential_citation_count,

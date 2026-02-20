@@ -18,11 +18,9 @@ Checkpoint/Resume:
 """
 
 import asyncio
-import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Optional
-from uuid import UUID
 
 import typer
 
@@ -43,10 +41,18 @@ def format_enrichment_table(results: dict) -> str:
     lines.append(f"{'Status':12} | {'Count':6} | {'Details'}")
     lines.append("-" * 80)
 
-    lines.append(f"{'Matched':12} | {results['matched']:6} | DOI: {results['by_method'].get('doi', 0)}, arXiv: {results['by_method'].get('arxiv', 0)}, Multi-signal: {results['by_method'].get('multi_signal', 0)}")
-    lines.append(f"{'Ambiguous':12} | {results['ambiguous']:6} | Below 0.8 threshold, logged for review")
-    lines.append(f"{'Unmatched':12} | {results['unmatched']:6} | No DOI/arXiv and title search failed")
-    lines.append(f"{'Skipped':12} | {results['skipped']:6} | Already enriched within staleness window")
+    lines.append(
+        f"{'Matched':12} | {results['matched']:6} | DOI: {results['by_method'].get('doi', 0)}, arXiv: {results['by_method'].get('arxiv', 0)}, Multi-signal: {results['by_method'].get('multi_signal', 0)}"
+    )
+    lines.append(
+        f"{'Ambiguous':12} | {results['ambiguous']:6} | Below 0.8 threshold, logged for review"
+    )
+    lines.append(
+        f"{'Unmatched':12} | {results['unmatched']:6} | No DOI/arXiv and title search failed"
+    )
+    lines.append(
+        f"{'Skipped':12} | {results['skipped']:6} | Already enriched within staleness window"
+    )
     lines.append("-" * 80)
     lines.append(f"{'Total':12} | {results['total']:6} |")
     lines.append("=" * 80)
@@ -165,9 +171,14 @@ def enrich_citations(
         checkpoint = EnrichmentCheckpoint.load(job_id)
         if checkpoint is None:
             typer.echo("Error: No checkpoint found to resume from.", err=True)
-            typer.echo("Start a new enrichment job with: research-kb enrich citations --all --execute", err=True)
+            typer.echo(
+                "Start a new enrichment job with: research-kb enrich citations --all --execute",
+                err=True,
+            )
             raise typer.Exit(1)
-        typer.echo(f"Resuming job {checkpoint.job_id}: {checkpoint.processed_count} already processed")
+        typer.echo(
+            f"Resuming job {checkpoint.job_id}: {checkpoint.processed_count} already processed"
+        )
         typer.echo(f"Progress: {checkpoint.format_progress()}")
         all_citations = True  # Resume implies --all
         dry_run = False  # Resume implies --execute
@@ -184,8 +195,13 @@ def enrich_citations(
         from pathlib import Path
 
         # Add packages to path
-        sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "storage" / "src"))
-        sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "common" / "src"))
+        sys.path.insert(
+            0,
+            str(Path(__file__).parent.parent.parent.parent.parent / "storage" / "src"),
+        )
+        sys.path.insert(
+            0, str(Path(__file__).parent.parent.parent.parent.parent / "common" / "src")
+        )
 
         from research_kb_storage import DatabaseConfig, get_connection_pool
 
@@ -196,7 +212,9 @@ def enrich_citations(
         # Use naive datetime since database stores naive timestamps
         staleness_cutoff = datetime.utcnow() - timedelta(days=staleness_days)
 
-        query_parts = ["SELECT c.id, c.title, c.authors, c.year, c.venue, c.doi, c.arxiv_id, c.metadata, s.title as source_title FROM citations c JOIN sources s ON c.source_id = s.id WHERE 1=1"]
+        query_parts = [
+            "SELECT c.id, c.title, c.authors, c.year, c.venue, c.doi, c.arxiv_id, c.metadata, s.title as source_title FROM citations c JOIN sources s ON c.source_id = s.id WHERE 1=1"
+        ]
         params = []
         param_idx = 1
 
@@ -207,7 +225,9 @@ def enrich_citations(
 
         if not force:
             # Only citations not recently enriched
-            query_parts.append(f"AND (c.metadata->>'s2_enriched_at' IS NULL OR (c.metadata->>'s2_enriched_at')::timestamp < ${param_idx})")
+            query_parts.append(
+                f"AND (c.metadata->>'s2_enriched_at' IS NULL OR (c.metadata->>'s2_enriched_at')::timestamp < ${param_idx})"
+            )
             params.append(staleness_cutoff)
             param_idx += 1
 
@@ -224,7 +244,14 @@ def enrich_citations(
         typer.echo(f"Found {len(rows)} citations to process")
 
         if not rows:
-            return {"matched": 0, "ambiguous": 0, "unmatched": 0, "skipped": 0, "total": 0, "by_method": {}}
+            return {
+                "matched": 0,
+                "ambiguous": 0,
+                "unmatched": 0,
+                "skipped": 0,
+                "total": 0,
+                "by_method": {},
+            }
 
         results = {
             "matched": 0,
@@ -292,7 +319,7 @@ def enrich_citations(
             eta_hours = len(rows_to_process) * 5 / 3600
             typer.echo(f"\nEnriching {len(rows_to_process)} citations in SLOW mode (0.2 RPS)...")
             typer.echo(f"  Estimated time: {eta_hours:.1f} hours")
-            typer.echo(f"  Press Ctrl+C to save checkpoint and exit")
+            typer.echo("  Press Ctrl+C to save checkpoint and exit")
         else:
             typer.echo(f"\nEnriching {len(rows_to_process)} citations...")
 
@@ -320,7 +347,9 @@ def enrich_citations(
                         if result.status == "matched":
                             results["matched"] += 1
                             checkpoint.matched += 1
-                            results["by_method"][result.match_method] = results["by_method"].get(result.match_method, 0) + 1
+                            results["by_method"][result.match_method] = (
+                                results["by_method"].get(result.match_method, 0) + 1
+                            )
 
                             # Update database
                             metadata = citation_to_enrichment_metadata(result)
@@ -335,12 +364,14 @@ def enrich_citations(
                                     row["id"],
                                 )
 
-                            results["enriched_citations"].append({
-                                "id": str(row["id"]),
-                                "title": row["title"],
-                                "method": result.match_method,
-                                "confidence": result.confidence,
-                            })
+                            results["enriched_citations"].append(
+                                {
+                                    "id": str(row["id"]),
+                                    "title": row["title"],
+                                    "method": result.match_method,
+                                    "confidence": result.confidence,
+                                }
+                            )
 
                         elif result.status == "ambiguous":
                             results["ambiguous"] += 1
@@ -372,12 +403,14 @@ def enrich_citations(
                     # Periodic checkpoint save and progress
                     if (i + 1) % checkpoint_interval == 0:
                         checkpoint.save()
-                        typer.echo(f"  {checkpoint.format_progress()} | {checkpoint.format_stats()}")
+                        typer.echo(
+                            f"  {checkpoint.format_progress()} | {checkpoint.format_stats()}"
+                        )
 
         # Final checkpoint save
         if shutdown.shutdown_requested:
             # Keep checkpoint for resume
-            typer.echo(f"\n✓ Checkpoint saved. Resume with: research-kb enrich citations --resume")
+            typer.echo("\n✓ Checkpoint saved. Resume with: research-kb enrich citations --resume")
         else:
             # Job completed - delete checkpoint
             checkpoint.delete()
@@ -393,6 +426,7 @@ def enrich_citations(
             typer.echo(format_enrichment_table(results))
         else:
             import json
+
             typer.echo(json.dumps(results, indent=2, default=str))
 
         # Summary
@@ -401,7 +435,9 @@ def enrich_citations(
 
         if results["ambiguous"] > 0:
             typer.echo(f"\n⚠ {results['ambiguous']} ambiguous matches logged for manual review")
-            typer.echo("  Query: SELECT * FROM citations WHERE metadata->>'s2_match_status' = 'ambiguous'")
+            typer.echo(
+                "  Query: SELECT * FROM citations WHERE metadata->>'s2_match_status' = 'ambiguous'"
+            )
 
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
@@ -423,8 +459,13 @@ def enrichment_status():
         import sys
         from pathlib import Path
 
-        sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "storage" / "src"))
-        sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "common" / "src"))
+        sys.path.insert(
+            0,
+            str(Path(__file__).parent.parent.parent.parent.parent / "storage" / "src"),
+        )
+        sys.path.insert(
+            0, str(Path(__file__).parent.parent.parent.parent.parent / "common" / "src")
+        )
 
         from research_kb_storage import DatabaseConfig, get_connection_pool
 
@@ -484,7 +525,9 @@ def enrichment_status():
         typer.echo()
 
         typer.echo(f"Total citations:   {status['total']:,}")
-        typer.echo(f"Enriched:          {status['enriched']:,} ({status['enriched'] / max(status['total'], 1) * 100:.1f}%)")
+        typer.echo(
+            f"Enriched:          {status['enriched']:,} ({status['enriched'] / max(status['total'], 1) * 100:.1f}%)"
+        )
         typer.echo(f"Unenriched:        {status['unenriched']:,}")
         typer.echo(f"Stale (>30 days):  {status['stale']:,}")
         typer.echo()
@@ -558,7 +601,9 @@ def job_status_command(
             typer.echo(f"  Started: {cp['started_at']}")
             typer.echo(f"  Last saved: {cp['last_saved_at']}")
             typer.echo(f"  Progress: {processed}/{total} ({pct:.1f}%)")
-            typer.echo(f"  Matched: {stats.get('matched', 0)}, Ambiguous: {stats.get('ambiguous', 0)}, Unmatched: {stats.get('unmatched', 0)}")
+            typer.echo(
+                f"  Matched: {stats.get('matched', 0)}, Ambiguous: {stats.get('ambiguous', 0)}, Unmatched: {stats.get('unmatched', 0)}"
+            )
         return
 
     checkpoint = EnrichmentCheckpoint.load(job_id)
@@ -566,7 +611,10 @@ def job_status_command(
         typer.echo("No enrichment checkpoint found.", err=True)
         if job_id:
             typer.echo(f"Job ID '{job_id}' does not exist.", err=True)
-        typer.echo("Start a new job with: research-kb enrich citations --all --execute", err=True)
+        typer.echo(
+            "Start a new job with: research-kb enrich citations --all --execute",
+            err=True,
+        )
         raise typer.Exit(1)
 
     typer.echo("Enrichment Job Status")
@@ -581,6 +629,6 @@ def job_status_command(
     typer.echo(f"Checkpoint:    Every {checkpoint.checkpoint_interval} citations")
 
     if checkpoint.remaining > 0:
-        typer.echo(f"\nTo resume:     research-kb enrich citations --resume")
+        typer.echo("\nTo resume:     research-kb enrich citations --resume")
     else:
-        typer.echo(f"\n✓ Job appears complete. Delete checkpoint with new job.")
+        typer.echo("\n✓ Job appears complete. Delete checkpoint with new job.")

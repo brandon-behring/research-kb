@@ -179,9 +179,7 @@ class EmbeddingClient:
         )
         return response["embeddings"]
 
-    def embed_query_batch(
-        self, texts: list[str], batch_size: int = 32
-    ) -> list[list[float]]:
+    def embed_query_batch(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
         """Embed multiple query strings with BGE instruction prefix.
 
         Args:
@@ -259,9 +257,7 @@ def embed_text(text: str, socket_path: str = DEFAULT_SOCKET_PATH) -> list[float]
     return client.embed(text)
 
 
-def embed_texts(
-    texts: list[str], socket_path: str = DEFAULT_SOCKET_PATH
-) -> list[list[float]]:
+def embed_texts(texts: list[str], socket_path: str = DEFAULT_SOCKET_PATH) -> list[list[float]]:
     """Convenience function to embed multiple texts (documents/passages).
 
     Args:
@@ -302,9 +298,7 @@ def embed_query(text: str, socket_path: str = DEFAULT_SOCKET_PATH) -> list[float
     return client.embed_query(text)
 
 
-def embed_queries(
-    texts: list[str], socket_path: str = DEFAULT_SOCKET_PATH
-) -> list[list[float]]:
+def embed_queries(texts: list[str], socket_path: str = DEFAULT_SOCKET_PATH) -> list[list[float]]:
     """Convenience function to embed multiple query strings with BGE instruction prefix.
 
     Args:

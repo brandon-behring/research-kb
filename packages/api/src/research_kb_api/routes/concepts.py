@@ -49,7 +49,9 @@ async def list_concepts(
                 id=str(c.id),
                 name=c.name,
                 canonical_name=c.canonical_name,
-                concept_type=schemas.ConceptType(c.concept_type.value) if c.concept_type else None,
+                concept_type=(
+                    schemas.ConceptType(c.concept_type.value) if c.concept_type else None
+                ),
                 definition=c.definition,
                 aliases=c.aliases or [],
             )
@@ -89,7 +91,9 @@ async def get_concept(concept_id: str) -> schemas.ConceptWithRelationships:
             id=str(concept.id),
             name=concept.name,
             canonical_name=concept.canonical_name,
-            concept_type=schemas.ConceptType(concept.concept_type.value) if concept.concept_type else None,
+            concept_type=(
+                schemas.ConceptType(concept.concept_type.value) if concept.concept_type else None
+            ),
             definition=concept.definition,
             aliases=concept.aliases or [],
         ),
@@ -100,7 +104,11 @@ async def get_concept(concept_id: str) -> schemas.ConceptWithRelationships:
                 source_name=r.source_name if hasattr(r, "source_name") else "",
                 target_id=str(r.target_concept_id),
                 target_name=r.target_name if hasattr(r, "target_name") else "",
-                relationship_type=schemas.RelationshipType(r.relationship_type.value) if r.relationship_type else None,
+                relationship_type=(
+                    schemas.RelationshipType(r.relationship_type.value)
+                    if r.relationship_type
+                    else None
+                ),
                 confidence=r.confidence_score,
             )
             for r in relationships

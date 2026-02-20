@@ -22,7 +22,7 @@ import json
 import math
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -183,9 +183,7 @@ def compute_metrics(results: list[QueryResult]) -> dict:
     hit_10 = sum(1 for r in valid if r.hit_at_10)
 
     # MRR: average of 1/rank for queries with hits
-    reciprocal_ranks = [
-        1.0 / r.first_hit_rank for r in valid if r.first_hit_rank is not None
-    ]
+    reciprocal_ranks = [1.0 / r.first_hit_rank for r in valid if r.first_hit_rank is not None]
     mrr = sum(reciprocal_ranks) / n_valid if n_valid > 0 else 0.0
 
     # NDCG@5 and NDCG@10
@@ -319,7 +317,9 @@ async def main():
             if args.verbose:
                 status = "HIT@5" if result.hit_at_5 else ("HIT@10" if result.hit_at_10 else "MISS")
                 rank_str = f"rank {result.first_hit_rank}" if result.first_hit_rank else "not found"
-                print(f"  [{status:6s}] {entry.query:45s} | {rank_str:12s} | {result.latency_ms:.0f}ms")
+                print(
+                    f"  [{status:6s}] {entry.query:45s} | {rank_str:12s} | {result.latency_ms:.0f}ms"
+                )
 
         all_results[method] = results
 

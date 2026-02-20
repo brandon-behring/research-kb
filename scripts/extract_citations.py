@@ -40,6 +40,7 @@ async def get_all_sources(
 
     async with pool.acquire() as conn:
         import json
+
         await conn.set_type_codec(
             "jsonb",
             encoder=json.dumps,
@@ -62,21 +63,22 @@ async def get_all_sources(
                 query += f" LIMIT {limit}"
             rows = await conn.fetch(query)
 
-        from datetime import datetime, timezone
         sources = []
         for row in rows:
-            sources.append(Source(
-                id=row["id"],
-                source_type=SourceType(row["source_type"]),
-                title=row["title"],
-                authors=row["authors"] or [],
-                year=row["year"],
-                file_path=row["file_path"],
-                file_hash=row["file_hash"],
-                metadata=row["metadata"] or {},
-                created_at=row["created_at"],
-                updated_at=row["updated_at"],
-            ))
+            sources.append(
+                Source(
+                    id=row["id"],
+                    source_type=SourceType(row["source_type"]),
+                    title=row["title"],
+                    authors=row["authors"] or [],
+                    year=row["year"],
+                    file_path=row["file_path"],
+                    file_hash=row["file_hash"],
+                    metadata=row["metadata"] or {},
+                    created_at=row["created_at"],
+                    updated_at=row["updated_at"],
+                )
+            )
 
         return sources
 
@@ -152,21 +154,23 @@ async def extract_citations_for_source(
         # Prepare citation data for batch insert
         citations_data = []
         for citation in paper.citations:
-            citations_data.append({
-                "source_id": source.id,
-                "raw_string": citation.raw_string,
-                "authors": citation.authors,
-                "title": citation.title,
-                "year": citation.year,
-                "venue": citation.venue,
-                "doi": citation.doi,
-                "arxiv_id": citation.arxiv_id,
-                "context": citation.context,  # Citing sentence from body text
-                "extraction_method": "grobid",
-                "metadata": {
-                    "source_type": source.source_type.value,
-                },
-            })
+            citations_data.append(
+                {
+                    "source_id": source.id,
+                    "raw_string": citation.raw_string,
+                    "authors": citation.authors,
+                    "title": citation.title,
+                    "year": citation.year,
+                    "venue": citation.venue,
+                    "doi": citation.doi,
+                    "arxiv_id": citation.arxiv_id,
+                    "context": citation.context,  # Citing sentence from body text
+                    "extraction_method": "grobid",
+                    "metadata": {
+                        "source_type": source.source_type.value,
+                    },
+                }
+            )
 
         # Store citations
         await CitationStore.batch_create(citations_data)
@@ -276,8 +280,12 @@ async def main():
     print(f"Errors: {stats['errors']}")
     print(f"Total new citations: {stats['total_citations']}")
     print("\nBy source type:")
-    print(f"  Papers: {stats['by_type']['paper']['processed']} processed, {stats['by_type']['paper']['citations']} citations")
-    print(f"  Textbooks: {stats['by_type']['textbook']['processed']} processed, {stats['by_type']['textbook']['citations']} citations")
+    print(
+        f"  Papers: {stats['by_type']['paper']['processed']} processed, {stats['by_type']['paper']['citations']} citations"
+    )
+    print(
+        f"  Textbooks: {stats['by_type']['textbook']['processed']} processed, {stats['by_type']['textbook']['citations']} citations"
+    )
 
     # Get final count
     pool = await get_connection_pool()

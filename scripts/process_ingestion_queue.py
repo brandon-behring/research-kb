@@ -56,6 +56,7 @@ FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "papers" / "acquired"
 def sanitize_filename(text: str, max_length: int = 50) -> str:
     """Sanitize text for use in filename."""
     import re
+
     text = re.sub(r'[<>:"/\\|?*]', "", text)
     text = re.sub(r"\s+", "_", text)
     text = re.sub(r"[^\w\-.]", "", text)
@@ -149,7 +150,9 @@ async def process_queue_item(
     # Download PDF
     content = await download_pdf(pdf_url)
     if not content:
-        await QueueStore.update_status(queue_id, QueueStatus.FAILED, error_message="download_failed")
+        await QueueStore.update_status(
+            queue_id, QueueStatus.FAILED, error_message="download_failed"
+        )
         return False, "download_failed"
 
     # Generate filename and save
@@ -169,15 +172,17 @@ async def process_queue_item(
 
     # Prepare metadata from queue item
     metadata = item.get("metadata") or {}
-    metadata.update({
-        "s2_paper_id": item.get("s2_paper_id"),
-        "doi": item.get("doi"),
-        "arxiv_id": item.get("arxiv_id"),
-        "venue": item.get("venue"),
-        "citation_count": metadata.get("citation_count"),
-        "queue_id": str(queue_id),
-        "acquired_at": datetime.now(timezone.utc).isoformat(),
-    })
+    metadata.update(
+        {
+            "s2_paper_id": item.get("s2_paper_id"),
+            "doi": item.get("doi"),
+            "arxiv_id": item.get("arxiv_id"),
+            "venue": item.get("venue"),
+            "citation_count": metadata.get("citation_count"),
+            "queue_id": str(queue_id),
+            "acquired_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
 
     # Ingest PDF
     try:
@@ -264,7 +269,12 @@ async def process_pending_queue(
 
             # Progress log every 10 items
             if i % 10 == 0:
-                logger.info("progress", processed=i, total=len(pending), success=stats["success"])
+                logger.info(
+                    "progress",
+                    processed=i,
+                    total=len(pending),
+                    success=stats["success"],
+                )
 
         except Exception as e:
             logger.error("unexpected_error", item_id=str(item["id"]), error=str(e))

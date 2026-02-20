@@ -31,7 +31,7 @@ from research_kb_common import get_logger
 
 from research_kb_daemon.handler import dispatch
 from research_kb_daemon.metrics import ACTIVE_CONNECTIONS
-from research_kb_daemon.pool import init_pool, close_pool
+from research_kb_daemon.pool import close_pool, init_pool
 
 logger = get_logger(__name__)
 
@@ -134,7 +134,9 @@ async def handle_request(data: bytes) -> bytes:
         if isinstance(params, list):
             # Our methods only support named params for now
             return make_error(
-                INVALID_PARAMS, "Positional params not supported, use named params", request_id
+                INVALID_PARAMS,
+                "Positional params not supported, use named params",
+                request_id,
             )
 
         # Dispatch method

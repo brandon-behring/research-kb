@@ -9,6 +9,8 @@ from research_kb_pdf.pymupdf_extractor import (
     get_full_text,
 )
 
+pytestmark = pytest.mark.unit
+
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 TEST_PDF = FIXTURES_DIR / "test_simple.pdf"
