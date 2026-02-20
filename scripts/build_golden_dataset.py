@@ -3,7 +3,9 @@
 Finds chunks matching specific queries within target domains by joining
 sources (with domain metadata) to chunks (with FTS vectors).
 
-Outputs verified entries to fixtures/eval/golden_candidates_2026-02-19.json.
+NOTE: As of 2026-02-20, prefer using discover_golden_candidates.py which
+handles both discovery and merge into golden_dataset.json. This script
+is retained for its FTS-only candidate list (no embeddings required).
 
 Usage:
     python scripts/build_golden_dataset.py
@@ -290,7 +292,7 @@ async def main():
     print(f"  Written to: {existing_path}")
 
     # Also save just the new entries for reference
-    new_path = _root / "fixtures" / "eval" / "golden_candidates_2026-02-19.json"
+    new_path = _root / "fixtures" / "eval" / "golden_candidates_2026-02-20.json"
     with open(new_path, "w") as f:
         json.dump(new_entries, f, indent=2)
 

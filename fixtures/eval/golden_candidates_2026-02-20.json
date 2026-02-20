@@ -1,0 +1,848 @@
+[
+  {
+    "query": "eigenvalue decomposition",
+    "target_chunk_ids": [
+      "2ef96ac4-95cb-4b34-bfc1-82c19bbb794f",
+      "6c892104-63f0-4593-9814-4a9b7252400e"
+    ],
+    "domain": "mathematics",
+    "source_title": "Lloyd N. Trefethen, David Bau III - Numerical Linear Algebra-SIAM  Society for I",
+    "difficulty": "easy"
+  },
+  {
+    "query": "proof by induction",
+    "target_chunk_ids": [
+      "afab32d8-c4da-4100-a8e1-ffb08c05461b",
+      "41adbb90-fda3-4009-8cbd-bd5d7112da70"
+    ],
+    "domain": "mathematics",
+    "source_title": "Lloyd N. Trefethen, David Bau III - Numerical Linear Algebra-SIAM  Society for I",
+    "difficulty": "easy"
+  },
+  {
+    "query": "linear algebra matrix factorization",
+    "target_chunk_ids": [
+      "2f91e7cf-5fc9-482d-924d-5018d18e6d1d",
+      "a20ceb87-e848-4b51-9432-53c026c32a18"
+    ],
+    "domain": "mathematics",
+    "source_title": "(Schaum\u2019s Outlines) Seymour Lipschutz, Marc Lipson Linear Algebra McGraw Hill (2",
+    "difficulty": "easy"
+  },
+  {
+    "query": "convex optimization gradient descent",
+    "target_chunk_ids": [
+      "c14b2736-bb55-49f8-984b-703e85bc3b4a",
+      "351e2b72-fa3b-4772-ac18-8f2de1c78a70"
+    ],
+    "domain": "machine_learning",
+    "source_title": "Marc Peter Deisenroth  A. Aldo Faisal  Cheng Soon Ong - Mathematics for Machine ",
+    "difficulty": "easy"
+  },
+  {
+    "query": "measure theory probability",
+    "target_chunk_ids": [
+      "1f71ba38-cd93-4b38-9822-3f237728fdb2",
+      "95d16f80-2337-4788-ade7-2256cddb55c7"
+    ],
+    "domain": "mathematics",
+    "source_title": "Robert D. Klauber - Student Friendly Quantum Field Theory-Sandtrove Press (2015)",
+    "difficulty": "medium"
+  },
+  {
+    "query": "real analysis convergence",
+    "target_chunk_ids": [
+      "be2fa4cc-24e3-4da5-b69a-06abf781f94d",
+      "43b69020-27f0-4823-8814-983c9e1c9b2b"
+    ],
+    "domain": "mathematics",
+    "source_title": "[Undergraduate Lecture Notes in Physics] Joshua Izaac  Jingbo Wang - Computation",
+    "difficulty": "medium"
+  },
+  {
+    "query": "Fourier transform signal processing",
+    "target_chunk_ids": [
+      "e98432d3-1bb0-4336-b378-689de8f25518",
+      "b4e05727-3778-46bb-9c84-32620c6e4a1c"
+    ],
+    "domain": "mathematics",
+    "source_title": "[Undergraduate Lecture Notes in Physics] Joshua Izaac  Jingbo Wang - Computation",
+    "difficulty": "medium"
+  },
+  {
+    "query": "topology continuity compactness",
+    "target_chunk_ids": [
+      "3921bf5b-7f2a-47d8-bb5a-050cbfec6ee4",
+      "1d21ec8d-10ea-4795-a830-a2b54d5b5f3e"
+    ],
+    "domain": "mathematics",
+    "source_title": "GTM267 Quantum Theory for Mathematicians",
+    "difficulty": "hard"
+  },
+  {
+    "query": "system design interview",
+    "target_chunk_ids": [
+      "87f91f0a-6915-455d-82aa-3d68cf6dfc56",
+      "31a90117-8359-4554-9993-3f205412fd7a"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Machine Learning Interviews: Kickstart Your Machine Learning and Data Career",
+    "difficulty": "easy"
+  },
+  {
+    "query": "behavioral interview STAR method",
+    "target_chunk_ids": [
+      "8d9d4b9e-0375-47a4-ab09-3cc653ec7b47",
+      "7fe24aaf-2022-472c-b96c-d3fb4e14742a"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Machine Learning Interviews: Kickstart Your Machine Learning and Data Career",
+    "difficulty": "easy"
+  },
+  {
+    "query": "concurrency threading interview",
+    "target_chunk_ids": [
+      "d1e0dbaf-529a-401e-be95-35ce0a22e502",
+      "2b801890-633e-4de9-a04c-47eaceda766f"
+    ],
+    "domain": "ml_engineering",
+    "source_title": "Machine Learning Engineering in Action",
+    "difficulty": "medium"
+  },
+  {
+    "query": "machine learning interview feature engineering",
+    "target_chunk_ids": [
+      "e00e9e56-3f0e-4819-b4ba-22f56c56542a",
+      "4d81b24a-cc7e-4b41-9957-c88e268d3c5d"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Machine Learning Interviews: Kickstart Your Machine Learning and Data Career",
+    "difficulty": "medium"
+  },
+  {
+    "query": "distributed systems consistency models",
+    "target_chunk_ids": [
+      "816c9eb1-19dc-48cc-af7f-64b01ee6a563",
+      "5435b798-deb0-4b78-b930-53b30340de40"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol3_python_algorithms",
+    "difficulty": "medium"
+  },
+  {
+    "query": "algorithm complexity analysis interview",
+    "target_chunk_ids": [
+      "42ab3298-3363-47e0-838f-7c57040183d2",
+      "2ca7ccb0-5500-47d1-bf02-43bf4b9683e8"
+    ],
+    "domain": "interview_prep",
+    "source_title": "Interview Prep: vol3_python_algorithms",
+    "difficulty": "hard"
+  },
+  {
+    "query": "Black-Scholes option pricing",
+    "target_chunk_ids": [
+      "e2b48266-8b2e-4369-93cc-00217e4ebf6f",
+      "28981606-a95e-4260-a5ea-d265c0091b59"
+    ],
+    "domain": "finance",
+    "source_title": "Hardy Investment Guarantees 2003",
+    "difficulty": "easy"
+  },
+  {
+    "query": "GARCH volatility model",
+    "target_chunk_ids": [
+      "584845e6-2b8c-49c6-aef4-9769218e4a30",
+      "fa5784ce-3d70-4e53-94bd-081cdbd044a4"
+    ],
+    "domain": "finance",
+    "source_title": "Hull Options Futures Derivatives 2021",
+    "difficulty": "easy"
+  },
+  {
+    "query": "capital asset pricing model CAPM",
+    "target_chunk_ids": [
+      "3f4b4a87-fc7f-4ef5-b133-dc651aeea524",
+      "9b486c60-6803-4311-b24e-5bda6c0f3b98"
+    ],
+    "domain": "finance",
+    "source_title": "Hull Options Futures Derivatives 2021",
+    "difficulty": "easy"
+  },
+  {
+    "query": "portfolio optimization Markowitz",
+    "target_chunk_ids": [
+      "1fd28d96-69b8-4d7e-810c-a0329cad9734",
+      "4efae45e-3282-4f34-8049-a5cd272e1243"
+    ],
+    "domain": "mathematics",
+    "source_title": "Stephen Boyd, Lieven Vandenberghe - Introduction to Applied Linear Algebra  Vect",
+    "difficulty": "medium"
+  },
+  {
+    "query": "value at risk VaR",
+    "target_chunk_ids": [
+      "687fab93-1450-47be-9908-55c1be96f455",
+      "e468253b-9de3-48f9-9b0d-8c3acfdb0553"
+    ],
+    "domain": "finance",
+    "source_title": "Schweser Study Books CFA Level II",
+    "difficulty": "medium"
+  },
+  {
+    "query": "risk neutral pricing derivatives",
+    "target_chunk_ids": [
+      "86bb0d0b-dcf7-4e18-9c64-9682883fb996",
+      "addd2a3f-c64d-406a-bd45-9193ffef6f43"
+    ],
+    "domain": "finance",
+    "source_title": "Hull Options Futures Derivatives 2021",
+    "difficulty": "medium"
+  },
+  {
+    "query": "stochastic calculus Ito lemma",
+    "target_chunk_ids": [
+      "3fd92611-e232-40c9-a457-227f207e597f",
+      "ac349141-9b3d-4bb2-a386-39346ada7ce8"
+    ],
+    "domain": "finance",
+    "source_title": "CFA Program Level II - Volume 6: Fixed Income",
+    "difficulty": "hard"
+  },
+  {
+    "query": "model deployment serving",
+    "target_chunk_ids": [
+      "ebc98406-63f8-46d0-b745-439d635d4c1d",
+      "a0139e84-9c20-4031-bffc-70e6bdf3d084"
+    ],
+    "domain": "ml_engineering",
+    "source_title": "Machine Learning Bookcamp",
+    "difficulty": "easy"
+  },
+  {
+    "query": "ML pipeline orchestration",
+    "target_chunk_ids": [
+      "9e368e04-4562-470e-a10f-5a7b11146b27",
+      "11e8e89e-f981-4dee-a3e6-efefa00bd491"
+    ],
+    "domain": "ml_engineering",
+    "source_title": "Distributed Machine Learning Patterns",
+    "difficulty": "easy"
+  },
+  {
+    "query": "feature store architecture",
+    "target_chunk_ids": [
+      "6bf1edcf-033d-42ce-a178-de0277092de2",
+      "bc059acd-4413-4cef-812c-59dd1994b545"
+    ],
+    "domain": "ml_engineering",
+    "source_title": "Machine Learning Engineering in Action",
+    "difficulty": "medium"
+  },
+  {
+    "query": "model monitoring drift detection",
+    "target_chunk_ids": [
+      "6b9b8e21-8c4a-4282-83c3-5794eb6c6c81",
+      "7d9e83e1-bccf-4e44-9fa6-67fb2dbba631"
+    ],
+    "domain": "ml_engineering",
+    "source_title": "Managing Machine Learning Projects",
+    "difficulty": "medium"
+  },
+  {
+    "query": "experiment tracking MLflow",
+    "target_chunk_ids": [
+      "3df287c2-77d8-4c63-ba11-4424a88656ec",
+      "1c4e514c-6770-4458-939a-f7f244dfd1e5"
+    ],
+    "domain": "ml_engineering",
+    "source_title": "Effective Data Science Infrastructure",
+    "difficulty": "medium"
+  },
+  {
+    "query": "A/B testing for ML models",
+    "target_chunk_ids": [
+      "e796094c-b72f-4be6-a082-4e565d86dadb",
+      "b57efa79-31c3-4624-bfd4-8ee2e7f4b3cb"
+    ],
+    "domain": "ml_engineering",
+    "source_title": "Managing Machine Learning Projects",
+    "difficulty": "hard"
+  },
+  {
+    "query": "exploratory data analysis",
+    "target_chunk_ids": [
+      "ec4458c1-5c57-456f-9169-721f2fcf6636",
+      "26087b5c-14e8-4657-ae35-00eb2b6678ec"
+    ],
+    "domain": "data_science",
+    "source_title": "Statistics Slam Dunk",
+    "difficulty": "easy"
+  },
+  {
+    "query": "feature selection methods",
+    "target_chunk_ids": [
+      "afedc727-2cc6-47f9-aad7-c93bcb2cc581",
+      "8c896c57-24bf-43fa-b752-cf95741870e0"
+    ],
+    "domain": "data_science",
+    "source_title": "Data Analysis with Python and PySpark",
+    "difficulty": "easy"
+  },
+  {
+    "query": "missing data imputation",
+    "target_chunk_ids": [
+      "a195ef66-0b5f-4318-b50d-66a5d625e26f",
+      "15e75eda-4f30-4252-8720-be8f76e6e5ef"
+    ],
+    "domain": "data_science",
+    "source_title": "Julia for Data Analysis",
+    "difficulty": "medium"
+  },
+  {
+    "query": "data pipeline ETL best practices",
+    "target_chunk_ids": [
+      "b37e13e8-272d-4dcf-9ab6-907901f7f4ef",
+      "0664c1ea-e0d9-4a81-8a42-18728caee2f8"
+    ],
+    "domain": "data_science",
+    "source_title": "Data Analysis with Python and PySpark",
+    "difficulty": "medium"
+  },
+  {
+    "query": "class imbalance handling strategies",
+    "target_chunk_ids": [
+      "2bb74221-03f1-4f9c-bd56-7e5951424513",
+      "a5322e09-d1dc-4066-9451-c1d6676f586c"
+    ],
+    "domain": "data_science",
+    "source_title": "Data Science Bookcamp",
+    "difficulty": "hard"
+  },
+  {
+    "query": "asset allocation strategy",
+    "target_chunk_ids": [
+      "245c35fe-c29d-4f51-b6e0-c9aa3a814e4e",
+      "f9c6eda0-8ce4-4763-b029-9db099cb04c4"
+    ],
+    "domain": "portfolio_management",
+    "source_title": "CFA Program Level III - Volume 1: Asset Allocation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "Sharpe ratio risk adjusted return",
+    "target_chunk_ids": [
+      "2a0b2af8-9fc0-4870-967b-9e94951110e9",
+      "172484ca-b362-4da2-b023-c497d01576b3"
+    ],
+    "domain": "portfolio_management",
+    "source_title": "CFA Program Level III - Volume 1: Asset Allocation",
+    "difficulty": "easy"
+  },
+  {
+    "query": "factor investing models",
+    "target_chunk_ids": [
+      "9ac8fe8b-d443-4213-b87d-042b3d4657e3",
+      "46969f8d-f534-4cdd-ac3d-d7c23e865d3a"
+    ],
+    "domain": "portfolio_management",
+    "source_title": "CFA Program Level III - Portfolio Management Volume 1",
+    "difficulty": "medium"
+  },
+  {
+    "query": "rebalancing portfolio strategy",
+    "target_chunk_ids": [
+      "56a86115-4e47-4473-a91b-e71a31f2cd3e",
+      "bf8aaca7-a49f-4081-8a02-b1b0e960390c"
+    ],
+    "domain": "portfolio_management",
+    "source_title": "CFA Program Level III - Volume 1: Asset Allocation",
+    "difficulty": "medium"
+  },
+  {
+    "query": "portfolio risk parity approach",
+    "target_chunk_ids": [
+      "e77ca9f7-1399-428a-bedd-70cc7007e621",
+      "5a2a4fa4-d6e0-4cfe-851e-2eac283df5d4"
+    ],
+    "domain": "portfolio_management",
+    "source_title": "CFA Program Level III - Volume 1: Asset Allocation",
+    "difficulty": "hard"
+  },
+  {
+    "query": "SUTVA stable unit treatment value",
+    "target_chunk_ids": [
+      "f3197773-6afe-4c97-8306-63d67a643b5e",
+      "43d7ab1b-a3ee-41f1-8da7-f65f2fe6bc99"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Brady Neal Intro Causal Inference 2020",
+    "difficulty": "medium"
+  },
+  {
+    "query": "propensity score matching limitations",
+    "target_chunk_ids": [
+      "01fa0d7a-a409-4372-880a-5071e925c11c",
+      "2680eb6e-6f66-4e66-9021-206f7a0e48b8"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Matching Methods for Causal Inference: A Review and a Look Forward",
+    "difficulty": "medium"
+  },
+  {
+    "query": "mediation analysis direct indirect effects",
+    "target_chunk_ids": [
+      "d79d7ac6-a454-4b06-8b47-3c59a6878e50",
+      "f6ae7e1f-fa7c-4c39-9392-920d69e8ca1e"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Explanation in Causal Inference: Methods for Mediation and Interaction",
+    "difficulty": "medium"
+  },
+  {
+    "query": "causal forest heterogeneous effects estimation",
+    "target_chunk_ids": [
+      "83a83322-0632-4b19-8e57-89712053e08e",
+      "eb65e42d-644b-4fdd-9f3a-c802882184a6"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Comparison of causal forest and regression-based approaches to evaluate treatmen",
+    "difficulty": "medium"
+  },
+  {
+    "query": "sensitivity analysis for unobserved confounders",
+    "target_chunk_ids": [
+      "f80fc1eb-ad19-40f5-b6b2-6035415bd216",
+      "0738bf50-b306-4c4d-b831-5a779cafff87"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Identification, Inference and Sensitivity Analysis for Causal Mediation Effects",
+    "difficulty": "hard"
+  },
+  {
+    "query": "causal discovery from observational data",
+    "target_chunk_ids": [
+      "b6077c39-9c68-430f-b3a8-349a7f6bc99e",
+      "b353ebe2-3ea5-4dd0-ab08-23cf3ea74733"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causal-learn: Causal Discovery in Python",
+    "difficulty": "hard"
+  },
+  {
+    "query": "transportability of causal effects across populations",
+    "target_chunk_ids": [
+      "9091392d-6846-4c05-98ed-29394a657e0f",
+      "9aa3f00b-6dcd-43a3-83d9-c5b385a4df96"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causal Inference: What If",
+    "difficulty": "hard"
+  },
+  {
+    "query": "targeted learning TMLE semiparametric",
+    "target_chunk_ids": [
+      "b03e9aed-0216-4c6d-bfe0-164e0ba1fd32",
+      "3d371ac0-573a-43dd-a1ce-f3658e2135df"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Orthogonal Statistical Learning",
+    "difficulty": "hard"
+  },
+  {
+    "query": "when to use IV versus difference in differences",
+    "target_chunk_ids": [
+      "5dd7d594-fcb6-4689-95c1-cc8da247af15",
+      "52b0cc6d-8cba-4db5-a684-93c6e9d1c4d7"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Finding Valid Instrumental Variables: A Machine Learning Approach",
+    "difficulty": "hard"
+  },
+  {
+    "query": "Bayesian causal inference with informative priors",
+    "target_chunk_ids": [
+      "406022d2-1aef-47c2-90de-ff3744baedc8",
+      "5fb95460-d333-449e-ae18-1dd52b11211f"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causal Artificial Intelligence: AI for Real-World Causal Understanding and Reaso",
+    "difficulty": "hard"
+  },
+  {
+    "query": "chunk overlap strategy for RAG",
+    "target_chunk_ids": [
+      "bb4ebcc9-4df1-47ef-b37c-3fa21926d87c",
+      "56d636f3-2dc3-4ee4-b87a-5172e1a5f7e8"
+    ],
+    "domain": "rag_llm",
+    "source_title": "arXiv:2112.04426",
+    "difficulty": "medium"
+  },
+  {
+    "query": "long context versus RAG tradeoffs",
+    "target_chunk_ids": [
+      "6d4686f4-e2e1-4843-8abe-a475eff35193",
+      "0623d614-2247-4f1c-ae0a-e165db6595a4"
+    ],
+    "domain": "rag_llm",
+    "source_title": "A Simple Guide to Retrieval Augmented Generation",
+    "difficulty": "hard"
+  },
+  {
+    "query": "evaluating retrieval quality without relevance labels",
+    "target_chunk_ids": [
+      "0537cfb9-7cdf-48bf-97e2-ccf1262a9dcc",
+      "81b35a12-914d-4642-b600-3513731d86ac"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Build an LLM Application (from Scratch)",
+    "difficulty": "hard"
+  },
+  {
+    "query": "embedding model selection for domain-specific corpora",
+    "target_chunk_ids": [
+      "2b9ec72e-2c17-4d86-9112-dd4a8d3a436a",
+      "b12d95ca-3e31-4f1b-9825-8d0b9b15d6ac"
+    ],
+    "domain": "rag_llm",
+    "source_title": "Natural Language Processing in Action, Second Edition",
+    "difficulty": "hard"
+  },
+  {
+    "query": "fine-tuning retriever vs generator in RAG",
+    "target_chunk_ids": [
+      "fe9084d4-e278-4627-874e-307234ceecb2",
+      "a3246245-c541-41f3-aed4-a4687a141153"
+    ],
+    "domain": "rag_llm",
+    "source_title": "A Simple Guide to Retrieval Augmented Generation",
+    "difficulty": "hard"
+  },
+  {
+    "query": "ARIMA model selection AIC BIC",
+    "target_chunk_ids": [
+      "31f289dc-046b-4c09-9bb1-92148f0f6f90",
+      "214486a3-8354-497c-a257-234d20fd65e5"
+    ],
+    "domain": "time_series",
+    "source_title": "(Springer Texts in Statistics) Robert H. Shumway, David S. Stoffer (auth.) - Tim",
+    "difficulty": "medium"
+  },
+  {
+    "query": "exponential smoothing state space",
+    "target_chunk_ids": [
+      "6a2e93ff-d3d1-4f47-8cad-e2d7270b945e",
+      "50b0c001-9d2f-472a-97bc-a7e8c3b364a2"
+    ],
+    "domain": "time_series",
+    "source_title": "DEPTS: Deep Expansion Learning for Periodic Time Series Forecasting",
+    "difficulty": "medium"
+  },
+  {
+    "query": "stationarity unit root test",
+    "target_chunk_ids": [
+      "3b8ba8e8-93f2-4705-b805-1f167e0174f4",
+      "deaf3be4-f9e2-4abc-9092-b77b9327550c"
+    ],
+    "domain": "time_series",
+    "source_title": "Aileen Nielsen - Practical Time Series Analysis  Prediction with Statistics and ",
+    "difficulty": "medium"
+  },
+  {
+    "query": "structural breaks vs regime switching",
+    "target_chunk_ids": [
+      "490e0109-d491-4bb3-b1e3-c4a9dd6eb23d",
+      "9474aaf6-9c3e-4d70-8686-265fb53ca69e"
+    ],
+    "domain": "finance",
+    "source_title": "Schweser Study Books CFA Level II",
+    "difficulty": "hard"
+  },
+  {
+    "query": "multivariate Granger causality interpretation",
+    "target_chunk_ids": [
+      "9f40c01c-fc32-443c-a591-5c83a41f488b",
+      "b9d72ce2-a9ac-4b80-a9a5-1fcc254695eb"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Analysis",
+    "difficulty": "hard"
+  },
+  {
+    "query": "GARCH models for financial volatility",
+    "target_chunk_ids": [
+      "23df6f79-2938-49f7-acbc-d22bfbb56a25",
+      "4ffb1764-2fa1-4eeb-bdca-c3fa44ea2e36"
+    ],
+    "domain": "time_series",
+    "source_title": "Bitcoin, gold and the dollar \u2013 A GARCH volatility analysis",
+    "difficulty": "hard"
+  },
+  {
+    "query": "causal impact analysis time series",
+    "target_chunk_ids": [
+      "cea244f9-e86a-4faf-9199-e119da3d38b7",
+      "dff58557-b220-45b9-988b-d11d4de5b9cf"
+    ],
+    "domain": "time_series",
+    "source_title": "Time Series Forecasting in Python",
+    "difficulty": "hard"
+  },
+  {
+    "query": "panel data fixed vs random effects",
+    "target_chunk_ids": [
+      "ca66d3fa-742c-4a5f-90e4-bf6192a656af",
+      "9f9a467f-8eff-4c9e-8857-114f5b616a96"
+    ],
+    "domain": "econometrics",
+    "source_title": "Mostly Harmless Econometrics: An Empiricist's Companion",
+    "difficulty": "medium"
+  },
+  {
+    "query": "quantile regression interpretation",
+    "target_chunk_ids": [
+      "6018493c-fac4-42a1-973a-1902de167eb5",
+      "9d27311e-1e04-414b-b97d-5142c8483dce"
+    ],
+    "domain": "econometrics",
+    "source_title": "Mostly Harmless Econometrics: An Empiricist's Companion",
+    "difficulty": "medium"
+  },
+  {
+    "query": "weak instruments problem and detection",
+    "target_chunk_ids": [
+      "a494e3c5-d744-4850-97e3-169143c055b7"
+    ],
+    "domain": "econometrics",
+    "source_title": "The Effect Huntington Klein 2025",
+    "difficulty": "hard"
+  },
+  {
+    "query": "synthetic control method assumptions",
+    "target_chunk_ids": [
+      "93ed486e-eb54-44af-b021-7938fd1af55a",
+      "b6059112-5768-4120-8f67-1e4feae4399d"
+    ],
+    "domain": "econometrics",
+    "source_title": "The Effect Huntington Klein 2025",
+    "difficulty": "hard"
+  },
+  {
+    "query": "double machine learning for treatment effects",
+    "target_chunk_ids": [
+      "0a33ced8-ce92-45d9-92c1-506318e7785d",
+      "71e93baf-0155-4fcc-a8c5-4f52582efabe"
+    ],
+    "domain": "econometrics",
+    "source_title": "The Effect Huntington Klein 2025",
+    "difficulty": "hard"
+  },
+  {
+    "query": "heterogeneous treatment effects econometric methods",
+    "target_chunk_ids": [
+      "92622152-84e5-4b86-b64b-716cf604bc27",
+      "4b21f8f7-c5e2-430e-8c24-5768b11485c8"
+    ],
+    "domain": "econometrics",
+    "source_title": "Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatme",
+    "difficulty": "hard"
+  },
+  {
+    "query": "event driven architecture patterns",
+    "target_chunk_ids": [
+      "1bb9e09a-89f0-4f74-81b2-140804b3a297",
+      "99a55e69-1cde-4c29-8add-59be9a14c38b"
+    ],
+    "domain": "software_engineering",
+    "source_title": "Software Mistakes and Tradeoffs",
+    "difficulty": "medium"
+  },
+  {
+    "query": "database indexing optimization",
+    "target_chunk_ids": [
+      "c0a58a7a-e590-452e-a883-2cf054de8f13",
+      "c9aa4a4b-298e-45f0-b935-169bbc0a4ca3"
+    ],
+    "domain": "software_engineering",
+    "source_title": "[1] Arnaud Lauret - The Design of Web APIs (0) - libgen.lc",
+    "difficulty": "medium"
+  },
+  {
+    "query": "distributed systems consensus algorithms",
+    "target_chunk_ids": [
+      "ee561456-0317-4b7c-b952-e7fb4f50c976"
+    ],
+    "domain": "software_engineering",
+    "source_title": "Chaos Engineering",
+    "difficulty": "medium"
+  },
+  {
+    "query": "technical debt measurement and management",
+    "target_chunk_ids": [
+      "474c622b-86e3-4a8c-919a-e26d2d6ad21f",
+      "9cda50e7-7bd1-4154-b4fb-65edd2e8540e"
+    ],
+    "domain": "software_engineering",
+    "source_title": "\"Looks Good to Me\"",
+    "difficulty": "hard"
+  },
+  {
+    "query": "system design scalability patterns",
+    "target_chunk_ids": [
+      "d5827fc3-9edd-49f5-9de6-3d74ea39f63a",
+      "b3537141-4554-480e-b8ff-5edf4e34a5d6"
+    ],
+    "domain": "software_engineering",
+    "source_title": "JJ Geewax - API Design Patterns-Manning Publications (2021)",
+    "difficulty": "hard"
+  },
+  {
+    "query": "learning rate scheduling strategies",
+    "target_chunk_ids": [
+      "3a5d7c1c-624a-4aaa-a587-e9b9d70d651b",
+      "4538ae87-9acd-44c8-87fa-677ff2d1fe82"
+    ],
+    "domain": "deep_learning",
+    "source_title": "Inside Deep Learning",
+    "difficulty": "medium"
+  },
+  {
+    "query": "knowledge distillation model compression",
+    "target_chunk_ids": [
+      "36e25356-a4b5-4c49-8da8-325540a3b345"
+    ],
+    "domain": "deep_learning",
+    "source_title": "TensorFlow in Action",
+    "difficulty": "medium"
+  },
+  {
+    "query": "neural architecture search methods",
+    "target_chunk_ids": [
+      "4e26534a-7c98-430e-b49d-626130f03ef2",
+      "9b4b9a7b-4609-4374-9cf3-ed247ba25a58"
+    ],
+    "domain": "deep_learning",
+    "source_title": "Enhanced Sea Horse Optimization with Deep Learning-based Multimodal Fusion Techn",
+    "difficulty": "hard"
+  },
+  {
+    "query": "self-supervised contrastive learning",
+    "target_chunk_ids": [
+      "180b8356-6197-4ddf-b2bc-b284401f12db",
+      "9eeb9240-dbed-415a-b5aa-b85e7a2d7fb2"
+    ],
+    "domain": "deep_learning",
+    "source_title": "Self-Supervised Learning from Images with a Joint-Embedding Predictive Architect",
+    "difficulty": "hard"
+  },
+  {
+    "query": "transformer attention for time series",
+    "target_chunk_ids": [
+      "64f783be-a04d-43dd-a0dc-dbc5f69b6aaf",
+      "25cf9445-3701-4c27-972a-ee906468b92a"
+    ],
+    "domain": "deep_learning",
+    "source_title": "CrystalGPT: Enhancing system-to-system transferability in crystallization predic",
+    "difficulty": "hard"
+  },
+  {
+    "query": "ensemble methods stacking vs blending",
+    "target_chunk_ids": [
+      "fe0ef441-0c94-4f9d-ba9b-341deedc3b4c",
+      "113e87a2-a990-49c8-a733-9c71b7544720"
+    ],
+    "domain": "machine_learning",
+    "source_title": "ensemble learning algorithms with python",
+    "difficulty": "medium"
+  },
+  {
+    "query": "hyperparameter optimization Bayesian",
+    "target_chunk_ids": [
+      "8d0b161b-0099-4f4f-bd6d-ed419eb9c60d",
+      "18258e20-d2ed-4128-b09d-439869be3ca5"
+    ],
+    "domain": "machine_learning",
+    "source_title": "optimization for machine learning",
+    "difficulty": "medium"
+  },
+  {
+    "query": "fairness constraints in ML models",
+    "target_chunk_ids": [
+      "3c793dc8-fb5c-4e93-a327-8fecb1e7c1a3",
+      "a75c694e-ec75-4919-8848-e53ebbc90d85"
+    ],
+    "domain": "machine_learning",
+    "source_title": "Emmanuel Ameisen - Building Machine Learning Powered Applications  Going from Id",
+    "difficulty": "hard"
+  },
+  {
+    "query": "interpretable ML SHAP vs LIME",
+    "target_chunk_ids": [
+      "18d9b89f-b79d-444f-a121-60b5a1fe7cda",
+      "2f8a1d3f-e0ba-4b69-a898-32d54121dcdf"
+    ],
+    "domain": "machine_learning",
+    "source_title": "A Unified Approach to Interpreting Model Predictions",
+    "difficulty": "hard"
+  },
+  {
+    "query": "causal ML uplift modeling",
+    "target_chunk_ids": [
+      "6a61c878-e5c4-4a2a-b01d-15e412b71646",
+      "bba733d1-aaa0-4e6e-8f1c-56f82f4135bf"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causal AI",
+    "difficulty": "hard"
+  },
+  {
+    "query": "survival analysis Kaplan-Meier",
+    "target_chunk_ids": [
+      "080d241e-8acc-49ea-bdd9-34ac24345734",
+      "43e98ec3-3347-4284-81a3-6accd6f86b8d"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Causal Inference: What If",
+    "difficulty": "medium"
+  },
+  {
+    "query": "multiple testing correction Bonferroni vs FDR",
+    "target_chunk_ids": [
+      "2ab5f1fb-7b48-4f38-94a1-da1c0107b42c",
+      "a61fe7cf-6a55-4662-94df-4653015e4a27"
+    ],
+    "domain": "statistics",
+    "source_title": "biostatmethods",
+    "difficulty": "hard"
+  },
+  {
+    "query": "nonparametric hypothesis testing",
+    "target_chunk_ids": [
+      "2098b894-4964-4000-9434-83c73118382f",
+      "073a1bd2-8dbe-44ac-88cf-5103834f68b4"
+    ],
+    "domain": "statistics",
+    "source_title": "(Springer Texts in Statistics'',) Larry Wasserman - All of Statistics  A Concise",
+    "difficulty": "hard"
+  },
+  {
+    "query": "causal interpretation of regression coefficients",
+    "target_chunk_ids": [
+      "89e56303-4868-4f0b-8ef4-102edced01f6"
+    ],
+    "domain": "statistics",
+    "source_title": "(Quantitative Methodology) Joop J. Hox, Mirjam Moerbeek, Rens Van De Schoot - Mu",
+    "difficulty": "hard"
+  },
+  {
+    "query": "Bayesian hierarchical modeling multilevel",
+    "target_chunk_ids": [
+      "730f37d8-4475-4459-b793-5db5ed794db8",
+      "8d098c27-e95d-48f0-aeef-ee5f74bdd309"
+    ],
+    "domain": "statistics",
+    "source_title": "(Quantitative Methodology) Joop J. Hox, Mirjam Moerbeek, Rens Van De Schoot - Mu",
+    "difficulty": "hard"
+  }
+]
