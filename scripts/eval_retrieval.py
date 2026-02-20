@@ -296,60 +296,177 @@ async def run_eval(
             else:
                 print(f"    {status} {result.error}")
 
-    # Calculate metrics
+    # Calculate metrics using shared function
+    metrics = compute_metrics_for_results(results)
+
+    return results, metrics
+
+
+def compute_metrics_for_results(results: list[TestResult]) -> dict:
+    """Compute metrics for a set of test results.
+
+    Args:
+        results: List of TestResult objects
+
+    Returns:
+        Dict of computed metrics
+    """
+    if not results:
+        return {
+            "total": 0,
+            "passed": 0,
+            "failed": 0,
+            "hit_rate_at_k": 0.0,
+            "mrr": 0.0,
+            "ndcg_5": 0.0,
+            "ndcg_10": 0.0,
+            "concept_recall": None,
+            "concept_recall_tests": 0,
+        }
+
     passed = sum(1 for r in results if r.passed)
     total = len(results)
 
-    # Mean Reciprocal Rank (MRR): average of 1/rank for successful queries
-    # Measures ranking quality - higher is better, 1.0 means always rank 1
     reciprocal_ranks = [1.0 / r.matched_rank for r in results if r.passed and r.matched_rank]
     mrr = sum(reciprocal_ranks) / len(reciprocal_ranks) if reciprocal_ranks else 0.0
 
-    # NDCG@K (Normalized Discounted Cumulative Gain)
-    # For binary relevance with 1 relevant doc: NDCG = 1/log2(rank+1) if found, 0 otherwise
-    # Uses sklearn for standard computation
     def compute_ndcg_at_k(results: list[TestResult], k: int) -> float:
-        """Compute NDCG@K for binary relevance with single relevant item per query."""
         ndcg_scores = []
         for r in results:
             if r.passed and r.matched_rank and r.matched_rank <= k:
-                # Binary relevance: 1 at matched position, 0 elsewhere
                 y_true = np.zeros(k)
                 y_true[r.matched_rank - 1] = 1.0
-                # Predicted scores: decreasing by rank (position 1 = highest score)
                 y_score = np.arange(k, 0, -1, dtype=float)
                 ndcg_scores.append(ndcg_score([y_true], [y_score], k=k))
             else:
-                # Not found in top K → NDCG = 0
                 ndcg_scores.append(0.0)
         return float(np.mean(ndcg_scores)) if ndcg_scores else 0.0
 
-    ndcg_5 = compute_ndcg_at_k(results, 5)
-    ndcg_10 = compute_ndcg_at_k(results, 10)
-
-    # Phase 2: Compute average concept recall
     concept_recalls = [r.concept_recall for r in results if r.concept_recall is not None]
     avg_concept_recall = sum(concept_recalls) / len(concept_recalls) if concept_recalls else None
 
-    metrics = {
+    return {
         "total": total,
         "passed": passed,
         "failed": total - passed,
-        # Hit Rate@K: % of queries where expected result appears in top K
-        # (Previously mislabeled as "precision_at_k")
         "hit_rate_at_k": passed / total if total > 0 else 0,
-        # Mean Reciprocal Rank: average of 1/rank for successful queries
-        # MRR=1.0 means always rank 1, MRR=0.5 means avg rank 2
         "mrr": mrr,
-        # NDCG: accounts for position (earlier = better), range 0-1
-        "ndcg_5": ndcg_5,
-        "ndcg_10": ndcg_10,
-        # Phase 2: Concept Recall - % of expected concepts found
+        "ndcg_5": compute_ndcg_at_k(results, 5),
+        "ndcg_10": compute_ndcg_at_k(results, 10),
         "concept_recall": avg_concept_recall,
         "concept_recall_tests": len(concept_recalls),
     }
 
-    return results, metrics
+
+def _print_metrics_block(metrics: dict, indent: str = "  "):
+    """Print a single metrics block (used by both summary and per-domain).
+
+    Args:
+        metrics: Dict of computed metrics
+        indent: Indentation prefix
+    """
+    target_hit_rate = 0.90
+    actual_hit_rate = metrics["hit_rate_at_k"]
+    status = "+" if actual_hit_rate >= target_hit_rate else "-"
+    print(f"{indent}{status} Hit Rate@K: {actual_hit_rate:.1%} (target: >={target_hit_rate:.0%})")
+
+    mrr = metrics["mrr"]
+    mrr_status = "+" if mrr >= 0.5 else "-"
+    print(f"{indent}{mrr_status} MRR: {mrr:.3f}")
+
+    ndcg_5 = metrics.get("ndcg_5", 0.0)
+    ndcg_10 = metrics.get("ndcg_10", 0.0)
+    ndcg_status = "+" if ndcg_5 >= 0.7 else "-"
+    print(f"{indent}{ndcg_status} NDCG@5: {ndcg_5:.3f}  NDCG@10: {ndcg_10:.3f}")
+
+    concept_recall = metrics.get("concept_recall")
+    concept_tests = metrics.get("concept_recall_tests", 0)
+    if concept_recall is not None:
+        target_cr = 0.70
+        cr_status = "+" if concept_recall >= target_cr else "-"
+        print(f"{indent}{cr_status} Concept Recall: {concept_recall:.1%} ({concept_tests} tests)")
+
+
+def print_per_domain(results: list[TestResult]):
+    """Print per-domain evaluation breakdown.
+
+    Groups results by domain tags and computes metrics for each.
+
+    Args:
+        results: List of TestResult objects
+    """
+    # Group results by domain tags
+    domain_tags = set()
+    for r in results:
+        tags = r.test_case.tags or []
+        for tag in tags:
+            # Heuristic: identify domain-like tags (exclude method/technique tags)
+            if tag in (
+                "causal_inference",
+                "econometrics",
+                "time_series",
+                "rag_llm",
+                "interview_prep",
+                "deep_learning",
+                "software_engineering",
+                "machine_learning",
+                "mathematics",
+                "statistics",
+                "finance",
+                "ml_engineering",
+                "data_science",
+            ):
+                domain_tags.add(tag)
+
+    # Also check tags that look like domains even if not in the predefined list
+    for r in results:
+        tags = r.test_case.tags or []
+        for tag in tags:
+            if "_" in tag and tag not in (
+                "core",
+                "phase2",
+                "power_analysis",
+                "quasi_experimental",
+                "public_economics",
+                "experimental_design",
+                "weak_instruments",
+            ):
+                domain_tags.add(tag)
+
+    if not domain_tags:
+        # Fallback: group by first tag
+        for r in results:
+            tags = r.test_case.tags or []
+            if tags:
+                domain_tags.add(tags[0])
+
+    print("\n" + "=" * 60)
+    print("PER-DOMAIN BREAKDOWN")
+    print("=" * 60)
+
+    # For each domain, collect results and compute metrics
+    domain_metrics = {}
+    for domain in sorted(domain_tags):
+        domain_results = [r for r in results if r.test_case.tags and domain in r.test_case.tags]
+        if domain_results:
+            metrics = compute_metrics_for_results(domain_results)
+            domain_metrics[domain] = metrics
+
+            print(f"\n  {domain} ({metrics['total']} tests):")
+            _print_metrics_block(metrics, indent="    ")
+
+    # Summary table
+    print("\n" + "-" * 60)
+    print(f"  {'Domain':<25} {'Tests':>5} {'Hit%':>6} {'MRR':>6} {'NDCG@5':>7}")
+    print("  " + "-" * 55)
+    for domain in sorted(domain_metrics.keys()):
+        m = domain_metrics[domain]
+        print(
+            f"  {domain:<25} {m['total']:>5} {m['hit_rate_at_k']:>5.0%} {m['mrr']:>6.3f} {m['ndcg_5']:>7.3f}"
+        )
+    print()
+
+    return domain_metrics
 
 
 def print_summary(results: list[TestResult], metrics: dict):
@@ -366,19 +483,19 @@ def print_summary(results: list[TestResult], metrics: dict):
     print("\nMetrics:")
     target_hit_rate = 0.90
     actual_hit_rate = metrics["hit_rate_at_k"]
-    status = "✓" if actual_hit_rate >= target_hit_rate else "✗"
-    print(f"  {status} Hit Rate@K: {actual_hit_rate:.1%} (target: ≥{target_hit_rate:.0%})")
+    status = "+" if actual_hit_rate >= target_hit_rate else "-"
+    print(f"  {status} Hit Rate@K: {actual_hit_rate:.1%} (target: >={target_hit_rate:.0%})")
     print("      (% of queries where expected result appears in top K)")
 
     mrr = metrics["mrr"]
-    mrr_status = "✓" if mrr >= 0.5 else "✗"  # MRR >= 0.5 means avg rank ≤ 2
+    mrr_status = "+" if mrr >= 0.5 else "-"  # MRR >= 0.5 means avg rank <= 2
     print(f"  {mrr_status} MRR: {mrr:.3f}")
     print("      (Mean Reciprocal Rank: 1.0=always rank 1, 0.5=avg rank 2)")
 
     # NDCG metrics
     ndcg_5 = metrics.get("ndcg_5", 0.0)
     ndcg_10 = metrics.get("ndcg_10", 0.0)
-    ndcg_status = "✓" if ndcg_5 >= 0.7 else "✗"  # NDCG ≥ 0.7 is good ranking
+    ndcg_status = "+" if ndcg_5 >= 0.7 else "-"  # NDCG >= 0.7 is good ranking
     print(f"  {ndcg_status} NDCG@5: {ndcg_5:.3f}")
     print(f"    NDCG@10: {ndcg_10:.3f}")
     print("      (Position-weighted: 1.0=perfect, 0.5=avg rank 3)")
@@ -388,20 +505,20 @@ def print_summary(results: list[TestResult], metrics: dict):
     concept_tests = metrics.get("concept_recall_tests", 0)
     if concept_recall is not None:
         target_concept_recall = 0.70
-        cr_status = "✓" if concept_recall >= target_concept_recall else "✗"
+        cr_status = "+" if concept_recall >= target_concept_recall else "-"
         print(
-            f"  {cr_status} Concept Recall: {concept_recall:.1%} (target: ≥{target_concept_recall:.0%})"
+            f"  {cr_status} Concept Recall: {concept_recall:.1%} (target: >={target_concept_recall:.0%})"
         )
         print(f"      ({concept_tests} tests with expected_concepts)")
     else:
-        print("  ⊘ Concept Recall: N/A (no tests have expected_concepts defined)")
+        print("  - Concept Recall: N/A (no tests have expected_concepts defined)")
 
     # List failures
     failures = [r for r in results if not r.passed]
     if failures:
         print("\nFailed Tests:")
         for r in failures:
-            print(f"  ✗ {r.test_case.query}")
+            print(f"  - {r.test_case.query}")
             print(f"    {r.error}")
 
     print()
@@ -422,6 +539,11 @@ async def main():
         default="weighted",
         help="Scoring method: 'weighted' (default) or 'rrf' (Reciprocal Rank Fusion)",
     )
+    parser.add_argument(
+        "--per-domain",
+        action="store_true",
+        help="Show per-domain breakdown of Hit Rate, MRR, NDCG, Concept Recall",
+    )
     args = parser.parse_args()
 
     yaml_path = Path(__file__).parent.parent / "fixtures" / "eval" / "retrieval_test_cases.yaml"
@@ -440,11 +562,19 @@ async def main():
 
     print_summary(results, metrics)
 
-    # Phase 2: Output JSON for CI quality gate
+    # Per-domain breakdown
+    domain_metrics = None
+    if args.per_domain:
+        domain_metrics = print_per_domain(results)
+
+    # Output JSON for CI quality gate
     if args.output:
         output_path = Path(args.output)
+        output_data = dict(metrics)
+        if domain_metrics:
+            output_data["per_domain"] = domain_metrics
         with open(output_path, "w") as f:
-            json.dump(metrics, f, indent=2)
+            json.dump(output_data, f, indent=2)
         print(f"\nMetrics written to: {output_path}")
 
     # Exit with error code if tests failed

@@ -198,9 +198,10 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 ## Testing
 
-- **1,900+ test functions** across 89 test files
-- **Tiered CI/CD**: PR checks (<10 min) -> Weekly integration (10 min) -> Full rebuild (planned)
-- **Golden evaluation dataset**: 47 queries across 4 domains with known-relevant chunks
+- **~2,040 test functions** across 90+ test files
+- **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (10 min, doc freshness gate) -> Full rebuild (planned)
+- **Golden evaluation dataset**: 94 queries across 10 domains with known-relevant chunks
+- **Retrieval eval**: 55 test cases with per-domain reporting (`--per-domain` flag)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
 ```bash
@@ -218,6 +219,20 @@ pytest -m "unit"
 ## CLI Reference
 
 Full command reference with examples: [`docs/CLI.md`](docs/CLI.md)
+
+Quick reference:
+
+```bash
+research-kb query "instrumental variables"        # Hybrid search
+research-kb sources                               # List sources
+research-kb stats                                 # Database statistics
+research-kb concepts "IV"                         # Concept search
+research-kb graph "double machine learning"       # Graph exploration
+research-kb path "IV" "unconfoundedness"          # Shortest path
+research-kb audit-assumptions "IV"                # Assumption auditing
+research-kb discover search "causal inference"    # S2 discovery
+research-kb enrich citations                      # Enrich with S2 metadata
+```
 
 ## Development
 

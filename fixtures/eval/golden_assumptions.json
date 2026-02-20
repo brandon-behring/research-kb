@@ -227,6 +227,120 @@
       ],
       "min_expected": 2,
       "source_reference": "Wooldridge (2010)"
+    },
+
+    {
+      "_comment": "Phase J: Time series methods",
+      "name": "ARIMA",
+      "aliases": ["autoregressive integrated moving average", "Box-Jenkins"],
+      "expected_assumptions": [
+        {"name": "stationarity", "importance": "critical", "aliases": ["weak stationarity", "covariance stationarity"]},
+        {"name": "invertibility", "importance": "standard", "aliases": ["invertible MA process"]},
+        {"name": "white noise residuals", "importance": "critical", "aliases": ["uncorrelated errors", "iid residuals"]},
+        {"name": "finite variance", "importance": "technical", "aliases": ["second moment exists"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Box & Jenkins (1970)"
+    },
+    {
+      "name": "GARCH",
+      "aliases": ["generalized autoregressive conditional heteroskedasticity", "ARCH"],
+      "expected_assumptions": [
+        {"name": "stationarity", "importance": "critical", "aliases": ["covariance stationarity"]},
+        {"name": "positive coefficients", "importance": "standard", "aliases": ["non-negativity constraints"]},
+        {"name": "conditional normality", "importance": "standard", "aliases": ["innovation distribution"]},
+        {"name": "finite fourth moment", "importance": "technical", "aliases": ["kurtosis exists"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Bollerslev (1986)"
+    },
+    {
+      "name": "vector autoregression",
+      "aliases": ["VAR", "multivariate time series"],
+      "expected_assumptions": [
+        {"name": "stationarity", "importance": "critical", "aliases": ["covariance stationarity"]},
+        {"name": "no contemporaneous causality", "importance": "standard", "aliases": ["recursive ordering"]},
+        {"name": "correct lag length", "importance": "standard", "aliases": ["lag selection"]},
+        {"name": "stability", "importance": "critical", "aliases": ["eigenvalue condition", "roots outside unit circle"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Sims (1980)"
+    },
+
+    {
+      "_comment": "Phase J: Machine learning methods",
+      "name": "LASSO",
+      "aliases": ["least absolute shrinkage and selection operator", "L1 regularization"],
+      "expected_assumptions": [
+        {"name": "sparsity", "importance": "critical", "aliases": ["sparse true model", "few relevant features"]},
+        {"name": "restricted eigenvalue condition", "importance": "technical", "aliases": ["compatibility condition"]},
+        {"name": "sub-Gaussian noise", "importance": "standard", "aliases": ["light-tailed errors"]},
+        {"name": "irrepresentable condition", "importance": "technical", "aliases": ["incoherence"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Tibshirani (1996)"
+    },
+    {
+      "name": "random forest",
+      "aliases": ["RF", "bagged trees"],
+      "expected_assumptions": [
+        {"name": "sufficient sample size", "importance": "standard", "aliases": ["enough data for splitting"]},
+        {"name": "feature relevance", "importance": "critical", "aliases": ["informative features exist"]},
+        {"name": "independence of trees", "importance": "standard", "aliases": ["bootstrap independence"]},
+        {"name": "iid data", "importance": "critical", "aliases": ["independent samples"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Breiman (2001)"
+    },
+    {
+      "name": "support vector machine",
+      "aliases": ["SVM", "kernel SVM"],
+      "expected_assumptions": [
+        {"name": "kernel appropriateness", "importance": "critical", "aliases": ["correct kernel choice"]},
+        {"name": "separability", "importance": "standard", "aliases": ["approximate linear separability in feature space"]},
+        {"name": "iid data", "importance": "critical", "aliases": ["independent samples"]},
+        {"name": "bounded features", "importance": "technical", "aliases": ["feature scaling"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Vapnik (1995)"
+    },
+
+    {
+      "_comment": "Phase J: Statistics methods",
+      "name": "MCMC",
+      "aliases": ["Markov chain Monte Carlo", "Metropolis-Hastings", "Gibbs sampling"],
+      "expected_assumptions": [
+        {"name": "ergodicity", "importance": "critical", "aliases": ["irreducibility and aperiodicity"]},
+        {"name": "convergence", "importance": "critical", "aliases": ["chain has converged", "burn-in sufficient"]},
+        {"name": "detailed balance", "importance": "standard", "aliases": ["reversibility"]},
+        {"name": "proper posterior", "importance": "critical", "aliases": ["integrable posterior"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Gelman et al. (2013)"
+    },
+    {
+      "name": "EM algorithm",
+      "aliases": ["expectation maximization"],
+      "expected_assumptions": [
+        {"name": "correct model family", "importance": "critical", "aliases": ["correct specification"]},
+        {"name": "identifiability", "importance": "critical", "aliases": ["unique MLE"]},
+        {"name": "regularity conditions", "importance": "technical", "aliases": ["bounded likelihood"]},
+        {"name": "convergence to global maximum", "importance": "standard", "aliases": ["no local optima issue"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Dempster, Laird & Rubin (1977)"
+    },
+    {
+      "name": "kernel density estimation",
+      "aliases": ["KDE", "nonparametric density estimation"],
+      "expected_assumptions": [
+        {"name": "smoothness", "importance": "critical", "aliases": ["continuous density"]},
+        {"name": "bandwidth selection", "importance": "critical", "aliases": ["appropriate bandwidth"]},
+        {"name": "iid data", "importance": "critical", "aliases": ["independent samples"]},
+        {"name": "sufficient sample size", "importance": "standard", "aliases": ["enough data for estimation"]}
+      ],
+      "min_expected": 2,
+      "source_reference": "Silverman (1986)"
     }
   ],
 

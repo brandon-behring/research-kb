@@ -1,6 +1,6 @@
 # Research KB Roadmap
 
-A causal inference knowledge base for research context retrieval.
+A semantic search system for research literature with graph-boosted retrieval. Combines full-text search, vector similarity (BGE-large-en-v1.5, 1024 dimensions), knowledge graph signals (KuzuDB), and citation authority scoring.
 
 ## Phase 1: Foundation (Weeks 1-2) ✅ COMPLETE
 
@@ -16,53 +16,87 @@ A causal inference knowledge base for research context retrieval.
 - Relationship ontology (REQUIRES, USES, ADDRESSES, etc.)
 - Graph traversal queries (SQL recursive CTEs)
 - Hybrid retrieval (vector + FTS + graph signals)
-- Performance: 2.11ms for 2-hop queries (target: <100ms)
 
 ## Phase 3: Enhanced Retrieval (Weeks 5-6) ✅ COMPLETE
 
-- ✅ Query expansion with concept synonyms (synonym_map.json)
-- ✅ Cross-encoder re-ranking (BGE reranker)
-- ✅ Citation graph integration (5,044 citations, 275 internal edges)
-- ✅ 4-way hybrid search (FTS + vector + graph + citation)
+- Query expansion with concept synonyms (synonym_map.json)
+- Cross-encoder re-ranking (BGE reranker)
+- Citation graph integration (5,044 citations, 275 internal edges)
+- 4-way hybrid search (FTS + vector + graph + citation)
 
 ## Phase 4: API & Dashboard (Weeks 7-8) ✅ COMPLETE
 
-- ✅ FastAPI REST API with health checks and metrics
-- ✅ Streamlit + PyVis dashboard
-- ✅ Citation network visualization
-- ✅ Concept graph explorer with N-hop neighborhoods
-- MCP server for Claude Code integration (future)
+- FastAPI REST API with health checks and metrics
+- Streamlit + PyVis dashboard
+- Citation network visualization
+- Concept graph explorer with N-hop neighborhoods
+- MCP server for Claude Code integration (19 tools)
 
-## Phase 5: Advanced Graph Analytics (Future)
+## Phase D: Observability ✅ COMPLETE
 
-When corpus scale requires advanced graph operations:
+- KuzuDB graph engine (replaces PostgreSQL recursive CTEs for graph traversal)
+- Prometheus metrics on port 9001
+- Grafana dashboard for daemon monitoring
+- Systemd timer for daily KuzuDB sync (3 AM)
+- Benchmark suite: fast_search 208ms, graph_path 1.7-5.8s
 
-- **Neo4j Integration**: Multi-hop traversal optimization beyond recursive CTEs
-- **Citation Network Analysis**: PageRank centrality, community detection
-- **Graph Neural Networks**: Export for GNN-based embeddings
-- **Clustering**: Automatic topic/method clustering via graph structure
+## Phase E: RAG/LLM Extraction ✅ COMPLETE
 
-**Status**: Future consideration. PostgreSQL handles current scale efficiently (2.11ms for 2-hop queries). Consider when:
-- Graph queries exceed 100ms consistently
-- Need complex path algorithms (betweenness centrality, etc.)
-- Graph exceeds 1M nodes/edges
+- 23,307 RAG/LLM concepts extracted via Claude Haiku 4.5 (50 min, ~$30)
+- KuzuDB sync: 307K concepts, 742K relationships
+- 87.4% coverage across RAG/LLM domain
+
+## Phase F: Cross-Repo Integration ✅ COMPLETE
+
+- Lever of Archimedes health monitoring
+- Interview readiness evaluation
+- Glossary validation pipeline
+
+## Phase G: Repository Hygiene ✅ COMPLETE
+
+- Pytest consolidation (~2,040 tests with markers)
+- Pre-commit hooks (black, ruff, mypy)
+- Scripts archive for one-off utilities
+- CI marker integration (unit, integration, requires_*)
+
+## Phase I: CI Hardening & Coverage ✅ COMPLETE
+
+- pytest-cov in PR checks with XML reports
+- Doc freshness gate in weekly integration workflow
+- ROADMAP and INDEX documentation refresh
+
+## Phase H: Multi-Domain Extraction ✅ COMPLETE
+
+- 9 new domain prompt configs (14 total: econometrics, software_engineering, deep_learning, mathematics, machine_learning, finance, statistics, ml_engineering, data_science)
+- 162 domain prompt tests
+- Domain-specific concept type guidance for higher extraction quality
+
+## Phase J: Retrieval Quality Eval Expansion ✅ COMPLETE
+
+- Retrieval test case expansion (34 → 55 cases across 9 domains)
+- Per-domain eval reporting (`--per-domain` flag on eval_retrieval.py)
+- Method assumption expansion (20 → 29 methods: added ARIMA, GARCH, VAR, LASSO, random forest, SVM, MCMC, EM, KDE)
+
+## Phase K: Documentation Consolidation ✅ COMPLETE
+
+- CLAUDE.md accuracy pass (CI tiers updated, counts corrected)
+- README.md CLI quick reference added (zero audit_docs.py warnings)
+- MEMORY.md refresh with post-Phase-K metrics
+- docs/INDEX.md final pass with all H-K rows
 
 ---
 
-**Current Status**: Phase 4 complete. All core features implemented.
+**Current Status**: All phases H-K complete.
 
-**Key Metrics** (as of 2025-12-10):
-- Sources: 258 (166 textbooks + 92 papers, including 98 migrated books)
-- Chunks: 131,848 (100% with embeddings)
-- Citations: 5,044 (275 internal edges)
-- Concepts: 41,439 (37,447 relationships)
-- Tests: 666 functions
-- 2-hop graph query: 2.11ms (target: <100ms) ✅
+**Key Metrics** (as of 2026-02-20):
+- Sources: 477 (across 19 domains)
+- Chunks: ~210,000 (100% with embeddings)
+- Concepts: 307,000 (742,000 relationships)
+- KuzuDB: ~110MB graph engine
+- Tests: ~2,040 functions (unit + integration + quality)
+- Domains: 19 tagged (causal_inference, rag_llm, time_series, econometrics, software_engineering, deep_learning, mathematics, interview_prep, finance, machine_learning, statistics, ml_engineering, data_science, portfolio_management, functional_programming, algorithms, forecasting, fitness, economics)
+- Method cache: 10/10 top methods, 55 cached assumptions, 87.5% readiness
 
-**Phase 3 Deliverables**:
-- ✅ Query expansion with synonym map
-- ✅ Cross-encoder reranking (BGE model)
-- ✅ Citation graph with PageRank authority scores
-- ✅ 4-way hybrid retrieval
+**Architecture**: 12 packages (contracts → common → storage → cli/daemon/api/dashboard/mcp-server/client/pdf-tools/extraction/s2-client)
 
-**Documentation Note**: Run `python scripts/generate_status.py` to update status docs from database.
+**Documentation**: Run `python scripts/generate_status.py` to refresh status docs. Run `python scripts/audit_docs.py` to check documentation health.

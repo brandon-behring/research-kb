@@ -33,24 +33,30 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e packages/cli
-          pip install -e packages/storage
-          pip install -e packages/pdf-tools
           pip install -e packages/contracts
           pip install -e packages/common
-          pip install pytest pytest-asyncio
+          pip install -e packages/storage
+          pip install -e packages/pdf-tools
+          pip install -e packages/extraction
+          pip install -e packages/cli
+          pip install -e packages/client
+          pip install -e packages/daemon
+          pip install -e packages/api
+          pip install -e packages/mcp-server
+          pip install -e packages/s2-client
+          pip install pytest pytest-asyncio pytest-cov
           pip install black ruff mypy
 
       - name: Code quality checks
         run: |
           echo "=== Black (formatting) ==="
-          black --check packages/
+          black --check packages/ scripts/ tests/
           echo "=== Ruff (linting) ==="
-          ruff check packages/
+          ruff check packages/ scripts/ tests/
           echo "=== Mypy (type checking) ==="
           mypy packages/ --config-file mypy.ini
 
-      - name: Run unit tests (no services required)
+      - name: Unit tests (no external services)
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
@@ -58,24 +64,21 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         run: |
-          pytest packages/ -v \
-            -m "not slow and not requires_ollama and not requires_embedding" \
-            --tb=short
+          pytest packages/ tests/ \
+            -m "unit and not requires_embedding and not requires_ollama and not requires_reranker and not requires_grobid" \
+            -v --tb=short \
+            --cov=packages --cov-report=term-missing --cov-report=xml:coverage-unit.xml
 
-      - name: Run CLI tests (mocked services)
+      - name: Integration tests (DB only)
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_DB: research_kb_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          TEST_DATABASE_NAME: research_kb_test
         run: |
-          pytest packages/cli/tests/ -v \
-            -m "not requires_embedding" \
-            --tb=short
-
-      - name: Run script structure tests
-        run: |
-          pytest tests/scripts/ -v \
-            -m "not slow and not requires_ollama and not requires_embedding and not integration" \
-            --tb=short
+          pytest packages/ tests/ \
+            -m "integration and not requires_embedding and not requires_ollama and not requires_reranker" \
+            -v --tb=short \
+            --cov=packages --cov-report=term-missing --cov-report=xml:coverage-integration.xml --cov-append

@@ -5,6 +5,8 @@ Tests both the core CrossEncoderReranker class and the server/client IPC.
 
 import pytest
 
+pytestmark = pytest.mark.requires_reranker
+
 from research_kb_pdf.reranker import (
     CrossEncoderReranker,
     RerankResult,

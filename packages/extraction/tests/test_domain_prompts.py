@@ -1,13 +1,14 @@
 """Tests for domain-specific prompt configurations.
 
 Validates:
-- All 5 domains registered with required keys
+- All 14 domains registered with required keys
 - get_domain_prompt_section() returns non-empty guidance
 - get_domain_abbreviations() returns lowercase keys, non-empty values
 - get_domain_config() returns full configuration
 - list_domains() enumerates all domains
 - get_all_abbreviations() merges all domain abbreviations
 - Unknown domain fallback behavior (defaults to causal_inference)
+- New domains (Phase H) have appropriate key terms in guidance
 """
 
 import pytest
@@ -24,13 +25,22 @@ from research_kb_extraction.domain_prompts import (
 pytestmark = pytest.mark.unit
 
 
-# All 5 expected domain IDs
+# All 14 expected domain IDs
 EXPECTED_DOMAINS = {
     "healthcare",
     "causal_inference",
     "time_series",
     "rag_llm",
     "interview_prep",
+    "econometrics",
+    "software_engineering",
+    "deep_learning",
+    "mathematics",
+    "machine_learning",
+    "finance",
+    "statistics",
+    "ml_engineering",
+    "data_science",
 }
 
 # Required keys in every domain config
@@ -46,8 +56,8 @@ REQUIRED_KEYS = {
 class TestDomainRegistry:
     """Test the DOMAIN_PROMPTS registry structure."""
 
-    def test_all_five_domains_present(self):
-        """All 5 expected domains exist in the registry."""
+    def test_all_fourteen_domains_present(self):
+        """All 14 expected domains exist in the registry."""
         assert set(DOMAIN_PROMPTS.keys()) == EXPECTED_DOMAINS
 
     @pytest.mark.parametrize("domain_id", EXPECTED_DOMAINS)
@@ -184,8 +194,8 @@ class TestGetDomainConfig:
 class TestListDomains:
     """Test list_domains()."""
 
-    def test_returns_all_five_domains(self):
-        """Returns all 5 domain IDs."""
+    def test_returns_all_fourteen_domains(self):
+        """Returns all 14 domain IDs."""
         domains = list_domains()
         assert set(domains) == EXPECTED_DOMAINS
 
@@ -237,3 +247,124 @@ class TestGetAllAbbreviations:
         assert "ml" in all_abbrevs
         # Both define it as "machine learning" so value is same either way
         assert all_abbrevs["ml"] == "machine learning"
+
+
+class TestNewDomainKeyTerms:
+    """Validate Phase H domain configs mention appropriate key terms."""
+
+    def test_econometrics_mentions_key_terms(self):
+        """Econometrics guidance mentions OLS and endogeneity."""
+        guidance = get_domain_prompt_section("econometrics")
+        assert "OLS" in guidance
+        assert "endogeneity" in guidance.lower()
+
+    def test_econometrics_known_abbreviations(self):
+        """Econometrics has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("econometrics")
+        assert abbrevs["ols"] == "ordinary least squares"
+        assert abbrevs["2sls"] == "two-stage least squares"
+        assert abbrevs["gmm"] == "generalized method of moments"
+
+    def test_software_engineering_mentions_key_terms(self):
+        """Software engineering guidance mentions design patterns."""
+        guidance = get_domain_prompt_section("software_engineering")
+        assert "SOLID" in guidance or "pattern" in guidance.lower()
+        assert "microservice" in guidance.lower() or "architecture" in guidance.lower()
+
+    def test_software_engineering_known_abbreviations(self):
+        """Software engineering has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("software_engineering")
+        assert abbrevs["api"] == "application programming interface"
+        assert abbrevs["tdd"] == "test-driven development"
+        assert abbrevs["ci"] == "continuous integration"
+
+    def test_deep_learning_mentions_key_terms(self):
+        """Deep learning guidance mentions neural network architectures."""
+        guidance = get_domain_prompt_section("deep_learning")
+        assert "CNN" in guidance or "transformer" in guidance.lower()
+        assert "gradient" in guidance.lower()
+
+    def test_deep_learning_known_abbreviations(self):
+        """Deep learning has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("deep_learning")
+        assert abbrevs["cnn"] == "convolutional neural network"
+        assert abbrevs["adam"] == "adaptive moment estimation"
+        assert abbrevs["vae"] == "variational autoencoder"
+
+    def test_mathematics_mentions_key_terms(self):
+        """Mathematics guidance mentions theorems and proofs."""
+        guidance = get_domain_prompt_section("mathematics")
+        assert "theorem" in guidance.lower()
+        assert "proof" in guidance.lower() or "convergence" in guidance.lower()
+
+    def test_mathematics_known_abbreviations(self):
+        """Mathematics has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("mathematics")
+        assert abbrevs["svd"] == "singular value decomposition"
+        assert abbrevs["pca"] == "principal component analysis"
+        assert abbrevs["clt"] == "central limit theorem"
+
+    def test_machine_learning_mentions_key_terms(self):
+        """Machine learning guidance mentions algorithms and evaluation."""
+        guidance = get_domain_prompt_section("machine_learning")
+        assert "random forest" in guidance.lower() or "SVM" in guidance
+        assert "overfitting" in guidance.lower() or "bias-variance" in guidance.lower()
+
+    def test_machine_learning_known_abbreviations(self):
+        """Machine learning has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("machine_learning")
+        assert abbrevs["svm"] == "support vector machine"
+        assert abbrevs["rf"] == "random forest"
+        assert abbrevs["shap"] == "shapley additive explanations"
+
+    def test_finance_mentions_key_terms(self):
+        """Finance guidance mentions pricing models and risk."""
+        guidance = get_domain_prompt_section("finance")
+        assert "Black-Scholes" in guidance or "CAPM" in guidance
+        assert "risk" in guidance.lower()
+
+    def test_finance_known_abbreviations(self):
+        """Finance has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("finance")
+        assert abbrevs["capm"] == "capital asset pricing model"
+        assert abbrevs["var"] == "value at risk"
+        assert abbrevs["bs"] == "black-scholes"
+
+    def test_statistics_mentions_key_terms(self):
+        """Statistics guidance mentions hypothesis testing and inference."""
+        guidance = get_domain_prompt_section("statistics")
+        assert "hypothesis" in guidance.lower()
+        assert "p-value" in guidance.lower() or "inference" in guidance.lower()
+
+    def test_statistics_known_abbreviations(self):
+        """Statistics has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("statistics")
+        assert abbrevs["mle"] == "maximum likelihood estimation"
+        assert abbrevs["mcmc"] == "markov chain monte carlo"
+        assert abbrevs["fdr"] == "false discovery rate"
+
+    def test_ml_engineering_mentions_key_terms(self):
+        """ML engineering guidance mentions MLOps concepts."""
+        guidance = get_domain_prompt_section("ml_engineering")
+        assert "feature store" in guidance.lower() or "model registry" in guidance.lower()
+        assert "drift" in guidance.lower() or "serving" in guidance.lower()
+
+    def test_ml_engineering_known_abbreviations(self):
+        """ML engineering has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("ml_engineering")
+        assert abbrevs["mlops"] == "machine learning operations"
+        assert abbrevs["k8s"] == "kubernetes"
+        assert abbrevs["onnx"] == "open neural network exchange"
+
+    def test_data_science_mentions_key_terms(self):
+        """Data science guidance mentions EDA and analysis."""
+        guidance = get_domain_prompt_section("data_science")
+        assert "EDA" in guidance or "exploratory" in guidance.lower()
+        assert "feature" in guidance.lower()
+
+    def test_data_science_known_abbreviations(self):
+        """Data science has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("data_science")
+        assert abbrevs["eda"] == "exploratory data analysis"
+        assert abbrevs["kpi"] == "key performance indicator"
+        assert abbrevs["ltv"] == "lifetime value"

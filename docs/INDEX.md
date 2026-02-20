@@ -6,7 +6,7 @@
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
 - **KuzuDB**: ✅ Operational (307K concepts, 742K relationships, <300ms graph queries)
 - **MCP Server**: 19 tools available
-- **Domains**: 4 active (Causal Inference, Time Series, RAG & LLM, Interview Prep) + 1 infrastructure-ready (Healthcare)
+- **Domains**: 19 tagged (causal_inference, rag_llm, time_series, econometrics, software_engineering, deep_learning, mathematics, and 12 more)
 - **ProactiveContext**: Integrated via `fast_search` (~200ms latency)
 
 ---
@@ -38,6 +38,11 @@
 | D. Observability | ✅ Complete | Prometheus metrics, Grafana dashboard, KuzuDB benchmarks | [→](../CLAUDE.md#daemon-service) |
 | E. RAG/LLM Extraction | ✅ Complete | 23K concepts from 13 RAG/LLM textbooks (Haiku 4.5) | [→](status/REMEDIATION_LOG.md) |
 | F. Cross-Repo Integration | ✅ Complete | Lever health monitoring, interview readiness scorer | [→](INTEGRATION.md) |
+| G. Repository Hygiene | ✅ Complete | Pytest consolidation, test markers, pre-commit, scripts archive | [→](../CLAUDE.md) |
+| H. Multi-Domain Extraction | ✅ Complete | 9 new domain prompt configs (14 total), 162 tests | [→](../ROADMAP.md) |
+| I. CI Hardening | ✅ Complete | pytest-cov in PR checks, doc freshness gate, ROADMAP rewrite | [→](../ROADMAP.md) |
+| J. Eval Expansion | ✅ Complete | 55 retrieval test cases, 29 assumption methods, per-domain eval | [→](../ROADMAP.md) |
+| K. Doc Consolidation | ✅ Complete | CLAUDE.md, README, MEMORY.md refresh, zero audit warnings | [→](../ROADMAP.md) |
 
 ---
 

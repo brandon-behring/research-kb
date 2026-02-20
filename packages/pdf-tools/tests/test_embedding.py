@@ -4,6 +4,8 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
+pytestmark = [pytest.mark.unit, pytest.mark.requires_embedding]
+
 from research_kb_pdf import (
     EmbeddingClient,
     embed_text,

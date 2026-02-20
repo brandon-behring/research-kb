@@ -8,6 +8,8 @@ from unittest.mock import patch
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from research_kb_client import (
     ConnectionError,
     DaemonClient,

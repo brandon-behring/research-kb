@@ -260,6 +260,217 @@ test_cases:
     tags: [phase2, iv, weak_instruments]
     notes: "Phase 2 manual: IV robustness concern"
 
+  # ===== Phase J: Multi-Domain Expansion (2026-02-20) =====
+
+  # --- Time Series ---
+  - query: "ARIMA model identification"
+    expected_source_pattern: "time series|forecasting|shumway|stoffer"
+    expected_in_top_k: 5
+    expected_concepts: ["ARIMA", "autocorrelation", "differencing", "stationarity"]
+    relevance_grade: 3
+    tags: [phase_j, time_series]
+    notes: "Phase J: Time series core method"
+
+  - query: "exponential smoothing forecasting"
+    expected_source_pattern: "time series|forecasting|hyndman|holt"
+    expected_in_top_k: 5
+    expected_concepts: ["exponential smoothing", "Holt-Winters", "trend", "seasonality"]
+    relevance_grade: 3
+    tags: [phase_j, time_series]
+    notes: "Phase J: Forecasting core technique"
+
+  - query: "Granger causality temporal"
+    expected_source_pattern: "time series|hamilton|var|granger"
+    expected_in_top_k: 5
+    expected_concepts: ["Granger causality", "vector autoregression", "temporal ordering"]
+    relevance_grade: 3
+    tags: [phase_j, time_series]
+    notes: "Phase J: Temporal causality concept"
+
+  # --- Deep Learning ---
+  - query: "attention mechanism transformer architecture"
+    expected_source_pattern: "deep learning|transformer|attention|natural language"
+    expected_in_top_k: 5
+    expected_concepts: ["attention", "transformer", "self-attention", "multi-head"]
+    relevance_grade: 3
+    tags: [phase_j, deep_learning]
+    notes: "Phase J: Core DL architecture"
+
+  - query: "convolutional neural network image classification"
+    expected_source_pattern: "deep learning|cnn|convolutional|tensorflow|pattern"
+    expected_in_top_k: 5
+    expected_concepts: ["convolution", "pooling", "feature map", "filter"]
+    relevance_grade: 3
+    tags: [phase_j, deep_learning]
+    notes: "Phase J: CNN fundamentals"
+
+  - query: "vanishing gradient deep networks"
+    expected_source_pattern: "deep learning|evolutionary|gradient|neural"
+    expected_in_top_k: 5
+    expected_concepts: ["vanishing gradient", "residual connection", "batch normalization"]
+    relevance_grade: 3
+    tags: [phase_j, deep_learning]
+    notes: "Phase J: Training challenge"
+
+  # --- Software Engineering ---
+  - query: "SOLID design principles"
+    expected_source_pattern: "code|software|design|clean|skills"
+    expected_in_top_k: 5
+    expected_concepts: ["single responsibility", "open-closed", "dependency inversion"]
+    relevance_grade: 3
+    tags: [phase_j, software_engineering]
+    notes: "Phase J: Design principles"
+
+  - query: "microservice vs monolith architecture"
+    expected_source_pattern: "software|architecture|microservice|monolith|code"
+    expected_in_top_k: 5
+    expected_concepts: ["microservice", "monolith", "coupling", "scalability"]
+    relevance_grade: 3
+    tags: [phase_j, software_engineering]
+    notes: "Phase J: Architecture decision"
+
+  - query: "continuous integration deployment pipeline"
+    expected_source_pattern: "github|actions|publishing|python|ci|deployment|code"
+    expected_in_top_k: 5
+    expected_concepts: ["continuous integration", "deployment", "pipeline", "automation"]
+    relevance_grade: 3
+    tags: [phase_j, software_engineering]
+    notes: "Phase J: CI/CD practices"
+
+  # --- Statistics ---
+  - query: "Bayesian posterior inference"
+    expected_source_pattern: "bayesian|statistics|posterior|gelman|donovan"
+    expected_in_top_k: 5
+    expected_concepts: ["posterior", "prior", "likelihood", "Bayes theorem"]
+    relevance_grade: 3
+    tags: [phase_j, statistics]
+    notes: "Phase J: Bayesian inference"
+
+  - query: "hypothesis testing p-value"
+    expected_source_pattern: "statistics|openintro|hypothesis|biostat"
+    expected_in_top_k: 5
+    expected_concepts: ["p-value", "null hypothesis", "type I error", "significance"]
+    relevance_grade: 3
+    tags: [phase_j, statistics]
+    notes: "Phase J: Frequentist inference"
+
+  - query: "bootstrap confidence interval"
+    expected_source_pattern: "statistics|bootstrap|biostat|resampling"
+    expected_in_top_k: 5
+    expected_concepts: ["bootstrap", "confidence interval", "resampling"]
+    relevance_grade: 3
+    tags: [phase_j, statistics]
+    notes: "Phase J: Nonparametric inference"
+
+  # --- Machine Learning ---
+  - query: "random forest ensemble learning"
+    expected_source_pattern: "ensemble|random forest|machine learning|bagging"
+    expected_in_top_k: 5
+    expected_concepts: ["random forest", "bagging", "feature importance", "ensemble"]
+    relevance_grade: 3
+    tags: [phase_j, machine_learning]
+    notes: "Phase J: Ensemble method"
+
+  - query: "gradient boosting XGBoost"
+    expected_source_pattern: "ensemble|gradient|boosting|machine learning"
+    expected_in_top_k: 5
+    expected_concepts: ["gradient boosting", "XGBoost", "residual fitting", "ensemble"]
+    relevance_grade: 3
+    tags: [phase_j, machine_learning]
+    notes: "Phase J: Boosting method"
+
+  - query: "bias variance tradeoff model selection"
+    expected_source_pattern: "machine learning|mathematics|learning|pattern"
+    expected_in_top_k: 5
+    expected_concepts: ["bias-variance tradeoff", "overfitting", "underfitting", "generalization"]
+    relevance_grade: 3
+    tags: [phase_j, machine_learning]
+    notes: "Phase J: Fundamental ML concept"
+
+  # --- Finance ---
+  - query: "Black-Scholes option pricing model"
+    expected_source_pattern: "option|derivatives|hull|hardy|pricing"
+    expected_in_top_k: 5
+    expected_concepts: ["Black-Scholes", "option pricing", "volatility", "geometric Brownian motion"]
+    relevance_grade: 3
+    tags: [phase_j, finance]
+    notes: "Phase J: Core pricing model"
+
+  - query: "portfolio optimization mean variance"
+    expected_source_pattern: "portfolio|investment|optimization|finance|risk"
+    expected_in_top_k: 5
+    expected_concepts: ["mean-variance optimization", "efficient frontier", "Sharpe ratio"]
+    relevance_grade: 3
+    tags: [phase_j, finance]
+    notes: "Phase J: Portfolio theory"
+
+  - query: "value at risk VaR estimation"
+    expected_source_pattern: "risk|derivatives|hull|finance|value"
+    expected_in_top_k: 5
+    expected_concepts: ["value at risk", "VaR", "expected shortfall", "risk measure"]
+    relevance_grade: 3
+    tags: [phase_j, finance]
+    notes: "Phase J: Risk management"
+
+  # --- Econometrics ---
+  - query: "Gauss-Markov theorem OLS"
+    expected_source_pattern: "econometric|analysis|wooldridge|panel|harmless"
+    expected_in_top_k: 5
+    expected_concepts: ["Gauss-Markov", "BLUE", "homoskedasticity", "exogeneity"]
+    relevance_grade: 3
+    tags: [phase_j, econometrics]
+    notes: "Phase J: Fundamental econometrics result"
+
+  - query: "Hausman test fixed effects random effects"
+    expected_source_pattern: "econometric|panel|wooldridge|analysis"
+    expected_in_top_k: 5
+    expected_concepts: ["Hausman test", "fixed effects", "random effects", "specification test"]
+    relevance_grade: 3
+    tags: [phase_j, econometrics]
+    notes: "Phase J: Panel data specification"
+
+  # --- RAG & LLM ---
+  - query: "retrieval augmented generation architecture"
+    expected_source_pattern: "agents|action|generative|rag|retrieval"
+    expected_in_top_k: 5
+    expected_concepts: ["RAG", "retrieval", "generation", "context window"]
+    relevance_grade: 3
+    tags: [phase_j, rag_llm]
+    notes: "Phase J: RAG architecture"
+
+  - query: "chain of thought prompting"
+    expected_source_pattern: "language|model|prompt|generative|few-shot"
+    expected_in_top_k: 5
+    expected_concepts: ["chain-of-thought", "prompting", "reasoning", "few-shot"]
+    relevance_grade: 3
+    tags: [phase_j, rag_llm]
+    notes: "Phase J: Prompting technique"
+
+  - query: "embedding similarity search"
+    expected_source_pattern: "embedding|retrieval|vector|agents|ai"
+    expected_in_top_k: 5
+    expected_concepts: ["embedding", "similarity", "cosine similarity", "dense retrieval"]
+    relevance_grade: 3
+    tags: [phase_j, rag_llm]
+    notes: "Phase J: Retrieval mechanism"
+
+  # --- Mathematics ---
+  - query: "singular value decomposition"
+    expected_source_pattern: "linear algebra|mathematics|machine|matrix"
+    expected_in_top_k: 5
+    expected_concepts: ["SVD", "eigenvalue", "low-rank approximation", "matrix factorization"]
+    relevance_grade: 3
+    tags: [phase_j, mathematics]
+    notes: "Phase J: Core linear algebra"
+
+  - query: "gradient descent optimization convergence"
+    expected_source_pattern: "optimization|mathematics|machine|deep"
+    expected_in_top_k: 5
+    expected_concepts: ["gradient descent", "convergence", "learning rate", "convexity"]
+    relevance_grade: 3
+    tags: [phase_j, mathematics]
+    notes: "Phase J: Optimization fundamentals"
+
 # Metrics targets (Master Plan Lines 1382-1383)
 metrics:
   precision_at_5:

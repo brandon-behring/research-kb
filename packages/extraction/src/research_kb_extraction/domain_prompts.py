@@ -295,6 +295,547 @@ Broader concepts (use when more appropriate):
             "sim": "similarity",
         },
     },
+    "econometrics": {
+        "name": "Econometrics",
+        "description": "Econometric theory, estimation, inference, and applied microeconometrics",
+        "concept_type_guidance": """Econometrics:
+1. method: Estimation methods (e.g., OLS, GLS, 2SLS, GMM, MLE, quantile regression, panel estimators)
+2. assumption: Conditions for consistency/efficiency (e.g., exogeneity, homoskedasticity, rank condition, correct specification)
+3. problem: Estimation challenges (e.g., endogeneity, multicollinearity, heteroskedasticity, serial correlation, weak instruments)
+4. theorem: Asymptotic results (e.g., Gauss-Markov, CLT, LLN, delta method, Cramér-Rao bound)
+5. definition: Formal quantities (e.g., estimator, standard error, t-statistic, F-statistic, R-squared)
+6. model: Econometric models (e.g., linear regression, probit, logit, tobit, Heckman selection, simultaneous equations)
+
+Broader concepts (use when more appropriate):
+7. technique: Applied procedures (e.g., HAC standard errors, cluster-robust SE, bootstrap, jackknife)
+8. concept: General ideas (e.g., identification, consistency, efficiency, asymptotic normality)
+9. principle: Foundational principles (e.g., parsimony, Frisch-Waugh-Lovell, law of iterated expectations)""",
+        "examples": [
+            "OLS requires exogeneity and homoskedasticity for BLUE",
+            "2SLS addresses endogeneity using instrumental variables",
+            "Heteroskedasticity-robust SE relaxes constant variance assumption",
+            "Hausman test compares FE vs RE estimators",
+            "GMM generalizes IV estimation to overidentified models",
+            "Heckman selection corrects for sample selection bias",
+        ],
+        "abbreviations": {
+            "ols": "ordinary least squares",
+            "gls": "generalized least squares",
+            "wls": "weighted least squares",
+            "fgls": "feasible generalized least squares",
+            "2sls": "two-stage least squares",
+            "3sls": "three-stage least squares",
+            "gmm": "generalized method of moments",
+            "mle": "maximum likelihood estimation",
+            "qr": "quantile regression",
+            "iv": "instrumental variables",
+            "fe": "fixed effects",
+            "re": "random effects",
+            "hac": "heteroskedasticity and autocorrelation consistent",
+            "se": "standard error",
+            "aic": "akaike information criterion",
+            "bic": "bayesian information criterion",
+            "dw": "durbin-watson",
+            "lm": "lagrange multiplier",
+            "lr": "likelihood ratio",
+            "wald": "wald test",
+            "blue": "best linear unbiased estimator",
+            "clt": "central limit theorem",
+            "lln": "law of large numbers",
+            "sur": "seemingly unrelated regressions",
+            "var": "vector autoregression",
+            "vecm": "vector error correction model",
+            "arma": "autoregressive moving average",
+            "garch": "generalized autoregressive conditional heteroskedasticity",
+            "probit": "probit model",
+            "logit": "logit model",
+            "tobit": "tobit model",
+            "fwl": "frisch-waugh-lovell",
+            "iid": "independent and identically distributed",
+            "dgp": "data generating process",
+            "pdf": "probability density function",
+            "cdf": "cumulative distribution function",
+            "mse": "mean squared error",
+            "rmse": "root mean squared error",
+            "r2": "r-squared",
+            "vif": "variance inflation factor",
+        },
+    },
+    "software_engineering": {
+        "name": "Software Engineering",
+        "description": "Software design, architecture, patterns, testing, and development practices",
+        "concept_type_guidance": """Software engineering:
+1. concept: Core concepts (e.g., abstraction, encapsulation, cohesion, coupling, modularity, separation of concerns)
+2. technique: Development techniques (e.g., TDD, code review, continuous integration, refactoring, pair programming)
+3. model: Design patterns and architectures (e.g., MVC, microservices, event-driven, hexagonal, CQRS)
+4. principle: Design principles (e.g., SOLID, DRY, YAGNI, KISS, open-closed, dependency inversion)
+5. problem: Engineering challenges (e.g., technical debt, race conditions, memory leaks, scaling bottlenecks)
+6. definition: Formal terms (e.g., API, interface, contract, invariant, precondition, postcondition)
+
+Broader concepts (use when more appropriate):
+7. method: Formal methodologies (e.g., Agile, Scrum, Kanban, waterfall)
+8. technique: Testing strategies (e.g., unit testing, integration testing, property-based testing, fuzzing)
+9. model: Data structures and algorithms when architecturally relevant""",
+        "examples": [
+            "SOLID principles guide class design for maintainability",
+            "Microservices address monolith scaling problems",
+            "Dependency injection enables testability and loose coupling",
+            "Event sourcing provides complete audit trail of state changes",
+            "Circuit breaker pattern prevents cascading failures",
+            "Technical debt accumulates from deferred refactoring",
+        ],
+        "abbreviations": {
+            "api": "application programming interface",
+            "rest": "representational state transfer",
+            "grpc": "google remote procedure call",
+            "graphql": "graph query language",
+            "mvc": "model view controller",
+            "mvvm": "model view viewmodel",
+            "cqrs": "command query responsibility segregation",
+            "ddd": "domain-driven design",
+            "tdd": "test-driven development",
+            "bdd": "behavior-driven development",
+            "ci": "continuous integration",
+            "cd": "continuous deployment",
+            "cicd": "continuous integration continuous deployment",
+            "solid": "single responsibility open-closed liskov substitution interface segregation dependency inversion",
+            "dry": "don't repeat yourself",
+            "yagni": "you ain't gonna need it",
+            "kiss": "keep it simple stupid",
+            "orm": "object-relational mapping",
+            "crud": "create read update delete",
+            "rpc": "remote procedure call",
+            "sdk": "software development kit",
+            "sla": "service level agreement",
+            "slo": "service level objective",
+            "sre": "site reliability engineering",
+            "k8s": "kubernetes",
+            "cli": "command-line interface",
+            "gui": "graphical user interface",
+            "ide": "integrated development environment",
+            "vcs": "version control system",
+            "pr": "pull request",
+            "cr": "code review",
+            "lsp": "language server protocol",
+            "ast": "abstract syntax tree",
+            "gc": "garbage collection",
+            "jit": "just-in-time compilation",
+            "aot": "ahead-of-time compilation",
+            "ioc": "inversion of control",
+            "di": "dependency injection",
+        },
+    },
+    "deep_learning": {
+        "name": "Deep Learning",
+        "description": "Neural networks, architectures, training techniques, and representation learning",
+        "concept_type_guidance": """Deep learning:
+1. model: Network architectures (e.g., CNN, RNN, transformer, GAN, VAE, diffusion model, U-Net)
+2. technique: Training techniques (e.g., dropout, batch normalization, learning rate scheduling, gradient clipping, mixed precision)
+3. concept: Theoretical ideas (e.g., backpropagation, gradient flow, representation learning, transfer learning, attention)
+4. problem: Training challenges (e.g., vanishing gradients, overfitting, mode collapse, catastrophic forgetting, distribution shift)
+5. definition: Key terms (e.g., loss function, activation function, weight initialization, learning rate, batch size)
+6. method: Optimization algorithms (e.g., SGD, Adam, AdamW, LAMB, SAM)
+
+Broader concepts (use when more appropriate):
+7. principle: Design heuristics (e.g., residual connections, skip connections, normalization before activation)
+8. theorem: Theoretical results (e.g., universal approximation, lottery ticket hypothesis, neural tangent kernel)
+9. assumption: Implicit assumptions (e.g., IID training data, stationarity, smoothness of loss landscape)""",
+        "examples": [
+            "Residual connections address vanishing gradient in deep networks",
+            "Batch normalization stabilizes training by normalizing activations",
+            "Attention mechanism enables transformer to model long-range dependencies",
+            "Dropout acts as implicit ensemble regularization",
+            "Transfer learning leverages pretrained representations for new tasks",
+            "GAN training suffers from mode collapse",
+        ],
+        "abbreviations": {
+            "cnn": "convolutional neural network",
+            "rnn": "recurrent neural network",
+            "lstm": "long short-term memory",
+            "gru": "gated recurrent unit",
+            "gan": "generative adversarial network",
+            "vae": "variational autoencoder",
+            "ae": "autoencoder",
+            "mlp": "multi-layer perceptron",
+            "ffn": "feed-forward network",
+            "bn": "batch normalization",
+            "ln": "layer normalization",
+            "gn": "group normalization",
+            "relu": "rectified linear unit",
+            "gelu": "gaussian error linear unit",
+            "silu": "sigmoid linear unit",
+            "swish": "swish activation",
+            "sgd": "stochastic gradient descent",
+            "adam": "adaptive moment estimation",
+            "adamw": "adam with weight decay",
+            "lr": "learning rate",
+            "wd": "weight decay",
+            "nll": "negative log-likelihood",
+            "ce": "cross-entropy",
+            "bce": "binary cross-entropy",
+            "mse": "mean squared error",
+            "mae": "mean absolute error",
+            "kl": "kullback-leibler divergence",
+            "gpu": "graphics processing unit",
+            "tpu": "tensor processing unit",
+            "fp16": "half-precision floating point",
+            "bf16": "brain floating point 16",
+            "flops": "floating point operations per second",
+            "resnet": "residual network",
+            "vgg": "visual geometry group network",
+            "unet": "u-shaped network",
+            "vit": "vision transformer",
+            "clip": "contrastive language-image pretraining",
+            "ddpm": "denoising diffusion probabilistic model",
+            "ema": "exponential moving average",
+            "ntk": "neural tangent kernel",
+            "nas": "neural architecture search",
+        },
+    },
+    "mathematics": {
+        "name": "Mathematics",
+        "description": "Pure and applied mathematics: linear algebra, probability, optimization, analysis",
+        "concept_type_guidance": """Mathematics:
+1. theorem: Named results and propositions (e.g., Bayes' theorem, spectral theorem, Bolzano-Weierstrass, dominated convergence)
+2. definition: Formal definitions (e.g., metric space, eigenvalue, sigma-algebra, Hilbert space, convexity)
+3. concept: Abstract ideas (e.g., convergence, continuity, orthogonality, duality, compactness)
+4. method: Computational methods (e.g., Gaussian elimination, Newton's method, simplex, gradient descent, SVD)
+5. principle: Mathematical principles (e.g., pigeonhole, mathematical induction, contraction mapping, minimax)
+6. technique: Proof and computation techniques (e.g., epsilon-delta, diagonalization, Lagrange multipliers, change of variables)
+
+Broader concepts (use when more appropriate):
+7. model: Mathematical models/frameworks (e.g., Markov chain, random walk, linear program, stochastic process)
+8. problem: Open problems or problem classes (e.g., NP-completeness, halting problem, traveling salesman)
+9. assumption: Regularity conditions (e.g., differentiability, integrability, measurability, boundedness)""",
+        "examples": [
+            "Spectral theorem decomposes symmetric matrices into eigenvalue-eigenvector pairs",
+            "Bayes' theorem relates posterior to prior and likelihood",
+            "SVD provides optimal low-rank approximation",
+            "Gradient descent minimizes differentiable functions iteratively",
+            "Central limit theorem guarantees asymptotic normality of sample means",
+            "Contraction mapping principle ensures fixed-point existence and uniqueness",
+        ],
+        "abbreviations": {
+            "svd": "singular value decomposition",
+            "pca": "principal component analysis",
+            "evd": "eigenvalue decomposition",
+            "qr": "qr decomposition",
+            "lu": "lower-upper decomposition",
+            "clt": "central limit theorem",
+            "lln": "law of large numbers",
+            "pdf": "probability density function",
+            "cdf": "cumulative distribution function",
+            "pmf": "probability mass function",
+            "mgf": "moment generating function",
+            "iid": "independent and identically distributed",
+            "rv": "random variable",
+            "ev": "expected value",
+            "var": "variance",
+            "cov": "covariance",
+            "mle": "maximum likelihood estimation",
+            "map": "maximum a posteriori",
+            "kl": "kullback-leibler",
+            "lp": "linear program",
+            "qp": "quadratic program",
+            "sdp": "semidefinite program",
+            "np": "nondeterministic polynomial",
+            "iff": "if and only if",
+            "wlog": "without loss of generality",
+            "rhs": "right-hand side",
+            "lhs": "left-hand side",
+            "ode": "ordinary differential equation",
+            "pde": "partial differential equation",
+            "sde": "stochastic differential equation",
+            "bvp": "boundary value problem",
+            "ivp": "initial value problem",
+            "fps": "formal power series",
+            "gf": "generating function",
+        },
+    },
+    "machine_learning": {
+        "name": "Machine Learning",
+        "description": "Classical ML algorithms, model selection, feature engineering, and evaluation",
+        "concept_type_guidance": """Machine learning:
+1. method: Learning algorithms (e.g., random forest, SVM, k-NN, gradient boosting, logistic regression, naive Bayes)
+2. technique: ML workflow techniques (e.g., cross-validation, hyperparameter tuning, feature selection, dimensionality reduction)
+3. concept: Core ideas (e.g., bias-variance tradeoff, generalization, regularization, ensemble learning, kernel trick)
+4. problem: ML challenges (e.g., overfitting, underfitting, class imbalance, curse of dimensionality, data leakage)
+5. definition: Key metrics and terms (e.g., accuracy, precision, recall, F1, AUC-ROC, confusion matrix)
+6. model: Model families (e.g., decision tree, linear model, kernel machine, ensemble, Bayesian model)
+
+Broader concepts (use when more appropriate):
+7. theorem: Theoretical results (e.g., no free lunch, PAC learning, VC dimension bounds)
+8. principle: ML best practices (e.g., Occam's razor, train/test split, stratified sampling)
+9. assumption: Model assumptions (e.g., linearity, independence, distributional assumptions)""",
+        "examples": [
+            "Random forest reduces variance through bagging and feature subsampling",
+            "SVM maximizes margin between classes using kernel trick",
+            "Cross-validation estimates generalization error without held-out test set",
+            "L1 regularization induces sparsity in feature weights",
+            "Gradient boosting sequentially fits residuals to reduce bias",
+            "Class imbalance causes classifiers to favor majority class",
+        ],
+        "abbreviations": {
+            "ml": "machine learning",
+            "svm": "support vector machine",
+            "svr": "support vector regression",
+            "knn": "k-nearest neighbors",
+            "rf": "random forest",
+            "gbm": "gradient boosting machine",
+            "xgb": "extreme gradient boosting",
+            "lgbm": "light gradient boosting machine",
+            "dt": "decision tree",
+            "nb": "naive bayes",
+            "lr": "logistic regression",
+            "lda": "linear discriminant analysis",
+            "pca": "principal component analysis",
+            "tsne": "t-distributed stochastic neighbor embedding",
+            "umap": "uniform manifold approximation and projection",
+            "cv": "cross-validation",
+            "auc": "area under the curve",
+            "roc": "receiver operating characteristic",
+            "pr": "precision-recall",
+            "f1": "f1 score",
+            "tp": "true positive",
+            "fp": "false positive",
+            "tn": "true negative",
+            "fn": "false negative",
+            "fpr": "false positive rate",
+            "tpr": "true positive rate",
+            "vc": "vapnik-chervonenkis",
+            "pac": "probably approximately correct",
+            "erm": "empirical risk minimization",
+            "srm": "structural risk minimization",
+            "rbf": "radial basis function",
+            "smote": "synthetic minority oversampling technique",
+            "shap": "shapley additive explanations",
+            "lime": "local interpretable model-agnostic explanations",
+        },
+    },
+    "finance": {
+        "name": "Finance",
+        "description": "Quantitative finance, asset pricing, risk management, and financial modeling",
+        "concept_type_guidance": """Quantitative finance:
+1. model: Pricing and risk models (e.g., Black-Scholes, CAPM, Fama-French, GARCH, Hull-White, copula)
+2. concept: Core ideas (e.g., arbitrage, risk-neutral pricing, no-arbitrage, efficient market hypothesis, alpha, beta)
+3. method: Quantitative methods (e.g., Monte Carlo simulation, bootstrap, VaR calculation, delta hedging, mean-variance optimization)
+4. definition: Financial terms (e.g., Sharpe ratio, volatility, Greeks, yield curve, duration, convexity)
+5. problem: Financial challenges (e.g., fat tails, model risk, liquidity risk, regime changes, correlation breakdown)
+6. principle: Financial principles (e.g., diversification, risk-return tradeoff, put-call parity, law of one price)
+
+Broader concepts (use when more appropriate):
+7. technique: Implementation techniques (e.g., numerical integration, finite differences, lattice methods)
+8. theorem: Theoretical results (e.g., fundamental theorem of asset pricing, Girsanov, Itô's lemma)
+9. assumption: Model assumptions (e.g., log-normal returns, constant volatility, complete markets)""",
+        "examples": [
+            "Black-Scholes assumes geometric Brownian motion and constant volatility",
+            "CAPM prices assets using systematic risk (beta) only",
+            "VaR estimates maximum loss at given confidence level",
+            "Fama-French extends CAPM with size and value factors",
+            "Monte Carlo simulation prices path-dependent derivatives",
+            "Fat tails violate normal distribution assumption in risk models",
+        ],
+        "abbreviations": {
+            "capm": "capital asset pricing model",
+            "apt": "arbitrage pricing theory",
+            "bs": "black-scholes",
+            "var": "value at risk",
+            "cvar": "conditional value at risk",
+            "es": "expected shortfall",
+            "emh": "efficient market hypothesis",
+            "mpt": "modern portfolio theory",
+            "mvo": "mean-variance optimization",
+            "etf": "exchange-traded fund",
+            "ipo": "initial public offering",
+            "otc": "over the counter",
+            "p/e": "price to earnings",
+            "eps": "earnings per share",
+            "roi": "return on investment",
+            "irr": "internal rate of return",
+            "npv": "net present value",
+            "dcf": "discounted cash flow",
+            "wacc": "weighted average cost of capital",
+            "ebitda": "earnings before interest taxes depreciation and amortization",
+            "ytm": "yield to maturity",
+            "libor": "london interbank offered rate",
+            "sofr": "secured overnight financing rate",
+            "cds": "credit default swap",
+            "mbs": "mortgage-backed security",
+            "abs": "asset-backed security",
+            "cdo": "collateralized debt obligation",
+            "gbm": "geometric brownian motion",
+            "sde": "stochastic differential equation",
+            "pde": "partial differential equation",
+            "mc": "monte carlo",
+            "ewma": "exponentially weighted moving average",
+            "garch": "generalized autoregressive conditional heteroskedasticity",
+        },
+    },
+    "statistics": {
+        "name": "Statistics",
+        "description": "Statistical theory, inference, hypothesis testing, and Bayesian methods",
+        "concept_type_guidance": """Statistics:
+1. method: Statistical methods (e.g., hypothesis testing, confidence intervals, bootstrap, permutation test, ANOVA, chi-squared test)
+2. theorem: Theoretical results (e.g., Neyman-Pearson lemma, Rao-Blackwell, sufficiency, completeness, central limit theorem)
+3. definition: Formal definitions (e.g., p-value, power, type I error, type II error, sufficient statistic, estimator)
+4. concept: Core ideas (e.g., likelihood, sufficiency, ancillarity, exponential family, exchangeability, conjugacy)
+5. problem: Statistical challenges (e.g., multiple testing, Simpson's paradox, ecological fallacy, survivorship bias)
+6. model: Statistical models (e.g., GLM, mixed effects, hierarchical Bayes, copula, nonparametric density estimation)
+
+Broader concepts (use when more appropriate):
+7. principle: Foundational principles (e.g., likelihood principle, sufficiency principle, conditionality principle)
+8. technique: Computational techniques (e.g., EM algorithm, MCMC, importance sampling, variational inference)
+9. assumption: Model assumptions (e.g., normality, independence, equal variance, random sampling)""",
+        "examples": [
+            "Neyman-Pearson lemma gives most powerful test for simple hypotheses",
+            "Bootstrap estimates sampling distribution without parametric assumptions",
+            "Multiple testing inflates family-wise error rate",
+            "MCMC samples from posterior distribution for Bayesian inference",
+            "Sufficient statistic captures all information about parameter",
+            "Simpson's paradox reverses association direction when data aggregated",
+        ],
+        "abbreviations": {
+            "mle": "maximum likelihood estimation",
+            "map": "maximum a posteriori",
+            "ols": "ordinary least squares",
+            "glm": "generalized linear model",
+            "gam": "generalized additive model",
+            "lmm": "linear mixed model",
+            "glmm": "generalized linear mixed model",
+            "anova": "analysis of variance",
+            "manova": "multivariate analysis of variance",
+            "ancova": "analysis of covariance",
+            "ci": "confidence interval",
+            "pi": "prediction interval",
+            "se": "standard error",
+            "df": "degrees of freedom",
+            "ss": "sum of squares",
+            "em": "expectation maximization",
+            "mcmc": "markov chain monte carlo",
+            "mh": "metropolis-hastings",
+            "hmc": "hamiltonian monte carlo",
+            "nuts": "no-u-turn sampler",
+            "vi": "variational inference",
+            "bic": "bayesian information criterion",
+            "aic": "akaike information criterion",
+            "dic": "deviance information criterion",
+            "waic": "widely applicable information criterion",
+            "loo": "leave-one-out",
+            "fdr": "false discovery rate",
+            "fwer": "family-wise error rate",
+            "bh": "benjamini-hochberg",
+            "ks": "kolmogorov-smirnov",
+            "qq": "quantile-quantile",
+            "kde": "kernel density estimation",
+            "cdf": "cumulative distribution function",
+            "pdf": "probability density function",
+            "iid": "independent and identically distributed",
+        },
+    },
+    "ml_engineering": {
+        "name": "ML Engineering",
+        "description": "ML systems, MLOps, model deployment, monitoring, and production pipelines",
+        "concept_type_guidance": """ML engineering / MLOps:
+1. concept: Infrastructure concepts (e.g., feature store, model registry, data pipeline, experiment tracking, model serving)
+2. technique: Operational techniques (e.g., A/B testing, canary deployment, shadow mode, model monitoring, data validation)
+3. problem: Production challenges (e.g., training-serving skew, data drift, concept drift, pipeline debt, model staleness)
+4. principle: Engineering principles (e.g., reproducibility, idempotency, schema evolution, graceful degradation)
+5. definition: Key terms (e.g., latency, throughput, SLA, batch vs streaming, online vs offline features)
+6. model: System architectures (e.g., lambda architecture, feature platform, inference server, DAG orchestrator)
+
+Broader concepts (use when more appropriate):
+7. method: Specific tools/frameworks when conceptually important (e.g., Kubernetes, Airflow, MLflow, Feast)
+8. technique: Optimization for serving (e.g., model quantization, distillation, pruning, ONNX export, TensorRT)
+9. assumption: Implicit assumptions (e.g., data stationarity, feature availability at serving time)""",
+        "examples": [
+            "Feature store ensures consistent features between training and serving",
+            "Training-serving skew causes silent model degradation",
+            "Canary deployment limits blast radius of model updates",
+            "Data drift detection monitors input distribution changes",
+            "Model quantization reduces serving latency at cost of accuracy",
+            "Experiment tracking enables reproducible model comparisons",
+        ],
+        "abbreviations": {
+            "mlops": "machine learning operations",
+            "etl": "extract transform load",
+            "elt": "extract load transform",
+            "dag": "directed acyclic graph",
+            "api": "application programming interface",
+            "sdk": "software development kit",
+            "sla": "service level agreement",
+            "slo": "service level objective",
+            "sli": "service level indicator",
+            "ci": "continuous integration",
+            "cd": "continuous deployment",
+            "k8s": "kubernetes",
+            "gpu": "graphics processing unit",
+            "tpu": "tensor processing unit",
+            "onnx": "open neural network exchange",
+            "grpc": "google remote procedure call",
+            "rest": "representational state transfer",
+            "p50": "50th percentile latency",
+            "p99": "99th percentile latency",
+            "qps": "queries per second",
+            "rps": "requests per second",
+            "ttl": "time to live",
+            "cron": "time-based job scheduler",
+            "yaml": "yet another markup language",
+            "json": "javascript object notation",
+            "csv": "comma-separated values",
+            "blob": "binary large object",
+            "s3": "simple storage service",
+            "gcs": "google cloud storage",
+        },
+    },
+    "data_science": {
+        "name": "Data Science",
+        "description": "Data analysis, exploratory analysis, visualization, and applied analytics",
+        "concept_type_guidance": """Data science:
+1. technique: Analysis techniques (e.g., EDA, feature engineering, data wrangling, outlier detection, imputation)
+2. concept: Core ideas (e.g., data quality, reproducibility, storytelling with data, data governance, data lineage)
+3. method: Analytical methods (e.g., cohort analysis, funnel analysis, RFM segmentation, survival analysis, clustering)
+4. problem: Data challenges (e.g., missing data, selection bias, data leakage, Simpson's paradox, confounding)
+5. definition: Key terms (e.g., metric, KPI, funnel, cohort, segment, feature, target variable)
+6. principle: Best practices (e.g., start simple, iterate, validate assumptions, communicate uncertainty)
+
+Broader concepts (use when more appropriate):
+7. model: Analytical models when relevant (e.g., propensity model, churn model, LTV model)
+8. technique: Visualization techniques (e.g., heatmap, box plot, violin plot, pair plot)
+9. assumption: Analytical assumptions (e.g., representative sample, stationarity, causal vs correlational)""",
+        "examples": [
+            "EDA reveals data distributions and anomalies before modeling",
+            "Feature engineering transforms raw data into predictive signals",
+            "Cohort analysis tracks behavior of user groups over time",
+            "Data leakage inflates model performance during evaluation",
+            "Missing data imputation assumes specific missingness mechanisms",
+            "A/B testing requires proper randomization and sample sizing",
+        ],
+        "abbreviations": {
+            "eda": "exploratory data analysis",
+            "etl": "extract transform load",
+            "kpi": "key performance indicator",
+            "ltv": "lifetime value",
+            "cac": "customer acquisition cost",
+            "rfm": "recency frequency monetary",
+            "sql": "structured query language",
+            "csv": "comma-separated values",
+            "json": "javascript object notation",
+            "api": "application programming interface",
+            "ab": "a/b testing",
+            "mde": "minimum detectable effect",
+            "dag": "directed acyclic graph",
+            "bi": "business intelligence",
+            "olap": "online analytical processing",
+            "dim": "dimension",
+            "fk": "foreign key",
+            "pk": "primary key",
+            "null": "null value",
+            "nan": "not a number",
+            "iqr": "interquartile range",
+            "pca": "principal component analysis",
+            "tsne": "t-distributed stochastic neighbor embedding",
+        },
+    },
     "interview_prep": {
         "name": "Interview Preparation",
         "description": "ML/DS interview questions, solutions, and study materials",

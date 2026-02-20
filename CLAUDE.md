@@ -24,14 +24,17 @@ pytest packages/storage/tests/ -v
 pytest packages/pdf-tools/tests/ -v
 pytest packages/extraction/tests/ -v
 
-# By marker (limited coverage - see note below)
-pytest -m "unit"                    # Fast, isolated (6 tests in pdf-tools)
-pytest -m "integration"             # Multi-component (1 test)
-pytest -m "e2e"                     # Full pipeline (1 test)
-pytest -m "requires_reranker"       # Needs reranker service (3 tests)
-```
+# By marker (comprehensive coverage as of Phase G)
+pytest -m "unit"                    # ~1,570 tests (fast, mocked)
+pytest -m "integration"             # ~343 tests (needs PostgreSQL)
+pytest -m "requires_embedding"      # ~19 tests (needs embed_server)
+pytest -m "requires_reranker"       # ~20 tests (needs reranker model)
+pytest -m "requires_ollama"         # ~32 tests (needs Ollama)
 
-**Note on Test Markers**: Most tests currently lack markers. The marker system exists but coverage is sparse (Phase 5 in remediation plan). For now, run by package rather than marker.
+# CI-safe (excludes all service-dependent tests)
+pytest -m "unit and not requires_embedding and not requires_ollama and not requires_reranker and not requires_grobid"
+pytest -m "integration and not requires_embedding and not requires_ollama and not requires_reranker"
+```
 
 ### Installation
 
@@ -291,9 +294,9 @@ Single model: BGE-large-en-v1.5 (1024 dimensions). All vector columns are `vecto
 
 ## CI/CD Tiers
 
-1. **PR Checks** (<10 min): Unit + CLI tests with mocked services
-2. **Weekly Integration** (10 min, Sunday 2AM): Search pipeline + ingestion resilience + seed concept validation against PostgreSQL
-3. **Full Rebuild** (Planned): Complete from-scratch validation with full service stack
+1. **PR Checks** (<10 min): Unit + integration tests with mocked services, pytest-cov coverage reports (XML)
+2. **Weekly Integration** (10 min, Sunday 2AM): Search pipeline + quality tests + script tests + doc freshness gate (`audit_docs.py`, `generate_status.py --check`)
+3. **Full Rebuild** (Deferred): Complete from-scratch validation with full service stack — not yet implemented
 
 ## Data Protection
 

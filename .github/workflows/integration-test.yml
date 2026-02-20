@@ -8,7 +8,7 @@ on:
 jobs:
   integration-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     services:
       postgres:
@@ -39,9 +39,16 @@ jobs:
           pip install -e packages/contracts
           pip install -e packages/common
           pip install -e packages/storage
+          pip install -e packages/pdf-tools
           pip install -e packages/extraction
+          pip install -e packages/cli
+          pip install -e packages/client
+          pip install -e packages/daemon
+          pip install -e packages/api
+          pip install -e packages/mcp-server
+          pip install -e packages/s2-client
           pip install pyyaml
-          pip install pytest pytest-asyncio
+          pip install pytest pytest-asyncio pytest-cov
 
       - name: Apply database schema
         env:
@@ -57,7 +64,7 @@ jobs:
             psql -f "$migration"
           done
 
-      - name: Run integration tests
+      - name: Integration tests (DB only)
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
@@ -66,4 +73,45 @@ jobs:
           POSTGRES_PASSWORD: postgres
           TEST_DATABASE_NAME: research_kb_test
         run: |
-          pytest tests/integration/test_search_pipeline.py tests/integration/test_ingestion_resilience.py tests/integration/test_seed_concept_validation.py -v --tb=short
+          pytest packages/ tests/ \
+            -m "integration and not requires_embedding and not requires_ollama and not requires_reranker" \
+            -v --tb=short
+
+      - name: Quality tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: research_kb_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          TEST_DATABASE_NAME: research_kb_test
+        run: |
+          pytest tests/ \
+            -m "quality and not requires_embedding" \
+            -v --tb=short
+
+      - name: Script tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: research_kb_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          TEST_DATABASE_NAME: research_kb_test
+        run: |
+          pytest tests/scripts/ \
+            -m "scripts and not requires_embedding and not requires_ollama" \
+            -v --tb=short
+
+      - name: Doc freshness check
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: research_kb_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        run: |
+          echo "=== Documentation Audit ==="
+          python scripts/audit_docs.py || echo "::warning::Documentation audit found issues"
+          echo "=== Status Freshness Check ==="
+          python scripts/generate_status.py --check || echo "::warning::Status docs may be stale"
