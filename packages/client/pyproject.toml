@@ -24,6 +24,11 @@ classifiers = [
 dependencies = [
     "pydantic>=2.0",
 ]
+license = {text = "MIT"}
+
+[project.urls]
+Homepage = "https://github.com/brandonmbehring-dev/research-kb"
+Repository = "https://github.com/brandonmbehring-dev/research-kb"
 
 [project.optional-dependencies]
 dev = [

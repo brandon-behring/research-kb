@@ -1,299 +1,50 @@
-# Graph Search Default Validation Tracker
+# CI Validation Status
 
-**Purpose**: Track validation runs for graph search quality.
+**Status**: Complete
 
-**Status**: ✅ **Complete for Personal Use**
-
-**Note**: For personal use scope, graph search is already enabled by default. The 3-run validation was intended for multi-user production deployment.
+Both CI workflows are implemented and operational.
 
 ---
 
-## Validation Runs
+## Workflows
 
-### Run 1: 2025-12-04 ✅
-
-**Status**: ✅ **COMPLETE**
-
-**Trigger**: GitHub Actions - Weekly Full Rebuild (workflow_dispatch)
-
-**Quality Gates**:
-- [x] Corpus ingestion successful (~500 chunks)
-- [x] Retrieval validation passed (Precision@K ≥90%)
-- [x] Concept extraction completed (≥100 concepts)
-- [x] Seed concept validation passed (with warnings)
-- [x] Graph validation passed (relationships exist)
-- [x] All CLI tests passed (47 tests)
-- [x] All script tests passed (24 tests)
-- [x] Database cached successfully
-
-**Performance Metrics**:
-- Query latency p50: <50 ms
-- Query latency p95: <100 ms
-- Query latency p99: <200 ms
-- Corpus ingestion time: ~5 minutes
-- Concept extraction time: ~18 minutes (limit 1000 chunks)
-
-**Issues Found**: None (after CI fixes)
-
-**Notes**:
-- First successful run after CI pipeline fixes
-- Fixed embedding server health check (JSON over Unix socket, not HTTP)
-- Fixed disk space issue (added cleanup step to free ~8GB)
-- All 25 workflow steps passed
+| Workflow | File | Schedule | Status |
+|----------|------|----------|--------|
+| PR Checks | `pr-checks.yml` | Every PR | Active |
+| Integration Test | `integration-test.yml` | Sunday 2 AM UTC | Active |
+| Full Rebuild | `weekly-full-rebuild.yml` | Sunday 3 AM UTC | Active |
 
 ---
 
-### Run 2: Reserved for Production
+## Full Rebuild Pipeline
 
-**Status**: 📋 Reserved (Production)
+The `weekly-full-rebuild.yml` workflow validates the complete data path:
 
-**Note**: Reserved for multi-user production deployment validation. For personal use scope, single validation run is sufficient.
+1. Load demo corpus (9 open-access papers, ~1300 chunks)
+2. Generate embeddings (BGE-large-en-v1.5)
+3. Evaluate retrieval quality against 92-query golden dataset
+4. Run unit test suite
 
-**Trigger**: Manual via GitHub Actions UI (when production deployment planned)
+**Quality gate**: MRR >= 0.5 on golden dataset. Pipeline fails if threshold is not met.
 
-**Quality Gates**:
-- [ ] Corpus ingestion successful (~500 chunks)
-- [ ] Retrieval validation passed (Precision@K ≥90%)
-- [ ] Concept extraction completed (≥100 concepts)
-- [ ] Seed concept validation passed (Recall ≥70%)
-- [ ] Graph validation passed (relationships exist)
-- [ ] All CLI tests passed (47 tests)
-- [ ] All script tests passed (24 tests)
-- [ ] Database cached successfully
-
-**Performance Metrics**:
-- Query latency p50: ___ ms
-- Query latency p95: ___ ms
-- Query latency p99: ___ ms
-- Corpus ingestion time: ___ minutes
-- Concept extraction time: ___ minutes
-
-**Issues Found**: None
-
-**Notes**:
+**Artifacts**: `retrieval-metrics` JSON with hit_rate, MRR, NDCG, per-domain breakdown.
 
 ---
 
-### Run 3: Reserved for Production
+## How to Trigger
 
-**Status**: 📋 Reserved (Production)
-
-**Note**: Reserved for multi-user production deployment validation. For personal use scope, single validation run is sufficient.
-
-**Trigger**: Manual via GitHub Actions UI (when production deployment planned)
-
-**Quality Gates**:
-- [ ] Corpus ingestion successful (~500 chunks)
-- [ ] Retrieval validation passed (Precision@K ≥90%)
-- [ ] Concept extraction completed (≥100 concepts)
-- [ ] Seed concept validation passed (Recall ≥70%)
-- [ ] Graph validation passed (relationships exist)
-- [ ] All CLI tests passed (47 tests)
-- [ ] All script tests passed (24 tests)
-- [ ] Database cached successfully
-
-**Performance Metrics**:
-- Query latency p50: ___ ms
-- Query latency p95: ___ ms
-- Query latency p99: ___ ms
-- Corpus ingestion time: ___ minutes
-- Concept extraction time: ___ minutes
-
-**Issues Found**: None
-
-**Notes**:
+- **Automatic**: Runs every Sunday at 3 AM UTC
+- **Manual**: Actions tab > "Weekly Full Rebuild & Validation" > Run workflow
+- **CLI**: `gh workflow run weekly-full-rebuild.yml`
 
 ---
 
-## Aggregate Results
+## References
 
-**Runs**: 1/3 complete
-
-**Success Rate**: 100% (1/1)
-
-**Average Metrics**:
-- Query latency p50: <50 ms
-- Query latency p95: <100 ms
-- Query latency p99: <200 ms
-- Corpus ingestion time: ~5 minutes
-- Concept extraction time: ~18 minutes
-
-**Precision@K**: 100% (Run 1)
-
-**Concept Recall**: ≥70% (Run 1)
+- [CI Quick Reference](../VALIDATION_QUICK_REFERENCE.md)
+- [Trigger Instructions](../TRIGGER_VALIDATION_WORKFLOW.md)
+- [CI Quick Start](../VALIDATION_QUICK_START.md)
 
 ---
 
-## Quality Gate Thresholds
-
-### Must Pass (Blockers)
-
-| Metric | Threshold | Rationale |
-|--------|-----------|-----------|
-| **Corpus ingestion** | ≥450 chunks | Phase 1 target was ~500 chunks |
-| **Retrieval Precision@5** | ≥90% | Known-answer tests must pass |
-| **Test pass rate** | 100% | All tests must pass |
-| **Database caching** | Success | Daily validation depends on this |
-
-### Should Pass (Warnings)
-
-| Metric | Threshold | Rationale |
-|--------|-----------|-----------|
-| **Concept extraction** | ≥100 concepts | Minimum for graph signals |
-| **Seed concept recall** | ≥70% | Quality of extraction |
-| **Query latency p95** | <300ms | User experience |
-| **Concept extraction time** | <20min | CI timeout constraint |
-
-### May Fail (Acceptable)
-
-| Metric | Notes |
-|--------|-------|
-| **Ollama installation** | Optional, may not work in CI |
-| **Full concept extraction** | May timeout (20min limit) |
-
----
-
-## Decision Criteria
-
-**✅ APPROVE for production** if:
-- All 3 runs completed successfully
-- No blockers in any run
-- ≤1 warning per run
-- Performance stable across runs (±20%)
-
-**⚠️ CONDITIONAL APPROVAL** if:
-- 2/3 runs successful with only warnings
-- Warnings are understood and documented
-- Mitigation plan exists
-
-**❌ REJECT** if:
-- Any run has blockers
-- >1 run failed completely
-- Performance regressions >50%
-- Systematic issues across runs
-
----
-
-## How to Trigger Validation Runs
-
-### Option 1: Manual Workflow Dispatch (Recommended)
-
-1. Go to GitHub repository
-2. Navigate to **Actions** tab
-3. Select **"Weekly Full Rebuild & Validation"** workflow
-4. Click **"Run workflow"** button
-5. Select branch (usually `main`)
-6. Click **"Run workflow"**
-
-### Option 2: Command Line (gh CLI)
-
-```bash
-# Install GitHub CLI if not already installed
-# https://cli.github.com/
-
-# Trigger the workflow
-gh workflow run weekly-full-rebuild.yml
-
-# Check status
-gh run list --workflow=weekly-full-rebuild.yml
-
-# View logs
-gh run view <run-id> --log
-```
-
-### Option 3: Wait for Scheduled Run
-
-The workflow runs automatically every Sunday at 2 AM UTC. However, manual runs are recommended for validation to control timing.
-
----
-
-## Monitoring During Runs
-
-### GitHub Actions UI
-
-1. **Watch the workflow** in real-time via Actions tab
-2. **Check job logs** for errors or warnings
-3. **Download artifacts** (audit report, database dump)
-
-### Key Steps to Monitor
-
-| Step | Success Criteria | Failure Action |
-|------|------------------|----------------|
-| **Database creation** | Clean DB created | Check PostgreSQL logs |
-| **Schema migration** | All migrations applied | Review migration files |
-| **Embedding server** | Health check passes | Check port conflicts |
-| **Corpus ingestion** | ~500 chunks ingested | Review PDF files |
-| **Retrieval validation** | Precision@K ≥90% | Check test cases |
-| **Concept extraction** | ≥100 concepts extracted | Check Ollama status |
-| **Seed validation** | Recall ≥70% | Review seed concepts |
-| **All tests** | 100% pass rate | Fix failing tests |
-
----
-
-## Local Testing (Optional)
-
-You can also test locally before triggering CI:
-
-```bash
-# 1. Start services
-docker-compose up -d postgres
-python -m research_kb_pdf.embed_server &
-
-# 2. Run ingestion
-python scripts/ingest_corpus.py
-
-# 3. Run validation
-python scripts/eval_retrieval.py
-
-# 4. Extract concepts (if Ollama available)
-python scripts/extract_concepts.py --limit 1000
-
-# 5. Validate concepts
-python scripts/validate_seed_concepts.py
-
-# 6. Run tests
-pytest packages/cli/tests/ -v
-pytest tests/scripts/ -v
-```
-
----
-
-## After 3 Successful Runs
-
-Once all 3 runs are successful:
-
-1. ✅ **Update this document** with actual results
-2. ✅ **Update MIGRATION_GRAPH_DEFAULT.md** status to "Validated"
-3. ✅ **Create PR** to merge Phase 3C changes
-4. ✅ **Document decision** in PR description
-5. ✅ **Deploy to production** (if applicable)
-6. ✅ **Monitor production** metrics for first week
-7. ✅ **Update README** to remove "awaiting validation" notes
-
----
-
-## Rollback Triggers
-
-**Immediate rollback** if any of these occur:
-- Query latency p95 > 500ms
-- Error rate > 5%
-- User complaints about relevance degradation
-- Database connection pool exhaustion
-
-**Investigate and fix** if:
-- Query latency p95 > 300ms but <500ms
-- Error rate > 1% but <5%
-- Individual user complaints (check if valid)
-
----
-
-## Contact
-
-For questions or issues during validation:
-- GitHub Issues: [repository-url]/issues
-- Documentation: docs/MIGRATION_GRAPH_DEFAULT.md
-
----
-
-**Last Updated**: 2025-12-16
-**Next Review**: When production deployment planned
+**Last Updated**: 2026-02-20

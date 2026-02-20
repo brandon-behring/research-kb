@@ -21,6 +21,12 @@ dev = [
     "pytest-cov>=4.0",
 ]
 
+license = "MIT"
+
+[project.urls]
+Homepage = "https://github.com/brandonmbehring-dev/research-kb"
+Repository = "https://github.com/brandonmbehring-dev/research-kb"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

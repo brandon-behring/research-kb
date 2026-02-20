@@ -10,6 +10,12 @@ dependencies = [
 [project.scripts]
 research-kb = "research_kb_cli.main:main"
 
+license = "MIT"
+
+[project.urls]
+Homepage = "https://github.com/brandonmbehring-dev/research-kb"
+Repository = "https://github.com/brandonmbehring-dev/research-kb"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

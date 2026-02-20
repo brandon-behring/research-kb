@@ -5,6 +5,12 @@ description = "PDF extraction and chunking for research-kb system"
 authors = ["Brandon Behring"]
 packages = [{include = "research_kb_pdf", from = "src"}]
 
+license = "MIT"
+
+[tool.poetry.urls]
+Homepage = "https://github.com/brandonmbehring-dev/research-kb"
+Repository = "https://github.com/brandonmbehring-dev/research-kb"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 research-kb-contracts = {path = "../contracts", develop = true}

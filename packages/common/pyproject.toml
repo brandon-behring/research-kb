@@ -5,6 +5,12 @@ description = "Common utilities for research-kb system (logging, retry, instrume
 authors = ["Brandon Behring"]
 packages = [{include = "research_kb_common", from = "src"}]
 
+license = "MIT"
+
+[tool.poetry.urls]
+Homepage = "https://github.com/brandonmbehring-dev/research-kb"
+Repository = "https://github.com/brandonmbehring-dev/research-kb"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 research-kb-contracts = {path = "../contracts", develop = true}

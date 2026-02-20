@@ -30,25 +30,49 @@ def _get_password_from_env() -> str:
 class DatabaseConfig:
     """PostgreSQL connection configuration.
 
+    All connection fields read from environment variables with sensible defaults.
+    This makes ``DatabaseConfig()`` work both in local development (defaults)
+    and in CI (env vars from GitHub Actions service containers).
+
+    Environment variables:
+        POSTGRES_HOST     -> host     (default: "localhost")
+        POSTGRES_PORT     -> port     (default: 5432)
+        POSTGRES_DB       -> database (default: "research_kb")
+        POSTGRES_USER     -> user     (default: "postgres")
+        POSTGRES_PASSWORD -> password (default: "postgres")
+
     Attributes:
-        host: Database host (default: localhost)
-        port: Database port (default: 5432)
-        database: Database name (default: research_kb)
-        user: Database user (default: postgres)
-        password: Database password (default: postgres)
+        host: Database host
+        port: Database port
+        database: Database name
+        user: Database user
+        password: Database password
         min_pool_size: Minimum connection pool size (default: 2)
         max_pool_size: Maximum connection pool size (default: 10)
         command_timeout: Query timeout in seconds (default: 120.0)
     """
 
-    host: str = "localhost"
-    port: int = 5432
-    database: str = "research_kb"
-    user: str = "postgres"
-    password: str = "postgres"
+    host: str = None  # type: ignore[assignment]
+    port: int = None  # type: ignore[assignment]
+    database: str = None  # type: ignore[assignment]
+    user: str = None  # type: ignore[assignment]
+    password: str = None  # type: ignore[assignment]
     min_pool_size: int = 2
     max_pool_size: int = 10
     command_timeout: float = 120.0  # Increased for large batch inserts
+
+    def __post_init__(self) -> None:
+        """Populate connection fields from environment variables when not set."""
+        if self.host is None:
+            self.host = os.environ.get("POSTGRES_HOST", "localhost")
+        if self.port is None:
+            self.port = int(os.environ.get("POSTGRES_PORT", "5432"))
+        if self.database is None:
+            self.database = os.environ.get("POSTGRES_DB", "research_kb")
+        if self.user is None:
+            self.user = os.environ.get("POSTGRES_USER", "postgres")
+        if self.password is None:
+            self.password = _get_password_from_env()
 
     def get_dsn(self) -> str:
         """Get PostgreSQL DSN (Data Source Name).

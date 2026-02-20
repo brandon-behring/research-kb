@@ -524,6 +524,110 @@ def print_summary(results: list[TestResult], metrics: dict):
     print()
 
 
+async def run_golden_dataset_eval(
+    dataset_path: Path,
+    verbose: bool = False,
+    scoring_method: str = "weighted",
+) -> tuple[list[TestResult], dict]:
+    """Run evaluation against a golden dataset JSON file.
+
+    Golden dataset entries have: query, target_chunk_ids, domain, source_title, difficulty.
+    Evaluates whether target_chunk_ids appear in top-K search results.
+
+    Args:
+        dataset_path: Path to golden_dataset.json
+        verbose: Print detailed output
+        scoring_method: Score combination method
+
+    Returns:
+        Tuple of (results list, metrics dict)
+    """
+    with open(dataset_path) as f:
+        entries = json.load(f)
+
+    if not entries:
+        print("No entries in golden dataset!")
+        return [], {}
+
+    print(f"Running {len(entries)} golden dataset queries...")
+
+    config = DatabaseConfig()
+    pool = await get_connection_pool(config)
+    embed_client = EmbeddingClient()
+
+    results = []
+    for entry in entries:
+        query_text = entry["query"]
+        target_ids = {UUID(cid) for cid in entry.get("target_chunk_ids", [])}
+        source_title = entry.get("source_title", "?")
+        domain = entry.get("domain", "?")
+
+        if verbose:
+            print(f"  [{domain}] {query_text}")
+
+        try:
+            query_embedding = embed_client.embed_query(query_text)
+            query = SearchQuery(
+                text=query_text,
+                embedding=query_embedding,
+                fts_weight=0.3,
+                vector_weight=0.7,
+                limit=10,
+                scoring_method=scoring_method,
+            )
+            search_results = await search_hybrid(query)
+
+            # Check if any target chunk appears in results
+            matched_rank = None
+            matched_source = None
+            for r in search_results:
+                if r.chunk.id in target_ids:
+                    matched_rank = r.rank
+                    matched_source = r.source.title
+                    break
+
+            tc = TestCase(
+                query=query_text,
+                expected_source_pattern=re.escape(source_title[:30]),
+                expected_in_top_k=10,
+                tags=[domain] if domain else [],
+            )
+            result = TestResult(
+                test_case=tc,
+                passed=matched_rank is not None,
+                matched_rank=matched_rank,
+                matched_source=matched_source,
+                error=(
+                    None
+                    if matched_rank is not None
+                    else f"No target chunk found in top-10 for '{source_title[:50]}'"
+                ),
+            )
+            results.append(result)
+
+            if verbose:
+                status = "+" if result.passed else "-"
+                if result.passed:
+                    print(f"    {status} Rank {matched_rank}: {matched_source}")
+                else:
+                    top = [r.source.title[:40] for r in search_results[:3]]
+                    print(f"    {status} Not found. Top: {top}")
+
+        except Exception as e:
+            tc = TestCase(
+                query=query_text,
+                expected_source_pattern="",
+                expected_in_top_k=10,
+                tags=[domain] if domain else [],
+            )
+            results.append(TestResult(test_case=tc, passed=False, error=f"Error: {e}"))
+            if verbose:
+                print(f"    - Error: {e}")
+
+    metrics = compute_metrics_for_results(results)
+    return results, metrics
+
+
 async def main():
     """Main entry point."""
     import argparse
@@ -544,21 +648,43 @@ async def main():
         action="store_true",
         help="Show per-domain breakdown of Hit Rate, MRR, NDCG, Concept Recall",
     )
+    parser.add_argument(
+        "--dataset",
+        help="Path to golden_dataset.json (alternative to YAML test cases)",
+    )
+    parser.add_argument(
+        "--fail-below",
+        type=float,
+        default=None,
+        help="Exit non-zero if MRR falls below this threshold (e.g., 0.7)",
+    )
     args = parser.parse_args()
 
-    yaml_path = Path(__file__).parent.parent / "fixtures" / "eval" / "retrieval_test_cases.yaml"
-
-    if not yaml_path.exists():
-        print(f"Error: Test cases not found at {yaml_path}")
-        sys.exit(1)
-
     print(f"Scoring method: {args.scoring}")
-    results, metrics = await run_eval(
-        yaml_path,
-        tag_filter=args.tag,
-        verbose=args.verbose,
-        scoring_method=args.scoring,
-    )
+
+    # Choose evaluation mode: golden dataset JSON or YAML test cases
+    if args.dataset:
+        dataset_path = Path(args.dataset)
+        if not dataset_path.exists():
+            print(f"Error: Dataset not found at {dataset_path}")
+            sys.exit(1)
+        print(f"Using golden dataset: {dataset_path}")
+        results, metrics = await run_golden_dataset_eval(
+            dataset_path,
+            verbose=args.verbose,
+            scoring_method=args.scoring,
+        )
+    else:
+        yaml_path = Path(__file__).parent.parent / "fixtures" / "eval" / "retrieval_test_cases.yaml"
+        if not yaml_path.exists():
+            print(f"Error: Test cases not found at {yaml_path}")
+            sys.exit(1)
+        results, metrics = await run_eval(
+            yaml_path,
+            tag_filter=args.tag,
+            verbose=args.verbose,
+            scoring_method=args.scoring,
+        )
 
     print_summary(results, metrics)
 
@@ -576,6 +702,15 @@ async def main():
         with open(output_path, "w") as f:
             json.dump(output_data, f, indent=2)
         print(f"\nMetrics written to: {output_path}")
+
+    # MRR threshold gate (for CI)
+    if args.fail_below is not None:
+        mrr = metrics.get("mrr", 0.0)
+        if mrr < args.fail_below:
+            print(f"\nFAIL: MRR {mrr:.3f} below threshold {args.fail_below}")
+            sys.exit(1)
+        else:
+            print(f"\nPASS: MRR {mrr:.3f} >= threshold {args.fail_below}")
 
     # Exit with error code if tests failed
     if metrics.get("failed", 0) > 0:

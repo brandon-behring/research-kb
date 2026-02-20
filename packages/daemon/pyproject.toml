@@ -10,6 +10,12 @@ authors = ["Brandon Behring"]
 readme = "README.md"
 packages = [{include = "research_kb_daemon", from = "src"}]
 
+license = "MIT"
+
+[tool.poetry.urls]
+Homepage = "https://github.com/brandonmbehring-dev/research-kb"
+Repository = "https://github.com/brandonmbehring-dev/research-kb"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 research-kb-storage = {path = "../storage", develop = true}

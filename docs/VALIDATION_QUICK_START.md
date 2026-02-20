@@ -1,215 +1,88 @@
-# Quick Start: Graph Search Validation
+# CI Quick Start
 
-**Goal**: Run 3 successful validation runs to prove graph search quality before production deployment.
+How to read CI results and run validation locally.
 
 ---
 
-## TL;DR
+## Reading CI Results
+
+### PR Checks (every pull request)
+
+After opening a PR, the `pr-checks` workflow runs automatically. Check the **Checks** tab on your PR for:
+
+- Unit test results (pass/fail count)
+- Integration test results
+- Coverage report (XML artifact)
+
+### Full Rebuild (weekly or on-demand)
+
+The `weekly-full-rebuild` workflow validates the complete pipeline. After a run:
+
+1. Go to **Actions** > click on the run
+2. Check each step for green checkmarks
+3. Download the `retrieval-metrics` artifact for MRR, hit rate, and per-domain scores
+
+**Key metrics to check:**
+- **MRR** (Mean Reciprocal Rank): >= 0.5 required
+- **Hit Rate@K**: percentage of queries that find expected results
+- **Per-domain scores**: identify weak domains
+
+---
+
+## What Failures Mean
+
+| Failure | Likely Cause | Fix |
+|---------|-------------|-----|
+| Schema apply | Migration syntax error | Check `packages/storage/migrations/` |
+| Load demo data | Missing fixture files | Regenerate with `export_demo_data.py` |
+| Embedding timeout | Model not cached yet | Re-run (cache persists across runs) |
+| MRR below threshold | Golden dataset entries lack matching chunks | Update `fixtures/eval/golden_dataset.json` |
+| Unit tests fail | Code regression | Run `pytest -m unit` locally |
+
+---
+
+## Running Locally
+
+### Prerequisites
+
+- PostgreSQL with pgvector running (via `docker compose up -d`)
+- Python 3.11+ with packages installed
+
+### Full pipeline validation
 
 ```bash
-# Option 1: Via GitHub UI (recommended)
-1. Go to GitHub → Actions → "Weekly Full Rebuild & Validation"
-2. Click "Run workflow" → Select "main" branch → Run
-3. Wait 60 minutes
-4. Review results
-5. Update docs/VALIDATION_TRACKER.md
-6. Repeat 2 more times (3 total runs)
+# 1. Apply schema (if fresh database)
+psql -h localhost -U postgres -d research_kb -f packages/storage/schema.sql
+for f in packages/storage/migrations/*.sql; do
+  psql -h localhost -U postgres -d research_kb -f "$f"
+done
 
-# Option 2: Via GitHub CLI
-gh workflow run weekly-full-rebuild.yml
-gh run watch $(gh run list --workflow=weekly-full-rebuild.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+# 2. Load demo data
+python scripts/load_demo_data.py
 
-# Option 3: Local testing first (optional)
-./scripts/run_local_validation.sh
+# 3. Start embedding server + generate embeddings
+python -m research_kb_pdf.embed_server &
+python scripts/embed_missing.py --batch 100
+
+# 4. Evaluate retrieval
+python scripts/eval_retrieval.py --dataset fixtures/eval/golden_dataset.json --per-domain --verbose
+
+# 5. Run tests
+pytest -m "unit and not requires_embedding and not requires_ollama and not requires_reranker" -q
+```
+
+### Quick smoke test (no embeddings needed)
+
+```bash
+pytest -m "unit and not requires_embedding and not requires_ollama and not requires_reranker and not requires_grobid" -q
 ```
 
 ---
 
-## Step-by-Step
+## Triggering Workflows
 
-### 1. Create Tracking Issue
-
-```bash
-# Via GitHub UI:
-# Go to Issues → New Issue → Use "Graph Search Default Validation Tracking" template
-
-# Or via CLI:
-gh issue create --title "Validation: Graph Search as Default (Phase 3C)" \
-  --label validation,phase-3c,testing \
-  --body-file .github/ISSUE_TEMPLATE/validation_tracking.md
-```
-
-### 2. Run First Validation
-
-**Via GitHub UI**:
-1. Navigate to repository → **Actions** tab
-2. Select **"Weekly Full Rebuild & Validation"** workflow
-3. Click **"Run workflow"** button
-4. Select branch: `main`
-5. Click **"Run workflow"**
-
-**Via GitHub CLI**:
-```bash
-gh workflow run weekly-full-rebuild.yml
-```
-
-### 3. Monitor Progress
-
-**Via GitHub UI**:
-- Watch the workflow run in real-time
-- Click on steps to see logs
-- Check for green checkmarks (success) or red X (failure)
-
-**Via GitHub CLI**:
-```bash
-# Get the latest run ID
-RUN_ID=$(gh run list --workflow=weekly-full-rebuild.yml --limit 1 --json databaseId --jq '.[0].databaseId')
-
-# Watch the run
-gh run watch $RUN_ID
-
-# View logs
-gh run view $RUN_ID --log
-```
-
-### 4. Record Results
-
-**Download artifacts**:
-```bash
-gh run download $RUN_ID
-```
-
-**Update tracking**:
-```bash
-# Edit docs/VALIDATION_TRACKER.md
-# Fill in Run 1 section with:
-# - Date
-# - Status (✅ Complete)
-# - Quality gates (checked/unchecked)
-# - Performance metrics from logs
-# - Any issues or notes
-
-# Update GitHub issue
-# Copy results to tracking issue
-```
-
-### 5. Wait 3-7 Days
-
-**Why wait?**
-- Different conditions (time of day, system load)
-- Catch intermittent issues
-- Prove consistency
-
-### 6. Run Second Validation
-
-Repeat steps 2-4 for Run 2.
-
-### 7. Run Third Validation
-
-Repeat steps 2-4 for Run 3.
-
-### 8. Make Decision
-
-**After 3 runs complete**:
-
-```bash
-# Review aggregate results in docs/VALIDATION_TRACKER.md
-
-# If all 3 runs passed:
-# ✅ Update docs/MIGRATION_GRAPH_DEFAULT.md status to "Validated"
-# ✅ Create PR to merge Phase 3C
-# ✅ Deploy to production
-
-# If any run failed:
-# ❌ Investigate issues
-# ❌ Fix problems
-# ❌ Re-run failed validation
-```
+See [TRIGGER_VALIDATION_WORKFLOW.md](TRIGGER_VALIDATION_WORKFLOW.md) for detailed instructions on manual triggering via GitHub UI, CLI, or API.
 
 ---
 
-## Success Criteria
-
-**✅ PASS if**:
-- All 3 runs completed successfully
-- No blockers in any run
-- ≤1 warning per run
-- Performance stable (±20%)
-
-**❌ FAIL if**:
-- Any run has blockers
-- >1 run failed completely
-- Performance regressions >50%
-
----
-
-## Blockers (Must Pass)
-
-- [ ] Corpus ingestion ≥450 chunks
-- [ ] Retrieval Precision@5 ≥90%
-- [ ] All tests pass (71/71)
-- [ ] Database cached successfully
-
----
-
-## Warnings (Acceptable)
-
-- Concept extraction <100 concepts (acceptable if ≥50)
-- Seed concept recall <70% (acceptable if ≥50%)
-- Ollama installation failed (acceptable, optional)
-- Concept extraction timed out (acceptable, partial OK)
-
----
-
-## Estimated Timeline
-
-| Activity | Duration | When |
-|----------|----------|------|
-| **Run 1** | 60 min | Today |
-| **Wait** | 3-7 days | - |
-| **Run 2** | 60 min | Day 3-7 |
-| **Wait** | 3-7 days | - |
-| **Run 3** | 60 min | Day 6-14 |
-| **Review** | 1 hour | Day 6-14 |
-| **Total** | ~9-17 days | - |
-
----
-
-## Cost
-
-**GitHub Actions**: 2000 free minutes/month
-
-**3 runs**: ~180 minutes (9% of free tier)
-
----
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Workflow not found | Check `.github/workflows/weekly-full-rebuild.yml` exists on main branch |
-| Run workflow button disabled | Ensure you have write access to repository |
-| Corpus ingestion failed | Check embedding server health, review fixture files |
-| Tests failed | Review test logs, fix issues, re-run |
-| Concept extraction timed out | Acceptable (marked as warning), continue validation |
-
----
-
-## Documents
-
-- **Detailed tracker**: `docs/VALIDATION_TRACKER.md`
-- **Migration guide**: `docs/MIGRATION_GRAPH_DEFAULT.md`
-- **Trigger instructions**: `docs/TRIGGER_VALIDATION_WORKFLOW.md`
-- **Local validation**: `scripts/run_local_validation.sh`
-
----
-
-## Questions?
-
-- GitHub issue: Create an issue with `validation` label
-- Documentation: Review migration guide for detailed info
-- Logs: Download workflow artifacts for detailed logs
-
----
-
-**Last Updated**: 2025-12-02
+**Last Updated**: 2026-02-20

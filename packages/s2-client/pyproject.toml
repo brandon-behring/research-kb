@@ -5,6 +5,12 @@ description = "Semantic Scholar API client for research-kb (async, rate-limited,
 authors = ["Brandon Behring"]
 packages = [{include = "s2_client", from = "src"}]
 
+license = "MIT"
+
+[tool.poetry.urls]
+Homepage = "https://github.com/brandonmbehring-dev/research-kb"
+Repository = "https://github.com/brandonmbehring-dev/research-kb"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 research-kb-common = {path = "../common", develop = true}

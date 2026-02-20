@@ -370,106 +370,6 @@
     "difficulty": "easy"
   },
   {
-    "query": "A/B testing",
-    "target_chunk_ids": [
-      "bde62d90-d2c7-4297-91bb-f3cf008f75aa",
-      "2cf4e9b3-f9d3-44d0-aae4-69a59040f88b"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "statistical significance",
-    "target_chunk_ids": [
-      "b15a2f75-2efe-454b-b690-edd007e1114d",
-      "9a1b261f-af50-44ab-b6f5-d698dfad085a"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "minimum detectable effect",
-    "target_chunk_ids": [
-      "806b30ed-ffd8-4a14-b5ff-fa9f635eb0a6",
-      "c84131ea-3aee-4e38-9403-8dac20433044"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "sample size calculation",
-    "target_chunk_ids": [
-      "909b141a-9196-4565-9475-891695b4a2cf",
-      "32a1fabf-a09e-4380-9e9d-165186ad84f5"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "type I and type II errors",
-    "target_chunk_ids": [
-      "5c5f8883-398d-4178-b28d-9217a0f151ca",
-      "d165f65d-cdbf-4518-bc35-fc1ce4ba5469"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "randomization",
-    "target_chunk_ids": [
-      "fa50cbf0-6104-4246-8c94-9f86cca06f69",
-      "cbb12e4d-7b8f-4c33-a9da-9eafb47e6ef0"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "multiple testing correction",
-    "target_chunk_ids": [
-      "1e9569d6-31c2-4f01-a9f8-1b622dc6c011",
-      "cdf970a6-5937-4b68-890f-7b46b96681e9"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "experiment design",
-    "target_chunk_ids": [
-      "4d8cdd21-08b5-495b-b751-613a8ca39fe1",
-      "3ea21bc3-1bac-40c8-8d94-082f51cc3981"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "power analysis",
-    "target_chunk_ids": [
-      "33106032-390b-4893-b567-3667496350c4",
-      "8b60d561-64a5-4613-b08b-21ae64954cb3"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
-    "query": "treatment effect estimation",
-    "target_chunk_ids": [
-      "7726411a-ef9c-410f-a490-8918e17055e4",
-      "bb4668a3-9fb0-4819-86ea-ad52d0a3b472"
-    ],
-    "domain": "interview_prep",
-    "source_title": "Interview Prep: vol1_experimentation",
-    "difficulty": "easy"
-  },
-  {
     "query": "API design patterns",
     "target_chunk_ids": [
       "8ea631d3-6cb5-47fd-bf07-53fafb0607c3",
@@ -736,7 +636,7 @@
       "70440aa9-af16-4604-9789-fe1d18906036"
     ],
     "domain": "statistics",
-    "source_title": "David M Diez, Christopher D Barr, Mine \u00c7etinkaya-Rundel - OpenIntro Statistics-O",
+    "source_title": "David M Diez, Christopher D Barr, Mine Çetinkaya-Rundel - OpenIntro Statistics-O",
     "difficulty": "easy"
   },
   {
@@ -910,33 +810,112 @@
     "difficulty": "medium"
   },
   {
-    "query": "Black-Scholes option pricing",
+    "query": "cross-fitting procedure in double machine learning",
     "target_chunk_ids": [
-      "e2b48266-8b2e-4369-93cc-00217e4ebf6f",
-      "28981606-a95e-4260-a5ea-d265c0091b59"
+      "759dadf4-f0c7-4688-9266-89378926f2e1",
+      "71ea16de-4a68-4151-b5d6-6498e97ecef9"
     ],
-    "domain": "finance",
-    "source_title": "Hardy Investment Guarantees 2003",
+    "domain": "causal_inference",
+    "source_title": "Double/Debiased Machine Learning for Treatment and Structural Parameters",
+    "difficulty": "medium"
+  },
+  {
+    "query": "Neyman orthogonal score function",
+    "target_chunk_ids": [
+      "04f578fb-95e9-47bc-9402-75e0e5b8881a",
+      "24950b53-e586-4668-a1eb-130a065f612e"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Double/Debiased Machine Learning for Treatment and Structural Parameters",
+    "difficulty": "medium"
+  },
+  {
+    "query": "sample splitting for treatment effect estimation",
+    "target_chunk_ids": [
+      "c49814db-6aec-41a5-876d-eb0c967b7a2a",
+      "d43cc769-2ad3-4631-8e34-e571d910952e"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Double/Debiased Machine Learning for Treatment and Structural Parameters",
+    "difficulty": "medium"
+  },
+  {
+    "query": "honest estimation in causal forests",
+    "target_chunk_ids": [
+      "e3cf8671-d7eb-4303-be7e-16c7554564c7"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests",
+    "difficulty": "hard"
+  },
+  {
+    "query": "conditional average treatment effect estimation",
+    "target_chunk_ids": [
+      "0ebf336f-f4ce-4b9e-bccc-15b253ae5e0c",
+      "a4274de0-58e5-461a-93c8-49768c95bf32"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning",
+    "difficulty": "medium"
+  },
+  {
+    "query": "causal tree splitting criterion",
+    "target_chunk_ids": [
+      "03491adf-33ae-4472-9b18-be3f5227e4c2",
+      "5e74b379-a999-4f12-993a-c56c6f7c22ee"
+    ],
+    "domain": "causal_inference",
+    "source_title": "Recursive Partitioning for Heterogeneous Causal Effects",
+    "difficulty": "hard"
+  },
+  {
+    "query": "staggered adoption difference in differences",
+    "target_chunk_ids": [
+      "6126f2d6-8053-4adb-90f0-a069279e7b6f",
+      "af456484-9fec-4042-bb18-707864f6be02"
+    ],
+    "domain": "econometrics",
+    "source_title": "Difference-in-Differences with Multiple Time Periods",
+    "difficulty": "medium"
+  },
+  {
+    "query": "parallel trends assumption",
+    "target_chunk_ids": [
+      "1ba24e2d-285b-4be5-9742-9f1790c688b2",
+      "d3f98339-fab0-4628-87f5-12ad491334cd"
+    ],
+    "domain": "econometrics",
+    "source_title": "Difference-in-Differences with Multiple Time Periods",
     "difficulty": "easy"
   },
   {
-    "query": "GARCH volatility model",
+    "query": "synthetic control method",
     "target_chunk_ids": [
-      "584845e6-2b8c-49c6-aef4-9769218e4a30",
-      "fa5784ce-3d70-4e53-94bd-081cdbd044a4"
+      "d97b18c0-a3d7-4e7e-b419-b00c4a3cbae7",
+      "fcec806e-4598-4fa7-8b3b-87c36859f35c"
     ],
-    "domain": "finance",
-    "source_title": "Hull Options Futures Derivatives 2021",
+    "domain": "econometrics",
+    "source_title": "Synthetic Controls for Experimental Design",
     "difficulty": "easy"
   },
   {
-    "query": "risk neutral pricing",
+    "query": "sequential ignorability assumption for mediation",
     "target_chunk_ids": [
-      "4a110dd5-8b10-45c6-ae97-c210c8bef4c8",
-      "86bb0d0b-dcf7-4e18-9c64-9682883fb996"
+      "398dee2a-e280-484e-b988-fb5a0dacf112",
+      "58f84648-9cb3-41f3-b942-8d63e069be8a"
     ],
-    "domain": "finance",
-    "source_title": "Hull Options Futures Derivatives 2021",
+    "domain": "causal_inference",
+    "source_title": "Identification, Inference and Sensitivity Analysis for Causal Mediation Effects",
+    "difficulty": "medium"
+  },
+  {
+    "query": "LASSO regularization for causal inference",
+    "target_chunk_ids": [
+      "0df6a94a-19f3-4e04-9bea-69850cb3f1df",
+      "4aea76b5-7b0e-4ee5-898d-2a27937703d0"
+    ],
+    "domain": "machine_learning",
+    "source_title": "Machine Learning Methods That Economists Should Know About",
     "difficulty": "medium"
   }
 ]

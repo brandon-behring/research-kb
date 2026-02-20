@@ -18,6 +18,11 @@ dependencies = [
     "research-kb-storage",
     "research-kb-contracts",
 ]
+license = {text = "MIT"}
+
+[project.urls]
+Homepage = "https://github.com/brandonmbehring-dev/research-kb"
+Repository = "https://github.com/brandonmbehring-dev/research-kb"
 
 [project.optional-dependencies]
 dev = [

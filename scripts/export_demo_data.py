@@ -70,11 +70,10 @@ async def export_demo_data(output_dir: Path) -> dict:
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    pool = await asyncpg.create_pool(
-        "postgresql://postgres:postgres@localhost:5432/research_kb",
-        min_size=1,
-        max_size=3,
-    )
+    from research_kb_storage.connection import DatabaseConfig
+
+    config = DatabaseConfig(min_pool_size=1, max_pool_size=3)
+    pool = await asyncpg.create_pool(config.get_dsn(), min_size=1, max_size=3)
 
     stats = {}
 

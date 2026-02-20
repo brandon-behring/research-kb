@@ -51,11 +51,10 @@ async def load_demo_data(
     """Load demo data from JSON fixtures into PostgreSQL."""
     import asyncpg
 
-    pool = await asyncpg.create_pool(
-        "postgresql://postgres:postgres@localhost:5432/research_kb",
-        min_size=1,
-        max_size=3,
-    )
+    from research_kb_storage.connection import DatabaseConfig
+
+    config = DatabaseConfig(min_pool_size=1, max_pool_size=3)
+    pool = await asyncpg.create_pool(config.get_dsn(), min_size=1, max_size=3)
 
     stats = {"inserted": {}, "skipped": {}}
 

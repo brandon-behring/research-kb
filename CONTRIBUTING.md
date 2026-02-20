@@ -107,7 +107,23 @@ See [CLAUDE.md](CLAUDE.md) for the full architecture overview. Key principles:
 - [ ] Code formatted with Black
 - [ ] No new linting warnings
 - [ ] Updated relevant documentation (if API/CLI changed)
-- [ ] Commit messages follow [conventional format](CLAUDE.md)
+- [ ] Commit messages follow conventional format (see below)
+
+### Commit Message Format
+
+Use conventional prefixes:
+
+| Prefix | When to use |
+|--------|-------------|
+| `feat:` | New feature or capability |
+| `fix:` | Bug fix |
+| `refactor:` | Code restructuring (no behavior change) |
+| `test:` | Adding or modifying tests |
+| `docs:` | Documentation only |
+
+Example: `feat: Add citation authority scoring to hybrid search`
+
+Include a brief body (1-2 sentences) explaining *why* if the change is non-obvious.
 
 ## Adding a New Domain
 

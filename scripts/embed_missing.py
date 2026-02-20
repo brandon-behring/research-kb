@@ -41,11 +41,10 @@ async def embed_missing(batch_size: int = 50, limit: int | None = None) -> int:
         print("Start with: python -m research_kb_pdf.embed_server &")
         return 0
 
-    pool = await asyncpg.create_pool(
-        "postgresql://postgres:postgres@localhost:5432/research_kb",
-        min_size=1,
-        max_size=3,
-    )
+    from research_kb_storage.connection import DatabaseConfig
+
+    config = DatabaseConfig(min_pool_size=1, max_pool_size=3)
+    pool = await asyncpg.create_pool(config.get_dsn(), min_size=1, max_size=3)
 
     total_embedded = 0
     start = time.time()

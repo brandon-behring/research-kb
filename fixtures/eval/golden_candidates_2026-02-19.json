@@ -266,7 +266,7 @@
       "70440aa9-af16-4604-9789-fe1d18906036"
     ],
     "domain": "statistics",
-    "source_title": "David M Diez, Christopher D Barr, Mine \u00c7etinkaya-Rundel - OpenIntro Statistics-O",
+    "source_title": "David M Diez, Christopher D Barr, Mine Çetinkaya-Rundel - OpenIntro Statistics-O",
     "difficulty": "easy"
   },
   {
@@ -437,36 +437,6 @@
     ],
     "domain": "time_series",
     "source_title": "DEPTS: Deep Expansion Learning for Periodic Time Series Forecasting",
-    "difficulty": "medium"
-  },
-  {
-    "query": "Black-Scholes option pricing",
-    "target_chunk_ids": [
-      "e2b48266-8b2e-4369-93cc-00217e4ebf6f",
-      "28981606-a95e-4260-a5ea-d265c0091b59"
-    ],
-    "domain": "finance",
-    "source_title": "Hardy Investment Guarantees 2003",
-    "difficulty": "easy"
-  },
-  {
-    "query": "GARCH volatility model",
-    "target_chunk_ids": [
-      "584845e6-2b8c-49c6-aef4-9769218e4a30",
-      "fa5784ce-3d70-4e53-94bd-081cdbd044a4"
-    ],
-    "domain": "finance",
-    "source_title": "Hull Options Futures Derivatives 2021",
-    "difficulty": "easy"
-  },
-  {
-    "query": "risk neutral pricing",
-    "target_chunk_ids": [
-      "4a110dd5-8b10-45c6-ae97-c210c8bef4c8",
-      "86bb0d0b-dcf7-4e18-9c64-9682883fb996"
-    ],
-    "domain": "finance",
-    "source_title": "Hull Options Futures Derivatives 2021",
     "difficulty": "medium"
   }
 ]

@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![PR Checks](https://github.com/brandonmbehring-dev/research-kb/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/brandonmbehring-dev/research-kb/actions/workflows/pr-checks.yml)
+[![Weekly Full Rebuild](https://github.com/brandonmbehring-dev/research-kb/actions/workflows/weekly-full-rebuild.yml/badge.svg)](https://github.com/brandonmbehring-dev/research-kb/actions/workflows/weekly-full-rebuild.yml)
 
 Graph-boosted semantic search for research literature.
 
@@ -30,6 +32,9 @@ Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge
 ```bash
 docker-compose up -d   # PostgreSQL + pgvector
 ```
+
+> Schema is auto-applied on first container creation. For an existing database:
+> `psql -h localhost -U postgres -d research_kb -f packages/storage/schema.sql`
 
 ### 2. Install packages
 
@@ -219,8 +224,8 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 ## Testing
 
 - **~2,040 test functions** across 90+ test files
-- **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (10 min, doc freshness gate) -> Full rebuild (planned)
-- **Golden evaluation dataset**: 94 queries across 10 domains with known-relevant chunks
+- **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (10 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
+- **Golden evaluation dataset**: 92 queries across 8+ domains with known-relevant chunks
 - **Retrieval eval**: 55 test cases with per-domain reporting (`--per-domain` flag)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
@@ -298,6 +303,10 @@ streamlit run packages/dashboard/app.py
 | [`docs/design/rrf_validation.md`](docs/design/rrf_validation.md) | Weighted sum vs. RRF empirical comparison |
 | [`docs/SLO.md`](docs/SLO.md) | Service level objectives |
 | [`docs/CLI.md`](docs/CLI.md) | Full CLI command reference |
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 

@@ -1,0 +1,110 @@
+name: Weekly Full Rebuild & Validation
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'  # Sunday 3 AM UTC (after integration-test at 2 AM)
+  workflow_dispatch:
+
+jobs:
+  full-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    services:
+      postgres:
+        image: ankane/pgvector:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: research_kb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: research_kb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # Cache the BGE-large-en-v1.5 model (~400MB)
+      - name: Cache embedding model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: bge-large-en-v1.5-${{ runner.os }}
+
+      - name: Install dependencies
+        run: |
+          pip install -e packages/contracts
+          pip install -e packages/common
+          pip install -e packages/storage
+          pip install -e packages/pdf-tools
+          pip install -e packages/cli
+          pip install pytest pytest-asyncio numpy scikit-learn pyyaml
+
+      - name: Apply database schema
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGDATABASE: research_kb
+          PGUSER: postgres
+          PGPASSWORD: postgres
+        run: |
+          psql -f packages/storage/schema.sql
+          for migration in packages/storage/migrations/*.sql; do
+            echo "Applying $migration"
+            psql -f "$migration"
+          done
+
+      - name: Load demo corpus
+        run: python scripts/load_demo_data.py
+
+      - name: Start embedding server
+        run: |
+          python -m research_kb_pdf.embed_server &
+          echo "Waiting for embedding server..."
+          for i in $(seq 1 60); do
+            python -c "
+          from research_kb_pdf.embed_client import EmbeddingClient
+          c = EmbeddingClient(); c.ping(); print('Embed server ready')
+          " 2>/dev/null && break
+            sleep 2
+          done
+
+      - name: Generate embeddings
+        run: python scripts/embed_missing.py --batch 100
+
+      - name: Validate retrieval quality
+        run: |
+          python scripts/eval_retrieval.py \
+            --dataset fixtures/eval/golden_dataset.json \
+            --per-domain \
+            --fail-below 0.5 \
+            --output /tmp/retrieval_metrics.json \
+            --verbose
+
+      - name: Upload retrieval metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-metrics
+          path: /tmp/retrieval_metrics.json
+          retention-days: 30
+
+      - name: Run unit tests
+        run: |
+          pytest -m "unit and not requires_embedding and not requires_ollama and not requires_reranker and not requires_grobid" \
+            --tb=short -q
