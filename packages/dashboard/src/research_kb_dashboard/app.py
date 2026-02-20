@@ -47,8 +47,8 @@ async def get_stats():
 
 def main():
     """Main dashboard entry point."""
-    st.title("📚 Research-KB Knowledge Explorer")
-    st.markdown("*Explore causal inference literature through citations and search*")
+    st.title("Research-KB Knowledge Explorer")
+    st.markdown("*Explore research literature through search, citations, and knowledge graphs*")
 
     # Sidebar
     with st.sidebar:
@@ -56,92 +56,59 @@ def main():
         page = st.radio(
             "Select View",
             [
-                "📊 Citation Network",
-                "🔍 Search",
-                "🧠 Concept Graph",
-                "📋 Extraction Queue",
+                "Search",
+                "Citation Network",
+                "Concept Graph",
+                "Assumption Audit",
+                "Statistics",
+                "Extraction Queue",
             ],
             index=0,
         )
 
         st.divider()
-        st.header("Statistics")
+        st.header("Corpus")
 
         # Load stats
         try:
             stats = run_async(get_stats())
             st.metric("Sources", stats["sources"])
             st.metric("Chunks", f"{stats['chunks']:,}")
+            st.metric("Concepts", f"{stats['concepts']:,}")
+            st.metric("Relationships", f"{stats['edges']:,}")
             st.metric("Citations", f"{stats['citations']:,}")
-            st.metric("Internal Edges", stats["edges"])
-            st.metric("Concepts", stats["concepts"])
 
         except httpx.ConnectError:
             st.error("Cannot connect to API server. Ensure the API is running.")
-            st.caption("Start with: uvicorn research_kb_api.main:app --host 0.0.0.0 --port 8000")
+            st.caption("Start with: uvicorn research_kb_api.main:create_app --factory --port 8000")
         except Exception as e:
             st.error(f"Could not load stats: {e}")
 
     # Main content area
-    if page == "📊 Citation Network":
-        render_citation_network()
-    elif page == "🔍 Search":
-        render_search()
-    elif page == "🧠 Concept Graph":
-        render_concept_graph()
-    elif page == "📋 Extraction Queue":
-        render_queue()
+    if page == "Search":
+        from research_kb_dashboard.pages.search import search_page
 
+        search_page()
+    elif page == "Citation Network":
+        from research_kb_dashboard.pages.citations import citation_network_page
 
-def render_citation_network():
-    """Render the citation network visualization."""
-    from research_kb_dashboard.pages.citations import citation_network_page
+        citation_network_page()
+    elif page == "Concept Graph":
+        from research_kb_dashboard.pages.concepts import concept_graph_page
 
-    citation_network_page()
+        concept_graph_page()
+    elif page == "Assumption Audit":
+        from research_kb_dashboard.pages.assumptions import assumptions_page
 
+        assumptions_page()
+    elif page == "Statistics":
+        from research_kb_dashboard.pages.statistics import statistics_page
 
-def render_queue():
-    """Render the extraction queue status page."""
-    from research_kb_dashboard.pages.queue import queue_page
+        statistics_page()
+    elif page == "Extraction Queue":
+        from research_kb_dashboard.pages.queue import queue_page
 
-    queue_page()
-
-
-def render_search():
-    """Render the search interface."""
-    from research_kb_dashboard.pages.search import search_page
-
-    search_page()
-
-
-async def get_concept_count():
-    """Get concept count for progress display via API."""
-    client = ResearchKBClient()
-    try:
-        stats = await client.get_stats()
-        return stats.get("concepts", 0)
-    finally:
-        await client.close()
-
-
-def render_concept_graph():
-    """Render the concept graph explorer."""
-    st.header("🧠 Concept Graph Explorer")
-    st.info(
-        "**Concept graph is rebuilding.** "
-        "The knowledge graph was reset and is being re-extracted. "
-        "This view will be available once concepts > 1000."
-    )
-
-    # Show current count
-    try:
-        count = run_async(get_concept_count())
-        st.metric("Current Concepts", count)
-        st.progress(min(count / 1000, 1.0))
-        st.caption("Need 1,000 concepts to enable this view")
-
-    except Exception as e:
-        st.error(f"Error: {e}")
+        queue_page()
 
 
 if __name__ == "__main__":

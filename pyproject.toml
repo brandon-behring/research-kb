@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "research-kb"
 version = "1.0.0"
-description = "Research Knowledge Base - Personal RAG system for textbooks, papers, and code"
-authors = ["Brandon Behring <$USER@example.com>"]
+description = "Graph-boosted semantic search for research literature"
+authors = ["Brandon Behring"]
 readme = "README.md"
 packages = []
 

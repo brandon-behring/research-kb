@@ -53,7 +53,7 @@ NEW_DOMAINS = [
     ("ml_engineering", "ML Engineering", "ML pipelines, MLOps, deployment"),
     ("algorithms", "Algorithms", "Data structures, graph algorithms, optimization"),
     ("functional_programming", "Functional Programming", "Haskell, Scala, FP patterns"),
-    ("portfolio_management", "Portfolio Management", "CFA materials, portfolio theory"),
+    ("portfolio_management", "Portfolio Management", "Portfolio theory, asset allocation"),
     ("fitness", "Fitness", "Strength training, exercise science"),
     ("economics", "Economics", "Macroeconomics, microeconomics"),
     ("forecasting", "Forecasting", "General forecasting methods"),

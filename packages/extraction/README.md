@@ -107,7 +107,7 @@ async with AnthropicClient(model="opus") as client:
 
 - Default model: `llama3.1:8b`
 - Server: `http://localhost:11434`
-- GPU acceleration recommended (RTX 2070 SUPER or better)
+- GPU acceleration recommended (NVIDIA GPU with 8GB+ VRAM)
 
 ### LlamaCpp
 

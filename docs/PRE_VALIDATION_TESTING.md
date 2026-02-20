@@ -604,5 +604,4 @@ A: Fix the issues before running CI validation. Local is faster for debugging.
 
 ---
 
-**Ready to start?** See implementation details in the original plan:
-`$HOME/.claude/plans/gentle-growing-sutton.md` (lines 2187-2330)
+**Ready to start?** Run the validation test suite above to verify your installation.

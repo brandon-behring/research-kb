@@ -178,7 +178,7 @@ class TestProtocolCompatibility:
     """Tests verifying the daemon protocol matches what bridges expect.
 
     These tests ensure that the JSON-RPC 2.0 protocol used by DaemonClient
-    is compatible with ResearchKBBridge in lever_of_archimedes.
+    is compatible with external bridge integrations.
 
     The mock servers handle multiple connections because DaemonClient.search()
     calls _is_daemon_available() (health check) before the actual search.
@@ -289,8 +289,8 @@ class TestProtocolCompatibility:
         Note: _parse_search_response expects nested source/chunk sub-dicts
         (designed for CLI output). Flat daemon results lose source_title/content
         but vector_score/combined_score at top level are preserved.
-        ResearchKBBridge (lever_of_archimedes) uses from_daemon_result() which
-        handles flat format correctly — this is the recommended integration path.
+        External bridges should use from_daemon_result() which handles flat
+        format correctly — this is the recommended integration path.
         """
         # This is the actual format daemon's _result_to_dict produces
         flat_result = {

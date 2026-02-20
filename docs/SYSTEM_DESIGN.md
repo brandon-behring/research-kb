@@ -1,7 +1,6 @@
 # Research-KB System Design
 
 **Version**: Summary v1.0
-**Full Document**: `$HOME/Claude/lever_of_archimedes/docs/brain/ideas/research_kb_full_design.md` (47KB)
 
 ---
 
@@ -152,9 +151,7 @@ For complete details including:
 - Error handling patterns
 - Deployment configuration
 
-See the full 47KB system design document:
-
-**Path**: `$HOME/Claude/lever_of_archimedes/docs/brain/ideas/research_kb_full_design.md`
+See the architecture documentation in [CLAUDE.md](../CLAUDE.md) for full details.
 
 ---
 

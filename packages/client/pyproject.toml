@@ -9,7 +9,7 @@ description = "Python client SDK for research-kb daemon and CLI"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Brandon Behring", email = "brandon.m.behring@gmail.com" }
+    { name = "Brandon Behring" }
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

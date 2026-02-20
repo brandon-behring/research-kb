@@ -1,5 +1,8 @@
 # Research Knowledge Base
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+
 Graph-boosted semantic search for research literature.
 
 Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 19-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
@@ -10,7 +13,8 @@ Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge
 - **19-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
 - **Knowledge graph** -- 307K concepts and 742K relationships extracted from research literature, served by KuzuDB
 - **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
-- **Multi-domain** -- causal inference, time series, and extensible to new domains
+- **Multi-domain** -- causal inference, time series, RAG/LLM, and extensible to new domains
+- **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
 - **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
 
 ## Quick Start
@@ -43,7 +47,14 @@ pip install -e packages/pdf-tools
 pip install -e packages/cli
 ```
 
-### 3. Ingest content
+### 3. Set up demo corpus
+
+```bash
+# Download and ingest 25 open-access arXiv papers
+python scripts/setup_demo.py
+```
+
+Or bring your own PDFs:
 
 ```bash
 research-kb ingest <your-pdfs-directory>

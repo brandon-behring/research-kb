@@ -27,7 +27,7 @@ class OllamaClient(LLMClient):
     """Client for Ollama LLM with structured JSON output.
 
     Uses Ollama's native JSON mode for reliable structured extraction.
-    Designed for GPU-accelerated inference on RTX 2070 SUPER (8GB VRAM).
+    Designed for GPU-accelerated inference (8GB+ VRAM recommended).
 
     Example:
         >>> client = OllamaClient(model="llama3.1:8b")

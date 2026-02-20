@@ -10,7 +10,7 @@ Tracking progress on audit remediation (Jan 2026).
 
 - [x] **Socket Path Unification**:
     - Updated `packages/common/src/research_kb_common/config.py` to default to `/tmp/research_kb_daemon_${USER}.sock`.
-    - Resolved "split brain" between daemon configuration and `lever_of_archimedes` hooks.
+    - Resolved socket path configuration inconsistency.
 - [x] **Documentation Sync**:
     - Updated `docs/INTEGRATION.md` to reflect the user-specific socket path.
     - Updated `docs/guides/LEVER_INTEGRATION_TECHNICAL.md`.
@@ -95,10 +95,7 @@ Tracking progress on audit remediation (Jan 2026).
 **Validation**: `scripts/validate_proactive_context.py --daemon-only` (exit 0)
 **Benchmark data**: `fixtures/benchmarks/phase4.3_validation.json`
 
-**Integration Points**:
-- `lever_of_archimedes/hooks/user_prompt_submit.sh`
-- `lever_of_archimedes/hooks/lib/research_kb.sh`
-- `lever_of_archimedes/services/proactive_context/research_kb_bridge.py`
+**Integration Points**: See [INTEGRATION.md](../INTEGRATION.md) for current integration surfaces.
 
 ---
 

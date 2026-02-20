@@ -304,7 +304,6 @@ A: Approximately 10-20ms per query for graph score computation. This is negligib
 
 ## References
 
-- **Plan**: `$HOME/.claude/plans/gentle-growing-sutton.md` (Phase 3C)
 - **Implementation PR**: [TBD]
 - **CI Workflow**: `.github/workflows/weekly-full-rebuild.yml`
 - **Test File**: `packages/cli/tests/test_graph_search.py`

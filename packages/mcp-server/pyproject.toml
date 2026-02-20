@@ -2,7 +2,7 @@
 name = "research-kb-mcp"
 version = "1.0.0"
 description = "MCP server exposing research-kb knowledge base to Claude Code"
-authors = ["Brandon Behring <$USER@example.com>"]
+authors = ["Brandon Behring"]
 packages = [{include = "research_kb_mcp", from = "src"}]
 
 [tool.poetry.dependencies]

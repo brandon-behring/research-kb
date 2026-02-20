@@ -215,5 +215,5 @@ def queue_page():
     st.divider()
     st.caption(
         f"Throughput assumption: {throughput} chunks/min "
-        "(based on Ollama llama3.1:8b on RTX 2070 SUPER)"
+        "(based on Ollama llama3.1:8b with GPU acceleration)"
     )

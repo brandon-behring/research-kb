@@ -1,6 +1,6 @@
 [Unit]
 Description=Nightly KuzuDB Sync for Research-KB
-Documentation=https://github.com/brandon-behring/research-kb
+Documentation=https://github.com/brandonmbehring-dev/research-kb
 
 [Timer]
 # Run at 3am daily

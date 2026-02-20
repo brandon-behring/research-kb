@@ -112,14 +112,8 @@ Active scripts for the research-kb system. For archived (obsolete) scripts, see 
 
 ## Subpackages
 
-### `manning/`
-Manning library ingestion pipeline (92/125 books).
-- `__main__.py` — Entry point
-- `catalog.py` — Book catalog management
-- `ingest.py` — Ingestion logic
-- `audit.py` — Ingestion audit
-- `dedup.py` — Deduplication
-- `cleanup.py` — Post-ingestion cleanup
+### `archive/`
+Archived scripts from earlier development phases.
 
 ### `systemd/`
 Systemd service/timer definitions.

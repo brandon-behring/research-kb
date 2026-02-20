@@ -39,10 +39,17 @@ models/
 *.gguf
 # Keep fixtures/samples/ for CI test data
 # Keep fixtures/concepts/ and fixtures/eval/ for validation configs
+# Keep fixtures/demo/ metadata (but not the PDFs)
+!fixtures/demo/
+fixtures/demo/papers/
 .extraction_checkpoint.json
 *.log
 .env
 *.sql                   # Database dumps
+
+# Personal config (ship .mcp.json.example instead)
+.mcp.json
+.claude/settings.local.json
 
 # Keep these directories tracked
 !.github/

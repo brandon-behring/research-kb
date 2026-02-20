@@ -1,0 +1,41 @@
+name: Bug Report
+description: Report a bug in research-kb
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Run `research-kb query "test"`
+        2. See error...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, Docker status
+      placeholder: |
+        - OS: Ubuntu 24.04
+        - Python: 3.12
+        - PostgreSQL: 16
+        - Docker: running
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Paste any error messages or logs
+      render: shell
+    validations:
+      required: false

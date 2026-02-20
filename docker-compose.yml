@@ -101,6 +101,26 @@ services:
     profiles:
       - dev  # Only start with: docker-compose --profile dev up
 
+  # ===========================================================================
+  # Dashboard - Streamlit visualization (demo profile)
+  # ===========================================================================
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: research-kb-dashboard
+    environment:
+      RESEARCH_KB_API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - research-kb-network
+    profiles:
+      - demo  # Only start with: docker-compose --profile demo up
+
 volumes:
   postgres_data:
     driver: local
@@ -126,6 +146,10 @@ networks:
 #
 # Start with all optional services:
 #   docker-compose --profile dev --profile api up -d
+#
+# Start full demo (API + Dashboard):
+#   docker-compose --profile demo --profile api up -d
+#   Then: python scripts/setup_demo.py
 #
 # Stop services:
 #   docker-compose down

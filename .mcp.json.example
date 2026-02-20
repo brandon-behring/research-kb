@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "research-kb": {
+      "command": "./venv/bin/python",
+      "args": ["-m", "research_kb_mcp.server"],
+      "cwd": ".",
+      "description": "Search research literature with hybrid FTS+vector+graph retrieval"
+    }
+  }
+}

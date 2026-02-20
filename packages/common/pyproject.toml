@@ -2,7 +2,7 @@
 name = "research-kb-common"
 version = "1.0.0"
 description = "Common utilities for research-kb system (logging, retry, instrumentation)"
-authors = ["Brandon Behring <$USER@example.com>"]
+authors = ["Brandon Behring"]
 packages = [{include = "research_kb_common", from = "src"}]
 
 [tool.poetry.dependencies]

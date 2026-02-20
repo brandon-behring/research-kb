@@ -83,7 +83,7 @@ SLOs are internal targets that help maintain service quality. They should be mor
 |-----|--------|-------------|
 | Throughput | > 30 chunks/min | `extraction_throughput_per_min` |
 
-**Note**: Throughput depends on hardware. Target is for RTX 2070 SUPER with concurrency=2.
+**Note**: Throughput depends on hardware. Target assumes NVIDIA GPU with 8GB+ VRAM and concurrency=2.
 
 ## Error Budgets
 

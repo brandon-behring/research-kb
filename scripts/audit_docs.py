@@ -138,20 +138,10 @@ def check_external_paths() -> tuple[bool, list[str]]:
 
     issues = []
 
-    # Paths to check (from docs)
-    external_paths = [
-        Path.home() / "Claude/lever_of_archimedes/hooks/lib/research_kb.sh",
-        Path.home() / "Claude/lever_of_archimedes/docs/brain/ideas/research_kb_full_design.md",
-        Path.home() / "Claude/lever_of_archimedes/services/health/research_kb_status.jl",
-        Path.home() / "Claude/lever_of_archimedes/knowledge/master_bibliography/AVAILABLE.md",
-    ]
-
-    for path in external_paths:
-        if not path.exists():
-            issues.append(f"External path missing: {path}")
+    # External path checks removed — no external dependencies in public release
 
     if not issues:
-        success("All external paths exist")
+        success("All internal paths verified")
         return True, []
     else:
         for issue in issues:

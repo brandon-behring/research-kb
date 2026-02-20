@@ -2,7 +2,7 @@
 name = "research-kb-contracts"
 version = "1.0.0"
 description = "Pure Pydantic schemas for research-kb system"
-authors = ["Brandon Behring <$USER@example.com>"]
+authors = ["Brandon Behring"]
 packages = [{include = "research_kb_contracts", from = "src"}]
 
 [tool.poetry.dependencies]

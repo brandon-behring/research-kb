@@ -1,6 +1,6 @@
 [Unit]
 Description=Research KB Daemon - Low-latency query service
-Documentation=https://github.com/brandon-behring/research-kb
+Documentation=https://github.com/brandonmbehring-dev/research-kb
 After=postgresql.service
 # Wants embed server to be running (soft dependency)
 Wants=research-kb-embed.service

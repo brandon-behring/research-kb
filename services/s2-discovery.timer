@@ -1,6 +1,6 @@
 [Unit]
 Description=Weekly S2 Paper Discovery Timer
-Documentation=https://github.com/brandon-behring/research-kb
+Documentation=https://github.com/brandonmbehring-dev/research-kb
 
 [Timer]
 # Run every Sunday at 3:00 AM (low-usage time)

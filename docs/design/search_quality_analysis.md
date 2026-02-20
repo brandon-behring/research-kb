@@ -9,7 +9,7 @@
 ## Executive Summary
 
 Domain filtering alone delivers the biggest quality improvement (+56% Hit@10 relative to baseline).
-Reranking and expansion add marginal gains but introduce CUDA OOM risks on RTX 2070 SUPER (8GB).
+Reranking and expansion add marginal gains but introduce CUDA OOM risks on GPUs with limited VRAM (8GB).
 **Recommended default**: Domain filtering ON, reranker OFF, expansion OFF.
 
 ---
@@ -86,7 +86,7 @@ Reranking and expansion add marginal gains but introduce CUDA OOM risks on RTX 2
 
 ## Reranker Issues
 
-1. **CUDA OOM on RTX 2070 SUPER (8GB)**:
+1. **CUDA OOM on GPUs with limited VRAM (8GB)**:
    - BGE-reranker-v2-m3 (278M params) shares GPU with embedding model + pytest processes
    - Fails intermittently on batches of 50 candidates with long text
    - Graceful fallback works (returns unranked results), but silently degrades quality
