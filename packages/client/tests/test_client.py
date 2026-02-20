@@ -400,10 +400,12 @@ class TestProtocolCompatibility:
 
 
 @pytest.mark.integration
+@pytest.mark.requires_embedding
 class TestLiveIntegration:
     """Integration tests against live daemon.
 
     Only run when daemon is actually available.
+    Requires embedding server + populated database.
     """
 
     @pytest.fixture

@@ -17,8 +17,7 @@
 |--------------|----------|
 | Understand the architecture | [System Design](SYSTEM_DESIGN.md) |
 | See current status | [Current Status](status/CURRENT_STATUS.md) |
-| Understand lever integration | [Integration Overview](INTEGRATION.md) |
-| See technical integration details | [Lever Integration Technical](guides/LEVER_INTEGRATION_TECHNICAL.md) |
+| Understand integration surfaces | [Integration Guide](INTEGRATION.md) |
 | Run the CLI | [CLAUDE.md](../CLAUDE.md#cli-usage) |
 | Set up locally | [Local Development](guides/LOCAL_DEVELOPMENT.md) |
 | Update status docs | `python scripts/generate_status.py` |
@@ -71,7 +70,6 @@ docs/
 │   └── phase3_research_notes.md
 │
 ├── guides/                     # How-to guides
-│   ├── STEP_BY_STEP_VALIDATION_GUIDE.md
 │   └── LOCAL_DEVELOPMENT.md
 │
 └── archive/                    # Historical records

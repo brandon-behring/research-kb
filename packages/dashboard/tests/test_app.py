@@ -76,15 +76,22 @@ class TestFunctionExistence:
 
         assert "def main()" in code
 
-    def test_app_has_render_functions(self):
-        """App module has render functions."""
-        app_path = repo_root / "packages/dashboard/src/research_kb_dashboard/app.py"
-        with open(app_path) as f:
-            code = f.read()
+    def test_pages_have_entry_functions(self):
+        """Page modules have their page entry functions."""
+        pages_dir = repo_root / "packages/dashboard/src/research_kb_dashboard/pages"
 
-        assert "def render_citation_network" in code
-        assert "def render_search" in code
-        assert "def render_concept_graph" in code
+        checks = {
+            "search.py": "def search_page",
+            "citations.py": "def citation_network_page",
+            "concepts.py": "def concept_graph_page",
+            "statistics.py": "def statistics_page",
+            "assumptions.py": "def assumptions_page",
+        }
+        for filename, expected in checks.items():
+            path = pages_dir / filename
+            assert path.exists(), f"Missing page module: {filename}"
+            code = path.read_text()
+            assert expected in code, f"{filename} missing {expected}"
 
     def test_app_has_async_functions(self):
         """App module has async database functions."""

@@ -340,7 +340,7 @@ When modifying code, update docs accordingly:
 | New CLI command | CLAUDE.md (CLI Usage), README.md |
 | New package | Create README.md, add to CLAUDE.md architecture |
 | New extraction backend | packages/extraction/README.md comparison table |
-| External path change | docs/INTEGRATION.md, docs/guides/LEVER_INTEGRATION_TECHNICAL.md |
+| External path change | docs/INTEGRATION.md |
 | New API endpoint | Run `scripts/generate_package_docs.py` |
 | Database schema | docs/phases/ relevant phase doc |
 

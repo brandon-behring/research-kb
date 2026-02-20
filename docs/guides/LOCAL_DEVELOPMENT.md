@@ -235,4 +235,3 @@ Recommended extensions:
 
 - [CLAUDE.md](../../CLAUDE.md) - Full command reference
 - [System Design](../SYSTEM_DESIGN.md) - Architecture overview
-- [Validation Guide](STEP_BY_STEP_VALIDATION_GUIDE.md) - CI validation steps

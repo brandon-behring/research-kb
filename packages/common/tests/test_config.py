@@ -130,10 +130,12 @@ class TestSettingsDefaults:
         assert settings.s2_api_key is None
 
     def test_daemon_socket_path_default(self, clean_env):
-        """Test daemon_socket_path has correct default."""
-        settings = Settings()
+        """Test daemon_socket_path has correct default including $USER."""
+        import os
 
-        assert settings.daemon_socket_path == "/tmp/research_kb_daemon.sock"
+        settings = Settings()
+        user = os.environ.get("USER", "unknown")
+        assert settings.daemon_socket_path == f"/tmp/research_kb_daemon_{user}.sock"
 
     def test_otel_endpoint_default(self, clean_env):
         """Test otel_exporter_otlp_endpoint defaults to None."""

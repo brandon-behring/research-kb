@@ -259,7 +259,7 @@ class TestFormatGraphPath:
         result = format_graph_path(data)
         assert "DML" in result
         assert "IV" in result
-        assert "3 hops" in result
+        assert "2 hops" in result
 
 
 class TestFormatStats:

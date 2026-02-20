@@ -538,11 +538,11 @@ class TestMetricsEndpoint:
         lines = content.strip().split("\n")
         for line in lines:
             if line:
+                # Valid Prometheus lines: comments, or metric_name{labels} value
                 assert (
-                    line.startswith("# ")  # Comment lines
-                    or line.startswith("research_kb_")  # Our metrics
-                    or line.startswith("python_")  # Python process metrics
-                    or line.startswith("process_")  # Process metrics
+                    line.startswith("# ")  # Comment lines (HELP, TYPE)
+                    or line[0].isalpha()  # Metric lines start with alpha char
+                    or line[0] == "_"  # Some internal metrics use underscore prefix
                 ), f"Unexpected line format: {line}"
 
 

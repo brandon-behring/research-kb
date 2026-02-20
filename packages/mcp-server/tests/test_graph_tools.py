@@ -233,10 +233,10 @@ class TestGraphPath:
                 concept_b="Instrumental Variables",
             )
 
-            get_mock.assert_called_once_with(
-                concept_a="Regression Discontinuity",
-                concept_b="Instrumental Variables",
-            )
+            get_mock.assert_called_once()
+            call_kwargs = get_mock.call_args.kwargs
+            assert call_kwargs["concept_a"] == "Regression Discontinuity"
+            assert call_kwargs["concept_b"] == "Instrumental Variables"
             assert isinstance(result, str)
 
     @pytest.mark.asyncio

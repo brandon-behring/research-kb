@@ -211,7 +211,6 @@ gh run download $(gh run list --workflow=weekly-full-rebuild.yml --limit 1 --jso
 - `.github/workflows/weekly-full-rebuild.yml` - The workflow
 
 **Documentation**:
-- `docs/STEP_BY_STEP_VALIDATION_GUIDE.md` - Full detailed guide
 - `docs/TRIGGER_VALIDATION_WORKFLOW.md` - Detailed trigger instructions
 
 ---
@@ -256,8 +255,7 @@ Day 11: Merge PR and deploy
 ## 📞 Get Help
 
 **Resources**:
-- Full guide: `docs/STEP_BY_STEP_VALIDATION_GUIDE.md`
-- Troubleshooting: See "Troubleshooting" section in step-by-step guide
+- Troubleshooting: See "Quick Troubleshooting" section above
 - GitHub Actions docs: https://docs.github.com/en/actions
 
 **Support**:
