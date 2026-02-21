@@ -167,7 +167,8 @@ async def ingest_textbook(
     if not quiet:
         logger.info("generating_embeddings", chunks=len(chunks))
 
-    embeddings = embedding_client.embed_batch(texts, batch_size=32)
+    # batch_size=8 for CPU safety (32 can exceed 60s socket timeout)
+    embeddings = embedding_client.embed_batch(texts, batch_size=8)
 
     # Prepare batch data for insertion
     chunks_data = []
@@ -255,24 +256,68 @@ DOMAIN_KEYWORDS = {
 }
 
 
+# Map legacy sidecar domain values to valid domain IDs.
+# The migrated/ directory uses non-standard labels.
+LEGACY_DOMAIN_MAP = {
+    "programming": "software_engineering",
+    "other": "machine_learning",
+    "ml_stats": "statistics",
+    "math": "mathematics",
+    "nlp": "rag_llm",
+    "causal": "causal_inference",
+}
+
+
+VALID_DOMAINS = {
+    "algorithms",
+    "causal_inference",
+    "data_science",
+    "deep_learning",
+    "econometrics",
+    "economics",
+    "finance",
+    "fitness",
+    "forecasting",
+    "functional_programming",
+    "healthcare",
+    "interview_prep",
+    "machine_learning",
+    "mathematics",
+    "ml_engineering",
+    "portfolio_management",
+    "rag_llm",
+    "software_engineering",
+    "statistics",
+    "time_series",
+}
+
+
 def infer_domain(filename: str, sidecar_meta: dict | None = None) -> str:
     """Infer domain_id from sidecar metadata or filename keywords.
 
-    Returns a domain string. Falls back to 'machine_learning' if no match.
+    Returns a valid domain string. Falls back to 'machine_learning' if no match.
+
+    Priority: sidecar (if valid) → filename keywords → legacy mapping → fallback.
     """
-    # Sidecar metadata takes priority
+    # Sidecar metadata — use if it's already a valid domain
     if sidecar_meta and sidecar_meta.get("domain"):
-        return sidecar_meta["domain"]
+        raw = sidecar_meta["domain"]
+        if raw in VALID_DOMAINS:
+            return raw
 
-    # Normalize: lowercase, replace hyphens and spaces with underscores
+    # Filename keyword inference (most reliable for specific books)
     name_lower = filename.lower().replace(" ", "_").replace("-", "_")
-
-    # Check specific (longer) keywords first by sorting longest-first
     for keyword, domain in sorted(DOMAIN_KEYWORDS.items(), key=lambda x: -len(x[0])):
         if keyword in name_lower:
             return domain
 
-    return "machine_learning"  # Safe fallback for unmatched books
+    # Legacy sidecar mapping as last resort
+    if sidecar_meta and sidecar_meta.get("domain"):
+        mapped = LEGACY_DOMAIN_MAP.get(sidecar_meta["domain"])
+        if mapped:
+            return mapped
+
+    return "machine_learning"  # Safe fallback
 
 
 def parse_args():
