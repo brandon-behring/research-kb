@@ -78,6 +78,7 @@ class TestResult:
     concept_recall: Optional[float] = None  # Phase 2: concept recall score
     found_concepts: list[str] = field(default_factory=list)  # Concepts found in results
     error: Optional[str] = None
+    source_matched_rank: Optional[int] = None  # Source-level match (lenient metric)
 
 
 async def get_concepts_for_chunks(chunk_ids: list[UUID]) -> set[str]:
@@ -305,6 +306,8 @@ async def run_eval(
 def compute_metrics_for_results(results: list[TestResult]) -> dict:
     """Compute metrics for a set of test results.
 
+    Reports both chunk-level (strict) and source-level (lenient) hit rates.
+
     Args:
         results: List of TestResult objects
 
@@ -317,6 +320,7 @@ def compute_metrics_for_results(results: list[TestResult]) -> dict:
             "passed": 0,
             "failed": 0,
             "hit_rate_at_k": 0.0,
+            "source_hit_rate_at_k": 0.0,
             "mrr": 0.0,
             "ndcg_5": 0.0,
             "ndcg_10": 0.0,
@@ -326,6 +330,9 @@ def compute_metrics_for_results(results: list[TestResult]) -> dict:
 
     passed = sum(1 for r in results if r.passed)
     total = len(results)
+
+    # Source-level hits (lenient): chunk match OR source match
+    source_hits = sum(1 for r in results if r.passed or r.source_matched_rank is not None)
 
     reciprocal_ranks = [1.0 / r.matched_rank for r in results if r.passed and r.matched_rank]
     mrr = sum(reciprocal_ranks) / len(reciprocal_ranks) if reciprocal_ranks else 0.0
@@ -350,6 +357,7 @@ def compute_metrics_for_results(results: list[TestResult]) -> dict:
         "passed": passed,
         "failed": total - passed,
         "hit_rate_at_k": passed / total if total > 0 else 0,
+        "source_hit_rate_at_k": source_hits / total if total > 0 else 0,
         "mrr": mrr,
         "ndcg_5": compute_ndcg_at_k(results, 5),
         "ndcg_10": compute_ndcg_at_k(results, 10),
@@ -368,7 +376,14 @@ def _print_metrics_block(metrics: dict, indent: str = "  "):
     target_hit_rate = 0.90
     actual_hit_rate = metrics["hit_rate_at_k"]
     status = "+" if actual_hit_rate >= target_hit_rate else "-"
-    print(f"{indent}{status} Hit Rate@K: {actual_hit_rate:.1%} (target: >={target_hit_rate:.0%})")
+    print(
+        f"{indent}{status} Chunk Hit Rate@K: {actual_hit_rate:.1%} (target: >={target_hit_rate:.0%})"
+    )
+
+    source_hit_rate = metrics.get("source_hit_rate_at_k")
+    if source_hit_rate is not None:
+        src_status = "+" if source_hit_rate >= target_hit_rate else "-"
+        print(f"{indent}{src_status} Source Hit Rate@K: {source_hit_rate:.1%} (lenient)")
 
     mrr = metrics["mrr"]
     mrr_status = "+" if mrr >= 0.5 else "-"
@@ -456,17 +471,59 @@ def print_per_domain(results: list[TestResult]):
             _print_metrics_block(metrics, indent="    ")
 
     # Summary table
-    print("\n" + "-" * 60)
-    print(f"  {'Domain':<25} {'Tests':>5} {'Hit%':>6} {'MRR':>6} {'NDCG@5':>7}")
-    print("  " + "-" * 55)
+    print("\n" + "-" * 70)
+    print(f"  {'Domain':<25} {'Tests':>5} {'Chunk%':>7} {'Source%':>8} {'MRR':>6} {'NDCG@5':>7}")
+    print("  " + "-" * 65)
     for domain in sorted(domain_metrics.keys()):
         m = domain_metrics[domain]
+        src_hit = m.get("source_hit_rate_at_k", m["hit_rate_at_k"])
         print(
-            f"  {domain:<25} {m['total']:>5} {m['hit_rate_at_k']:>5.0%} {m['mrr']:>6.3f} {m['ndcg_5']:>7.3f}"
+            f"  {domain:<25} {m['total']:>5} {m['hit_rate_at_k']:>6.0%} {src_hit:>7.0%} {m['mrr']:>6.3f} {m['ndcg_5']:>7.3f}"
         )
     print()
 
     return domain_metrics
+
+
+def print_per_difficulty(results: list[TestResult]):
+    """Print per-difficulty evaluation breakdown.
+
+    Groups results by difficulty tag (easy/medium/hard) and computes metrics.
+
+    Args:
+        results: List of TestResult objects
+    """
+    difficulty_levels = ["easy", "medium", "hard"]
+
+    print("\n" + "=" * 60)
+    print("PER-DIFFICULTY BREAKDOWN")
+    print("=" * 60)
+
+    difficulty_metrics = {}
+    for level in difficulty_levels:
+        level_results = [r for r in results if r.test_case.tags and level in r.test_case.tags]
+        if level_results:
+            metrics = compute_metrics_for_results(level_results)
+            difficulty_metrics[level] = metrics
+            print(f"\n  {level} ({metrics['total']} tests):")
+            _print_metrics_block(metrics, indent="    ")
+
+    # Summary table
+    print("\n" + "-" * 70)
+    print(
+        f"  {'Difficulty':<12} {'Tests':>5} {'Chunk%':>7} {'Source%':>8} {'MRR':>6} {'NDCG@5':>7}"
+    )
+    print("  " + "-" * 50)
+    for level in difficulty_levels:
+        if level in difficulty_metrics:
+            m = difficulty_metrics[level]
+            src_hit = m.get("source_hit_rate_at_k", m["hit_rate_at_k"])
+            print(
+                f"  {level:<12} {m['total']:>5} {m['hit_rate_at_k']:>6.0%} {src_hit:>7.0%} {m['mrr']:>6.3f} {m['ndcg_5']:>7.3f}"
+            )
+    print()
+
+    return difficulty_metrics
 
 
 def print_summary(results: list[TestResult], metrics: dict):
@@ -476,16 +533,27 @@ def print_summary(results: list[TestResult], metrics: dict):
     print("=" * 60)
 
     print(f"\nTotal tests: {metrics['total']}")
-    print(f"Passed: {metrics['passed']}")
-    print(f"Failed: {metrics['failed']}")
+    print(f"Passed (chunk match): {metrics['passed']}")
+    print(f"Failed (chunk match): {metrics['failed']}")
+
+    # Source-level stats
+    source_hit_rate = metrics.get("source_hit_rate_at_k", 0.0)
+    source_hits = round(source_hit_rate * metrics["total"])
+    source_only = source_hits - metrics["passed"]
+    if source_only > 0:
+        print(f"Source-only hits (near-misses): {source_only}")
 
     # Metrics
     print("\nMetrics:")
     target_hit_rate = 0.90
     actual_hit_rate = metrics["hit_rate_at_k"]
     status = "+" if actual_hit_rate >= target_hit_rate else "-"
-    print(f"  {status} Hit Rate@K: {actual_hit_rate:.1%} (target: >={target_hit_rate:.0%})")
-    print("      (% of queries where expected result appears in top K)")
+    print(f"  {status} Chunk Hit Rate@K: {actual_hit_rate:.1%} (target: >={target_hit_rate:.0%})")
+    print("      (% of queries where exact target chunk appears in top K)")
+
+    src_status = "+" if source_hit_rate >= target_hit_rate else "-"
+    print(f"  {src_status} Source Hit Rate@K: {source_hit_rate:.1%} (lenient)")
+    print("      (% of queries where any chunk from expected source appears in top K)")
 
     mrr = metrics["mrr"]
     mrr_status = "+" if mrr >= 0.5 else "-"  # MRR >= 0.5 means avg rank <= 2
@@ -528,16 +596,19 @@ async def run_golden_dataset_eval(
     dataset_path: Path,
     verbose: bool = False,
     scoring_method: str = "weighted",
+    domain_filter: bool = False,
 ) -> tuple[list[TestResult], dict]:
     """Run evaluation against a golden dataset JSON file.
 
     Golden dataset entries have: query, target_chunk_ids, domain, source_title, difficulty.
     Evaluates whether target_chunk_ids appear in top-K search results.
+    Reports both chunk-level (strict) and source-level (lenient) hit rates.
 
     Args:
         dataset_path: Path to golden_dataset.json
         verbose: Print detailed output
         scoring_method: Score combination method
+        domain_filter: Pass domain_id to SearchQuery (diagnostic mode)
 
     Returns:
         Tuple of (results list, metrics dict)
@@ -549,7 +620,8 @@ async def run_golden_dataset_eval(
         print("No entries in golden dataset!")
         return [], {}
 
-    print(f"Running {len(entries)} golden dataset queries...")
+    mode_label = "domain-filtered" if domain_filter else "global"
+    print(f"Running {len(entries)} golden dataset queries ({mode_label})...")
 
     config = DatabaseConfig()
     pool = await get_connection_pool(config)
@@ -561,9 +633,10 @@ async def run_golden_dataset_eval(
         target_ids = {UUID(cid) for cid in entry.get("target_chunk_ids", [])}
         source_title = entry.get("source_title", "?")
         domain = entry.get("domain", "?")
+        difficulty = entry.get("difficulty", "medium")
 
         if verbose:
-            print(f"  [{domain}] {query_text}")
+            print(f"  [{domain}|{difficulty}] {query_text}")
 
         try:
             query_embedding = embed_client.embed_query(query_text)
@@ -574,10 +647,11 @@ async def run_golden_dataset_eval(
                 vector_weight=0.7,
                 limit=10,
                 scoring_method=scoring_method,
+                domain_id=domain if domain_filter else None,
             )
             search_results = await search_hybrid(query)
 
-            # Check if any target chunk appears in results
+            # Strict: exact chunk_id match
             matched_rank = None
             matched_source = None
             for r in search_results:
@@ -586,21 +660,31 @@ async def run_golden_dataset_eval(
                     matched_source = r.source.title
                     break
 
+            # Lenient: source-level match (any chunk from expected source)
+            source_matched_rank = None
+            if source_title and source_title != "?":
+                source_prefix = source_title[:30].lower()
+                for r in search_results:
+                    if source_prefix in r.source.title.lower():
+                        source_matched_rank = r.rank
+                        break
+
             tc = TestCase(
                 query=query_text,
                 expected_source_pattern=re.escape(source_title[:30]),
                 expected_in_top_k=10,
-                tags=[domain] if domain else [],
+                tags=[domain, difficulty] if domain else [difficulty],
             )
             result = TestResult(
                 test_case=tc,
                 passed=matched_rank is not None,
                 matched_rank=matched_rank,
                 matched_source=matched_source,
+                source_matched_rank=source_matched_rank,
                 error=(
                     None
                     if matched_rank is not None
-                    else f"No target chunk found in top-10 for '{source_title[:50]}'"
+                    else f"No target chunk in top-10 for '{source_title[:50]}'"
                 ),
             )
             results.append(result)
@@ -608,7 +692,11 @@ async def run_golden_dataset_eval(
             if verbose:
                 status = "+" if result.passed else "-"
                 if result.passed:
-                    print(f"    {status} Rank {matched_rank}: {matched_source}")
+                    print(f"    {status} Chunk rank {matched_rank}: {matched_source}")
+                elif source_matched_rank:
+                    print(
+                        f"    {status} Chunk miss, source hit rank {source_matched_rank}: {source_title[:40]}"
+                    )
                 else:
                     top = [r.source.title[:40] for r in search_results[:3]]
                     print(f"    {status} Not found. Top: {top}")
@@ -618,7 +706,7 @@ async def run_golden_dataset_eval(
                 query=query_text,
                 expected_source_pattern="",
                 expected_in_top_k=10,
-                tags=[domain] if domain else [],
+                tags=[domain, difficulty] if domain else [difficulty],
             )
             results.append(TestResult(test_case=tc, passed=False, error=f"Error: {e}"))
             if verbose:
@@ -653,6 +741,11 @@ async def main():
         help="Path to golden_dataset.json (alternative to YAML test cases)",
     )
     parser.add_argument(
+        "--domain-filter",
+        action="store_true",
+        help="Pass domain_id to search queries (diagnostic: compare global vs domain-filtered)",
+    )
+    parser.add_argument(
         "--fail-below",
         type=float,
         default=None,
@@ -661,6 +754,8 @@ async def main():
     args = parser.parse_args()
 
     print(f"Scoring method: {args.scoring}")
+    if args.domain_filter:
+        print("Domain filter: ENABLED (passing domain_id to search)")
 
     # Choose evaluation mode: golden dataset JSON or YAML test cases
     if args.dataset:
@@ -673,6 +768,7 @@ async def main():
             dataset_path,
             verbose=args.verbose,
             scoring_method=args.scoring,
+            domain_filter=args.domain_filter,
         )
     else:
         yaml_path = Path(__file__).parent.parent / "fixtures" / "eval" / "retrieval_test_cases.yaml"
@@ -693,12 +789,19 @@ async def main():
     if args.per_domain:
         domain_metrics = print_per_domain(results)
 
+    # Per-difficulty breakdown (for golden dataset with difficulty tags)
+    difficulty_metrics = None
+    if args.dataset:
+        difficulty_metrics = print_per_difficulty(results)
+
     # Output JSON for CI quality gate
     if args.output:
         output_path = Path(args.output)
         output_data = dict(metrics)
         if domain_metrics:
             output_data["per_domain"] = domain_metrics
+        if difficulty_metrics:
+            output_data["per_difficulty"] = difficulty_metrics
         with open(output_path, "w") as f:
             json.dump(output_data, f, indent=2)
         print(f"\nMetrics written to: {output_path}")

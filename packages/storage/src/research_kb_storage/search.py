@@ -360,6 +360,7 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
                     vector_weight=0.0,
                     limit=fetch_limit,
                     source_filter=query.source_filter,
+                    domain_id=query.domain_id,
                 )
                 base_results = await _fts_search(conn, temp_query)
             elif query.embedding:
@@ -370,6 +371,7 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
                     vector_weight=1.0,
                     limit=fetch_limit,
                     source_filter=query.source_filter,
+                    domain_id=query.domain_id,
                 )
                 base_results = await _vector_search(conn, temp_query)
             else:
