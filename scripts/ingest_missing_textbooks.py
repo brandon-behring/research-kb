@@ -167,8 +167,7 @@ async def ingest_textbook(
     if not quiet:
         logger.info("generating_embeddings", chunks=len(chunks))
 
-    # batch_size=8 for CPU safety (32 can exceed 60s socket timeout)
-    embeddings = embedding_client.embed_batch(texts, batch_size=8)
+    embeddings = embedding_client.embed_batch(texts, batch_size=32)
 
     # Prepare batch data for insertion
     chunks_data = []

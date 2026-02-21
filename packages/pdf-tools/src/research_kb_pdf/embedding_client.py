@@ -161,9 +161,14 @@ class EmbeddingClient:
     def embed_batch(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
         """Embed multiple texts in a batch (for documents/passages).
 
+        Client-side batching: splits texts into groups of batch_size and
+        sends each group as a separate socket request. This prevents the
+        60s socket timeout from being exceeded on CPU when processing
+        large documents (>100 chunks).
+
         Args:
             texts: List of texts to embed
-            batch_size: Server-side batch size (default 32)
+            batch_size: Texts per socket request (default 32)
 
         Returns:
             List of 1024-dimensional embeddings
@@ -174,10 +179,21 @@ class EmbeddingClient:
             >>> len(embeddings)
             2
         """
-        response = self._send_request(
-            {"action": "embed_batch", "texts": texts, "batch_size": batch_size}
-        )
-        return response["embeddings"]
+        if len(texts) <= batch_size:
+            response = self._send_request(
+                {"action": "embed_batch", "texts": texts, "batch_size": batch_size}
+            )
+            return response["embeddings"]
+
+        # Client-side batching: send batch_size texts per socket request
+        all_embeddings: list[list[float]] = []
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            response = self._send_request(
+                {"action": "embed_batch", "texts": batch, "batch_size": batch_size}
+            )
+            all_embeddings.extend(response["embeddings"])
+        return all_embeddings
 
     def embed_query_batch(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
         """Embed multiple query strings with BGE instruction prefix.
