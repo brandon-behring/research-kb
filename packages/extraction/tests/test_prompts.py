@@ -111,7 +111,7 @@ def test_format_extraction_prompt_full():
     """Test formatting full extraction prompt."""
     chunk = "Instrumental variables address endogeneity bias."
 
-    formatted = format_extraction_prompt(chunk, prompt_type="full")
+    formatted = format_extraction_prompt(chunk, domain_id="causal_inference", prompt_type="full")
 
     assert chunk in formatted
     assert "JSON" in formatted or "json" in formatted
@@ -122,7 +122,9 @@ def test_format_extraction_prompt_definition():
     """Test formatting definition extraction prompt."""
     chunk = "A valid instrumental variable must satisfy two conditions."
 
-    formatted = format_extraction_prompt(chunk, prompt_type="definition")
+    formatted = format_extraction_prompt(
+        chunk, domain_id="causal_inference", prompt_type="definition"
+    )
 
     assert chunk in formatted
     assert "definition" in formatted.lower()
@@ -133,7 +135,9 @@ def test_format_extraction_prompt_relationship():
     """Test formatting relationship extraction prompt."""
     chunk = "The DiD method requires the parallel trends assumption."
 
-    formatted = format_extraction_prompt(chunk, prompt_type="relationship")
+    formatted = format_extraction_prompt(
+        chunk, domain_id="causal_inference", prompt_type="relationship"
+    )
 
     assert chunk in formatted
     assert "method" in formatted.lower()
@@ -144,7 +148,7 @@ def test_format_extraction_prompt_quick():
     """Test formatting quick extraction prompt."""
     chunk = "This is a test chunk."
 
-    formatted = format_extraction_prompt(chunk, prompt_type="quick")
+    formatted = format_extraction_prompt(chunk, domain_id="causal_inference", prompt_type="quick")
 
     assert chunk in formatted
     assert len(formatted) < 500  # Quick prompt should be short
@@ -155,7 +159,7 @@ def test_format_extraction_prompt_default():
     chunk = "Test text"
 
     # Should default to full extraction
-    formatted = format_extraction_prompt(chunk)
+    formatted = format_extraction_prompt(chunk, domain_id="causal_inference")
 
     assert chunk in formatted
     assert "EXTRACTION_PROMPT" in formatted or "concept" in formatted.lower()
@@ -165,7 +169,9 @@ def test_format_extraction_prompt_invalid_type():
     """Test formatting with invalid prompt type falls back to default."""
     chunk = "Test text"
 
-    formatted = format_extraction_prompt(chunk, prompt_type="invalid_type")
+    formatted = format_extraction_prompt(
+        chunk, domain_id="causal_inference", prompt_type="invalid_type"
+    )
 
     # Should fallback to full extraction
     assert chunk in formatted
@@ -213,7 +219,7 @@ def test_format_extraction_prompt_preserves_special_characters():
     """Test formatting handles special characters in chunk text."""
     chunk = 'Text with "quotes" and {braces} and $math$'
 
-    formatted = format_extraction_prompt(chunk, prompt_type="full")
+    formatted = format_extraction_prompt(chunk, domain_id="causal_inference", prompt_type="full")
 
     assert chunk in formatted
 
@@ -224,7 +230,7 @@ def test_format_extraction_prompt_multiline_text():
 It has several lines.
 Including math notation: Y = βX + ε"""
 
-    formatted = format_extraction_prompt(chunk, prompt_type="full")
+    formatted = format_extraction_prompt(chunk, domain_id="causal_inference", prompt_type="full")
 
     assert chunk in formatted
     assert "Y = βX + ε" in formatted
@@ -283,7 +289,7 @@ def test_relationship_types_are_uppercase():
 
 def test_format_extraction_prompt_empty_chunk():
     """Test formatting with empty chunk."""
-    formatted = format_extraction_prompt("", prompt_type="full")
+    formatted = format_extraction_prompt("", domain_id="causal_inference", prompt_type="full")
 
     # Should still be valid prompt, just with empty text section
     assert isinstance(formatted, str)

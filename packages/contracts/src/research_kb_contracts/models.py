@@ -60,7 +60,6 @@ class Source(BaseModel):
 
     # Domain scoping (multi-domain support)
     domain_id: str = Field(
-        default="causal_inference",
         description="Knowledge domain this source belongs to",
     )
 
@@ -96,7 +95,6 @@ class Chunk(BaseModel):
 
     # Domain scoping (denormalized from source for query performance)
     domain_id: str = Field(
-        default="causal_inference",
         description="Knowledge domain (inherited from source)",
     )
 
@@ -305,7 +303,6 @@ class Concept(BaseModel):
 
     # Domain scoping (multi-domain support)
     domain_id: str = Field(
-        default="causal_inference",
         description="Knowledge domain this concept belongs to",
     )
     category: Optional[str] = None  # identification, estimation, testing

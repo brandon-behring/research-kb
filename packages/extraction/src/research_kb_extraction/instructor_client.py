@@ -99,8 +99,8 @@ class InstructorOllamaClient(LLMClient):
     async def extract_concepts(
         self,
         chunk: str,
+        domain_id: str,
         prompt_type: str = "full",
-        domain_id: str = "causal_inference",
     ) -> ChunkExtraction:
         """Extract concepts using instructor for validation.
 
@@ -112,7 +112,7 @@ class InstructorOllamaClient(LLMClient):
         Returns:
             ChunkExtraction with validated concepts and relationships
         """
-        prompt = format_extraction_prompt(chunk, prompt_type, domain_id)
+        prompt = format_extraction_prompt(chunk, domain_id, prompt_type)
 
         logger.debug(
             "extracting_concepts_instructor",

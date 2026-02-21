@@ -908,6 +908,24 @@ Broader concepts (use when more appropriate):
     },
 }
 
+# Generic fallback for unknown domains — domain-agnostic extraction guidance
+_GENERIC_DOMAIN_CONFIG: dict[str, Any] = {
+    "name": "General",
+    "description": "Generic knowledge domain (no domain-specific guidance)",
+    "concept_type_guidance": """General knowledge extraction:
+1. method: Procedures, algorithms, or systematic approaches
+2. assumption: Conditions or requirements for validity
+3. problem: Issues, challenges, or questions being addressed
+4. definition: Formal definitions of terms or concepts
+5. theorem: Formal mathematical or logical results
+6. concept: General concepts not fitting other types
+7. principle: Foundational principles or laws
+8. technique: Applied techniques or practices
+9. model: Formal models, frameworks, or architectures""",
+    "examples": [],
+    "abbreviations": {},
+}
+
 
 def get_domain_prompt_section(domain_id: str) -> str:
     """Get domain-specific concept type guidance for injection into extraction prompt.
@@ -923,7 +941,7 @@ def get_domain_prompt_section(domain_id: str) -> str:
         >>> "ARIMA" in guidance
         True
     """
-    config = DOMAIN_PROMPTS.get(domain_id, DOMAIN_PROMPTS["causal_inference"])
+    config = DOMAIN_PROMPTS.get(domain_id, _GENERIC_DOMAIN_CONFIG)
     return config["concept_type_guidance"]
 
 
@@ -941,7 +959,7 @@ def get_domain_abbreviations(domain_id: str) -> dict[str, str]:
         >>> abbrevs["arima"]
         'autoregressive integrated moving average'
     """
-    config = DOMAIN_PROMPTS.get(domain_id, DOMAIN_PROMPTS["causal_inference"])
+    config = DOMAIN_PROMPTS.get(domain_id, _GENERIC_DOMAIN_CONFIG)
     return config.get("abbreviations", {})
 
 
@@ -959,7 +977,7 @@ def get_domain_config(domain_id: str) -> dict[str, Any]:
         >>> config["name"]
         'Causal Inference'
     """
-    return DOMAIN_PROMPTS.get(domain_id, DOMAIN_PROMPTS["causal_inference"])
+    return DOMAIN_PROMPTS.get(domain_id, _GENERIC_DOMAIN_CONFIG)
 
 
 def list_domains() -> list[str]:

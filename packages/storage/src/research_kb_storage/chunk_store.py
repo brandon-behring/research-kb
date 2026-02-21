@@ -34,12 +34,12 @@ class ChunkStore:
         source_id: UUID,
         content: str,
         content_hash: str,
+        domain_id: str,
         location: Optional[str] = None,
         page_start: Optional[int] = None,
         page_end: Optional[int] = None,
         embedding: Optional[list[float]] = None,
         metadata: Optional[ChunkMetadata] = None,
-        domain_id: str = "causal_inference",
     ) -> Chunk:
         """Create a new chunk record.
 

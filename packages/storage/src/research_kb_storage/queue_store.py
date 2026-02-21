@@ -39,13 +39,13 @@ class QueueStore:
     async def add(
         s2_paper_id: str,
         title: str,
+        domain_id: str,
         pdf_url: Optional[str] = None,
         doi: Optional[str] = None,
         arxiv_id: Optional[str] = None,
         authors: Optional[list[str]] = None,
         year: Optional[int] = None,
         venue: Optional[str] = None,
-        domain_id: str = "causal_inference",
         priority: int = 0,
         metadata: Optional[dict[str, Any]] = None,
     ) -> UUID:
@@ -164,7 +164,7 @@ class QueueStore:
                     authors=paper.get("authors"),
                     year=paper.get("year"),
                     venue=paper.get("venue"),
-                    domain_id=paper.get("domain_id", "causal_inference"),
+                    domain_id=paper["domain_id"],
                     priority=paper.get("priority", 0),
                     metadata=paper.get("metadata"),
                 )

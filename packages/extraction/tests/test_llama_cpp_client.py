@@ -295,7 +295,7 @@ class TestLlamaCppExtraction:
         client = LlamaCppClient()
 
         with patch.object(client, "generate", return_value=json.dumps(extraction_json)):
-            result = await client.extract_concepts("Text about DML")
+            result = await client.extract_concepts("Text about DML", domain_id="causal_inference")
 
             assert isinstance(result, ChunkExtraction)
             assert len(result.concepts) == 1
@@ -310,7 +310,7 @@ class TestLlamaCppExtraction:
         client = LlamaCppClient()
 
         with patch.object(client, "generate", return_value="Not valid JSON"):
-            result = await client.extract_concepts("Sample text")
+            result = await client.extract_concepts("Sample text", domain_id="causal_inference")
 
             # Should return empty extraction, not raise
             assert isinstance(result, ChunkExtraction)
@@ -326,7 +326,7 @@ class TestLlamaCppExtraction:
         client = LlamaCppClient()
 
         with patch.object(client, "generate", return_value=json.dumps(invalid_json)):
-            result = await client.extract_concepts("Sample text")
+            result = await client.extract_concepts("Sample text", domain_id="causal_inference")
 
             # Should return empty extraction, not raise
             assert isinstance(result, ChunkExtraction)

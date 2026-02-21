@@ -125,7 +125,7 @@ class BatchClient:
             max_retries=self.max_retries,
         )
 
-    def _build_request(self, custom_id: str, chunk: str) -> dict:
+    def _build_request(self, custom_id: str, chunk: str, domain_id: str) -> dict:
         """Build a single batch request."""
         return {
             "custom_id": custom_id,
@@ -134,7 +134,12 @@ class BatchClient:
                 "max_tokens": 4096,
                 "temperature": 0.1,
                 "system": SYSTEM_PROMPT,
-                "messages": [{"role": "user", "content": format_extraction_prompt(chunk, "full")}],
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": format_extraction_prompt(chunk, domain_id, prompt_type="full"),
+                    }
+                ],
                 "tools": [EXTRACTION_TOOL],
                 "tool_choice": {"type": "tool", "name": "extract_concepts"},
             },
@@ -143,12 +148,14 @@ class BatchClient:
     async def submit_batch(
         self,
         chunks: list[tuple[UUID, str]],
+        domain_id: str,
         batch_name: Optional[str] = None,
     ) -> str:
         """Submit a batch of chunks for extraction.
 
         Args:
             chunks: List of (chunk_id, content) tuples
+            domain_id: Knowledge domain for extraction
             batch_name: Optional name for tracking
 
         Returns:
@@ -164,7 +171,7 @@ class BatchClient:
         requests = []
         for chunk_id, content in chunks:
             custom_id = f"{chunk_id}"
-            requests.append(self._build_request(custom_id, content))
+            requests.append(self._build_request(custom_id, content, domain_id))
 
         logger.info(
             "submitting_batch",
@@ -320,12 +327,14 @@ class BatchClient:
     async def extract_with_retry(
         self,
         chunks: list[tuple[UUID, str]],
+        domain_id: str,
         batch_name: Optional[str] = None,
     ) -> tuple[list[BatchResult], list[QuarantinedChunk]]:
         """Extract with automatic retry for failures.
 
         Args:
             chunks: List of (chunk_id, content) tuples
+            domain_id: Knowledge domain for extraction
             batch_name: Optional batch name
 
         Returns:
@@ -347,6 +356,7 @@ class BatchClient:
             # Submit batch
             batch_id = await self.submit_batch(
                 list(pending.values()),
+                domain_id=domain_id,
                 batch_name=f"{batch_name}_attempt{attempt}" if batch_name else None,
             )
 

@@ -14,7 +14,7 @@ class TestCanonicalName:
 
     def test_abbreviation_expansion(self):
         """Test abbreviation expansion."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         assert dedup.to_canonical_name("IV") == "instrumental variables"
         assert dedup.to_canonical_name("iv") == "instrumental variables"
@@ -27,14 +27,14 @@ class TestCanonicalName:
 
     def test_whitespace_normalization(self):
         """Test whitespace handling."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         assert dedup.to_canonical_name("  instrumental   variables  ") == "instrumental variables"
         assert dedup.to_canonical_name("difference\tin\tdifferences") == "difference in differences"
 
     def test_parenthetical_removal(self):
         """Test parenthetical content removal."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         result = dedup.to_canonical_name("instrumental variables (IV)")
         assert result == "instrumental variables"
@@ -44,7 +44,7 @@ class TestCanonicalName:
 
     def test_special_character_removal(self):
         """Test special character handling."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         # Hyphens preserved
         assert "difference-in-differences" in dedup.to_canonical_name("difference-in-differences")
@@ -56,7 +56,7 @@ class TestCanonicalName:
 
     def test_passthrough_unknown(self):
         """Test unknown terms pass through normalized."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         assert dedup.to_canonical_name("propensity score matching") == "propensity score matching"
         assert dedup.to_canonical_name("Causal Forest") == "causal forest"
@@ -67,7 +67,7 @@ class TestKnownConceptManagement:
 
     def test_register_concept(self):
         """Test registering a known concept."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
         concept_id = uuid4()
 
         dedup.register_known_concept("instrumental variables", concept_id)
@@ -77,7 +77,7 @@ class TestKnownConceptManagement:
 
     def test_load_multiple_concepts(self):
         """Test loading multiple concepts."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
         concepts = {
             "instrumental variables": uuid4(),
             "difference-in-differences": uuid4(),
@@ -91,7 +91,7 @@ class TestKnownConceptManagement:
 
     def test_find_nonexistent(self):
         """Test finding non-existent concept."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         assert dedup.find_existing_concept("unknown concept") is None
 
@@ -102,7 +102,7 @@ class TestDeduplication:
     @pytest.mark.asyncio
     async def test_deduplicate_unique_concepts(self):
         """Test deduplicating unique concepts."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         concepts = [
             ExtractedConcept(name="instrumental variables", concept_type="method"),
@@ -118,7 +118,7 @@ class TestDeduplication:
     @pytest.mark.asyncio
     async def test_deduplicate_with_abbreviations(self):
         """Test deduplicating concepts with abbreviations."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         concepts = [
             ExtractedConcept(name="instrumental variables", concept_type="method"),
@@ -141,7 +141,7 @@ class TestDeduplication:
     @pytest.mark.asyncio
     async def test_deduplicate_against_known(self):
         """Test deduplicating against pre-registered concepts."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
         existing_id = uuid4()
         dedup.register_known_concept("instrumental variables", existing_id)
 
@@ -158,7 +158,7 @@ class TestDeduplication:
     @pytest.mark.asyncio
     async def test_deduplicate_empty(self):
         """Test deduplicating empty list."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         results = await dedup.deduplicate_batch([])
 
@@ -171,7 +171,7 @@ class TestSimilarity:
     @pytest.mark.asyncio
     async def test_exact_canonical_match(self):
         """Test exact canonical name match."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         c1 = ExtractedConcept(name="instrumental variables", concept_type="method")
         c2 = ExtractedConcept(name="Instrumental Variables", concept_type="method")
@@ -182,7 +182,7 @@ class TestSimilarity:
     @pytest.mark.asyncio
     async def test_alias_match(self):
         """Test alias matching gives high similarity."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         c1 = ExtractedConcept(
             name="instrumental variables",
@@ -197,7 +197,7 @@ class TestSimilarity:
     @pytest.mark.asyncio
     async def test_different_concepts(self):
         """Test different concepts have low similarity."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         c1 = ExtractedConcept(name="instrumental variables", concept_type="method")
         c2 = ExtractedConcept(name="propensity score matching", concept_type="method")
@@ -211,7 +211,7 @@ class TestAliases:
 
     def test_get_all_aliases(self):
         """Test getting all aliases including abbreviations."""
-        dedup = Deduplicator()
+        dedup = Deduplicator(domain_id="causal_inference")
 
         concept = ExtractedConcept(
             name="instrumental variables",

@@ -267,6 +267,7 @@ class QueryExpander:
         self,
         query: str,
         max_terms: int = 3,
+        domain: str | None = None,
     ) -> list[str]:
         """Expand query using LLM (Ollama).
 
@@ -276,6 +277,7 @@ class QueryExpander:
         Args:
             query: User query text
             max_terms: Maximum terms to generate
+            domain: Knowledge domain for context (e.g. "causal inference")
 
         Returns:
             List of LLM-generated expansion terms
@@ -289,7 +291,8 @@ class QueryExpander:
                 logger.debug("ollama_unavailable_for_expansion")
                 return []
 
-            prompt = f"""You are expanding a search query about causal inference and econometrics.
+            domain_context = f" about {domain}" if domain else ""
+            prompt = f"""You are expanding a search query{domain_context}.
 
 Given the query: "{query}"
 
@@ -543,30 +546,32 @@ class HydeConfig:
     max_length: int = 200  # Words in hypothetical document
 
 
-HYDE_PROMPT_TEMPLATE = """You are a research assistant specializing in causal inference and econometrics.
+HYDE_PROMPT_TEMPLATE = """You are a research assistant{domain_context}.
 
 Given a search query, generate a hypothetical paragraph from a textbook or paper that would directly answer this query. Write as if you are quoting from an authoritative source.
 
 Query: {query}
 
-Write a {max_length}-word paragraph that would appear in a causal inference textbook answering this query. Be technical and precise. Do not include any preamble or explanation - just write the hypothetical passage."""
+Write a {max_length}-word paragraph that would appear in a research textbook answering this query. Be technical and precise. Do not include any preamble or explanation - just write the hypothetical passage."""
 
 
 async def generate_hyde_document(
     query: str,
     config: Optional[HydeConfig] = None,
+    domain: str | None = None,
 ) -> Optional[str]:
     """Generate hypothetical document for HyDE query expansion.
 
     Args:
         query: User search query
         config: HyDE configuration (defaults to Ollama backend)
+        domain: Knowledge domain for context (e.g. "causal inference")
 
     Returns:
         Hypothetical document text, or None if generation fails
 
     Example:
-        >>> doc = await generate_hyde_document("instrumental variables")
+        >>> doc = await generate_hyde_document("instrumental variables", domain="causal inference")
         >>> print(doc[:100])
         'Instrumental variables (IV) estimation is a technique used to...'
     """
@@ -576,9 +581,11 @@ async def generate_hyde_document(
     if not config.enabled:
         return None
 
+    domain_context = f" specializing in {domain}" if domain else ""
     prompt = HYDE_PROMPT_TEMPLATE.format(
         query=query,
         max_length=config.max_length,
+        domain_context=domain_context,
     )
 
     try:

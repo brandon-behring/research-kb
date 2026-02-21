@@ -51,7 +51,7 @@ class ConcreteClient(LLMClient):
         self._extract_result = ChunkExtraction(concepts=[], relationships=[])
 
     async def extract_concepts(
-        self, chunk: str, prompt_type: str = "full", domain_id: str = "causal_inference"
+        self, chunk: str, domain_id: str = "causal_inference", prompt_type: str = "full"
     ) -> ChunkExtraction:
         """Extract concepts from text."""
         return self._extract_result
@@ -91,7 +91,7 @@ class TestConcreteImplementation:
         """Test extract_concepts returns ChunkExtraction."""
         client = ConcreteClient()
 
-        result = await client.extract_concepts("Test chunk text")
+        result = await client.extract_concepts("Test chunk text", domain_id="causal_inference")
 
         assert isinstance(result, ChunkExtraction)
 
@@ -128,7 +128,7 @@ class TestExtractBatch:
         )
 
         chunks = ["chunk 1", "chunk 2", "chunk 3"]
-        results = await client.extract_batch(chunks)
+        results = await client.extract_batch(chunks, domain_id="causal_inference")
 
         assert len(results) == 3
         assert all(isinstance(r, ChunkExtraction) for r in results)
@@ -138,7 +138,7 @@ class TestExtractBatch:
         """Test extract_batch with empty chunk list."""
         client = ConcreteClient()
 
-        results = await client.extract_batch([])
+        results = await client.extract_batch([], domain_id="causal_inference")
 
         assert results == []
 
@@ -149,15 +149,15 @@ class TestExtractBatch:
         call_count = 0
         original_extract = client.extract_concepts
 
-        async def counting_extract(chunk, prompt_type="full", domain_id="causal_inference"):
+        async def counting_extract(chunk, domain_id="causal_inference", prompt_type="full"):
             nonlocal call_count
             call_count += 1
-            return await original_extract(chunk, prompt_type, domain_id)
+            return await original_extract(chunk, domain_id, prompt_type)
 
         client.extract_concepts = counting_extract
 
         chunks = ["chunk 1", "chunk 2"]
-        await client.extract_batch(chunks)
+        await client.extract_batch(chunks, domain_id="causal_inference")
 
         assert call_count == 2
 
@@ -170,15 +170,17 @@ class TestExtractBatch:
             async def extract_concepts(
                 self,
                 chunk: str,
-                prompt_type: str = "full",
                 domain_id: str = "causal_inference",
+                prompt_type: str = "full",
             ):
                 captured_prompt_types.append(prompt_type)
                 return ChunkExtraction(concepts=[], relationships=[])
 
         client = CapturingClient()
 
-        await client.extract_batch(["chunk 1", "chunk 2"], prompt_type="quick")
+        await client.extract_batch(
+            ["chunk 1", "chunk 2"], domain_id="causal_inference", prompt_type="quick"
+        )
 
         assert all(pt == "quick" for pt in captured_prompt_types)
 
@@ -192,7 +194,7 @@ class TestExtractBatch:
             progress_calls.append((index, total))
 
         chunks = ["chunk 1", "chunk 2", "chunk 3"]
-        await client.extract_batch(chunks, on_progress=on_progress)
+        await client.extract_batch(chunks, domain_id="causal_inference", on_progress=on_progress)
 
         assert len(progress_calls) == 3
         assert progress_calls[0] == (1, 3)
@@ -205,7 +207,7 @@ class TestExtractBatch:
         client = ConcreteClient()
 
         # Should not raise
-        results = await client.extract_batch(["chunk 1", "chunk 2"])
+        results = await client.extract_batch(["chunk 1", "chunk 2"], domain_id="causal_inference")
 
         assert len(results) == 2
 
@@ -324,7 +326,9 @@ class TestEdgeCases:
         client = ConcreteClient()
 
         # Should not raise
-        results = await client.extract_batch(["chunk"], on_progress=None)
+        results = await client.extract_batch(
+            ["chunk"], domain_id="causal_inference", on_progress=None
+        )
 
         assert len(results) == 1
 
@@ -333,7 +337,7 @@ class TestEdgeCases:
         """Test extract_concepts handles empty string."""
         client = ConcreteClient()
 
-        result = await client.extract_concepts("")
+        result = await client.extract_concepts("", domain_id="causal_inference")
 
         assert isinstance(result, ChunkExtraction)
 
@@ -368,7 +372,7 @@ class TestPromptTypes:
                 return ChunkExtraction(concepts=[], relationships=[])
 
         client = CapturingClient()
-        await client.extract_concepts("test chunk")
+        await client.extract_concepts("test chunk", domain_id="causal_inference")
 
         assert captured_prompt_type == "full"
 
@@ -390,6 +394,8 @@ class TestPromptTypes:
                     return ChunkExtraction(concepts=[], relationships=[])
 
             client = CapturingClient()
-            await client.extract_concepts("test", prompt_type=prompt_type)
+            await client.extract_concepts(
+                "test", domain_id="causal_inference", prompt_type=prompt_type
+            )
 
             assert captured == prompt_type

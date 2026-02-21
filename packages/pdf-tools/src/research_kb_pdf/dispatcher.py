@@ -137,6 +137,7 @@ class PDFDispatcher:
         pdf_path: str | Path,
         source_type: SourceType,
         title: str,
+        domain_id: str,
         authors: Optional[list[str]] = None,
         year: Optional[int] = None,
         metadata: Optional[dict] = None,
@@ -275,10 +276,11 @@ class PDFDispatcher:
             source = await SourceStore.create(
                 source_type=source_type,
                 title=title,
+                file_hash=file_hash,
+                domain_id=domain_id,
                 authors=authors or [],
                 year=year,
                 file_path=str(pdf_path),
-                file_hash=file_hash,
                 metadata={
                     **(metadata or {}),
                     **grobid_metadata,

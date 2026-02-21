@@ -24,8 +24,8 @@ class LLMClient(ABC):
     async def extract_concepts(
         self,
         chunk: str,
+        domain_id: str,
         prompt_type: str = "full",
-        domain_id: str = "causal_inference",
     ) -> ChunkExtraction:
         """Extract structured concepts from a text chunk.
 
@@ -70,8 +70,8 @@ class LLMClient(ABC):
     async def extract_batch(
         self,
         chunks: list[str],
+        domain_id: str,
         prompt_type: str = "full",
-        domain_id: str = "causal_inference",
         on_progress: Optional[callable] = None,
     ) -> list[ChunkExtraction]:
         """Extract concepts from multiple chunks.
@@ -92,7 +92,7 @@ class LLMClient(ABC):
         total = len(chunks)
 
         for i, chunk in enumerate(chunks):
-            result = await self.extract_concepts(chunk, prompt_type, domain_id)
+            result = await self.extract_concepts(chunk, domain_id, prompt_type)
             results.append(result)
 
             if on_progress:

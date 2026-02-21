@@ -14,6 +14,7 @@ pytestmark = pytest.mark.integration
 async def test_source(db_pool):
     """Create a test source for chunk tests."""
     source = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.TEXTBOOK,
         title="Test Textbook",
         file_hash="sha256:testsource123",
@@ -27,6 +28,7 @@ class TestChunkStoreCreate:
     async def test_create_minimal_chunk(self, test_source):
         """Test creating chunk with minimal required fields."""
         chunk = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content="Test chunk content",
             content_hash="sha256:chunk123",
@@ -44,6 +46,7 @@ class TestChunkStoreCreate:
         embedding = [0.1] * 1024  # BGE-large-en-v1.5
 
         chunk = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content="Chunk with embedding",
             content_hash="sha256:embedded",
@@ -57,6 +60,7 @@ class TestChunkStoreCreate:
     async def test_create_chunk_with_full_metadata(self, test_source):
         """Test creating chunk with all fields."""
         chunk = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content="The backdoor criterion states...",
             content_hash="sha256:theorem",
@@ -84,6 +88,7 @@ class TestChunkStoreRetrieve:
     async def test_get_by_id_found(self, test_source):
         """Test retrieving chunk by ID when it exists."""
         created = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content="Test content",
             content_hash="sha256:getbyid",
@@ -105,6 +110,7 @@ class TestChunkStoreRetrieve:
         # Create 5 chunks for the source
         for i in range(5):
             await ChunkStore.create(
+                domain_id="causal_inference",
                 source_id=test_source.id,
                 content=f"Chunk {i} content",
                 content_hash=f"sha256:chunk{i}",
@@ -120,6 +126,7 @@ class TestChunkStoreRetrieve:
         # Create 10 chunks
         for i in range(10):
             await ChunkStore.create(
+                domain_id="causal_inference",
                 source_id=test_source.id,
                 content=f"Chunk {i}",
                 content_hash=f"sha256:page{i}",
@@ -145,6 +152,7 @@ class TestChunkStoreUpdate:
     async def test_update_embedding(self, test_source):
         """Test updating chunk embedding."""
         chunk = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content="Test",
             content_hash="sha256:updateembed",
@@ -215,11 +223,13 @@ class TestChunkStoreBatch:
     async def test_create_idempotent(self, test_source):
         """Re-inserting same chunk via create() returns existing."""
         first = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content="Single dedup test",
             content_hash="sha256:test_dedup_single",
         )
         second = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content="Single dedup test",
             content_hash="sha256:test_dedup_single",
@@ -234,6 +244,7 @@ class TestChunkStoreDelete:
     async def test_delete_existing_chunk(self, test_source):
         """Test deleting existing chunk returns True."""
         chunk = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content="To be deleted",
             content_hash="sha256:delete",
@@ -264,6 +275,7 @@ class TestChunkStoreCount:
         # Create 7 chunks
         for i in range(7):
             await ChunkStore.create(
+                domain_id="causal_inference",
                 source_id=test_source.id,
                 content=f"Chunk {i}",
                 content_hash=f"sha256:count{i}",
@@ -282,6 +294,7 @@ class TestChunkStoreCascadeDelete:
         chunk_ids = []
         for i in range(3):
             chunk = await ChunkStore.create(
+                domain_id="causal_inference",
                 source_id=test_source.id,
                 content=f"Chunk {i}",
                 content_hash=f"sha256:cascade{i}",

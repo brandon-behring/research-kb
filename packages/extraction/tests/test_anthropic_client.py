@@ -175,7 +175,9 @@ class TestAnthropicExtraction:
                 from research_kb_extraction.anthropic_client import AnthropicClient
 
                 client = AnthropicClient()
-                result = await client.extract_concepts("Sample text about IV")
+                result = await client.extract_concepts(
+                    "Sample text about IV", domain_id="causal_inference"
+                )
 
                 assert isinstance(result, ChunkExtraction)
                 assert len(result.concepts) == 1
@@ -202,7 +204,7 @@ class TestAnthropicExtraction:
                 from research_kb_extraction.anthropic_client import AnthropicClient
 
                 client = AnthropicClient()
-                result = await client.extract_concepts("Sample text")
+                result = await client.extract_concepts("Sample text", domain_id="causal_inference")
 
                 assert isinstance(result, ChunkExtraction)
                 assert len(result.concepts) == 0
@@ -231,7 +233,7 @@ class TestAnthropicExtraction:
                 from research_kb_extraction.anthropic_client import AnthropicClient
 
                 client = AnthropicClient()
-                result = await client.extract_concepts("Sample text")
+                result = await client.extract_concepts("Sample text", domain_id="causal_inference")
 
                 # Should return empty extraction, not raise
                 assert isinstance(result, ChunkExtraction)
@@ -254,7 +256,7 @@ class TestAnthropicExtraction:
                 client = AnthropicClient()
 
                 with pytest.raises(AnthropicError) as exc_info:
-                    await client.extract_concepts("Sample text")
+                    await client.extract_concepts("Sample text", domain_id="causal_inference")
 
                 assert "Rate limited" in str(exc_info.value)
 

@@ -186,8 +186,8 @@ TEXT: {chunk}
 
 def format_extraction_prompt(
     chunk: str,
+    domain_id: str,
     prompt_type: str = "full",
-    domain_id: str = "causal_inference",
 ) -> str:
     """Format the appropriate prompt with the chunk text and domain guidance.
 

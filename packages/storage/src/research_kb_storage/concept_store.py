@@ -35,6 +35,7 @@ class ConceptStore:
         name: str,
         canonical_name: str,
         concept_type: ConceptType,
+        domain_id: str,
         aliases: Optional[list[str]] = None,
         category: Optional[str] = None,
         definition: Optional[str] = None,
@@ -43,7 +44,6 @@ class ConceptStore:
         confidence_score: Optional[float] = None,
         validated: bool = False,
         metadata: Optional[dict] = None,
-        domain_id: str = "causal_inference",
     ) -> Concept:
         """Create a new concept record.
 
@@ -59,7 +59,7 @@ class ConceptStore:
             confidence_score: Extraction confidence 0.0-1.0
             validated: Whether manually reviewed
             metadata: Extensible JSONB metadata
-            domain_id: Knowledge domain (default: causal_inference)
+            domain_id: Knowledge domain (required)
 
         Returns:
             Created Concept

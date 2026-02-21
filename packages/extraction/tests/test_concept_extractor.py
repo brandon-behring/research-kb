@@ -49,7 +49,7 @@ class TestConceptExtractorInit:
 
     def test_default_config(self, mock_ollama):
         """Test default configuration."""
-        extractor = ConceptExtractor(ollama_client=mock_ollama)
+        extractor = ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama)
 
         assert extractor.confidence_threshold == 0.7
         assert extractor.min_chunk_length == 100
@@ -57,6 +57,7 @@ class TestConceptExtractorInit:
     def test_custom_config(self, mock_ollama):
         """Test custom configuration."""
         extractor = ConceptExtractor(
+            domain_id="causal_inference",
             ollama_client=mock_ollama,
             confidence_threshold=0.8,
             min_chunk_length=200,
@@ -83,7 +84,7 @@ class TestExtractFromChunk:
             relationships=[],
         )
 
-        extractor = ConceptExtractor(ollama_client=mock_ollama)
+        extractor = ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama)
         result = await extractor.extract_from_chunk(mock_chunk)
 
         assert isinstance(result, ChunkExtraction)
@@ -102,6 +103,7 @@ class TestExtractFromChunk:
         )
 
         extractor = ConceptExtractor(
+            domain_id="causal_inference",
             ollama_client=mock_ollama,
             min_chunk_length=100,
         )
@@ -122,6 +124,7 @@ class TestExtractFromChunk:
         )
 
         extractor = ConceptExtractor(
+            domain_id="causal_inference",
             ollama_client=mock_ollama,
             confidence_threshold=0.7,
         )
@@ -155,7 +158,7 @@ class TestExtractFromChunk:
             ],
         )
 
-        extractor = ConceptExtractor(ollama_client=mock_ollama)
+        extractor = ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama)
         result = await extractor.extract_from_chunk(mock_chunk)
 
         # Only valid relationship should remain
@@ -176,7 +179,7 @@ class TestExtractFromText:
             relationships=[],
         )
 
-        extractor = ConceptExtractor(ollama_client=mock_ollama)
+        extractor = ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama)
         result = await extractor.extract_from_text(sample_chunk_text)
 
         assert isinstance(result, ChunkExtraction)
@@ -186,6 +189,7 @@ class TestExtractFromText:
     async def test_extract_from_short_text(self, mock_ollama):
         """Test short text returns empty extraction."""
         extractor = ConceptExtractor(
+            domain_id="causal_inference",
             ollama_client=mock_ollama,
             min_chunk_length=100,
         )
@@ -212,7 +216,7 @@ class TestConceptNormalization:
             relationships=[],
         )
 
-        extractor = ConceptExtractor(ollama_client=mock_ollama)
+        extractor = ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama)
         result = await extractor.extract_from_chunk(mock_chunk)
 
         assert result.concepts[0].name == "instrumental variables"
@@ -231,7 +235,7 @@ class TestConceptNormalization:
             relationships=[],
         )
 
-        extractor = ConceptExtractor(ollama_client=mock_ollama)
+        extractor = ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama)
         result = await extractor.extract_from_chunk(mock_chunk)
 
         assert result.concepts[0].name == "instrumental variables"
@@ -262,7 +266,7 @@ class TestDeduplication:
             ),
         ]
 
-        extractor = ConceptExtractor(ollama_client=mock_ollama)
+        extractor = ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama)
         results = await extractor.deduplicate_concepts(extractions)
 
         # Should recognize IV and instrumental variables as same concept
@@ -277,7 +281,7 @@ class TestContextManager:
     @pytest.mark.asyncio
     async def test_context_manager_closes(self, mock_ollama):
         """Test context manager closes client."""
-        async with ConceptExtractor(ollama_client=mock_ollama):
+        async with ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama):
             pass
 
         mock_ollama.close.assert_called_once()

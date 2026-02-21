@@ -19,6 +19,7 @@ pytestmark = pytest.mark.integration
 async def test_source(db_pool):
     """Create test source for chunk creation."""
     source = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.TEXTBOOK,
         title="Test Textbook",
         file_hash=f"sha256:test_{uuid4().hex[:8]}",
@@ -31,6 +32,7 @@ async def test_source(db_pool):
 async def test_chunk(test_source, db_pool):
     """Create test chunk for linking."""
     chunk = await ChunkStore.create(
+        domain_id="causal_inference",
         source_id=test_source.id,
         content="This is a test chunk about instrumental variables.",
         content_hash=f"sha256:chunk_{uuid4().hex[:8]}",
@@ -46,6 +48,7 @@ class TestConceptStoreCreate:
     async def test_create_minimal(self, db_pool):
         """Test creating concept with minimal fields."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="instrumental variables",
             canonical_name=f"instrumental variables_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -60,6 +63,7 @@ class TestConceptStoreCreate:
         """Test creating concept with all fields."""
         embedding = [0.5] * 1024
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Difference-in-Differences",
             canonical_name=f"difference-in-differences_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -86,6 +90,7 @@ class TestConceptStoreCreate:
         canonical = f"unique_concept_{uuid4().hex[:8]}"
 
         await ConceptStore.create(
+            domain_id="causal_inference",
             name="Test",
             canonical_name=canonical,
             concept_type=ConceptType.METHOD,
@@ -95,6 +100,7 @@ class TestConceptStoreCreate:
 
         with pytest.raises(StorageError) as exc_info:
             await ConceptStore.create(
+                domain_id="causal_inference",
                 name="Test Duplicate",
                 canonical_name=canonical,
                 concept_type=ConceptType.ASSUMPTION,
@@ -109,6 +115,7 @@ class TestConceptStoreRetrieve:
     async def test_get_by_id(self, db_pool):
         """Test retrieving concept by ID."""
         created = await ConceptStore.create(
+            domain_id="causal_inference",
             name="test",
             canonical_name=f"test_{uuid4().hex[:8]}",
             concept_type=ConceptType.DEFINITION,
@@ -129,6 +136,7 @@ class TestConceptStoreRetrieve:
         """Test retrieving concept by canonical name."""
         canonical = f"canonical_test_{uuid4().hex[:8]}"
         await ConceptStore.create(
+            domain_id="causal_inference",
             name="Test Concept",
             canonical_name=canonical,
             concept_type=ConceptType.THEOREM,
@@ -144,6 +152,7 @@ class TestConceptStoreRetrieve:
         # Create some methods
         for i in range(3):
             await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Method {i}",
                 canonical_name=f"method_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.METHOD,
@@ -160,6 +169,7 @@ class TestConceptStoreUpdate:
     async def test_update_definition(self, db_pool):
         """Test updating definition."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="test",
             canonical_name=f"test_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -175,6 +185,7 @@ class TestConceptStoreUpdate:
     async def test_update_validated(self, db_pool):
         """Test marking as validated."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="test",
             canonical_name=f"test_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -214,6 +225,7 @@ class TestConceptStoreBatch:
         canonical = f"dup_batch_{uuid4().hex[:8]}"
 
         await ConceptStore.create(
+            domain_id="causal_inference",
             name="Existing",
             canonical_name=canonical,
             concept_type=ConceptType.METHOD,
@@ -245,11 +257,13 @@ class TestRelationshipStore:
     async def test_create_relationship(self, db_pool):
         """Test creating a relationship."""
         c1 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="IV",
             canonical_name=f"iv_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
         )
         c2 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Relevance",
             canonical_name=f"relevance_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -272,16 +286,19 @@ class TestRelationshipStore:
     async def test_list_from_concept(self, db_pool):
         """Test listing outgoing relationships."""
         c1 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Source",
             canonical_name=f"source_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
         )
         c2 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Target1",
             canonical_name=f"target1_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
         )
         c3 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Target2",
             canonical_name=f"target2_{uuid4().hex[:8]}",
             concept_type=ConceptType.PROBLEM,
@@ -306,16 +323,19 @@ class TestRelationshipStore:
     async def test_batch_create_relationships(self, db_pool):
         """Test batch creating relationships."""
         c1 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Method",
             canonical_name=f"method_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
         )
         c2 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Assumption1",
             canonical_name=f"assumption1_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
         )
         c3 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Assumption2",
             canonical_name=f"assumption2_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -345,6 +365,7 @@ class TestChunkConceptStore:
     async def test_create_link(self, test_chunk, db_pool):
         """Test creating chunk-concept link."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="IV",
             canonical_name=f"iv_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -365,11 +386,13 @@ class TestChunkConceptStore:
     async def test_list_concepts_for_chunk(self, test_chunk, db_pool):
         """Test listing concepts for a chunk."""
         c1 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Concept1",
             canonical_name=f"concept1_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
         )
         c2 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Concept2",
             canonical_name=f"concept2_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -390,6 +413,7 @@ class TestChunkConceptStore:
         concepts = []
         for i in range(3):
             c = await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Concept {i}",
                 canonical_name=f"concept_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.METHOD,
@@ -416,6 +440,7 @@ class TestChunkConceptStore:
         chunks = []
         for i in range(2):
             chunk = await ChunkStore.create(
+                domain_id="causal_inference",
                 source_id=test_source.id,
                 content=f"Chunk {i}",
                 content_hash=f"hash_{i}_{uuid4().hex[:8]}",
@@ -425,6 +450,7 @@ class TestChunkConceptStore:
 
         # Create concepts
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Shared Concept",
             canonical_name=f"shared_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,

@@ -15,6 +15,7 @@ async def test_create_chunk_concept_link(test_db, test_source):
     """Test creating a link between chunk and concept."""
     # Create chunk
     chunk = await ChunkStore.create(
+        domain_id="causal_inference",
         source_id=test_source.id,
         content="Discussion of instrumental variables estimation.",
         content_hash="hash1",
@@ -22,6 +23,7 @@ async def test_create_chunk_concept_link(test_db, test_source):
 
     # Create concept
     concept = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Instrumental Variables",
         canonical_name="instrumental_variables",
         concept_type=ConceptType.METHOD,
@@ -47,9 +49,13 @@ async def test_create_link_duplicate_fails(test_db, test_source):
     """Test that creating duplicate links fails."""
     # Create chunk and concept
     chunk = await ChunkStore.create(
-        source_id=test_source.id, content="Test content", content_hash="hash2"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Test content",
+        content_hash="hash2",
     )
     concept = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Test Concept",
         canonical_name="test_concept",
         concept_type=ConceptType.DEFINITION,
@@ -72,6 +78,7 @@ async def test_create_link_missing_chunk_fails(test_db):
     """Test that creating link with non-existent chunk fails."""
     # Create concept only
     concept = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Real Concept",
         canonical_name="real_concept",
         concept_type=ConceptType.DEFINITION,
@@ -90,7 +97,10 @@ async def test_create_link_missing_concept_fails(test_db, test_source):
     """Test that creating link with non-existent concept fails."""
     # Create chunk only
     chunk = await ChunkStore.create(
-        source_id=test_source.id, content="Test content", content_hash="hash3"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Test content",
+        content_hash="hash3",
     )
 
     # Try to create link with fake concept
@@ -106,6 +116,7 @@ async def test_list_concepts_for_chunk(test_db, test_source):
     """Test listing all concepts linked to a chunk."""
     # Create chunk
     chunk = await ChunkStore.create(
+        domain_id="causal_inference",
         source_id=test_source.id,
         content="Discussion of multiple concepts",
         content_hash="hash4",
@@ -113,11 +124,13 @@ async def test_list_concepts_for_chunk(test_db, test_source):
 
     # Create concepts
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept 1",
         canonical_name="concept_1",
         concept_type=ConceptType.DEFINITION,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept 2",
         canonical_name="concept_2",
         concept_type=ConceptType.DEFINITION,
@@ -151,6 +164,7 @@ async def test_list_chunks_for_concept(test_db, test_source):
     """Test listing all chunks that mention a concept."""
     # Create concept
     concept = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Popular Concept",
         canonical_name="popular_concept",
         concept_type=ConceptType.DEFINITION,
@@ -158,10 +172,16 @@ async def test_list_chunks_for_concept(test_db, test_source):
 
     # Create chunks
     chunk1 = await ChunkStore.create(
-        source_id=test_source.id, content="First mention", content_hash="hash6"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="First mention",
+        content_hash="hash6",
     )
     chunk2 = await ChunkStore.create(
-        source_id=test_source.id, content="Second mention", content_hash="hash7"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Second mention",
+        content_hash="hash7",
     )
 
     # Create links
@@ -192,9 +212,13 @@ async def test_delete_chunk_concept_link(test_db, test_source):
     """Test deleting a specific chunk-concept link."""
     # Create chunk and concept
     chunk = await ChunkStore.create(
-        source_id=test_source.id, content="Test content", content_hash="hash8"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Test content",
+        content_hash="hash8",
     )
     concept = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept to Delete",
         canonical_name="concept_to_delete",
         concept_type=ConceptType.DEFINITION,
@@ -222,12 +246,16 @@ async def test_delete_all_for_chunk(test_db, test_source):
     """Test deleting all concept links for a chunk."""
     # Create chunk
     chunk = await ChunkStore.create(
-        source_id=test_source.id, content="Multiple concepts", content_hash="hash10"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Multiple concepts",
+        content_hash="hash10",
     )
 
     # Create concepts and links
     for i in range(3):
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name=f"Concept {i}",
             canonical_name=f"concept_{i}",
             concept_type=ConceptType.DEFINITION,
@@ -251,6 +279,7 @@ async def test_count_for_concept(test_db, test_source):
     """Test counting chunks that mention a concept."""
     # Create concept
     concept = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Counted Concept",
         canonical_name="counted_concept",
         concept_type=ConceptType.DEFINITION,
@@ -263,6 +292,7 @@ async def test_count_for_concept(test_db, test_source):
     # Create chunks and links
     for i in range(4):
         chunk = await ChunkStore.create(
+            domain_id="causal_inference",
             source_id=test_source.id,
             content=f"Chunk {i}",
             content_hash=f"hash_count_{i}",
@@ -281,13 +311,17 @@ async def test_batch_create_links(test_db, test_source):
     """Test batch creating chunk-concept links."""
     # Create chunk
     chunk = await ChunkStore.create(
-        source_id=test_source.id, content="Batch test", content_hash="hash11"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Batch test",
+        content_hash="hash11",
     )
 
     # Create concepts
     concepts = []
     for i in range(3):
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name=f"Batch Concept {i}",
             canonical_name=f"batch_concept_{i}",
             concept_type=ConceptType.DEFINITION,
@@ -331,22 +365,33 @@ async def test_get_concept_ids_for_chunks(test_db, test_source):
     """Test getting concept IDs for multiple chunks (batch operation)."""
     # Create chunks
     chunk1 = await ChunkStore.create(
-        source_id=test_source.id, content="First chunk", content_hash="hash13"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="First chunk",
+        content_hash="hash13",
     )
     chunk2 = await ChunkStore.create(
-        source_id=test_source.id, content="Second chunk", content_hash="hash14"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Second chunk",
+        content_hash="hash14",
     )
     chunk3 = await ChunkStore.create(
-        source_id=test_source.id, content="Third chunk", content_hash="hash15"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Third chunk",
+        content_hash="hash15",
     )
 
     # Create concepts
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept A",
         canonical_name="concept_a",
         concept_type=ConceptType.DEFINITION,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept B",
         canonical_name="concept_b",
         concept_type=ConceptType.DEFINITION,
@@ -389,19 +434,27 @@ async def test_get_concept_info_for_chunks(test_db, test_source):
     """Test getting concept info with mention_type and relevance_score."""
     # Create chunks
     chunk1 = await ChunkStore.create(
-        source_id=test_source.id, content="Info chunk 1", content_hash="hash_info_1"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Info chunk 1",
+        content_hash="hash_info_1",
     )
     chunk2 = await ChunkStore.create(
-        source_id=test_source.id, content="Info chunk 2", content_hash="hash_info_2"
+        domain_id="causal_inference",
+        source_id=test_source.id,
+        content="Info chunk 2",
+        content_hash="hash_info_2",
     )
 
     # Create concepts
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept Info A",
         canonical_name="concept_info_a",
         concept_type=ConceptType.DEFINITION,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept Info B",
         canonical_name="concept_info_b",
         concept_type=ConceptType.METHOD,

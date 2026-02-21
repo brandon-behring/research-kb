@@ -117,11 +117,11 @@ class TestGetDomainPromptSection:
         guidance = get_domain_prompt_section("rag_llm")
         assert "retrieval" in guidance.lower() or "RAG" in guidance
 
-    def test_unknown_domain_falls_back_to_causal_inference(self):
-        """Unknown domain ID falls back to causal_inference guidance."""
+    def test_unknown_domain_falls_back_to_generic(self):
+        """Unknown domain ID falls back to generic guidance."""
         guidance_unknown = get_domain_prompt_section("nonexistent_domain")
-        guidance_ci = get_domain_prompt_section("causal_inference")
-        assert guidance_unknown == guidance_ci
+        assert "General knowledge extraction" in guidance_unknown
+        assert "method" in guidance_unknown.lower()
 
 
 class TestGetDomainAbbreviations:
@@ -162,11 +162,10 @@ class TestGetDomainAbbreviations:
         assert abbrevs["rag"] == "retrieval-augmented generation"
         assert abbrevs["llm"] == "large language model"
 
-    def test_unknown_domain_falls_back_to_causal_inference(self):
-        """Unknown domain ID falls back to causal_inference abbreviations."""
+    def test_unknown_domain_falls_back_to_generic(self):
+        """Unknown domain ID falls back to generic (empty) abbreviations."""
         abbrevs_unknown = get_domain_abbreviations("nonexistent_domain")
-        abbrevs_ci = get_domain_abbreviations("causal_inference")
-        assert abbrevs_unknown == abbrevs_ci
+        assert abbrevs_unknown == {}
 
 
 class TestGetDomainConfig:
@@ -184,11 +183,11 @@ class TestGetDomainConfig:
         config = get_domain_config("causal_inference")
         assert config["name"] == "Causal Inference"
 
-    def test_unknown_domain_falls_back_to_causal_inference(self):
-        """Unknown domain ID falls back to causal_inference config."""
+    def test_unknown_domain_falls_back_to_generic(self):
+        """Unknown domain ID falls back to generic config."""
         config_unknown = get_domain_config("nonexistent_domain")
-        config_ci = get_domain_config("causal_inference")
-        assert config_unknown == config_ci
+        assert config_unknown["name"] == "General"
+        assert config_unknown["abbreviations"] == {}
 
 
 class TestListDomains:

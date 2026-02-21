@@ -33,11 +33,11 @@ class SourceStore:
         source_type: SourceType,
         title: str,
         file_hash: str,
+        domain_id: str,
         authors: Optional[list[str]] = None,
         year: Optional[int] = None,
         file_path: Optional[str] = None,
         metadata: Optional[SourceMetadata] = None,
-        domain_id: str = "causal_inference",
     ) -> Source:
         """Create a new source record.
 
@@ -49,7 +49,7 @@ class SourceStore:
             year: Publication year
             file_path: Path to source file
             metadata: Extensible JSONB metadata
-            domain_id: Knowledge domain (default: causal_inference)
+            domain_id: Knowledge domain (required)
 
         Returns:
             Created Source

@@ -15,11 +15,13 @@ async def test_create_relationship(test_db):
     """Test creating a relationship between concepts."""
     # Create two concepts first
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Instrumental Variables",
         canonical_name="instrumental_variables",
         concept_type=ConceptType.METHOD,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Endogeneity",
         canonical_name="endogeneity",
         concept_type=ConceptType.PROBLEM,
@@ -49,11 +51,13 @@ async def test_create_relationship_with_evidence(test_db):
     """Test creating a relationship with evidence chunks."""
     # Create concepts
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Regression Discontinuity",
         canonical_name="regression_discontinuity",
         concept_type=ConceptType.METHOD,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Treatment Effect",
         canonical_name="treatment_effect",
         concept_type=ConceptType.DEFINITION,
@@ -76,11 +80,13 @@ async def test_create_undirected_relationship(test_db):
     """Test creating an undirected relationship."""
     # Create concepts
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Correlation",
         canonical_name="correlation",
         concept_type=ConceptType.DEFINITION,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Causation",
         canonical_name="causation",
         concept_type=ConceptType.DEFINITION,
@@ -102,11 +108,13 @@ async def test_create_duplicate_relationship_fails(test_db):
     """Test that creating duplicate relationships fails."""
     # Create concepts
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Panel Data",
         canonical_name="panel_data",
         concept_type=ConceptType.DEFINITION,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Fixed Effects",
         canonical_name="fixed_effects",
         concept_type=ConceptType.METHOD,
@@ -133,6 +141,7 @@ async def test_create_relationship_missing_concept_fails(test_db):
     """Test that creating relationship with non-existent concept fails."""
     # Create one concept
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Real Concept",
         canonical_name="real_concept",
         concept_type=ConceptType.DEFINITION,
@@ -153,11 +162,13 @@ async def test_get_by_id(test_db):
     """Test retrieving relationship by ID."""
     # Create concepts and relationship
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Difference in Differences",
         canonical_name="difference_in_differences",
         concept_type=ConceptType.METHOD,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Parallel Trends",
         canonical_name="parallel_trends",
         concept_type=ConceptType.ASSUMPTION,
@@ -192,11 +203,13 @@ async def test_get_by_concepts(test_db):
     """Test retrieving relationship by concept pair."""
     # Create concepts
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Two Stage Least Squares",
         canonical_name="two_stage_least_squares",
         concept_type=ConceptType.METHOD,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Instrumental Variables",
         canonical_name="instrumental_variables",
         concept_type=ConceptType.METHOD,
@@ -224,9 +237,13 @@ async def test_get_by_concepts_with_type(test_db):
     """Test retrieving relationship by concept pair and type."""
     # Create concepts
     concept1 = await ConceptStore.create(
-        name="Matching", canonical_name="matching", concept_type=ConceptType.METHOD
+        domain_id="causal_inference",
+        name="Matching",
+        canonical_name="matching",
+        concept_type=ConceptType.METHOD,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Selection Bias",
         canonical_name="selection_bias",
         concept_type=ConceptType.PROBLEM,
@@ -260,16 +277,19 @@ async def test_list_from_concept(test_db):
     """Test listing outgoing relationships from a concept."""
     # Create concepts
     source = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Propensity Score",
         canonical_name="propensity_score",
         concept_type=ConceptType.METHOD,
     )
     target1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Observational Data",
         canonical_name="observational_data",
         concept_type=ConceptType.DEFINITION,
     )
     target2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Covariate Balance",
         canonical_name="covariate_balance",
         concept_type=ConceptType.DEFINITION,
@@ -303,11 +323,13 @@ async def test_delete_relationship(test_db):
     """Test deleting a relationship."""
     # Create concepts and relationship
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Autocorrelation",
         canonical_name="autocorrelation",
         concept_type=ConceptType.PROBLEM,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Time Series",
         canonical_name="time_series",
         concept_type=ConceptType.DEFINITION,
@@ -345,11 +367,13 @@ async def test_count_relationships(test_db):
 
     # Create some relationships
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Test Concept 1",
         canonical_name="test_concept_1",
         concept_type=ConceptType.DEFINITION,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Test Concept 2",
         canonical_name="test_concept_2",
         concept_type=ConceptType.DEFINITION,
@@ -370,16 +394,19 @@ async def test_batch_create_relationships(test_db):
     """Test batch creating multiple relationships."""
     # Create concepts
     concept1 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept A",
         canonical_name="concept_a",
         concept_type=ConceptType.DEFINITION,
     )
     concept2 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept B",
         canonical_name="concept_b",
         concept_type=ConceptType.DEFINITION,
     )
     concept3 = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept C",
         canonical_name="concept_c",
         concept_type=ConceptType.DEFINITION,

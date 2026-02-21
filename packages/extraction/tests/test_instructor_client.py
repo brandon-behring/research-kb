@@ -164,7 +164,7 @@ class TestInstructorExtraction:
             from research_kb_extraction.instructor_client import InstructorOllamaClient
 
             client = InstructorOllamaClient()
-            result = await client.extract_concepts("Text about IV")
+            result = await client.extract_concepts("Text about IV", domain_id="causal_inference")
 
             assert isinstance(result, ChunkExtraction)
             mock_async_client.create.assert_called_once()
@@ -181,7 +181,7 @@ class TestInstructorExtraction:
             from research_kb_extraction.instructor_client import InstructorOllamaClient
 
             client = InstructorOllamaClient(max_retries=5)
-            await client.extract_concepts("Test text")
+            await client.extract_concepts("Test text", domain_id="causal_inference")
 
             call_kwargs = mock_async_client.create.call_args.kwargs
             assert call_kwargs["max_retries"] == 5
@@ -198,7 +198,7 @@ class TestInstructorExtraction:
             from research_kb_extraction.instructor_client import InstructorOllamaClient
 
             client = InstructorOllamaClient(temperature=0.7)
-            await client.extract_concepts("Test text")
+            await client.extract_concepts("Test text", domain_id="causal_inference")
 
             call_kwargs = mock_async_client.create.call_args.kwargs
             assert call_kwargs["temperature"] == 0.7
@@ -217,7 +217,7 @@ class TestInstructorExtraction:
             from research_kb_extraction.instructor_client import InstructorOllamaClient
 
             client = InstructorOllamaClient()
-            result = await client.extract_concepts("Test text")
+            result = await client.extract_concepts("Test text", domain_id="causal_inference")
 
             # Should return empty extraction, not raise
             assert isinstance(result, ChunkExtraction)
@@ -236,7 +236,7 @@ class TestInstructorExtraction:
             from research_kb_extraction.instructor_client import InstructorOllamaClient
 
             client = InstructorOllamaClient()
-            await client.extract_concepts("Test text")
+            await client.extract_concepts("Test text", domain_id="causal_inference")
 
             call_kwargs = mock_async_client.create.call_args.kwargs
             assert call_kwargs["response_model"] is ChunkExtraction

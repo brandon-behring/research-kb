@@ -176,7 +176,7 @@ class TestBuildRequest:
         from research_kb_extraction.batch_client import BatchClient
 
         client = BatchClient(model="haiku-4.5")
-        request = client._build_request("custom-123", "Sample chunk content")
+        request = client._build_request("custom-123", "Sample chunk content", "causal_inference")
 
         assert request["custom_id"] == "custom-123"
         assert "params" in request
@@ -190,7 +190,7 @@ class TestBuildRequest:
         from research_kb_extraction.batch_client import BatchClient
 
         client = BatchClient()
-        request = client._build_request("id", "content")
+        request = client._build_request("id", "content", "causal_inference")
 
         assert "tool_choice" in request["params"]
         assert request["params"]["tool_choice"]["type"] == "tool"
@@ -202,7 +202,7 @@ class TestBuildRequest:
         from research_kb_extraction.batch_client import BatchClient
 
         client = BatchClient()
-        request = client._build_request("id", "content")
+        request = client._build_request("id", "content", "causal_inference")
 
         assert "system" in request["params"]
         assert len(request["params"]["system"]) > 0
@@ -220,7 +220,7 @@ class TestSubmitBatch:
         client = BatchClient()
 
         with pytest.raises(ValueError) as exc_info:
-            await client.submit_batch([])
+            await client.submit_batch([], domain_id="causal_inference")
 
         assert "No chunks" in str(exc_info.value)
 
@@ -236,7 +236,7 @@ class TestSubmitBatch:
         chunks = [(uuid4(), "content") for _ in range(100001)]
 
         with pytest.raises(ValueError) as exc_info:
-            await client.submit_batch(chunks)
+            await client.submit_batch(chunks, domain_id="causal_inference")
 
         assert "100,000" in str(exc_info.value)
 
@@ -257,7 +257,7 @@ class TestSubmitBatch:
         client = BatchClient()
         chunks = [(uuid4(), "Test content")]
 
-        batch_id = await client.submit_batch(chunks)
+        batch_id = await client.submit_batch(chunks, domain_id="causal_inference")
 
         assert batch_id == "batch-123"
 
@@ -530,7 +530,7 @@ class TestExtractWithRetry:
         client = BatchClient()
         chunks = [(chunk_id, "Test content")]
 
-        results, quarantined = await client.extract_with_retry(chunks)
+        results, quarantined = await client.extract_with_retry(chunks, domain_id="causal_inference")
 
         assert len(results) == 1
         assert len(quarantined) == 0
@@ -564,7 +564,7 @@ class TestExtractWithRetry:
         client = BatchClient(max_retries=2)
         chunks = [(chunk_id, "Test content")]
 
-        results, quarantined = await client.extract_with_retry(chunks)
+        results, quarantined = await client.extract_with_retry(chunks, domain_id="causal_inference")
 
         assert len(results) == 0
         assert len(quarantined) == 1

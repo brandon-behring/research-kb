@@ -26,6 +26,7 @@ async def citation_test_sources(db_pool):
     """Create test sources for citation graph tests."""
     # Create 3 papers and 2 textbooks
     paper1 = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.PAPER,
         title="Double Machine Learning",
         authors=["Chernozhukov", "Chetverikov"],
@@ -35,6 +36,7 @@ async def citation_test_sources(db_pool):
     )
 
     paper2 = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.PAPER,
         title="Instrumental Variables Regression",
         authors=["Angrist", "Imbens"],
@@ -44,6 +46,7 @@ async def citation_test_sources(db_pool):
     )
 
     paper3 = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.PAPER,
         title="Treatment Effects Under Endogeneity",
         authors=["Test Author"],
@@ -52,6 +55,7 @@ async def citation_test_sources(db_pool):
     )
 
     textbook1 = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.TEXTBOOK,
         title="Causality: Models, Reasoning and Inference",
         authors=["Judea Pearl"],
@@ -61,6 +65,7 @@ async def citation_test_sources(db_pool):
     )
 
     textbook2 = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.TEXTBOOK,
         title="Causal Inference: What If",
         authors=["Hernan", "Robins"],

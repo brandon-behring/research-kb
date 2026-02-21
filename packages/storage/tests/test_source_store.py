@@ -20,6 +20,7 @@ class TestSourceStoreCreate:
     async def test_create_minimal_source(self, db_pool):
         """Test creating source with minimal required fields."""
         source = await SourceStore.create(
+            domain_id="causal_inference",
             source_type=SourceType.TEXTBOOK,
             title="Test Book",
             file_hash="sha256:test123",
@@ -35,6 +36,7 @@ class TestSourceStoreCreate:
     async def test_create_source_with_full_metadata(self, db_pool):
         """Test creating source with all fields."""
         source = await SourceStore.create(
+            domain_id="causal_inference",
             source_type=SourceType.PAPER,
             title="Double/debiased machine learning",
             file_hash="sha256:dml2018",
@@ -60,6 +62,7 @@ class TestSourceStoreCreate:
 
         # Create first source
         await SourceStore.create(
+            domain_id="causal_inference",
             source_type=SourceType.TEXTBOOK,
             title="First Book",
             file_hash=file_hash,
@@ -68,6 +71,7 @@ class TestSourceStoreCreate:
         # Attempt to create duplicate should fail
         with pytest.raises(StorageError) as exc_info:
             await SourceStore.create(
+                domain_id="causal_inference",
                 source_type=SourceType.TEXTBOOK,
                 title="Second Book",
                 file_hash=file_hash,  # Same hash
@@ -82,6 +86,7 @@ class TestSourceStoreRetrieve:
     async def test_get_by_id_found(self, db_pool):
         """Test retrieving source by ID when it exists."""
         created = await SourceStore.create(
+            domain_id="causal_inference",
             source_type=SourceType.TEXTBOOK,
             title="Test Book",
             file_hash="sha256:getbyid123",
@@ -105,6 +110,7 @@ class TestSourceStoreRetrieve:
         file_hash = "sha256:getbyhash456"
 
         created = await SourceStore.create(
+            domain_id="causal_inference",
             source_type=SourceType.PAPER,
             title="Test Paper",
             file_hash=file_hash,
@@ -129,6 +135,7 @@ class TestSourceStoreUpdate:
     async def test_update_metadata_merge(self, db_pool):
         """Test updating source metadata (JSONB merge)."""
         source = await SourceStore.create(
+            domain_id="causal_inference",
             source_type=SourceType.PAPER,
             title="Test Paper",
             file_hash="sha256:update123",
@@ -163,6 +170,7 @@ class TestSourceStoreDelete:
     async def test_delete_existing_source(self, db_pool):
         """Test deleting existing source returns True."""
         source = await SourceStore.create(
+            domain_id="causal_inference",
             source_type=SourceType.TEXTBOOK,
             title="To Be Deleted",
             file_hash="sha256:delete123",
@@ -191,6 +199,7 @@ class TestSourceStoreList:
         # Create 3 textbooks and 2 papers
         for i in range(3):
             await SourceStore.create(
+                domain_id="causal_inference",
                 source_type=SourceType.TEXTBOOK,
                 title=f"Textbook {i}",
                 file_hash=f"sha256:textbook{i}",
@@ -198,6 +207,7 @@ class TestSourceStoreList:
 
         for i in range(2):
             await SourceStore.create(
+                domain_id="causal_inference",
                 source_type=SourceType.PAPER,
                 title=f"Paper {i}",
                 file_hash=f"sha256:paper{i}",
@@ -220,6 +230,7 @@ class TestSourceStoreList:
         # Create 10 sources
         for i in range(10):
             await SourceStore.create(
+                domain_id="causal_inference",
                 source_type=SourceType.TEXTBOOK,
                 title=f"Book {i}",
                 file_hash=f"sha256:book{i}",

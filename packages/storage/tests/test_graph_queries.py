@@ -57,24 +57,28 @@ async def test_graph(db_pool):
     """
     # Create concepts
     concept_a = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept A",
         canonical_name=f"concept_a_{uuid4().hex[:8]}",
         concept_type=ConceptType.METHOD,
     )
 
     concept_b = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept B",
         canonical_name=f"concept_b_{uuid4().hex[:8]}",
         concept_type=ConceptType.METHOD,
     )
 
     concept_c = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept C",
         canonical_name=f"concept_c_{uuid4().hex[:8]}",
         concept_type=ConceptType.ASSUMPTION,
     )
 
     concept_d = await ConceptStore.create(
+        domain_id="causal_inference",
         name="Concept D",
         canonical_name=f"concept_d_{uuid4().hex[:8]}",
         concept_type=ConceptType.PROBLEM,
@@ -282,6 +286,7 @@ class TestNeighborhood:
     async def test_isolated_concept_neighborhood(self, db_pool):
         """Test neighborhood of concept with no relationships."""
         isolated = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Isolated",
             canonical_name=f"isolated_{uuid4().hex[:8]}",
             concept_type=ConceptType.DEFINITION,
@@ -406,6 +411,7 @@ class TestGraphIntegration:
         concepts = []
         for i, letter in enumerate(["A", "B", "C", "D", "E"]):
             c = await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Concept {letter}",
                 canonical_name=f"concept_{letter.lower()}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.METHOD,

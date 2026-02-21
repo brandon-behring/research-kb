@@ -26,6 +26,7 @@ async def test_data(db_pool):
     """Create test data for search tests."""
     # Create source
     source = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.TEXTBOOK,
         title="Causality",
         file_hash="sha256:causality",
@@ -37,6 +38,7 @@ async def test_data(db_pool):
 
     # Chunk 1: About backdoor criterion (high relevance for "backdoor")
     chunk1 = await ChunkStore.create(
+        domain_id="causal_inference",
         source_id=source.id,
         content="The backdoor criterion states that a set of variables Z satisfies the backdoor criterion relative to X and Y.",
         content_hash="sha256:chunk1",
@@ -48,6 +50,7 @@ async def test_data(db_pool):
 
     # Chunk 2: About instrumental variables (different topic)
     chunk2 = await ChunkStore.create(
+        domain_id="causal_inference",
         source_id=source.id,
         content="Instrumental variables provide a method for estimating causal effects when there is unobserved confounding.",
         content_hash="sha256:chunk2",
@@ -59,6 +62,7 @@ async def test_data(db_pool):
 
     # Chunk 3: About frontdoor criterion (partially related)
     chunk3 = await ChunkStore.create(
+        domain_id="causal_inference",
         source_id=source.id,
         content="The frontdoor criterion provides an alternative identification strategy when the backdoor criterion fails.",
         content_hash="sha256:chunk3",

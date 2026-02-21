@@ -36,8 +36,8 @@ class DiscoveryStore:
     @staticmethod
     async def log_discovery(
         discovery_method: str,
+        domain_id: str,
         query: Optional[str] = None,
-        domain_id: str = "causal_inference",
         papers_found: int = 0,
         papers_acquired: int = 0,
         papers_ingested: int = 0,

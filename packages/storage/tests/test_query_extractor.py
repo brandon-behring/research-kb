@@ -31,6 +31,7 @@ class TestExtractQueryConcepts:
         """Exact canonical_name match returns concept ID."""
         # Create a concept
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Instrumental Variables",
             canonical_name="instrumental variables",
             concept_type=ConceptType.METHOD,
@@ -45,6 +46,7 @@ class TestExtractQueryConcepts:
     async def test_extract_case_insensitive(self, test_db):
         """Match is case-insensitive."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Double Machine Learning",
             canonical_name="double machine learning",
             concept_type=ConceptType.METHOD,
@@ -58,6 +60,7 @@ class TestExtractQueryConcepts:
     async def test_extract_substring_match(self, test_db):
         """Substring matching for longer concept names."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Propensity Score",
             canonical_name="propensity score",
             concept_type=ConceptType.METHOD,
@@ -74,6 +77,7 @@ class TestExtractQueryConcepts:
         # Create multiple concepts
         for i in range(10):
             await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Method {i}",
                 canonical_name=f"method_{i}",
                 concept_type=ConceptType.METHOD,
@@ -87,6 +91,7 @@ class TestExtractQueryConcepts:
     async def test_extract_no_match(self, test_db):
         """Query with no matching concepts returns empty list."""
         await ConceptStore.create(
+            domain_id="causal_inference",
             name="Regression",
             canonical_name="regression",
             concept_type=ConceptType.METHOD,
@@ -99,11 +104,13 @@ class TestExtractQueryConcepts:
     async def test_extract_multiple_concepts(self, test_db):
         """Query matching multiple concepts returns all."""
         concept1 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="IV",
             canonical_name="iv",
             concept_type=ConceptType.METHOD,
         )
         concept2 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Endogeneity",
             canonical_name="endogeneity",
             concept_type=ConceptType.PROBLEM,
@@ -141,6 +148,7 @@ class TestExtractQueryConceptsBySimilarity:
         # Create concept with embedding
         embedding = [0.1] * 1024
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Test Concept",
             canonical_name=f"test_concept_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -161,6 +169,7 @@ class TestExtractQueryConceptsBySimilarity:
         # Create concept with one embedding
         embedding1 = [1.0] + [0.0] * 1023
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Different Concept",
             canonical_name=f"different_concept_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -184,6 +193,7 @@ class TestExtractQueryConceptsBySimilarity:
         # Create multiple concepts with same embedding
         for i in range(10):
             await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Similar {i}",
                 canonical_name=f"similar_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.METHOD,
@@ -202,6 +212,7 @@ class TestExtractQueryConceptsBySimilarity:
         """Returns empty when no concepts have embeddings."""
         # Create concept without embedding
         await ConceptStore.create(
+            domain_id="causal_inference",
             name="No Embedding",
             canonical_name=f"no_embedding_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -227,6 +238,7 @@ class TestExtractQueryConceptsUnified:
     async def test_unified_text_only(self, test_db):
         """Unified extraction with text matching only."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Propensity Score Matching",
             canonical_name="propensity score",
             concept_type=ConceptType.METHOD,
@@ -245,6 +257,7 @@ class TestExtractQueryConceptsUnified:
         """Unified extraction with semantic matching only."""
         embedding = [0.5] * 1024
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Semantic Test",
             canonical_name=f"semantic_test_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -268,6 +281,7 @@ class TestExtractQueryConceptsUnified:
 
         # Text-matchable concept
         concept1 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="IV Method",
             canonical_name="instrumental variables",
             concept_type=ConceptType.METHOD,
@@ -275,6 +289,7 @@ class TestExtractQueryConceptsUnified:
 
         # Semantically similar concept (different name)
         concept2 = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Different Name",
             canonical_name=f"different_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -299,6 +314,7 @@ class TestExtractQueryConceptsUnified:
 
         # Concept matching both text AND semantic
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Matching Both",
             canonical_name="matching both",
             concept_type=ConceptType.METHOD,
@@ -322,6 +338,7 @@ class TestExtractQueryConceptsUnified:
 
         for i in range(10):
             await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Test {i}",
                 canonical_name=f"test_{i}",
                 concept_type=ConceptType.METHOD,
@@ -339,6 +356,7 @@ class TestExtractQueryConceptsUnified:
     async def test_unified_graceful_without_embedding(self, test_db):
         """Unified extraction works without embedding (text only)."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Text Only",
             canonical_name="text only concept",
             concept_type=ConceptType.METHOD,

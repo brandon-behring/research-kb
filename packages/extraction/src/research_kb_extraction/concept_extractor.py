@@ -39,11 +39,11 @@ class ConceptExtractor:
 
     def __init__(
         self,
+        domain_id: str,
         ollama_client: Optional[OllamaClient] = None,
         deduplicator: Optional[Deduplicator] = None,
         confidence_threshold: float = 0.7,
         min_chunk_length: int = 100,
-        domain_id: str = "causal_inference",
     ):
         """Initialize concept extractor.
 
@@ -81,7 +81,7 @@ class ConceptExtractor:
 
         # Extract with LLM (pass domain_id for domain-specific prompts)
         raw_extraction = await self.ollama_client.extract_concepts(
-            chunk.content, prompt_type, self.domain_id
+            chunk.content, self.domain_id, prompt_type
         )
 
         # Filter by confidence
@@ -145,7 +145,7 @@ class ConceptExtractor:
             return ChunkExtraction()
 
         raw_extraction = await self.ollama_client.extract_concepts(
-            text, prompt_type, self.domain_id
+            text, self.domain_id, prompt_type
         )
 
         # Filter by confidence

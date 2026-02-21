@@ -112,10 +112,10 @@ def register_graph_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     async def research_kb_cross_domain_concepts(
+        source_domain: str,
+        target_domain: str,
         concept_id: Optional[str] = None,
         concept_name: Optional[str] = None,
-        source_domain: str = "causal_inference",
-        target_domain: str = "time_series",
         similarity_threshold: float = 0.85,
         limit: int = 10,
     ) -> str:
@@ -128,8 +128,8 @@ def register_graph_tools(mcp: FastMCP) -> None:
         Args:
             concept_id: UUID of a specific concept to find cross-domain matches for
             concept_name: Name of concept to search (if concept_id not provided)
-            source_domain: Domain to search from (default: causal_inference)
-            target_domain: Domain to find matches in (default: time_series)
+            source_domain: Domain to search from (required)
+            target_domain: Domain to find matches in (required)
             similarity_threshold: Minimum similarity score (0.0-1.0, default 0.85)
             limit: Maximum matches to return (1-50, default 10)
 

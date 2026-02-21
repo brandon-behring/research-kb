@@ -16,6 +16,7 @@ pytestmark = pytest.mark.integration
 async def test_source(db_pool):
     """Create a test source for citation tests."""
     source = await SourceStore.create(
+        domain_id="causal_inference",
         source_type=SourceType.PAPER,
         title="Test Paper for Citations",
         authors=["Test Author"],

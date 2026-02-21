@@ -8,7 +8,7 @@ Provides:
 
 Domain support:
 - Pass domain_id to Deduplicator to use domain-specific abbreviations
-- Uses causal_inference abbreviations by default for backward compatibility
+- domain_id is required (no default)
 """
 
 import re
@@ -86,16 +86,16 @@ class Deduplicator:
 
     def __init__(
         self,
+        domain_id: str,
         similarity_threshold: float = 0.95,
         embed_client: Optional[object] = None,
-        domain_id: str = "causal_inference",
     ):
         """Initialize deduplicator.
 
         Args:
             similarity_threshold: Embedding similarity threshold for merge
             embed_client: Optional embedding client for similarity
-            domain_id: Domain for abbreviation expansion (default: causal_inference)
+            domain_id: Domain for abbreviation expansion (required)
         """
         self.similarity_threshold = similarity_threshold
         self.embed_client = embed_client

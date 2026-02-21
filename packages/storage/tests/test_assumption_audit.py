@@ -371,6 +371,7 @@ class TestFindMethod:
     async def test_find_ignores_non_method_concepts(self, db_pool):
         """find_method only returns concepts with type='method'."""
         await ConceptStore.create(
+            domain_id="causal_inference",
             name="unconfoundedness",
             canonical_name=f"unconfoundedness_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -461,6 +462,7 @@ class TestGetAssumptionsFromGraph:
     async def test_empty_results_for_unknown_method(self, db_pool):
         """Method with no assumptions returns empty list."""
         method = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Lonely Method",
             canonical_name=f"lonely_method_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -472,11 +474,13 @@ class TestGetAssumptionsFromGraph:
     async def test_ignores_non_assumption_targets(self, db_pool):
         """Only targets with concept_type='assumption' are included."""
         method = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Method With Problem",
             canonical_name=f"method_with_problem_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
         )
         problem = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Selection Bias",
             canonical_name=f"selection_bias_{uuid4().hex[:8]}",
             concept_type=ConceptType.PROBLEM,

@@ -16,6 +16,7 @@ class TestAssumptionStoreCreate:
     async def test_create_minimal(self, test_db):
         """Create assumption with minimal fields."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Unconfoundedness",
             canonical_name=f"unconfoundedness_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -33,6 +34,7 @@ class TestAssumptionStoreCreate:
     async def test_create_full(self, test_db):
         """Create assumption with all fields."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Parallel Trends",
             canonical_name=f"parallel_trends_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -54,6 +56,7 @@ class TestAssumptionStoreCreate:
     async def test_create_duplicate_fails(self, test_db):
         """Creating assumption for same concept twice fails."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Overlap",
             canonical_name=f"overlap_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -78,6 +81,7 @@ class TestAssumptionStoreRetrieve:
     async def test_get_by_id_found(self, test_db):
         """Retrieve assumption by ID."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="SUTVA",
             canonical_name=f"sutva_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -102,6 +106,7 @@ class TestAssumptionStoreRetrieve:
     async def test_get_by_concept_id_found(self, test_db):
         """Retrieve assumption by concept ID."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Exogeneity",
             canonical_name=f"exogeneity_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -130,6 +135,7 @@ class TestAssumptionStoreUpdate:
     async def test_update_single_field(self, test_db):
         """Update single field."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Update Test",
             canonical_name=f"assumption_update_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -149,6 +155,7 @@ class TestAssumptionStoreUpdate:
     async def test_update_multiple_fields(self, test_db):
         """Update multiple fields at once."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Multi Update",
             canonical_name=f"assumption_multi_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -171,6 +178,7 @@ class TestAssumptionStoreUpdate:
     async def test_update_no_changes(self, test_db):
         """Update with no fields returns current record."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="No Change",
             canonical_name=f"assumption_nochange_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -201,6 +209,7 @@ class TestAssumptionStoreDelete:
     async def test_delete_existing(self, test_db):
         """Delete existing assumption."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="To Delete",
             canonical_name=f"assumption_delete_{uuid4().hex[:8]}",
             concept_type=ConceptType.ASSUMPTION,
@@ -231,6 +240,7 @@ class TestAssumptionStoreList:
         """List returns all assumptions."""
         for i in range(3):
             concept = await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Assumption {i}",
                 canonical_name=f"assumption_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.ASSUMPTION,
@@ -245,6 +255,7 @@ class TestAssumptionStoreList:
         """List respects limit and offset."""
         for i in range(5):
             concept = await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Paginated Assumption {i}",
                 canonical_name=f"assumption_page_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.ASSUMPTION,
@@ -267,6 +278,7 @@ class TestAssumptionStoreList:
         """Count returns correct number."""
         for i in range(4):
             concept = await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Count Assumption {i}",
                 canonical_name=f"assumption_count_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.ASSUMPTION,

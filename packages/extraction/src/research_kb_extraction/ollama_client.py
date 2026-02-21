@@ -158,8 +158,8 @@ class OllamaClient(LLMClient):
     async def extract_concepts(
         self,
         chunk: str,
+        domain_id: str,
         prompt_type: str = "full",
-        domain_id: str = "causal_inference",
     ) -> ChunkExtraction:
         """Extract concepts and relationships from a text chunk.
 
@@ -174,7 +174,7 @@ class OllamaClient(LLMClient):
         Raises:
             OllamaError: If extraction fails
         """
-        prompt = format_extraction_prompt(chunk, prompt_type, domain_id)
+        prompt = format_extraction_prompt(chunk, domain_id, prompt_type)
 
         logger.debug(
             "extracting_concepts",
@@ -213,8 +213,8 @@ class OllamaClient(LLMClient):
     async def extract_batch(
         self,
         chunks: list[str],
+        domain_id: str,
         prompt_type: str = "full",
-        domain_id: str = "causal_inference",
         on_progress: Optional[callable] = None,
     ) -> list[ChunkExtraction]:
         """Extract concepts from multiple chunks.
@@ -232,7 +232,7 @@ class OllamaClient(LLMClient):
         total = len(chunks)
 
         for i, chunk in enumerate(chunks):
-            result = await self.extract_concepts(chunk, prompt_type, domain_id)
+            result = await self.extract_concepts(chunk, domain_id, prompt_type)
             results.append(result)
 
             if on_progress:

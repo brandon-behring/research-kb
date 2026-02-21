@@ -190,7 +190,9 @@ class TestOllamaExtraction:
         with patch.object(client, "generate") as mock_generate:
             mock_generate.return_value = json.dumps(extraction_json)
 
-            result = await client.extract_concepts("Sample text about IV")
+            result = await client.extract_concepts(
+                "Sample text about IV", domain_id="causal_inference"
+            )
 
             assert isinstance(result, ChunkExtraction)
             assert len(result.concepts) == 1
@@ -206,7 +208,7 @@ class TestOllamaExtraction:
 
             # Should raise ExtractionValidationError on parse failure (fail fast)
             with pytest.raises(ExtractionValidationError) as exc_info:
-                await client.extract_concepts("Sample text")
+                await client.extract_concepts("Sample text", domain_id="causal_inference")
 
             assert "Failed to parse JSON response" in str(exc_info.value)
 
@@ -223,7 +225,7 @@ class TestOllamaExtraction:
                 }
             )
 
-            result = await client.extract_concepts("No concepts here")
+            result = await client.extract_concepts("No concepts here", domain_id="causal_inference")
 
             assert isinstance(result, ChunkExtraction)
             assert len(result.concepts) == 0
@@ -244,7 +246,7 @@ class TestOllamaExtraction:
             mock_generate.return_value = extraction_json
 
             chunks = ["chunk 1", "chunk 2", "chunk 3"]
-            results = await client.extract_batch(chunks)
+            results = await client.extract_batch(chunks, domain_id="causal_inference")
 
             assert len(results) == 3
             assert mock_generate.call_count == 3

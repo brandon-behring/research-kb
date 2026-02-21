@@ -17,6 +17,7 @@ class TestMethodStoreCreate:
         """Create method with minimal fields."""
         # First create a concept
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Instrumental Variables",
             canonical_name=f"iv_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -33,6 +34,7 @@ class TestMethodStoreCreate:
     async def test_create_full(self, test_db):
         """Create method with all fields."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Double Machine Learning",
             canonical_name=f"dml_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -53,6 +55,7 @@ class TestMethodStoreCreate:
     async def test_create_duplicate_fails(self, test_db):
         """Creating method for same concept twice fails."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Matching",
             canonical_name=f"matching_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -77,6 +80,7 @@ class TestMethodStoreRetrieve:
     async def test_get_by_id_found(self, test_db):
         """Retrieve method by ID."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Test Method",
             canonical_name=f"test_method_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -101,6 +105,7 @@ class TestMethodStoreRetrieve:
     async def test_get_by_concept_id_found(self, test_db):
         """Retrieve method by concept ID."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Propensity Score",
             canonical_name=f"ps_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -129,6 +134,7 @@ class TestMethodStoreUpdate:
     async def test_update_single_field(self, test_db):
         """Update single field."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Update Test",
             canonical_name=f"update_test_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -148,6 +154,7 @@ class TestMethodStoreUpdate:
     async def test_update_multiple_fields(self, test_db):
         """Update multiple fields at once."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="Multi Update",
             canonical_name=f"multi_update_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -168,6 +175,7 @@ class TestMethodStoreUpdate:
     async def test_update_no_changes(self, test_db):
         """Update with no fields returns current record."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="No Change",
             canonical_name=f"no_change_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -188,6 +196,7 @@ class TestMethodStoreDelete:
     async def test_delete_existing(self, test_db):
         """Delete existing method."""
         concept = await ConceptStore.create(
+            domain_id="causal_inference",
             name="To Delete",
             canonical_name=f"to_delete_{uuid4().hex[:8]}",
             concept_type=ConceptType.METHOD,
@@ -218,6 +227,7 @@ class TestMethodStoreList:
         """List returns all methods."""
         for i in range(3):
             concept = await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Method {i}",
                 canonical_name=f"method_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.METHOD,
@@ -232,6 +242,7 @@ class TestMethodStoreList:
         """List respects limit and offset."""
         for i in range(5):
             concept = await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Paginated {i}",
                 canonical_name=f"paginated_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.METHOD,
@@ -254,6 +265,7 @@ class TestMethodStoreList:
         """Count returns correct number."""
         for i in range(4):
             concept = await ConceptStore.create(
+                domain_id="causal_inference",
                 name=f"Count {i}",
                 canonical_name=f"count_{i}_{uuid4().hex[:8]}",
                 concept_type=ConceptType.METHOD,

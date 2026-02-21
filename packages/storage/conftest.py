@@ -96,10 +96,11 @@ async def test_source(test_db):
     source = await SourceStore.create(
         source_type=SourceType.PAPER,
         title="Test Paper",
+        file_hash="testhash123",
+        domain_id="causal_inference",
         authors=["Test Author"],
         year=2024,
         file_path="/test/path.pdf",
-        file_hash="testhash123",
         metadata={"test": True},
     )
 
