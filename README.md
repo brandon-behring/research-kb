@@ -7,12 +7,12 @@
 
 Graph-boosted semantic search for research literature.
 
-Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 19-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
+Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 20-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
 
 ## Features
 
 - **4-signal hybrid search** -- BM25 + vector + knowledge graph + citation authority, with context-aware weight profiles
-- **19-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
+- **20-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
 - **Knowledge graph** -- 307K concepts and 742K relationships extracted from research literature, served by KuzuDB
 - **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
 - **Multi-domain** -- causal inference, time series, RAG/LLM, and extensible to new domains
@@ -39,17 +39,11 @@ docker-compose up -d   # PostgreSQL + pgvector
 ### 2. Install packages
 
 ```bash
-pip install -e "packages/cli[all]"
-```
-
-Or install individually:
-
-```bash
-pip install -e packages/contracts
-pip install -e packages/common
-pip install -e packages/storage
-pip install -e packages/pdf-tools
-pip install -e packages/cli
+pip install -e packages/contracts \
+            -e packages/common \
+            -e packages/storage \
+            -e packages/pdf-tools \
+            -e packages/cli
 ```
 
 ### 3. Set up demo corpus
@@ -58,6 +52,7 @@ pip install -e packages/cli
 
 ```bash
 python scripts/load_demo_data.py          # Load 9 causal-inference papers + concepts
+python scripts/sync_kuzu.py               # Sync concepts to KuzuDB (enables graph search)
 python -m research_kb_pdf.embed_server &   # Start embedding server
 python scripts/embed_missing.py            # Generate embeddings (~5 min on CPU)
 ```
@@ -86,7 +81,7 @@ research-kb query "instrumental variables"
 research-kb-mcp serve
 ```
 
-Then add to your Claude Code MCP config to access all 19 tools from conversation.
+Then add to your Claude Code MCP config to access all 20 tools from conversation.
 
 ## How It Works
 
@@ -129,7 +124,7 @@ Graph (15%) and citation (15%) signals are opt-in via `use_graph` and `use_citat
 ┌───────────────────────────────────────────────────┐
 │  Interfaces                                       │
 │  ┌─────┐  ┌─────────┐  ┌─────┐  ┌───────────┐   │
-│  │ CLI │  │MCP (19) │  │ API │  │ Dashboard │   │
+│  │ CLI │  │MCP (20) │  │ API │  │ Dashboard │   │
 │  └──┬──┘  └────┬────┘  └──┬──┘  └─────┬─────┘   │
 │     └──────────┴──────────┴────────────┘          │
 │                     │                              │
@@ -170,7 +165,7 @@ Graph (15%) and citation (15%) signals are opt-in via `use_graph` and `use_citat
 |----------|-----------|---------------------|
 | BGE-large-en-v1.5 (1024d) | Single model ensures embedding consistency across 178K chunks | Multi-model (marginal quality gain, consistency cost) |
 | KuzuDB embedded graph | Solved O(N*M) recursive CTE bottleneck: 85s -> 2.1s | PostgreSQL-only graph (too slow at scale) |
-| Weighted sum over RRF | Validated 5-1 superiority on 47-query golden dataset | Reciprocal Rank Fusion (loses magnitude signal) |
+| Weighted sum over RRF | Validated 5-1 superiority on golden dataset | Reciprocal Rank Fusion (loses magnitude signal) |
 | asyncpg connection pooling | Handles concurrent MCP + API + CLI requests | Synchronous psycopg2 (blocks on I/O) |
 | JSONB metadata columns | Extensible without schema migrations | Rigid columns (migration overhead) |
 
@@ -178,7 +173,7 @@ Graph (15%) and citation (15%) signals are opt-in via `use_graph` and `use_citat
 
 ### Retrieval Quality
 
-Evaluated on a golden dataset of 47 queries with known-relevant chunks:
+Evaluated on a golden dataset of 177 queries across 14 domains with known-relevant chunks:
 
 | Metric | Score |
 |--------|-------|
@@ -209,11 +204,11 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 ## MCP Server
 
-19 tools organized by function, designed for conversational use in Claude Code:
+20 tools organized by function, designed for conversational use in Claude Code:
 
 | Category | Tools | Description |
 |----------|-------|-------------|
-| **Search** | `research_kb_search` | Hybrid search with domain filtering and context profiles |
+| **Search** | `research_kb_search`, `research_kb_fast_search` | Hybrid search with domain filtering and context profiles |
 | **Sources** | `list_sources`, `get_source`, `get_source_citations`, `get_citing_sources`, `get_cited_sources` | Browse corpus and citation links |
 | **Concepts** | `list_concepts`, `get_concept`, `chunk_concepts`, `find_similar_concepts` | Search and inspect knowledge graph nodes |
 | **Graph** | `graph_neighborhood`, `graph_path`, `cross_domain_concepts` | Traverse concept relationships |
@@ -225,7 +220,7 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 - **~2,040 test functions** across 90+ test files
 - **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (10 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
-- **Golden evaluation dataset**: 92 queries across 8+ domains with known-relevant chunks
+- **Golden evaluation dataset**: 177 queries across 14 domains with known-relevant chunks
 - **Retrieval eval**: 55 test cases with per-domain reporting (`--per-domain` flag)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
