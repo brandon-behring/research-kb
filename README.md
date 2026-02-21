@@ -254,14 +254,33 @@ research-kb discover search "causal inference"    # S2 discovery
 research-kb enrich citations                      # Enrich with S2 metadata
 ```
 
+## Multi-Domain Support
+
+research-kb ships with 5 registered domains:
+
+| Domain | Description |
+|--------|-------------|
+| `causal_inference` | Causal inference, structural models, treatment effects |
+| `time_series` | Time series analysis, forecasting, temporal methods |
+| `rag_llm` | Retrieval-augmented generation, language models |
+| `healthcare` | Healthcare ML, risk adjustment, clinical outcomes |
+| `software_engineering` | Design patterns, testing, architecture, DevOps |
+
+All search, concept extraction, and graph operations support domain filtering via the `--domain` flag.
+
+### Adding Your Own Domain
+
+See the full tutorial: [`docs/tutorial_new_domain.md`](docs/tutorial_new_domain.md)
+
+Quick version:
+
+1. Create a SQL migration to register the domain
+2. (Optional) Configure domain-specific prompts in `domain_prompts.py`
+3. Ingest PDFs: `research-kb ingest --domain <name> <pdf-dir>`
+4. Extract concepts: `python scripts/extract_concepts.py --domain <name>`
+5. Sync to KuzuDB: `python scripts/sync_kuzu.py`
+
 ## Development
-
-### Adding a New Domain
-
-1. Create a domain config in `packages/storage/src/research_kb_storage/domains/`
-2. Ingest domain-specific PDFs: `research-kb ingest --domain <name> <pdf-dir>`
-3. Extract concepts: `python scripts/extract_concepts.py --domain <name>`
-4. Sync to KuzuDB: `python scripts/sync_kuzu.py`
 
 ### Extending the MCP Server
 
@@ -298,6 +317,19 @@ streamlit run packages/dashboard/app.py
 | [`docs/design/rrf_validation.md`](docs/design/rrf_validation.md) | Weighted sum vs. RRF empirical comparison |
 | [`docs/SLO.md`](docs/SLO.md) | Service level objectives |
 | [`docs/CLI.md`](docs/CLI.md) | Full CLI command reference |
+| [`docs/tutorial_new_domain.md`](docs/tutorial_new_domain.md) | Step-by-step guide to adding a new domain |
+
+## Ecosystem
+
+Part of the **Rigorous AI Engineering** ecosystem:
+
+| Project | Description |
+|---------|-------------|
+| **research-kb** (this repo) | Graph-boosted semantic search for research literature |
+| [ir-eval](https://github.com/brandonmbehring-dev/ir-eval) | Statistical retrieval evaluation with drift detection |
+| [temporalcv](https://github.com/brandonmbehring-dev/temporalcv) | Temporal cross-validation with leakage detection |
+
+research-kb's 177-query golden evaluation dataset is used by ir-eval for retrieval quality benchmarking and regression detection.
 
 ## Contributing
 

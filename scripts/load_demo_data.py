@@ -7,6 +7,7 @@ extraction by loading pre-extracted data directly.
 Usage:
     python scripts/load_demo_data.py                    # Load all demo data
     python scripts/load_demo_data.py --data-dir fixtures/demo/data
+    python scripts/load_demo_data.py --domain software_engineering  # Filter by domain
     python scripts/load_demo_data.py --skip-concepts     # Sources + chunks only
     python scripts/load_demo_data.py --embed             # Also generate embeddings
 
@@ -47,6 +48,7 @@ async def load_demo_data(
     data_dir: Path,
     skip_concepts: bool = False,
     generate_embeddings: bool = False,
+    domain_filter: str | None = None,
 ) -> dict:
     """Load demo data from JSON fixtures into PostgreSQL."""
     import asyncpg
@@ -58,10 +60,15 @@ async def load_demo_data(
 
     stats = {"inserted": {}, "skipped": {}}
 
+    if domain_filter:
+        print(f"  Filtering to domain: {domain_filter}")
+
     try:
         async with pool.acquire() as conn:
             # 1. Load sources
             sources = _load_json(data_dir / "sources.json")
+            if domain_filter:
+                sources = [s for s in sources if s.get("domain_id", "default") == domain_filter]
             s_inserted, s_skipped = 0, 0
             for s in sources:
                 existing = await conn.fetchval(
@@ -98,6 +105,8 @@ async def load_demo_data(
 
             # 2. Load chunks
             chunks = _load_json(data_dir / "chunks.json")
+            if domain_filter:
+                chunks = [ch for ch in chunks if ch.get("domain_id", "default") == domain_filter]
             c_inserted, c_skipped = 0, 0
             # Batch insert for performance
             batch_size = 500
@@ -311,6 +320,12 @@ def main():
         action="store_true",
         help="Also generate embeddings (requires embed server)",
     )
+    parser.add_argument(
+        "--domain",
+        type=str,
+        default=None,
+        help="Filter fixtures to a specific domain_id (e.g., 'software_engineering')",
+    )
     args = parser.parse_args()
 
     if not args.data_dir.exists():
@@ -337,6 +352,7 @@ def main():
             args.data_dir,
             skip_concepts=args.skip_concepts,
             generate_embeddings=args.embed,
+            domain_filter=args.domain,
         )
     )
 
