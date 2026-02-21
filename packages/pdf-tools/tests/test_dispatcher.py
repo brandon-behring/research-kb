@@ -267,6 +267,7 @@ class TestPDFDispatcher:
                 pdf_path="nonexistent.pdf",
                 source_type=SourceType.PAPER,
                 title="Test Paper",
+                domain_id="causal_inference",
             )
 
     @pytest.mark.asyncio
@@ -303,6 +304,7 @@ class TestPDFDispatcher:
             pdf_path=TEST_PDF,
             source_type=SourceType.PAPER,
             title="Test Paper",
+            domain_id="causal_inference",
         )
 
         # Result is now IngestResult
@@ -351,6 +353,7 @@ class TestPDFDispatcher:
             pdf_path=TEST_PDF,
             source_type=SourceType.TEXTBOOK,
             title="Test Book",
+            domain_id="causal_inference",
             force_pymupdf=True,
             skip_embedding=True,  # Skip embedding for test
         )
@@ -403,6 +406,7 @@ class TestPDFDispatcher:
             pdf_path=TEST_PDF,
             source_type=SourceType.PAPER,
             title="Test Paper",
+            domain_id="causal_inference",
             skip_embedding=True,  # Skip embedding for test
         )
 
@@ -430,6 +434,7 @@ class TestPDFDispatcher:
                     pdf_path=bad_pdf,
                     source_type=SourceType.PAPER,
                     title="Bad Paper",
+                    domain_id="causal_inference",
                 )
 
         # Verify added to DLQ
@@ -456,7 +461,11 @@ class TestPDFDispatcher:
         entry = dispatcher.dlq.add(
             file_path=TEST_PDF,
             error=ValueError("Initial failure"),
-            metadata={"source_type": "paper", "title": "Test Paper"},
+            metadata={
+                "source_type": "paper",
+                "title": "Test Paper",
+                "domain_id": "causal_inference",
+            },
         )
 
         # Mock SourceStore

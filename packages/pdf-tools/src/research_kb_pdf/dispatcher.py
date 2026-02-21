@@ -339,6 +339,7 @@ class PDFDispatcher:
                 metadata={
                     "source_type": source_type.value,
                     "title": title,
+                    "domain_id": domain_id,
                     "error": str(extraction_error),
                     "file_size": pdf_path.stat().st_size,
                 },
@@ -538,6 +539,7 @@ class PDFDispatcher:
         source_type_str = entry.metadata.get("source_type", "paper")
         source_type = SourceType(source_type_str)
         title = entry.metadata.get("title", "Unknown")
+        domain_id = entry.metadata.get("domain_id", "causal_inference")
 
         try:
             # Retry ingestion
@@ -545,6 +547,7 @@ class PDFDispatcher:
                 pdf_path=entry.file_path,
                 source_type=source_type,
                 title=title,
+                domain_id=domain_id,
             )
 
             # Success - remove from DLQ

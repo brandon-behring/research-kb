@@ -223,7 +223,7 @@ class TestConceptTools:
                 ctype = concept.concept_type
                 if hasattr(ctype, "value"):
                     ctype = ctype.value
-                assert ctype == "METHOD"
+                assert ctype.upper() == "METHOD"
 
     async def test_get_concept_by_id(self, pool):
         """get_concept_by_id returns concept details."""

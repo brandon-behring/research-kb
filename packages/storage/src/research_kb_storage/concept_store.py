@@ -325,6 +325,7 @@ class ConceptStore:
         limit: int = 50000,
         offset: int = 0,
         domain_id: Optional[str] = None,
+        concept_type: Optional[ConceptType] = None,
     ) -> list[Concept]:
         """List all concepts with pagination.
 
@@ -332,6 +333,7 @@ class ConceptStore:
             limit: Maximum number of results
             offset: Number of results to skip
             domain_id: Optional filter by domain (None = all domains)
+            concept_type: Optional filter by concept type
         """
         pool = await get_connection_pool()
 
@@ -342,29 +344,38 @@ class ConceptStore:
                     "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
                 )
 
-                if domain_id:
-                    rows = await conn.fetch(
-                        """
-                        SELECT * FROM concepts
-                        WHERE domain_id = $1
-                        ORDER BY canonical_name ASC
-                        LIMIT $2 OFFSET $3
-                        """,
-                        domain_id,
-                        limit,
-                        offset,
-                    )
-                else:
-                    rows = await conn.fetch(
-                        """
-                        SELECT * FROM concepts
-                        ORDER BY canonical_name ASC
-                        LIMIT $1 OFFSET $2
-                        """,
-                        limit,
-                        offset,
-                    )
+                # Build query with optional filters
+                conditions = []
+                params: list = []
+                param_idx = 1
 
+                if domain_id:
+                    conditions.append(f"domain_id = ${param_idx}")
+                    params.append(domain_id)
+                    param_idx += 1
+
+                if concept_type:
+                    conditions.append(f"concept_type = ${param_idx}")
+                    params.append(concept_type.value)
+                    param_idx += 1
+
+                where_clause = (" WHERE " + " AND ".join(conditions)) if conditions else ""
+
+                params.append(limit)
+                limit_param = f"${param_idx}"
+                param_idx += 1
+
+                params.append(offset)
+                offset_param = f"${param_idx}"
+
+                query = f"""
+                    SELECT * FROM concepts
+                    {where_clause}
+                    ORDER BY canonical_name ASC
+                    LIMIT {limit_param} OFFSET {offset_param}
+                """
+
+                rows = await conn.fetch(query, *params)
                 return [_row_to_concept(row) for row in rows]
 
         except Exception as e:

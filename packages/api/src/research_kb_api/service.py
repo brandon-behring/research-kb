@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from research_kb_common import get_logger
-from research_kb_contracts import Source, Concept, ConceptRelationship
+from research_kb_contracts import Source, Concept, ConceptRelationship, ConceptType
 from research_kb_pdf import EmbeddingClient
 from research_kb_storage import (
     HydeConfig,
@@ -387,12 +387,12 @@ async def get_sources(
 
 async def get_source_by_id(source_id: str) -> Optional[Source]:
     """Get a single source by ID."""
-    return await SourceStore.get(UUID(source_id))
+    return await SourceStore.get_by_id(UUID(source_id))
 
 
 async def get_source_chunks(source_id: str, limit: int = 100) -> list:
     """Get chunks for a source."""
-    return await ChunkStore.get_by_source(UUID(source_id), limit=limit)
+    return await ChunkStore.list_by_source(UUID(source_id), limit=limit)
 
 
 async def get_concepts(
@@ -401,9 +401,10 @@ async def get_concepts(
     concept_type: Optional[str] = None,
 ) -> list[Concept]:
     """Get concepts with optional search/filtering."""
+    ct = ConceptType(concept_type.lower()) if concept_type else None
     if query:
-        return await ConceptStore.search(query, limit=limit)
-    return await ConceptStore.list_all(limit=limit, concept_type=concept_type)
+        return await ConceptStore.search(query, limit=limit, concept_type=ct)
+    return await ConceptStore.list_all(limit=limit, concept_type=ct)
 
 
 async def get_concept_by_id(concept_id: str) -> Optional[Concept]:
@@ -413,7 +414,7 @@ async def get_concept_by_id(concept_id: str) -> Optional[Concept]:
 
 async def get_concept_relationships(concept_id: str) -> list[ConceptRelationship]:
     """Get relationships for a concept."""
-    return await RelationshipStore.get_for_concept(UUID(concept_id))
+    return await RelationshipStore.list_all_for_concept(UUID(concept_id))
 
 
 async def get_graph_neighborhood(
@@ -432,7 +433,7 @@ async def get_graph_neighborhood(
         }
 
     concept = concepts[0]
-    neighborhood = await get_neighborhood(str(concept.id), max_hops=hops)
+    neighborhood = await get_neighborhood(concept.id, hops=hops)
 
     return {
         "center": {
@@ -450,8 +451,8 @@ async def get_graph_neighborhood(
         ],
         "edges": [
             {
-                "source": str(r.source_id),
-                "target": str(r.target_id),
+                "source": str(r.source_concept_id),
+                "target": str(r.target_concept_id),
                 "type": r.relationship_type.value if r.relationship_type else None,
             }
             for r in neighborhood.get("relationships", [])
