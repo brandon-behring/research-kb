@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-21 09:51:43
+**Auto-generated**: 2026-02-21 12:04:07
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,8 +9,8 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 477 |
-| chunks | 210,096 |
+| sources | 494 |
+| chunks | 210,107 |
 | concepts | 307,622 |
 | concept_relationships | 741,959 |
 | chunk_concepts | 1,181,777 |
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 210,096 | 210,096 | 100.0% |
+| Chunks | 210,107 | 210,107 | 100.0% |
 | Concepts | 283,714 | 307,622 | 92.2% |
 
 ---
@@ -42,7 +42,7 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 240 |
+| textbook | 257 |
 | paper | 215 |
 | code_repo | 22 |
 
@@ -52,16 +52,16 @@
 
 | Domain | Sources |
 |--------|--------:|
-| causal_inference | 88 |
-| rag_llm | 75 |
-| time_series | 49 |
+| causal_inference | 89 |
+| rag_llm | 82 |
+| time_series | 50 |
+| software_engineering | 37 |
+| deep_learning | 36 |
 | econometrics | 35 |
-| software_engineering | 34 |
-| deep_learning | 32 |
 | mathematics | 25 |
 | interview_prep | 23 |
+| finance | 23 |
 | machine_learning | 22 |
-| finance | 22 |
 | statistics | 18 |
 | ml_engineering | 14 |
 | data_science | 12 |
@@ -112,7 +112,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 477 sources, 210,096 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 494 sources, 210,107 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 307,622 concepts, 741,959 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |

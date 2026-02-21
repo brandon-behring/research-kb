@@ -113,6 +113,7 @@ async def ingest_textbook(
     title: str,
     authors: list[str],
     year: int | None,
+    domain_id: str,
     metadata: dict | None = None,
     quiet: bool = False,
 ) -> tuple[str, int, int]:
@@ -147,13 +148,15 @@ async def ingest_textbook(
     # Create source record as TEXTBOOK
     if not quiet:
         logger.info("creating_source", title=title)
+    metadata["domain"] = domain_id
     source = await SourceStore.create(
         source_type=SourceType.TEXTBOOK,
         title=title,
+        file_hash=file_hash,
+        domain_id=domain_id,
         authors=authors,
         year=year,
         file_path=pdf_path,
-        file_hash=file_hash,
         metadata=metadata,
     )
 
@@ -212,6 +215,64 @@ SKIP_PATTERNS = [
     "_Glossary",
     "Quicksheet",
 ]
+
+# Filename-to-domain mapping for books without sidecar metadata.
+# Keys are case-insensitive substrings matched against filename.
+DOMAIN_KEYWORDS = {
+    "causal": "causal_inference",
+    "instrumental_variable": "causal_inference",
+    "angrist": "causal_inference",
+    "mostly_harmless": "causal_inference",
+    "rubin": "causal_inference",
+    "rag": "rag_llm",
+    "llm": "rag_llm",
+    "knowledge_graph": "rag_llm",
+    "generative_ai": "rag_llm",
+    "retrieval_augmented": "rag_llm",
+    "ai_agents": "rag_llm",
+    "deep_learning": "deep_learning",
+    "pytorch": "deep_learning",
+    "gnn": "deep_learning",
+    "graph_neural": "deep_learning",
+    "neural_network": "deep_learning",
+    "machine_learning": "machine_learning",
+    "grokking_algorithm": "algorithms",
+    "time_series": "time_series",
+    "forecasting": "forecasting",
+    "box_jenkins": "time_series",
+    "econometric": "econometrics",
+    "statistics": "statistics",
+    "statistical_method": "statistics",
+    "scala": "functional_programming",
+    "haskell": "functional_programming",
+    "software_design": "software_engineering",
+    "software_engineering": "software_engineering",
+    "feedback_driven": "software_engineering",
+    "cfa": "finance",
+    "portfolio": "portfolio_management",
+    "data_scienc": "data_science",
+    "fitness": "fitness",
+}
+
+
+def infer_domain(filename: str, sidecar_meta: dict | None = None) -> str:
+    """Infer domain_id from sidecar metadata or filename keywords.
+
+    Returns a domain string. Falls back to 'machine_learning' if no match.
+    """
+    # Sidecar metadata takes priority
+    if sidecar_meta and sidecar_meta.get("domain"):
+        return sidecar_meta["domain"]
+
+    # Normalize: lowercase, replace hyphens and spaces with underscores
+    name_lower = filename.lower().replace(" ", "_").replace("-", "_")
+
+    # Check specific (longer) keywords first by sorting longest-first
+    for keyword, domain in sorted(DOMAIN_KEYWORDS.items(), key=lambda x: -len(x[0])):
+        if keyword in name_lower:
+            return domain
+
+    return "machine_learning"  # Safe fallback for unmatched books
 
 
 def parse_args():
@@ -324,6 +385,7 @@ async def main():
         if not meta or not meta.get("title"):
             meta = parse_filename_for_metadata(pdf_path.name)
 
+        domain_id = infer_domain(pdf_path.name, meta)
         start_time = time.time()
 
         try:
@@ -332,6 +394,7 @@ async def main():
                 title=meta["title"],
                 authors=meta["authors"],
                 year=meta["year"],
+                domain_id=domain_id,
                 metadata={"auto_ingested": True, "source": "missing_textbooks_script"},
                 quiet=quiet,
             )
