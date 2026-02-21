@@ -601,7 +601,7 @@ def _row_to_concept(row: asyncpg.Record) -> Concept:
         canonical_name=row["canonical_name"],
         aliases=row["aliases"] or [],
         concept_type=ConceptType(row["concept_type"]),
-        domain_id=row.get("domain_id", "causal_inference"),
+        domain_id=row["domain_id"],
         category=row["category"],
         definition=row["definition"],
         embedding=list(row["embedding"]) if row["embedding"] is not None else None,

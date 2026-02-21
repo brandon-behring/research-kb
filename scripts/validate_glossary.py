@@ -5,7 +5,7 @@ Reads a markdown glossary file, extracts terms, and queries research-kb
 for each term. Reports: matched terms, missing terms, definition drift.
 
 Usage:
-    python scripts/validate_glossary.py ~/Claude/causal_inference_mastery/docs/GLOSSARY.md
+    python scripts/validate_glossary.py path/to/GLOSSARY.md
     python scripts/validate_glossary.py --json <glossary_path>
 """
 

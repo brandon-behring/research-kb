@@ -597,7 +597,7 @@ def _row_to_source(row: asyncpg.Record) -> Source:
         title=row["title"],
         authors=row["authors"],
         year=row["year"],
-        domain_id=row.get("domain_id", "causal_inference"),
+        domain_id=row["domain_id"],
         file_path=row["file_path"],
         file_hash=row["file_hash"],
         metadata=row["metadata"],

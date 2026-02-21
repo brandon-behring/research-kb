@@ -41,8 +41,8 @@ logger = get_logger(__name__)
 
 
 async def discover_and_store(
-    source_domain: str = "causal_inference",
-    target_domain: str = "time_series",
+    source_domain: str,
+    target_domain: str,
     discovery_threshold: float = 0.80,
     store_threshold: float = 0.90,
     source_concept_limit: int = 100,
@@ -150,14 +150,18 @@ async def discover_and_store(
 
 
 async def bidirectional_discovery(
+    source_domain: str,
+    target_domain: str,
     threshold: float = 0.85,
     store_threshold: float = 0.90,
     full: bool = False,
     dry_run: bool = False,
 ) -> None:
-    """Run discovery in both directions.
+    """Run discovery in both directions between two domains.
 
     Args:
+        source_domain: First domain
+        target_domain: Second domain
         threshold: Discovery threshold
         store_threshold: Storage threshold
         full: Run full discovery (more concepts)
@@ -165,20 +169,20 @@ async def bidirectional_discovery(
     """
     limit = 500 if full else 100
 
-    # causal_inference → time_series
+    # source → target
     result1 = await discover_and_store(
-        source_domain="causal_inference",
-        target_domain="time_series",
+        source_domain=source_domain,
+        target_domain=target_domain,
         discovery_threshold=threshold,
         store_threshold=store_threshold,
         source_concept_limit=limit,
         dry_run=dry_run,
     )
 
-    # time_series → causal_inference
+    # target → source
     result2 = await discover_and_store(
-        source_domain="time_series",
-        target_domain="causal_inference",
+        source_domain=target_domain,
+        target_domain=source_domain,
         discovery_threshold=threshold,
         store_threshold=store_threshold,
         source_concept_limit=limit,
@@ -189,10 +193,10 @@ async def bidirectional_discovery(
     print("SUMMARY")
     print("=" * 60)
     print(
-        f"causal_inference → time_series: {result1['discovered']} discovered, {result1['stored']} stored"
+        f"{source_domain} → {target_domain}: {result1['discovered']} discovered, {result1['stored']} stored"
     )
     print(
-        f"time_series → causal_inference: {result2['discovered']} discovered, {result2['stored']} stored"
+        f"{target_domain} → {source_domain}: {result2['discovered']} discovered, {result2['stored']} stored"
     )
     print(f"Total stored: {result1['stored'] + result2['stored']}")
 
@@ -201,6 +205,14 @@ def main():
     parser = argparse.ArgumentParser(
         description="Discover cross-domain concept links",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "source_domain",
+        help="Source domain to search from (e.g. causal_inference)",
+    )
+    parser.add_argument(
+        "target_domain",
+        help="Target domain to find matches in (e.g. time_series)",
     )
     parser.add_argument(
         "--threshold",
@@ -227,7 +239,7 @@ def main():
     parser.add_argument(
         "--one-way",
         action="store_true",
-        help="Only run causal_inference → time_series",
+        help="Only run source → target (skip reverse direction)",
     )
 
     args = parser.parse_args()
@@ -235,6 +247,8 @@ def main():
     if args.one_way:
         asyncio.run(
             discover_and_store(
+                source_domain=args.source_domain,
+                target_domain=args.target_domain,
                 discovery_threshold=args.threshold,
                 store_threshold=args.store_threshold,
                 source_concept_limit=500 if args.full else 100,
@@ -244,6 +258,8 @@ def main():
     else:
         asyncio.run(
             bidirectional_discovery(
+                source_domain=args.source_domain,
+                target_domain=args.target_domain,
                 threshold=args.threshold,
                 store_threshold=args.store_threshold,
                 full=args.full,

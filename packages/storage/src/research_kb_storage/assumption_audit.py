@@ -978,7 +978,7 @@ def _row_to_concept(row) -> Concept:
         canonical_name=row["canonical_name"],
         aliases=row["aliases"] or [],
         concept_type=ConceptType(row["concept_type"]),
-        domain_id=row.get("domain_id", "causal_inference"),
+        domain_id=row["domain_id"],
         category=row.get("category"),
         definition=row.get("definition"),
         embedding=list(row["embedding"]) if row.get("embedding") is not None else None,

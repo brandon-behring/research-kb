@@ -478,7 +478,7 @@ async def _row_to_chunk(row: asyncpg.Record, conn: asyncpg.Connection) -> Chunk:
     return Chunk(
         id=row["id"],
         source_id=row["source_id"],
-        domain_id=row.get("domain_id", "causal_inference"),
+        domain_id=row["domain_id"],
         content=row["content"],
         content_hash=row["content_hash"],
         location=row["location"],
