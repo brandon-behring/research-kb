@@ -6,6 +6,7 @@ Respects paragraph boundaries and tracks page numbers.
 
 import re
 import threading
+import unicodedata
 from dataclasses import dataclass
 
 from transformers import AutoTokenizer
@@ -527,7 +528,10 @@ def chunk_with_sections(
         chunk.metadata["heading_level"] = None
 
         # Find chunk's approximate position in document
-        chunk_start_pos = full_text.find(chunk.content[:50])  # Use first 50 chars
+        # Unicode-normalize both sides to handle non-breaking spaces, soft hyphens, etc.
+        normalized_text = unicodedata.normalize("NFKC", full_text)
+        normalized_prefix = unicodedata.normalize("NFKC", chunk.content[:50])
+        chunk_start_pos = normalized_text.find(normalized_prefix)
 
         if chunk_start_pos == -1:
             # Fallback: couldn't locate chunk - metadata already set to None

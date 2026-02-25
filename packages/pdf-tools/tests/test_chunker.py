@@ -2,6 +2,7 @@
 
 import pytest
 from pathlib import Path
+from unittest.mock import MagicMock
 
 from research_kb_pdf import (
     extract_pdf,
@@ -10,6 +11,7 @@ from research_kb_pdf import (
     get_full_text,
 )
 from research_kb_pdf.chunker import (
+    chunk_with_sections,
     split_paragraphs,
     get_overlap_paragraphs,
     split_sentences,
@@ -351,6 +353,89 @@ class TestChunkDocument:
             assert (
                 chunk.chunk_index == i
             ), f"Chunk index mismatch: expected {i}, got {chunk.chunk_index}"
+
+
+class TestUnicodeNormalizationInSectionTracking:
+    """Regression tests for Unicode normalization in chunk_with_sections.
+
+    Verifies that non-breaking spaces (U+00A0), soft hyphens (U+00AD),
+    and other Unicode normalization issues don't prevent chunk-to-section matching.
+    """
+
+    def _make_document(self, pages_text: list[str]):
+        """Create a minimal mock ExtractedDocument."""
+        doc = MagicMock()
+        doc.file_path = "test_unicode.pdf"
+        doc.total_pages = len(pages_text)
+        pages = []
+        for i, text in enumerate(pages_text):
+            page = MagicMock()
+            page.page_num = i + 1
+            page.text = text
+            pages.append(page)
+        doc.pages = pages
+        return doc
+
+    def _make_heading(self, text: str, char_offset: int, level: int = 1):
+        """Create a minimal mock Heading."""
+        heading = MagicMock()
+        heading.text = text
+        heading.char_offset = char_offset
+        heading.level = level
+        return heading
+
+    def test_nonbreaking_space_does_not_break_section_lookup(self):
+        """Non-breaking spaces (U+00A0) in content shouldn't prevent section assignment.
+
+        PDF extractors often produce U+00A0 instead of regular spaces.
+        After NFKC normalization, U+00A0 maps to U+0020 (regular space).
+        """
+        # Content with non-breaking spaces (common in PDF extraction)
+        content_with_nbsp = "Introduction\u00a0to\u00a0causal\u00a0inference"
+        page_text = f"1. Methods\n\n{content_with_nbsp} and related topics. " * 20
+
+        doc = self._make_document([page_text])
+        headings = [self._make_heading("1. Methods", char_offset=0)]
+
+        chunks = chunk_with_sections(doc, headings, target_tokens=50, max_variance=30)
+
+        # At least one chunk should have the section assigned
+        sections_found = [c.metadata.get("section") for c in chunks if c.metadata.get("section")]
+        assert (
+            len(sections_found) > 0
+        ), "No sections assigned — non-breaking spaces broke section lookup"
+
+    def test_soft_hyphen_does_not_break_section_lookup(self):
+        """Soft hyphens (U+00AD) in content shouldn't prevent section assignment.
+
+        PDF extractors insert soft hyphens for line-break hints.
+        NFKC normalization strips them.
+        """
+        # Content with soft hyphens (common in PDF extraction for hyphenation hints)
+        content_with_shy = "Instru\u00admental vari\u00adables estima\u00adtion"
+        page_text = f"2. Estimation\n\n{content_with_shy} methods for causal analysis. " * 20
+
+        doc = self._make_document([page_text])
+        headings = [self._make_heading("2. Estimation", char_offset=0)]
+
+        chunks = chunk_with_sections(doc, headings, target_tokens=50, max_variance=30)
+
+        sections_found = [c.metadata.get("section") for c in chunks if c.metadata.get("section")]
+        assert len(sections_found) > 0, "No sections assigned — soft hyphens broke section lookup"
+
+    def test_mixed_unicode_normalization(self):
+        """Mixed Unicode characters (NBSP + SHY + ligatures) shouldn't break matching."""
+        # fi ligature (U+FB01) normalizes to "fi" under NFKC
+        content_mixed = "The\u00a0de\u00adfinition of\u00a0ef\ufb01ciency"
+        page_text = f"3. Definitions\n\n{content_mixed} in statistical theory. " * 20
+
+        doc = self._make_document([page_text])
+        headings = [self._make_heading("3. Definitions", char_offset=0)]
+
+        chunks = chunk_with_sections(doc, headings, target_tokens=50, max_variance=30)
+
+        sections_found = [c.metadata.get("section") for c in chunks if c.metadata.get("section")]
+        assert len(sections_found) > 0, "No sections assigned — mixed Unicode broke section lookup"
 
 
 # Helper function
