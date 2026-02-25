@@ -729,7 +729,7 @@ async def main():
         print(f"\n  Candidates written to: {candidates_path}")
 
         # Merge into golden dataset
-        golden_path = _root / "fixtures" / "eval" / "golden_dataset.json"
+        golden_path = _root / "fixtures" / "eval" / "golden_dataset.deprecated.json"
         with open(golden_path) as f:
             existing = json.load(f)
 

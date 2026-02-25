@@ -276,7 +276,7 @@ async def main():
     print(f"\n  Generated {len(results)} golden entries from {len(CANDIDATES)} candidates.")
 
     # Load existing golden dataset and merge
-    existing_path = _root / "fixtures" / "eval" / "golden_dataset.json"
+    existing_path = _root / "fixtures" / "eval" / "golden_dataset.deprecated.json"
     with open(existing_path) as f:
         existing = json.load(f)
 

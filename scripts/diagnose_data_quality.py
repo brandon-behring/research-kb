@@ -22,7 +22,9 @@ DB_NAME = "research_kb"
 DB_USER = "postgres"
 DB_PASS = "postgres"
 
-GOLDEN_DATASET = Path(__file__).parent.parent / "fixtures" / "eval" / "golden_dataset.json"
+GOLDEN_DATASET = (
+    Path(__file__).parent.parent / "fixtures" / "eval" / "golden_dataset.deprecated.json"
+)
 
 
 async def diagnose_chunk_duplicates(conn: asyncpg.Connection) -> dict:

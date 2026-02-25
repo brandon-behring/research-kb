@@ -97,7 +97,6 @@ jobs:
       - name: Validate retrieval quality
         run: |
           python scripts/eval_retrieval.py \
-            --dataset fixtures/eval/golden_dataset.json \
             --per-domain \
             --fail-below 0.85 \
             --output /tmp/retrieval_metrics.json \

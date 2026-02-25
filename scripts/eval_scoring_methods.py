@@ -229,7 +229,9 @@ async def main():
     parser.add_argument("--output", "-o", help="Output JSON file for comparison results")
     parser.add_argument(
         "--golden",
-        default=str(Path(__file__).parent.parent / "fixtures" / "eval" / "golden_dataset.json"),
+        default=str(
+            Path(__file__).parent.parent / "fixtures" / "eval" / "golden_dataset.deprecated.json"
+        ),
         help="Path to golden dataset JSON",
     )
     parser.add_argument(

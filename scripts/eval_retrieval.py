@@ -64,6 +64,8 @@ class TestCase:
     relevance_grade: int = 3  # 0=irrelevant, 1=related, 2=relevant, 3=exact
     tags: list[str] = None
     notes: Optional[str] = None
+    domain: Optional[str] = None  # Explicit domain for per-domain breakdown
+    difficulty: str = "medium"  # easy|medium|hard for per-difficulty breakdown
 
 
 @dataclass
@@ -141,6 +143,8 @@ def load_test_cases(yaml_path: Path, tag_filter: Optional[str] = None) -> list[T
                 relevance_grade=tc.get("relevance_grade", 3),  # Phase 2
                 tags=tags,
                 notes=tc.get("notes"),
+                domain=tc.get("domain"),
+                difficulty=tc.get("difficulty", "medium"),
             )
         )
 
@@ -405,66 +409,57 @@ def _print_metrics_block(metrics: dict, indent: str = "  "):
 def print_per_domain(results: list[TestResult]):
     """Print per-domain evaluation breakdown.
 
-    Groups results by domain tags and computes metrics for each.
+    Groups results by explicit domain field, falling back to tag scan
+    for backward compatibility with golden dataset entries.
 
     Args:
         results: List of TestResult objects
     """
-    # Group results by domain tags
-    domain_tags = set()
+    # Group by explicit domain field (primary), then tag scan (fallback)
+    domain_results = {}
     for r in results:
-        tags = r.test_case.tags or []
-        for tag in tags:
-            # Heuristic: identify domain-like tags (exclude method/technique tags)
-            if tag in (
-                "causal_inference",
-                "econometrics",
-                "time_series",
-                "rag_llm",
-                "interview_prep",
-                "deep_learning",
-                "software_engineering",
-                "machine_learning",
-                "mathematics",
-                "statistics",
-                "finance",
-                "ml_engineering",
-                "data_science",
-            ):
-                domain_tags.add(tag)
-
-    # Also check tags that look like domains even if not in the predefined list
-    for r in results:
-        tags = r.test_case.tags or []
-        for tag in tags:
-            if "_" in tag and tag not in (
-                "core",
-                "phase2",
-                "power_analysis",
-                "quasi_experimental",
-                "public_economics",
-                "experimental_design",
-                "weak_instruments",
-            ):
-                domain_tags.add(tag)
-
-    if not domain_tags:
-        # Fallback: group by first tag
-        for r in results:
+        domain = r.test_case.domain
+        if domain:
+            domain_results.setdefault(domain, []).append(r)
+        else:
+            # Backward compat: scan tags for domain-like entries
             tags = r.test_case.tags or []
-            if tags:
-                domain_tags.add(tags[0])
+            for tag in tags:
+                if tag in (
+                    "causal_inference",
+                    "econometrics",
+                    "time_series",
+                    "rag_llm",
+                    "interview_prep",
+                    "deep_learning",
+                    "software_engineering",
+                    "machine_learning",
+                    "mathematics",
+                    "statistics",
+                    "finance",
+                    "ml_engineering",
+                    "data_science",
+                    "algorithms",
+                    "functional_programming",
+                    "fitness",
+                    "forecasting",
+                    "sql",
+                    "recommender_systems",
+                    "adtech",
+                ):
+                    domain_results.setdefault(tag, []).append(r)
+                    break  # Only assign to first matching domain tag
 
     print("\n" + "=" * 60)
     print("PER-DOMAIN BREAKDOWN")
     print("=" * 60)
 
-    # For each domain, collect results and compute metrics
+    # For each domain, compute metrics
     domain_metrics = {}
-    for domain in sorted(domain_tags):
-        domain_results = [r for r in results if r.test_case.tags and domain in r.test_case.tags]
-        if domain_results:
-            metrics = compute_metrics_for_results(domain_results)
+    for domain in sorted(domain_results.keys()):
+        dr = domain_results[domain]
+        if dr:
+            metrics = compute_metrics_for_results(dr)
             domain_metrics[domain] = metrics
 
             print(f"\n  {domain} ({metrics['total']} tests):")
@@ -488,7 +483,7 @@ def print_per_domain(results: list[TestResult]):
 def print_per_difficulty(results: list[TestResult]):
     """Print per-difficulty evaluation breakdown.
 
-    Groups results by difficulty tag (easy/medium/hard) and computes metrics.
+    Groups results by explicit difficulty field (easy/medium/hard).
 
     Args:
         results: List of TestResult objects
@@ -501,7 +496,7 @@ def print_per_difficulty(results: list[TestResult]):
 
     difficulty_metrics = {}
     for level in difficulty_levels:
-        level_results = [r for r in results if r.test_case.tags and level in r.test_case.tags]
+        level_results = [r for r in results if r.test_case.difficulty == level]
         if level_results:
             metrics = compute_metrics_for_results(level_results)
             difficulty_metrics[level] = metrics
@@ -738,7 +733,7 @@ async def main():
     )
     parser.add_argument(
         "--dataset",
-        help="Path to golden_dataset.json (alternative to YAML test cases)",
+        help="Path to golden dataset JSON (deprecated; YAML is now the default)",
     )
     parser.add_argument(
         "--domain-filter",
@@ -789,9 +784,9 @@ async def main():
     if args.per_domain:
         domain_metrics = print_per_domain(results)
 
-    # Per-difficulty breakdown (for golden dataset with difficulty tags)
+    # Per-difficulty breakdown (show whenever per-domain is requested)
     difficulty_metrics = None
-    if args.dataset:
+    if args.per_domain:
         difficulty_metrics = print_per_difficulty(results)
 
     # Output JSON for CI quality gate
