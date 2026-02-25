@@ -11,8 +11,8 @@ Both CI workflows are implemented and operational.
 | Workflow | File | Schedule | Status |
 |----------|------|----------|--------|
 | PR Checks | `pr-checks.yml` | Every PR | Active |
-| Integration Test | `integration-test.yml` | Sunday 2 AM UTC | Active |
-| Full Rebuild | `weekly-full-rebuild.yml` | Sunday 3 AM UTC | Active |
+| Integration Test | `integration-test.yml` | Manual (workflow_dispatch) | Active |
+| Full Rebuild | `weekly-full-rebuild.yml` | Manual (workflow_dispatch) | Active |
 
 ---
 
@@ -33,7 +33,7 @@ The `weekly-full-rebuild.yml` workflow validates the complete data path:
 
 ## How to Trigger
 
-- **Automatic**: Runs every Sunday at 3 AM UTC
+- **Manual trigger**: `gh workflow run weekly-full-rebuild.yml`
 - **Manual**: Actions tab > "Weekly Full Rebuild & Validation" > Run workflow
 - **CLI**: `gh workflow run weekly-full-rebuild.yml`
 

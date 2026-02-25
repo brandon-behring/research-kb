@@ -201,7 +201,7 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 | Text chunks (100% embedded) | 226K |
 | Concepts (9 types) | 307K |
 | Relationships | 742K |
-| Citations | 15,869 |
+| Citations | 15,166 |
 
 <!-- AUTO-GEN:mcp-tools:START -->
 ## MCP Server
@@ -291,24 +291,24 @@ research-kb supports 19 corpus domains with 20 extraction prompt configurations:
 | Domain | Sources | Description |
 |--------|---------|-------------|
 | `causal_inference` | 89 | Causal inference, structural models, treatment effects |
-| `rag_llm` | 74 | Retrieval-augmented generation, language models |
-| `time_series` | 49 | Time series analysis, forecasting, temporal methods |
-| `software_engineering` | 37 | Design patterns, testing, architecture, DevOps |
+| `rag_llm` | 73 | Retrieval-augmented generation, language models |
+| `time_series` | 48 | Time series analysis, forecasting, temporal methods |
+| `software_engineering` | 30 | Design patterns, testing, architecture, DevOps |
 | `deep_learning` | 35 | Neural networks, transformers, optimization |
 | `econometrics` | 35 | Econometric theory and estimation |
-| `mathematics` | 25 | Pure and applied mathematics |
+| `mathematics` | 28 | Pure and applied mathematics |
 | `interview_prep` | 23 | Technical interview preparation |
 | `finance` | 23 | Quantitative finance and risk |
-| `machine_learning` | 20 | General ML algorithms and theory |
+| `machine_learning` | 14 | General ML algorithms and theory |
 | `statistics` | 18 | Statistical theory and methods |
-| `ml_engineering` | 14 | ML systems, MLOps, production ML |
+| `ml_engineering` | 17 | ML systems, MLOps, production ML |
 | `data_science` | 12 | Data analysis and visualization |
 | `portfolio_management` | 11 | Portfolio theory and optimization |
-| `functional_programming` | 7 | FP concepts and languages |
-| `algorithms` | 6 | Algorithm design and analysis |
-| `forecasting` | 4 | Forecasting methods and evaluation |
+| `functional_programming` | 8 | FP concepts and languages |
+| `algorithms` | 12 | Algorithm design and analysis |
+| `forecasting` | 5 | Forecasting methods and evaluation |
 | `fitness` | 2 | Exercise science and training |
-| `economics` | 1 | Economic theory |
+| `economics` | 2 | Economic theory |
 
 All search, concept extraction, and graph operations support domain filtering via the `--domain` flag.
 

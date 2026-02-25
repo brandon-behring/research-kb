@@ -66,13 +66,13 @@ curl -X POST \
 
 ### Integration Test (`integration-test.yml`)
 
-**Duration**: ~15 min | **Schedule**: Sunday 2 AM UTC
+**Duration**: ~15 min | **Schedule**: Manual trigger only
 
 Runs the full test suite against an empty PostgreSQL + pgvector database. No demo data, no embeddings. Tests database operations, schema integrity, and mocked search paths.
 
 ### Full Rebuild (`weekly-full-rebuild.yml`)
 
-**Duration**: ~45 min | **Schedule**: Sunday 3 AM UTC
+**Duration**: ~45 min | **Schedule**: Manual trigger only
 
 End-to-end data pipeline validation:
 

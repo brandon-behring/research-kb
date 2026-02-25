@@ -43,8 +43,8 @@ When no concepts are extracted (fresh database), graph search silently falls bac
 
 Both CI workflows validate the search pipeline:
 
-- **`integration-test.yml`** (Sunday 2 AM): Tests search code paths with mocked data
-- **`weekly-full-rebuild.yml`** (Sunday 3 AM): End-to-end validation with real embeddings and golden dataset eval (MRR >= 0.5 gate)
+- **`integration-test.yml`** (manual trigger): Tests search code paths with mocked data
+- **`weekly-full-rebuild.yml`** (manual trigger): End-to-end validation with real embeddings and golden dataset eval (MRR >= 0.5 gate)
 
 ---
 

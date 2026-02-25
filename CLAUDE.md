@@ -295,8 +295,8 @@ Single model: BGE-large-en-v1.5 (1024 dimensions). All vector columns are `vecto
 ## CI/CD Tiers
 
 1. **PR Checks** (<10 min): Unit + integration tests with mocked services, pytest-cov coverage reports (XML), doc freshness gate
-2. **Weekly Integration** (15 min, Sunday 2AM): Search pipeline + quality tests + script tests + doc freshness gate (`audit_docs.py`, `generate_status.py --check`)
-3. **Full Rebuild** (45 min, Sunday 3AM): Demo data load, embedding generation, retrieval eval against golden dataset with per-domain metrics (`weekly-full-rebuild.yml`)
+2. **Weekly Integration** (15 min, manual trigger): Search pipeline + quality tests + script tests + doc freshness gate (`audit_docs.py`, `generate_status.py --check`)
+3. **Full Rebuild** (45 min, manual trigger): Demo data load, embedding generation, retrieval eval against golden dataset with per-domain metrics (`weekly-full-rebuild.yml`)
 
 ## Data Protection
 

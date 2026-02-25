@@ -9,8 +9,8 @@ Overview of the two CI workflows and how to use them.
 | Workflow | File | Schedule | Duration | Purpose |
 |----------|------|----------|----------|---------|
 | **PR Checks** | `pr-checks.yml` | Every PR | ~8 min | Unit + integration tests, pytest-cov |
-| **Integration Test** | `integration-test.yml` | Sunday 2 AM UTC | ~15 min | DB-only tests against empty database |
-| **Full Rebuild** | `weekly-full-rebuild.yml` | Sunday 3 AM UTC | ~45 min | Load demo data, embed, validate retrieval quality |
+| **Integration Test** | `integration-test.yml` | Manual (workflow_dispatch) | ~15 min | DB-only tests against empty database |
+| **Full Rebuild** | `weekly-full-rebuild.yml` | Manual (workflow_dispatch) | ~45 min | Load demo data, embed, validate retrieval quality |
 
 ---
 
