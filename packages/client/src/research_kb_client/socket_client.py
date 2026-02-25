@@ -62,7 +62,7 @@ def _default_cli_path() -> str:
     """Get CLI path."""
     return os.environ.get(
         "RESEARCH_KB_CLI_PATH",
-        str(Path.home() / "Claude/research-kb/venv/bin/research-kb"),
+        str(Path.home() / "Claude/research-kb/.venv/bin/research-kb"),
     )
 
 

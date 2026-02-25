@@ -5,9 +5,9 @@ After=postgresql.service research-kb-daemon.service
 
 [Service]
 Type=oneshot
-ExecStart=%h/Claude/research-kb/venv/bin/python %h/Claude/research-kb/scripts/sync_kuzu.py
+ExecStart=%h/Claude/research-kb/.venv/bin/python %h/Claude/research-kb/scripts/sync_kuzu.py
 WorkingDirectory=%h/Claude/research-kb
-Environment=PATH=%h/Claude/research-kb/venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=%h/Claude/research-kb/.venv/bin:/usr/local/bin:/usr/bin:/bin
 
 # Logging
 StandardOutput=journal

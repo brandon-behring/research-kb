@@ -7,7 +7,7 @@ Wants=research-kb-embed.service
 
 [Service]
 Type=simple
-ExecStart=<PROJECT_ROOT>/venv/bin/research-kb-daemon
+ExecStart=<PROJECT_ROOT>/.venv/bin/research-kb-daemon
 Restart=on-failure
 RestartSec=5
 

@@ -33,7 +33,7 @@ repos:
 
       - id: mypy-baseline
         name: mypy-baseline
-        entry: python scripts/mypy_baseline_check.py
+        entry: .venv/bin/python scripts/mypy_baseline_check.py
         language: system
         files: '\.py$'
         pass_filenames: false

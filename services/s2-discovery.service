@@ -13,7 +13,7 @@ WorkingDirectory=<PROJECT_ROOT>
 # 2. Citation traversal (expand from existing corpus)
 ExecStart=/bin/bash -c '\
     cd <PROJECT_ROOT> && \
-    source venv/bin/activate && \
+    source .venv/bin/activate && \
     echo "=== S2 Discovery Run: $(date -Iseconds) ===" && \
     echo "--- Topics Discovery ---" && \
     python scripts/s2_auto_discover.py topics \

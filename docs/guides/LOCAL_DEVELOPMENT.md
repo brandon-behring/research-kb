@@ -33,17 +33,13 @@ docker-compose logs -f postgres
 ### 3. Install Packages
 
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+# Recommended: uv (single command, workspace-aware)
+uv sync
 
-# Install all packages in editable mode
-pip install -e packages/cli
-pip install -e packages/storage
-pip install -e packages/pdf-tools
-pip install -e packages/contracts
-pip install -e packages/common
-pip install -e packages/extraction  # Optional: requires Ollama
+# Fallback: pip (manual editable installs)
+python -m venv .venv
+source .venv/bin/activate
+make setup-pip
 ```
 
 ### 4. Start Embedding Server
@@ -223,7 +219,7 @@ Recommended extensions:
 `.vscode/settings.json`:
 ```json
 {
-    "python.defaultInterpreterPath": "./venv/bin/python",
+    "python.defaultInterpreterPath": "./.venv/bin/python",
     "python.formatting.provider": "black",
     "editor.formatOnSave": true
 }

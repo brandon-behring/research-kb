@@ -36,7 +36,7 @@ Add to your `.mcp.json` or Claude Code configuration:
 {
   "mcpServers": {
     "research-kb": {
-      "command": "/path/to/research-kb/venv/bin/research-kb-mcp",
+      "command": "/path/to/research-kb/.venv/bin/research-kb-mcp",
       "args": []
     }
   }

@@ -23,7 +23,7 @@ MYPY_CONFIG = REPO_ROOT / "mypy.ini"
 def run_mypy() -> list[str]:
     """Run mypy and return sorted error lines."""
     result = subprocess.run(
-        ["mypy", "packages/", "--config-file", str(MYPY_CONFIG)],
+        [sys.executable, "-m", "mypy", "packages/", "--config-file", str(MYPY_CONFIG)],
         capture_output=True,
         text=True,
         cwd=str(REPO_ROOT),

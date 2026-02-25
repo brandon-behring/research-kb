@@ -23,13 +23,13 @@ cd research-kb
 ### 2. Set up Python environment
 
 ```bash
-python -m venv venv
-source venv/bin/activate
-pip install -e packages/contracts
-pip install -e packages/common
-pip install -e packages/storage
-pip install -e packages/pdf-tools
-pip install -e packages/cli
+# Recommended: uv (single command, workspace-aware)
+uv sync
+
+# Fallback: pip
+python -m venv .venv
+source .venv/bin/activate
+make setup-pip
 ```
 
 ### 3. Start infrastructure

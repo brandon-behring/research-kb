@@ -20,6 +20,9 @@ dependencies = [
 anthropic = [
     "anthropic>=0.40.0",
 ]
+instructor = [
+    "instructor>=1.0.0",
+]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",

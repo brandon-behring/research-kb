@@ -55,7 +55,7 @@ Environment variables:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `RESEARCH_KB_SOCKET_PATH` | `/tmp/research_kb_daemon_$USER.sock` | Daemon socket |
-| `RESEARCH_KB_CLI_PATH` | `~/Claude/research-kb/venv/bin/research-kb` | CLI fallback |
+| `RESEARCH_KB_CLI_PATH` | `~/Claude/research-kb/.venv/bin/research-kb` | CLI fallback |
 
 ## Models
 

@@ -21,8 +21,8 @@ cd research-kb
 uv sync
 
 # Option B: pip (fallback — manual editable installs)
-python -m venv venv
-source venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 make setup-pip
 
 # Start services
