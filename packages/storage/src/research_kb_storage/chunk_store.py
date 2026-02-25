@@ -420,7 +420,7 @@ class ChunkStore:
                     chunk_id,
                 )
 
-                deleted = result == "DELETE 1"
+                deleted: bool = result == "DELETE 1"
 
                 if deleted:
                     logger.info("chunk_deleted", chunk_id=str(chunk_id))
@@ -452,7 +452,7 @@ class ChunkStore:
                     source_id,
                 )
 
-                return count
+                return int(count)
 
         except Exception as e:
             logger.error("chunk_count_failed", source_id=str(source_id), error=str(e))

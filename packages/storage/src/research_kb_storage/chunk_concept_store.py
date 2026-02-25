@@ -201,7 +201,7 @@ class ChunkConceptStore:
                     mention_type,
                 )
 
-                deleted = result == "DELETE 1"
+                deleted: bool = result == "DELETE 1"
 
                 if deleted:
                     logger.debug(

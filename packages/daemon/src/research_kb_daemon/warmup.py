@@ -102,6 +102,7 @@ async def warm_kuzu() -> None:
 
         # Step 2: Scan node table
         result = await asyncio.to_thread(conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt")
+        assert not isinstance(result, list)
         df = result.get_as_df()
         node_count = int(df.iloc[0]["cnt"]) if not df.empty else 0
         logger.info("kuzu_warmup_nodes_scanned", count=node_count)
@@ -110,6 +111,7 @@ async def warm_kuzu() -> None:
         result = await asyncio.to_thread(
             conn.execute, "MATCH ()-[r:RELATES]->() RETURN count(r) AS cnt"
         )
+        assert not isinstance(result, list)
         df = result.get_as_df()
         edge_count = int(df.iloc[0]["cnt"]) if not df.empty else 0
         logger.info("kuzu_warmup_edges_scanned", count=edge_count)
@@ -120,6 +122,7 @@ async def warm_kuzu() -> None:
                 conn.execute,
                 "MATCH (c:Concept) RETURN c.id LIMIT 2",
             )
+            assert not isinstance(result, list)
             df = result.get_as_df()
             if len(df) >= 2:
                 id_a = df.iloc[0]["c.id"]

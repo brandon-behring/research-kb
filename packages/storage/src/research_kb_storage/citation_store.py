@@ -235,7 +235,7 @@ class CitationStore:
                     source_id,
                 )
 
-                return count
+                return int(count)
 
         except Exception as e:
             logger.error("citation_count_failed", source_id=str(source_id), error=str(e))
@@ -345,7 +345,7 @@ class CitationStore:
                     citation_id,
                 )
 
-                deleted = result == "DELETE 1"
+                deleted: bool = result == "DELETE 1"
 
                 if deleted:
                     logger.info("citation_deleted", citation_id=str(citation_id))

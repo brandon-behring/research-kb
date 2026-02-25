@@ -113,7 +113,7 @@ class DiscoveryStore:
                     papers_ingested=papers_ingested,
                 )
 
-                return log_id
+                return UUID(log_id)
 
         except Exception as e:
             logger.error("discovery_log_failed", method=discovery_method, error=str(e))

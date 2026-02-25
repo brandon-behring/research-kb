@@ -240,7 +240,7 @@ def get_filter_stats(chunks: list[tuple[str, str]]) -> dict:
         "flag": sum(1 for r in results if r.decision == FilterDecision.FLAG),
     }
 
-    by_reason = {}
+    by_reason: dict[str, int] = {}
     for r in results:
         if r.reason:
             by_reason[r.reason] = by_reason.get(r.reason, 0) + 1

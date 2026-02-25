@@ -5,7 +5,7 @@ Designed for concept extraction with llama3.1:8b model.
 """
 
 import json
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import httpx
 from research_kb_common import ExtractionValidationError, get_logger
@@ -215,7 +215,7 @@ class OllamaClient(LLMClient):
         chunks: list[str],
         domain_id: str,
         prompt_type: str = "full",
-        on_progress: Optional[callable] = None,
+        on_progress: Optional[Callable[[int, int], None]] = None,
     ) -> list[ChunkExtraction]:
         """Extract concepts from multiple chunks.
 

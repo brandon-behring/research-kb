@@ -17,7 +17,7 @@ import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 from uuid import UUID
 
 from research_kb_common import get_logger
@@ -219,7 +219,7 @@ class BatchClient:
         self,
         batch_id: str,
         poll_interval: int = 60,
-        on_progress: Optional[callable] = None,
+        on_progress: Optional[Callable[[dict[str, Any]], None]] = None,
     ) -> list[BatchResult]:
         """Wait for batch completion and return results.
 

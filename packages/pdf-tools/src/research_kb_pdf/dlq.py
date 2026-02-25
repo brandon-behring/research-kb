@@ -156,7 +156,7 @@ class DeadLetterQueue:
             >>> all_failures = dlq.list()
             >>> grobid_failures = dlq.list(error_type="GROBIDError")
         """
-        entries = []
+        entries: list[DLQEntry] = []
 
         if not self.dlq_path.exists() or self.dlq_path.stat().st_size == 0:
             return entries

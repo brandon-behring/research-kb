@@ -114,6 +114,7 @@ def _ensure_schema(conn: kuzu.Connection) -> None:
     # Check if Concept table exists by querying schema
     try:
         result = conn.execute("CALL show_tables() RETURN *")
+        assert not isinstance(result, list)
         df = result.get_as_df()
         tables = set(df["name"].tolist()) if not df.empty else set()
 
@@ -205,6 +206,7 @@ async def find_shortest_path_kuzu(
                 {"start_id": str(start_id), "end_id": str(end_id)},
             )
 
+        assert not isinstance(result, list)
         df = result.get_as_df()
         if df.empty:
             return None
@@ -272,6 +274,7 @@ async def find_shortest_path_length_kuzu(
                 {"start_id": str(start_id), "end_id": str(end_id)},
             )
 
+        assert not isinstance(result, list)
         df = result.get_as_df()
         if df.empty:
             return None
@@ -332,6 +335,7 @@ async def get_neighborhood_kuzu(
                 {"concept_id": str(concept_id)},
             )
 
+        assert not isinstance(result, list)
         df = result.get_as_df()
         neighbors = df.to_dict("records") if not df.empty else []
 
@@ -356,6 +360,7 @@ async def get_neighborhood_kuzu(
                 {"all_ids": all_ids},
             )
 
+        assert not isinstance(rel_result, list)
         rel_df = rel_result.get_as_df()
         relationships = rel_df.to_dict("records") if not rel_df.empty else []
 
@@ -403,7 +408,7 @@ async def compute_batch_graph_scores(
 
     try:
         # Flatten all chunk concept IDs for batch query
-        all_chunk_ids = set()
+        all_chunk_ids: set[str] = set()
         for chunk_ids in chunk_concept_ids_list:
             all_chunk_ids.update(str(cid) for cid in chunk_ids)
 
@@ -430,6 +435,7 @@ async def compute_batch_graph_scores(
                 {"query_ids": query_ids_str, "chunk_ids": list(all_chunk_ids)},
             )
 
+        assert not isinstance(result, list)
         df = result.get_as_df()
 
         # Build lookup: (query_id, chunk_id) -> (path_len, rel_types)
@@ -525,6 +531,7 @@ async def compute_single_graph_score(
                 {"query_ids": query_ids_str, "chunk_ids": chunk_ids_str},
             )
 
+        assert not isinstance(result, list)
         df = result.get_as_df()
 
         total_score = 0.0
@@ -596,6 +603,7 @@ async def clear_all_data() -> int:
             count_result = await asyncio.to_thread(
                 conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt"
             )
+            assert not isinstance(count_result, list)
             count = int(count_result.get_as_df().iloc[0]["cnt"])
 
             # Delete all relationships first (required before deleting nodes)
@@ -626,12 +634,14 @@ async def get_stats() -> dict:
             c_result = await asyncio.to_thread(
                 conn.execute, "MATCH (c:Concept) RETURN count(c) AS cnt"
             )
+            assert not isinstance(c_result, list)
             concept_count = int(c_result.get_as_df().iloc[0]["cnt"])
 
             # Relationship count
             r_result = await asyncio.to_thread(
                 conn.execute, "MATCH ()-[r:RELATES]->() RETURN count(r) AS cnt"
             )
+            assert not isinstance(r_result, list)
             rel_count = int(r_result.get_as_df().iloc[0]["cnt"])
 
             # Relationship type distribution
@@ -643,6 +653,7 @@ async def get_stats() -> dict:
                 ORDER BY cnt DESC
                 """,
             )
+        assert not isinstance(type_result, list)
         type_df = type_result.get_as_df()
         rel_types = dict(zip(type_df["type"], type_df["cnt"])) if not type_df.empty else {}
 

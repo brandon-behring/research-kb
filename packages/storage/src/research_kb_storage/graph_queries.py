@@ -84,6 +84,7 @@ def is_kuzu_ready() -> bool:
         conn = get_kuzu_connection()
         # Verify tables exist with data
         result = conn.execute("MATCH (c:Concept) RETURN count(c) AS cnt LIMIT 1")
+        assert not isinstance(result, list)
         df = result.get_as_df()
         if df.empty or df.iloc[0]["cnt"] == 0:
             logger.error(
@@ -556,7 +557,7 @@ async def find_shortest_path_length(
                 max_hops,
             )
 
-            return result
+            return int(result) if result is not None else None
 
     except Exception as e:
         logger.error(

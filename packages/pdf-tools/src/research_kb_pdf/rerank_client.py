@@ -12,7 +12,7 @@ Usage:
 import json
 import socket
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Callable, Optional
 
 from research_kb_common import get_logger
 
@@ -198,7 +198,7 @@ class RerankClient:
         query: str,
         results: list,
         top_k: int = 10,
-        content_extractor: Optional[callable] = None,
+        content_extractor: Optional[Callable[..., Any]] = None,
     ) -> list:
         """Rerank SearchResult objects from storage.search.
 

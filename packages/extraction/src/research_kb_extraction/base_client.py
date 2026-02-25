@@ -5,7 +5,7 @@ used for concept extraction from academic text.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Callable, Optional
 
 from research_kb_extraction.models import ChunkExtraction
 
@@ -72,7 +72,7 @@ class LLMClient(ABC):
         chunks: list[str],
         domain_id: str,
         prompt_type: str = "full",
-        on_progress: Optional[callable] = None,
+        on_progress: Optional[Callable[[int, int], None]] = None,
     ) -> list[ChunkExtraction]:
         """Extract concepts from multiple chunks.
 

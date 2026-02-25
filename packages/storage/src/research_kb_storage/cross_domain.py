@@ -253,7 +253,7 @@ class CrossDomainStore:
                     link_type=link_type,
                 )
 
-                return link_id
+                return UUID(link_id)
 
         except Exception as e:
             logger.error(

@@ -121,7 +121,7 @@ class QueueStore:
                     title=title[:50],
                 )
 
-                return queue_id
+                return UUID(queue_id)
 
         except Exception as e:
             if "unique" in str(e).lower():

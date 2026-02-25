@@ -138,7 +138,7 @@ def chunk_document(
     paragraphs = split_paragraphs(full_text)
 
     chunks = []
-    current_chunk = []
+    current_chunk: list[str] = []
     current_tokens = 0
     chunk_index = 0
 
@@ -263,7 +263,7 @@ def get_overlap_paragraphs(paragraphs: list[str], target_tokens: int) -> list[st
     if not paragraphs:
         return []
 
-    overlap = []
+    overlap: list[str] = []
     tokens = 0
 
     for para in reversed(paragraphs):
@@ -385,7 +385,7 @@ def split_large_paragraph(paragraph: str, target_tokens: int, max_variance: int)
     sentences = split_sentences(paragraph)
 
     chunks = []
-    current = []
+    current: list[str] = []
     current_tokens = 0
 
     for sentence in sentences:

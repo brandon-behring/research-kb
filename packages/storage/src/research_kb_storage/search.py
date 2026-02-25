@@ -168,7 +168,7 @@ def _compute_ranks_by_signal(results: list) -> dict[str, dict[str, int]]:
     from collections import defaultdict
 
     # Group chunk IDs by their score in each signal
-    chunk_scores = defaultdict(dict)
+    chunk_scores: dict[str, dict[str, float]] = defaultdict(dict)
     for r in results:
         chunk_id = str(r.chunk.id)
         if r.fts_score is not None:
@@ -181,7 +181,7 @@ def _compute_ranks_by_signal(results: list) -> dict[str, dict[str, int]]:
             chunk_scores[chunk_id]["citation"] = r.citation_score
 
     # Compute ranks for each signal
-    rankings = defaultdict(dict)
+    rankings: dict[str, dict[str, int]] = defaultdict(dict)
     for signal in ["fts", "vector", "graph", "citation"]:
         # Get all chunks with this signal's score
         scored = [

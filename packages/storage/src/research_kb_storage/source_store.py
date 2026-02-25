@@ -10,7 +10,7 @@ Provides:
 
 import json
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -457,7 +457,7 @@ class SourceStore:
                     source_id,
                 )
 
-                deleted = result == "DELETE 1"
+                deleted: bool = result == "DELETE 1"
 
                 if deleted:
                     logger.info("source_deleted", source_id=str(source_id))
@@ -503,7 +503,7 @@ class SourceStore:
 
                 # Build query with optional filters
                 conditions = []
-                params = []
+                params: list[Any] = []
                 param_idx = 1
 
                 if source_type:

@@ -599,6 +599,7 @@ class MethodAssumptionAuditor:
                 return []
 
             import anthropic
+            from anthropic.types import TextBlock
 
             client = anthropic.Anthropic(api_key=api_key)
 
@@ -610,7 +611,10 @@ class MethodAssumptionAuditor:
                 system="You are an expert in causal inference and econometrics. Return ONLY valid JSON.",
             )
 
-            response_text = message.content[0].text
+            block = message.content[0]
+            if not isinstance(block, TextBlock):
+                raise ValueError(f"Expected TextBlock, got {type(block).__name__}")
+            response_text = block.text
 
             # Strip markdown code fences if present (Haiku often wraps JSON)
             response_text = response_text.strip()

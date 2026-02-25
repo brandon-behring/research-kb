@@ -12,7 +12,7 @@ Assumptions table stores specialized attributes for assumption-type concepts (1:
 """
 
 import json
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -221,7 +221,7 @@ class AssumptionStore:
 
         # Build dynamic UPDATE query
         updates = []
-        params = [assumption_id]
+        params: list[Any] = [assumption_id]
         param_idx = 2
 
         # Note: We need to distinguish between None (don't update) and explicit value update
@@ -309,7 +309,7 @@ class AssumptionStore:
                     assumption_id,
                 )
 
-                deleted = result.split()[-1] == "1"
+                deleted: bool = result.split()[-1] == "1"
 
                 if deleted:
                     logger.info(
@@ -385,7 +385,7 @@ class AssumptionStore:
         try:
             async with pool.acquire() as conn:
                 result = await conn.fetchval("SELECT COUNT(*) FROM assumptions")
-                return result
+                return int(result)
 
         except Exception as e:
             logger.error(

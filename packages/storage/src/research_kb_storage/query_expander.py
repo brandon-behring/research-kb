@@ -17,7 +17,7 @@ Master Plan Reference: Phase 3 Enhanced Retrieval
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import yaml
 
@@ -113,7 +113,7 @@ class QueryExpander:
         if yaml_path is None:
             yaml_path = DEFAULT_SYNONYM_MAP_PATH
 
-        synonym_map = {}
+        synonym_map: dict[str, Any] = {}
         if yaml_path.exists():
             try:
                 with open(yaml_path, "r") as f:
@@ -660,6 +660,7 @@ async def _generate_hyde_anthropic(prompt: str, model: str) -> Optional[str]:
     try:
         import os
         import anthropic
+        from anthropic.types import TextBlock
 
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -675,7 +676,10 @@ async def _generate_hyde_anthropic(prompt: str, model: str) -> Optional[str]:
             system="You are a technical writer for causal inference research.",
         )
 
-        response = message.content[0].text
+        block = message.content[0]
+        if not isinstance(block, TextBlock):
+            raise ValueError(f"Expected TextBlock, got {type(block).__name__}")
+        response = block.text
 
         logger.debug(
             "hyde_anthropic_generated",

@@ -11,7 +11,7 @@ Provides:
 
 import json
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -209,7 +209,7 @@ class ConceptStore:
 
                 # Build dynamic update
                 updates = []
-                params = [concept_id]
+                params: list[Any] = [concept_id]
                 param_idx = 2
 
                 if definition is not None:
@@ -269,7 +269,7 @@ class ConceptStore:
                     concept_id,
                 )
 
-                deleted = result == "DELETE 1"
+                deleted: bool = result == "DELETE 1"
 
                 if deleted:
                     logger.info("concept_deleted", concept_id=str(concept_id))

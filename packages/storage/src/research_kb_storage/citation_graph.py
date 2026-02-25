@@ -10,7 +10,7 @@ Phase 3: Citation graph integration for search enhancement.
 """
 
 import json
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from research_kb_common import get_logger
@@ -61,7 +61,7 @@ async def match_citation_to_source(citation: Citation) -> Optional[UUID]:
                 citation.doi,
             )
             if row:
-                return row["id"]
+                return UUID(row["id"])
 
         # Priority 2: arXiv ID exact match
         if citation.arxiv_id:
@@ -74,7 +74,7 @@ async def match_citation_to_source(citation: Citation) -> Optional[UUID]:
                 citation.arxiv_id,
             )
             if row:
-                return row["id"]
+                return UUID(row["id"])
 
         # Priority 3: Fuzzy match on title + year + first author
         if citation.title:
@@ -103,7 +103,7 @@ async def match_citation_to_source(citation: Citation) -> Optional[UUID]:
                     source_title=row["title"],
                     similarity=row["title_sim"],
                 )
-                return row["id"]
+                return UUID(row["id"])
 
     return None
 
@@ -130,7 +130,7 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 citation.doi,
             )
             if row:
-                return row["id"]
+                return UUID(row["id"])
 
         # Priority 2: arXiv ID exact match
         if citation.arxiv_id:
@@ -139,7 +139,7 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 citation.arxiv_id,
             )
             if row:
-                return row["id"]
+                return UUID(row["id"])
 
         # Priority 3: Exact title + year match
         if citation.title:
@@ -156,7 +156,7 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 citation.year,
             )
             if row:
-                return row["id"]
+                return UUID(row["id"])
 
             # Try partial match (title contains)
             row = await conn.fetchrow(
@@ -169,7 +169,7 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 normalized_title,
             )
             if row:
-                return row["id"]
+                return UUID(row["id"])
 
     return None
 
@@ -359,7 +359,7 @@ async def compute_pagerank_authority(
         )
 
         # Build adjacency lists
-        incoming = {sid: [] for sid in source_ids}  # Who cites me
+        incoming: dict[UUID, list[UUID]] = {sid: [] for sid in source_ids}  # Who cites me
         outgoing = {sid: 0 for sid in source_ids}  # How many I cite
 
         for edge in edges:
@@ -453,7 +453,7 @@ async def get_citing_sources(
             WHERE sc.cited_source_id = $1
         """
 
-        params = [source_id]
+        params: list[Any] = [source_id]
 
         if source_type:
             query += " AND s.source_type = $2"
@@ -518,7 +518,7 @@ async def get_cited_sources(
             WHERE sc.citing_source_id = $1
         """
 
-        params = [source_id]
+        params: list[Any] = [source_id]
 
         if source_type:
             query += " AND s.source_type = $2"
@@ -651,7 +651,7 @@ async def get_most_cited_sources(
             LEFT JOIN source_citations sc ON sc.cited_source_id = s.id
         """
 
-        params = []
+        params: list[Any] = []
 
         if source_type:
             query += " WHERE s.source_type = $1"

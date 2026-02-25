@@ -12,7 +12,7 @@ Methods table stores specialized attributes for method-type concepts (1:1 relati
 """
 
 import json
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -213,7 +213,7 @@ class MethodStore:
 
         # Build dynamic UPDATE query
         updates = []
-        params = [method_id]
+        params: list[Any] = [method_id]
         param_idx = 2
 
         if required_assumptions is not None:
@@ -290,7 +290,7 @@ class MethodStore:
                     method_id,
                 )
 
-                deleted = result.split()[-1] == "1"
+                deleted: bool = result.split()[-1] == "1"
 
                 if deleted:
                     logger.info(
@@ -365,7 +365,7 @@ class MethodStore:
         try:
             async with pool.acquire() as conn:
                 result = await conn.fetchval("SELECT COUNT(*) FROM methods")
-                return result
+                return int(result)
 
         except Exception as e:
             logger.error(

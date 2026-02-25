@@ -57,7 +57,7 @@ async def extract_query_concepts(
         from research_kb_storage.connection import get_connection_pool
 
         pool = await get_connection_pool()
-        matched_concept_ids = []
+        matched_concept_ids: list[UUID] = []
 
         async with pool.acquire() as conn:
             # Strategy: Search for concepts where canonical_name appears in query

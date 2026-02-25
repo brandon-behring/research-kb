@@ -182,7 +182,7 @@ async def check_connection_health() -> bool:
         pool = await get_connection_pool()
         async with pool.acquire() as conn:
             result = await conn.fetchval("SELECT 1")
-            return result == 1
+            return bool(result == 1)
     except Exception as e:
         logger.error("health_check_failed", error=str(e))
         return False

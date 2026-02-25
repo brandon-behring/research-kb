@@ -326,7 +326,7 @@ class RelationshipStore:
                         relationship_id=str(relationship_id),
                     )
 
-                return deleted
+                return bool(deleted)
 
         except Exception as e:
             logger.error(
