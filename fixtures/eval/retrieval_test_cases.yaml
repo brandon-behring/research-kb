@@ -14,6 +14,7 @@ test_cases:
     expected_source_pattern: "causality.*models|reasoning|inference"
     expected_in_top_k: 5
     expected_page_range: [75, 375]
+    expected_concepts: ["backdoor criterion", "d-separation", "adjustment formula", "causal effect"]
     tags: [core, pearl, causal_inference]
     notes: "Master Plan Line 597: backdoor criterion → Pearl's Causality book"
 
@@ -21,6 +22,7 @@ test_cases:
   - query: "cross-fitting"
     expected_source_pattern: "double.*debiased|machine learning|causal.*inference|effect"
     expected_in_top_k: 5
+    expected_concepts: ["cross-fitting", "sample splitting", "overfitting bias", "Neyman orthogonality"]
     tags: [core, dml, causal_inference]
     notes: "Master Plan Line 598: cross-fitting → DML-related sources"
 
@@ -38,6 +40,7 @@ test_cases:
   - query: "potential outcomes"
     expected_source_pattern: "causal|treatment|counterfactual"
     expected_in_top_k: 5
+    expected_concepts: ["potential outcomes", "counterfactual", "Rubin causal model", "treatment effect"]
     tags: [core, causal_inference]
 
   # Propensity score matching
@@ -52,12 +55,14 @@ test_cases:
   - query: "local average treatment effect"
     expected_source_pattern: "mostly harmless|econometrics|nobel|treatment|effect|mediation"
     expected_in_top_k: 5
+    expected_concepts: ["LATE", "local average treatment effect", "compliers", "monotonicity"]
     tags: [core, iv]
 
   # Causal DAGs
   - query: "directed acyclic graph causal"
     expected_source_pattern: "causal|inference|prediction|search"
     expected_in_top_k: 5
+    expected_concepts: ["directed acyclic graph", "d-separation", "causal path", "collider"]
     tags: [core, graphs]
 
   # Double machine learning
@@ -72,12 +77,14 @@ test_cases:
   - query: "heterogeneous treatment effects"
     expected_source_pattern: "heterogeneous|recursive partitioning|treatment"
     expected_in_top_k: 5
+    expected_concepts: ["heterogeneous treatment effects", "CATE", "subgroup analysis", "treatment heterogeneity"]
     tags: [hte, ml]
 
   # Selection bias
   - query: "selection bias observational"
     expected_source_pattern: "mostly harmless|econometrics|causal"
     expected_in_top_k: 5
+    expected_concepts: ["selection bias", "observational study", "confounding", "self-selection"]
     tags: [bias, causal_inference]
 
   # ===== Phase 1 Cleanup: 4 Concept-Gap Tests =====
@@ -87,6 +94,7 @@ test_cases:
   - query: "synthetic control experimental design"
     expected_source_pattern: "synthetic control.*experimental"
     expected_in_top_k: 5
+    expected_concepts: ["synthetic control", "donor pool", "pre-treatment fit", "counterfactual"]
     tags: [core, synthetic_control]
     notes: "Phase 1 cleanup: Abadie/Zhao 2021 (arXiv:2108.02196)"
 
@@ -94,6 +102,7 @@ test_cases:
   - query: "causal forest random forests heterogeneous"
     expected_source_pattern: "heterogeneous treatment effects.*random forests"
     expected_in_top_k: 5
+    expected_concepts: ["causal forest", "honest estimation", "heterogeneous treatment effects"]
     tags: [core, causal_forest, ml]
     notes: "Phase 1 cleanup: Wager/Athey 2018"
 
@@ -101,6 +110,7 @@ test_cases:
   - query: "causal mediation identification inference"
     expected_source_pattern: "mediation|causal.*inference|interaction|primer"
     expected_in_top_k: 5
+    expected_concepts: ["causal mediation", "direct effect", "indirect effect", "sequential ignorability"]
     tags: [core, mediation]
     notes: "Phase 1 cleanup: Imai et al. 2010 (arXiv:1011.1079)"
 
@@ -108,6 +118,7 @@ test_cases:
   - query: "staggered difference in differences multiple time periods"
     expected_source_pattern: "difference.*differences.*multiple|time periods"
     expected_in_top_k: 5
+    expected_concepts: ["staggered DiD", "parallel trends", "treatment timing", "group-time ATT"]
     tags: [core, staggered_did]
     notes: "Phase 1 cleanup: Callaway/Sant'Anna 2021"
 
@@ -259,6 +270,245 @@ test_cases:
     relevance_grade: 3
     tags: [phase2, iv, weak_instruments]
     notes: "Phase 2 manual: IV robustness concern"
+
+  # ===== Phase O: Populated Domain Coverage (2026-02-25) =====
+
+  # --- Algorithms ---
+  - query: "dynamic programming optimal substructure"
+    expected_source_pattern: "algorithm|roughgarden|grokking|wengrow|kochenderfer"
+    expected_in_top_k: 5
+    expected_concepts: ["dynamic programming", "optimal substructure", "overlapping subproblems", "memoization"]
+    relevance_grade: 3
+    tags: [phase_o, algorithms]
+    notes: "Phase O: Algorithms core technique"
+
+  - query: "graph BFS shortest path"
+    expected_source_pattern: "algorithm|roughgarden|grokking|wengrow|graph"
+    expected_in_top_k: 5
+    expected_concepts: ["breadth-first search", "shortest path", "graph traversal"]
+    relevance_grade: 3
+    tags: [phase_o, algorithms]
+    notes: "Phase O: Graph algorithm fundamentals"
+
+  - query: "greedy algorithm correctness proof"
+    expected_source_pattern: "algorithm|roughgarden|greedy|illuminated"
+    expected_in_top_k: 5
+    expected_concepts: ["greedy algorithm", "exchange argument", "optimal substructure"]
+    relevance_grade: 3
+    tags: [phase_o, algorithms]
+    notes: "Phase O: Greedy algorithm theory"
+
+  - query: "divide and conquer recurrence relation"
+    expected_source_pattern: "algorithm|roughgarden|grokking|wengrow|illuminated"
+    expected_in_top_k: 5
+    expected_concepts: ["divide and conquer", "recurrence", "master theorem"]
+    relevance_grade: 3
+    tags: [phase_o, algorithms]
+    notes: "Phase O: D&C algorithm analysis"
+
+  # --- Functional Programming ---
+  - query: "monad transformer stack"
+    expected_source_pattern: "haskell|scala|functional|depth"
+    expected_in_top_k: 5
+    expected_concepts: ["monad transformer", "monad", "composition", "effect"]
+    relevance_grade: 3
+    tags: [phase_o, functional_programming]
+    notes: "Phase O: FP core abstraction"
+
+  - query: "algebraic data types pattern matching"
+    expected_source_pattern: "haskell|scala|functional|programming"
+    expected_in_top_k: 5
+    expected_concepts: ["algebraic data type", "pattern matching", "sum type", "product type"]
+    relevance_grade: 3
+    tags: [phase_o, functional_programming]
+    notes: "Phase O: FP type system fundamentals"
+
+  - query: "referential transparency pure functions"
+    expected_source_pattern: "haskell|scala|functional|programming"
+    expected_in_top_k: 5
+    expected_concepts: ["referential transparency", "pure function", "side effect", "immutability"]
+    relevance_grade: 3
+    tags: [phase_o, functional_programming]
+    notes: "Phase O: FP purity principles"
+
+  # --- Data Science ---
+  - query: "network centrality measures betweenness"
+    expected_source_pattern: "network|statistical|analysis|graph|kolaczyk"
+    expected_in_top_k: 5
+    expected_concepts: ["centrality", "betweenness", "degree centrality", "network analysis"]
+    relevance_grade: 3
+    tags: [phase_o, data_science]
+    notes: "Phase O: Network analysis method"
+
+  - query: "exploratory data analysis workflow"
+    expected_source_pattern: "data science|analysis|getting started|pyspark"
+    expected_in_top_k: 5
+    expected_concepts: ["EDA", "exploratory data analysis", "visualization", "summary statistics"]
+    relevance_grade: 3
+    tags: [phase_o, data_science]
+    notes: "Phase O: Core DS workflow"
+
+  - query: "A/B testing experiment design"
+    expected_source_pattern: "data science|experiment|causal|inference|analysis"
+    expected_in_top_k: 5
+    expected_concepts: ["A/B testing", "experiment", "control group", "statistical significance"]
+    relevance_grade: 3
+    tags: [phase_o, data_science]
+    notes: "Phase O: Experimental design for DS"
+
+  # --- ML Engineering ---
+  - query: "feature store serving latency"
+    expected_source_pattern: "ml|machine learning|building|powered|mlops"
+    expected_in_top_k: 5
+    expected_concepts: ["feature store", "serving", "latency", "feature engineering"]
+    relevance_grade: 3
+    tags: [phase_o, ml_engineering]
+    notes: "Phase O: MLOps infrastructure"
+
+  - query: "model monitoring data drift detection"
+    expected_source_pattern: "ml|machine learning|building|monitoring|drift"
+    expected_in_top_k: 5
+    expected_concepts: ["data drift", "model monitoring", "concept drift", "distribution shift"]
+    relevance_grade: 3
+    tags: [phase_o, ml_engineering]
+    notes: "Phase O: ML production monitoring"
+
+  - query: "ML pipeline reproducibility versioning"
+    expected_source_pattern: "ml|machine learning|building|pipeline|reproducibility"
+    expected_in_top_k: 5
+    expected_concepts: ["reproducibility", "versioning", "pipeline", "experiment tracking"]
+    relevance_grade: 3
+    tags: [phase_o, ml_engineering]
+    notes: "Phase O: MLOps best practices"
+
+  # --- Fitness ---
+  - query: "progressive overload periodization training"
+    expected_source_pattern: "strength|training|practical|programming|fitness"
+    expected_in_top_k: 5
+    expected_concepts: ["progressive overload", "periodization", "training volume", "adaptation"]
+    relevance_grade: 3
+    tags: [phase_o, fitness]
+    notes: "Phase O: Strength training principles"
+
+  - query: "compound vs isolation exercises"
+    expected_source_pattern: "strength|training|practical|programming|fitness"
+    expected_in_top_k: 5
+    expected_concepts: ["compound exercise", "isolation exercise", "squat", "deadlift"]
+    relevance_grade: 3
+    tags: [phase_o, fitness]
+    notes: "Phase O: Exercise classification"
+
+  - query: "novice strength training linear progression"
+    expected_source_pattern: "strength|training|practical|programming|fitness"
+    expected_in_top_k: 5
+    expected_concepts: ["linear progression", "novice", "recovery", "stress adaptation"]
+    relevance_grade: 3
+    tags: [phase_o, fitness]
+    notes: "Phase O: Novice programming model"
+
+  # --- Forecasting ---
+  - query: "demand forecasting inventory planning"
+    expected_source_pattern: "demand|forecasting|best practices|inventory"
+    expected_in_top_k: 5
+    expected_concepts: ["demand forecasting", "inventory", "safety stock", "lead time"]
+    relevance_grade: 3
+    tags: [phase_o, forecasting]
+    notes: "Phase O: Applied forecasting"
+
+  - query: "forecast error decomposition bias variance"
+    expected_source_pattern: "demand|forecasting|best practices|time series"
+    expected_in_top_k: 5
+    expected_concepts: ["forecast error", "bias", "variance", "MAPE"]
+    relevance_grade: 3
+    tags: [phase_o, forecasting]
+    notes: "Phase O: Forecast evaluation"
+
+  - query: "intermittent demand forecasting Croston"
+    expected_source_pattern: "demand|forecasting|best practices|intermittent"
+    expected_in_top_k: 5
+    expected_concepts: ["intermittent demand", "Croston", "SBA", "demand classification"]
+    relevance_grade: 3
+    tags: [phase_o, forecasting]
+    notes: "Phase O: Sparse demand methods"
+
+  # ===== Phase O: Future-Tagged Empty Domain Tests =====
+  # These test cases document expected behavior for domains awaiting content.
+  # Exclude from CI with --tag core (these won't match anything until sources arrive).
+
+  # --- SQL (future) ---
+  - query: "window functions ranking partitioning"
+    expected_source_pattern: "sql|database|performance|query"
+    expected_in_top_k: 5
+    expected_concepts: ["window function", "ROW_NUMBER", "PARTITION BY", "ranking"]
+    relevance_grade: 3
+    tags: [future, sql]
+    notes: "Phase O future: SQL window functions (awaiting content)"
+
+  - query: "query execution plan optimization"
+    expected_source_pattern: "sql|database|performance|explain|index"
+    expected_in_top_k: 5
+    expected_concepts: ["execution plan", "query optimizer", "index scan", "cost estimation"]
+    relevance_grade: 3
+    tags: [future, sql]
+    notes: "Phase O future: Query optimization (awaiting content)"
+
+  - query: "database normalization third normal form"
+    expected_source_pattern: "sql|database|normalization|relational"
+    expected_in_top_k: 5
+    expected_concepts: ["normalization", "third normal form", "functional dependency", "primary key"]
+    relevance_grade: 3
+    tags: [future, sql]
+    notes: "Phase O future: Relational design (awaiting content)"
+
+  # --- Recommender Systems (future) ---
+  - query: "collaborative filtering matrix factorization"
+    expected_source_pattern: "recommender|collaborative|matrix|factorization"
+    expected_in_top_k: 5
+    expected_concepts: ["collaborative filtering", "matrix factorization", "latent factors", "user-item"]
+    relevance_grade: 3
+    tags: [future, recommender_systems]
+    notes: "Phase O future: Core recsys method (awaiting content)"
+
+  - query: "cold start problem new user recommendation"
+    expected_source_pattern: "recommender|cold start|hybrid|content"
+    expected_in_top_k: 5
+    expected_concepts: ["cold start", "content-based filtering", "hybrid recommender"]
+    relevance_grade: 3
+    tags: [future, recommender_systems]
+    notes: "Phase O future: Recsys challenge (awaiting content)"
+
+  - query: "implicit feedback click through recommendation"
+    expected_source_pattern: "recommender|implicit|feedback|click"
+    expected_in_top_k: 5
+    expected_concepts: ["implicit feedback", "click-through rate", "negative sampling"]
+    relevance_grade: 3
+    tags: [future, recommender_systems]
+    notes: "Phase O future: Implicit recsys (awaiting content)"
+
+  # --- AdTech (future) ---
+  - query: "real time bidding auction mechanism"
+    expected_source_pattern: "advertising|auction|bidding|computational"
+    expected_in_top_k: 5
+    expected_concepts: ["real-time bidding", "second-price auction", "bid optimization"]
+    relevance_grade: 3
+    tags: [future, adtech]
+    notes: "Phase O future: RTB mechanism (awaiting content)"
+
+  - query: "click through rate prediction ad ranking"
+    expected_source_pattern: "advertising|ctr|prediction|ranking"
+    expected_in_top_k: 5
+    expected_concepts: ["CTR prediction", "ad ranking", "feature engineering", "calibration"]
+    relevance_grade: 3
+    tags: [future, adtech]
+    notes: "Phase O future: Ad ML (awaiting content)"
+
+  - query: "attribution modeling multi touch conversion"
+    expected_source_pattern: "advertising|attribution|conversion|multi-touch"
+    expected_in_top_k: 5
+    expected_concepts: ["attribution modeling", "multi-touch", "conversion", "incrementality"]
+    relevance_grade: 3
+    tags: [future, adtech]
+    notes: "Phase O future: Ad measurement (awaiting content)"
 
   # ===== Phase J: Multi-Domain Expansion (2026-02-20) =====
 
