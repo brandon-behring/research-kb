@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-25 00:01:09
+**Auto-generated**: 2026-02-25 00:32:50
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -53,24 +53,24 @@
 | Domain | Sources |
 |--------|--------:|
 | causal_inference | 89 |
-| rag_llm | 74 |
-| time_series | 49 |
-| software_engineering | 37 |
+| rag_llm | 73 |
+| time_series | 48 |
 | deep_learning | 35 |
 | econometrics | 35 |
-| mathematics | 25 |
-| interview_prep | 23 |
+| software_engineering | 30 |
+| mathematics | 28 |
 | finance | 23 |
-| machine_learning | 20 |
+| interview_prep | 23 |
 | statistics | 18 |
-| ml_engineering | 14 |
+| ml_engineering | 17 |
+| machine_learning | 14 |
 | data_science | 12 |
+| algorithms | 12 |
 | portfolio_management | 11 |
-| functional_programming | 7 |
-| algorithms | 6 |
-| forecasting | 4 |
+| functional_programming | 8 |
+| forecasting | 5 |
 | fitness | 2 |
-| economics | 1 |
+| economics | 2 |
 
 ---
 

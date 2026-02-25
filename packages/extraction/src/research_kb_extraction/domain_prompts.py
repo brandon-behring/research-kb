@@ -906,6 +906,311 @@ Broader concepts (use when more appropriate):
             "tpm": "technical program manager",
         },
     },
+    "sql": {
+        "name": "SQL & Databases",
+        "description": "SQL querying, database internals, query optimization, and relational data modeling",
+        "concept_type_guidance": """SQL & databases:
+1. method: Query techniques (e.g., window functions, CTEs, recursive queries, pivot, lateral join, merge/upsert)
+2. assumption: Correctness conditions (e.g., referential integrity, ACID compliance, isolation level guarantees, normalization)
+3. problem: Database challenges (e.g., N+1 queries, deadlocks, index bloat, write amplification, cardinality estimation errors)
+4. definition: Formal terms (e.g., primary key, foreign key, index, view, materialized view, transaction, WAL)
+5. theorem: Formal results (e.g., CAP theorem, serializability theory, relational algebra equivalences)
+
+Broader concepts (use when more appropriate):
+6. concept: General ideas (e.g., normalization, denormalization, sharding, partitioning, replication)
+7. technique: Applied procedures (e.g., query plan analysis, index tuning, vacuum, connection pooling)
+8. model: Data models and architectures (e.g., star schema, snowflake schema, EAV, document model)
+9. principle: Design principles (e.g., least privilege, immutable audit logs, idempotent migrations)""",
+        "examples": [
+            "Window functions ENABLE ranking without self-joins",
+            "CTEs SIMPLIFY recursive hierarchical queries",
+            "B-tree indexes ACCELERATE range scans on ordered columns",
+            "MVCC ENABLES concurrent reads without blocking writes",
+            "Hash joins OUTPERFORM nested loops on large unsorted tables",
+            "Partitioning ADDRESSES table scan performance on large tables",
+            "Write-ahead logging ENSURES crash recovery durability",
+        ],
+        "abbreviations": {
+            "cte": "common table expression",
+            "ddl": "data definition language",
+            "dml": "data manipulation language",
+            "dcl": "data control language",
+            "tcl": "transaction control language",
+            "olap": "online analytical processing",
+            "oltp": "online transaction processing",
+            "etl": "extract transform load",
+            "elt": "extract load transform",
+            "pk": "primary key",
+            "fk": "foreign key",
+            "uk": "unique key",
+            "mvcc": "multiversion concurrency control",
+            "wal": "write-ahead log",
+            "acid": "atomicity consistency isolation durability",
+            "base": "basically available soft state eventual consistency",
+            "cap": "consistency availability partition tolerance",
+            "sql": "structured query language",
+            "rdbms": "relational database management system",
+            "orm": "object-relational mapping",
+            "dba": "database administrator",
+            "iops": "input output operations per second",
+            "tps": "transactions per second",
+            "qps": "queries per second",
+            "eav": "entity-attribute-value",
+            "json": "javascript object notation",
+            "jsonb": "binary json",
+            "gin": "generalized inverted index",
+            "gist": "generalized search tree",
+            "brin": "block range index",
+            "ssi": "serializable snapshot isolation",
+            "2pc": "two-phase commit",
+            "lsm": "log-structured merge tree",
+            "scd": "slowly changing dimension",
+            "udf": "user-defined function",
+            "sp": "stored procedure",
+            "dw": "data warehouse",
+            "dwh": "data warehouse",
+        },
+    },
+    "recommender_systems": {
+        "name": "Recommender Systems",
+        "description": "Collaborative filtering, content-based methods, matrix factorization, deep recsys, and evaluation",
+        "concept_type_guidance": """Recommender systems:
+1. method: Recommendation algorithms (e.g., collaborative filtering, content-based filtering, matrix factorization, SVD, ALS, two-tower, NCF)
+2. assumption: Model assumptions (e.g., low-rank user-item matrix, item feature availability, implicit feedback reliability, missing-at-random)
+3. problem: RecSys challenges (e.g., cold start, popularity bias, filter bubbles, position bias, sparsity, scalability)
+4. definition: Formal terms (e.g., user-item matrix, implicit feedback, explicit rating, interaction, embedding, candidate generation)
+5. theorem: Formal results (e.g., matrix completion bounds, regret bounds for bandits, convergence of ALS)
+
+Broader concepts (use when more appropriate):
+6. concept: General ideas (e.g., serendipity, diversity, fairness, exploration-exploitation, session-based recommendation)
+7. technique: Applied procedures (e.g., negative sampling, approximate nearest neighbors, feature hashing, A/B testing for recsys)
+8. model: Architectures (e.g., two-tower model, wide-and-deep, DeepFM, sequence models, graph neural networks for recsys)
+9. principle: Design principles (e.g., recency weighting, user-centricity, multi-objective optimization)""",
+        "examples": [
+            "Collaborative filtering REQUIRES sufficient user-item interactions to overcome sparsity",
+            "Matrix factorization DECOMPOSES user-item matrix into latent factor embeddings",
+            "Two-tower models ENABLE large-scale candidate generation via ANN retrieval",
+            "BPR OPTIMIZES pairwise ranking loss for implicit feedback",
+            "Cold start LIMITS collaborative filtering for new users and items",
+            "Position bias CONFOUNDS click-through rate interpretation in ranking",
+            "Multi-armed bandits BALANCE exploration and exploitation in online recommendation",
+        ],
+        "abbreviations": {
+            "cf": "collaborative filtering",
+            "cbf": "content-based filtering",
+            "mf": "matrix factorization",
+            "svd": "singular value decomposition",
+            "als": "alternating least squares",
+            "nmf": "non-negative matrix factorization",
+            "ctr": "click-through rate",
+            "ncf": "neural collaborative filtering",
+            "bpr": "bayesian personalized ranking",
+            "ndcg": "normalized discounted cumulative gain",
+            "map": "mean average precision",
+            "mrr": "mean reciprocal rank",
+            "hr": "hit rate",
+            "ann": "approximate nearest neighbor",
+            "knn": "k-nearest neighbors",
+            "dnn": "deep neural network",
+            "gnn": "graph neural network",
+            "vae": "variational autoencoder",
+            "rl": "reinforcement learning",
+            "mab": "multi-armed bandit",
+            "ucb": "upper confidence bound",
+            "ts": "thompson sampling",
+            "ips": "inverse propensity scoring",
+            "snips": "self-normalized inverse propensity scoring",
+            "dae": "denoising autoencoder",
+            "rnn": "recurrent neural network",
+            "gru": "gated recurrent unit",
+            "fm": "factorization machine",
+            "ffm": "field-aware factorization machine",
+            "deepfm": "deep factorization machine",
+            "din": "deep interest network",
+            "dien": "deep interest evolution network",
+            "sasrec": "self-attentive sequential recommendation",
+        },
+    },
+    "adtech": {
+        "name": "Ads & AdTech",
+        "description": "Auction mechanics, CTR prediction, bid optimization, attribution, and incrementality",
+        "concept_type_guidance": """Ads & AdTech:
+1. method: Optimization methods (e.g., CTR prediction, bid shading, budget pacing, uplift modeling, attribution modeling)
+2. assumption: Model assumptions (e.g., independent clicks, truthful bidding, last-touch validity, SUTVA for incrementality)
+3. problem: AdTech challenges (e.g., click fraud, ad fatigue, frequency capping, budget waste, attribution misallocation)
+4. definition: Formal terms (e.g., impression, click, conversion, second-price auction, reserve price, quality score)
+5. theorem: Formal results (e.g., revenue equivalence theorem, Myerson optimal auction, VCG mechanism properties)
+
+Broader concepts (use when more appropriate):
+6. concept: General ideas (e.g., demand-side platform, supply-side platform, real-time bidding, programmatic advertising)
+7. technique: Applied procedures (e.g., A/B testing for ads, geo experiments, ghost ads, PSA holdout)
+8. model: Prediction models (e.g., logistic regression for CTR, calibration models, deep CTR models, conversion delay models)
+9. principle: Design principles (e.g., incentive compatibility, individual rationality, advertiser ROI optimization)""",
+        "examples": [
+            "Second-price auctions INCENTIVIZE truthful bidding by advertisers",
+            "CTR prediction REQUIRES calibrated probabilities for bid optimization",
+            "Incrementality testing MEASURES causal lift of ad exposure via holdout groups",
+            "Budget pacing DISTRIBUTES daily spend evenly to avoid early exhaustion",
+            "Attribution models ALLOCATE conversion credit across touchpoints",
+            "Bid shading REDUCES overpayment in first-price auction environments",
+            "Frequency capping PREVENTS ad fatigue while maintaining reach",
+        ],
+        "abbreviations": {
+            "ctr": "click-through rate",
+            "cvr": "conversion rate",
+            "cpc": "cost per click",
+            "cpm": "cost per mille",
+            "cpa": "cost per acquisition",
+            "cpi": "cost per install",
+            "cpv": "cost per view",
+            "roas": "return on ad spend",
+            "roi": "return on investment",
+            "ltv": "lifetime value",
+            "arpu": "average revenue per user",
+            "rtb": "real-time bidding",
+            "dsp": "demand-side platform",
+            "ssp": "supply-side platform",
+            "dmp": "data management platform",
+            "cdp": "customer data platform",
+            "gdn": "google display network",
+            "ecpm": "effective cost per mille",
+            "vcg": "vickrey-clarke-groves",
+            "psa": "public service announcement",
+            "mta": "multi-touch attribution",
+            "mmm": "marketing mix modeling",
+            "ita": "intent-to-treat analysis",
+            "itt": "intention to treat",
+            "sutva": "stable unit treatment value assumption",
+            "ate": "average treatment effect",
+            "att": "average treatment effect on the treated",
+            "ghb": "ghost bid",
+            "qps": "queries per second",
+            "bid": "bid",
+            "gsp": "generalized second-price",
+            "fp": "first-price",
+        },
+    },
+    "algorithms": {
+        "name": "Algorithms & Data Structures",
+        "description": "Algorithm design, complexity analysis, data structures, and optimization techniques",
+        "concept_type_guidance": """Algorithms & data structures:
+1. method: Algorithmic techniques (e.g., dynamic programming, greedy, divide-and-conquer, backtracking, branch-and-bound, A*)
+2. assumption: Correctness conditions (e.g., optimal substructure, greedy choice property, DAG for topological sort, comparison model)
+3. problem: Computational problems (e.g., sorting, shortest path, minimum spanning tree, knapsack, traveling salesman, maximum flow)
+4. theorem: Complexity results (e.g., master theorem, amortized bounds, NP-completeness reductions, lower bounds)
+5. definition: Formal terms (e.g., time complexity, space complexity, Big-O, amortized cost, recurrence relation)
+
+Broader concepts (use when more appropriate):
+6. concept: General ideas (e.g., memoization, locality of reference, cache efficiency, online vs offline algorithms)
+7. technique: Implementation techniques (e.g., two pointers, sliding window, monotonic stack, union-find with path compression)
+8. model: Data structures (e.g., binary search tree, B-tree, red-black tree, skip list, trie, segment tree, Bloom filter)
+9. principle: Design principles (e.g., invariant maintenance, loop invariants, problem reduction, amortized analysis)""",
+        "examples": [
+            "Dynamic programming REQUIRES optimal substructure and overlapping subproblems",
+            "Dijkstra's algorithm ASSUMES non-negative edge weights for correctness",
+            "Binary search ACHIEVES O(log n) on sorted arrays via divide-and-conquer",
+            "Red-black trees GUARANTEE O(log n) insertion with balanced height invariant",
+            "Union-find with path compression ACHIEVES near-constant amortized operations",
+            "Topological sort REQUIRES directed acyclic graph structure",
+            "NP-completeness REDUCES known hard problems to prove intractability",
+        ],
+        "abbreviations": {
+            "dp": "dynamic programming",
+            "bfs": "breadth-first search",
+            "dfs": "depth-first search",
+            "mst": "minimum spanning tree",
+            "dag": "directed acyclic graph",
+            "bst": "binary search tree",
+            "avl": "adelson-velsky and landis tree",
+            "rbt": "red-black tree",
+            "np": "nondeterministic polynomial time",
+            "p": "polynomial time",
+            "lp": "linear programming",
+            "ilp": "integer linear programming",
+            "bt": "backtracking",
+            "bnb": "branch and bound",
+            "uf": "union-find",
+            "dsu": "disjoint set union",
+            "lru": "least recently used",
+            "lfu": "least frequently used",
+            "fifo": "first in first out",
+            "lifo": "last in first out",
+            "bigo": "big-o notation",
+            "scc": "strongly connected components",
+            "apsp": "all-pairs shortest path",
+            "sssp": "single-source shortest path",
+            "lis": "longest increasing subsequence",
+            "lcs": "longest common subsequence",
+            "fft": "fast fourier transform",
+            "gcd": "greatest common divisor",
+            "lcm": "least common multiple",
+            "mfmc": "max-flow min-cut",
+            "tsp": "traveling salesman problem",
+            "sat": "boolean satisfiability",
+            "knapsack": "knapsack problem",
+            "rng": "random number generator",
+        },
+    },
+    "forecasting": {
+        "name": "Forecasting",
+        "description": "Time-series forecasting methods, evaluation, uncertainty quantification, and production systems",
+        "concept_type_guidance": """Forecasting:
+1. method: Forecasting methods (e.g., ARIMA, SARIMA, ETS, Prophet, DeepAR, TFT, N-BEATS, theta method, ensemble forecasting)
+2. assumption: Model assumptions (e.g., stationarity, seasonality patterns, trend decomposability, Gaussian errors, ergodicity)
+3. problem: Forecasting challenges (e.g., regime changes, cold start for new series, concept drift, intermittent demand, hierarchical reconciliation)
+4. definition: Formal terms (e.g., forecast horizon, prediction interval, point forecast, quantile forecast, lead time)
+5. theorem: Formal results (e.g., Wold decomposition, forecast combination optimality, bias-variance decomposition for forecasts)
+
+Broader concepts (use when more appropriate):
+6. concept: General ideas (e.g., backtesting, cross-validation for time series, feature engineering for forecasting, exogenous variables)
+7. technique: Applied procedures (e.g., differencing, seasonal decomposition, Box-Cox transformation, rolling-origin evaluation)
+8. model: Model architectures (e.g., global models, local models, foundation models for time series, hierarchical forecasting)
+9. principle: Design principles (e.g., parsimony, forecast combination, probabilistic calibration, temporal aggregation)""",
+        "examples": [
+            "ARIMA REQUIRES stationarity achieved via differencing",
+            "ETS DECOMPOSES series into error, trend, and seasonality components",
+            "Prophet HANDLES multiple seasonalities and holiday effects",
+            "DeepAR LEARNS cross-series patterns via global autoregressive model",
+            "N-BEATS ACHIEVES interpretable decomposition without time-series-specific components",
+            "Hierarchical reconciliation ENSURES forecast coherence across aggregation levels",
+            "CRPS EVALUATES full predictive distribution quality beyond point accuracy",
+        ],
+        "abbreviations": {
+            "arima": "autoregressive integrated moving average",
+            "sarima": "seasonal autoregressive integrated moving average",
+            "ets": "error trend seasonality",
+            "var": "vector autoregression",
+            "vecm": "vector error correction model",
+            "mae": "mean absolute error",
+            "mse": "mean squared error",
+            "rmse": "root mean squared error",
+            "mape": "mean absolute percentage error",
+            "smape": "symmetric mean absolute percentage error",
+            "mase": "mean absolute scaled error",
+            "crps": "continuous ranked probability score",
+            "wql": "weighted quantile loss",
+            "stl": "seasonal and trend decomposition using loess",
+            "acf": "autocorrelation function",
+            "pacf": "partial autocorrelation function",
+            "adf": "augmented dickey-fuller",
+            "kpss": "kwiatkowski-phillips-schmidt-shin",
+            "bic": "bayesian information criterion",
+            "aic": "akaike information criterion",
+            "tft": "temporal fusion transformer",
+            "nbeats": "neural basis expansion analysis for time series",
+            "nhits": "neural hierarchical interpolation for time series",
+            "deepar": "deep autoregressive",
+            "prophet": "facebook prophet",
+            "tbats": "trigonometric box-cox arma trend seasonal",
+            "es": "exponential smoothing",
+            "hw": "holt-winters",
+            "ar": "autoregressive",
+            "ma": "moving average",
+            "garch": "generalized autoregressive conditional heteroskedasticity",
+            "dcc": "dynamic conditional correlation",
+            "pi": "prediction interval",
+        },
+    },
 }
 
 # Generic fallback for unknown domains — domain-agnostic extraction guidance

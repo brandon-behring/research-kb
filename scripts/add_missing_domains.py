@@ -57,6 +57,21 @@ NEW_DOMAINS = [
     ("fitness", "Fitness", "Strength training, exercise science"),
     ("economics", "Economics", "Macroeconomics, microeconomics"),
     ("forecasting", "Forecasting", "General forecasting methods"),
+    (
+        "sql",
+        "SQL & Databases",
+        "SQL querying, window functions, CTEs, query optimization, database internals",
+    ),
+    (
+        "recommender_systems",
+        "Recommender Systems",
+        "Collaborative filtering, content-based, matrix factorization, two-tower, bandits",
+    ),
+    (
+        "adtech",
+        "Ads & AdTech",
+        "Auction mechanics, CTR prediction, bid optimization, attribution, incrementality",
+    ),
 ]
 
 

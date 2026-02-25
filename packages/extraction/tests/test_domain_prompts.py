@@ -1,7 +1,7 @@
 """Tests for domain-specific prompt configurations.
 
 Validates:
-- All 14 domains registered with required keys
+- All 19 domains registered with required keys
 - get_domain_prompt_section() returns non-empty guidance
 - get_domain_abbreviations() returns lowercase keys, non-empty values
 - get_domain_config() returns full configuration
@@ -9,6 +9,7 @@ Validates:
 - get_all_abbreviations() merges all domain abbreviations
 - Unknown domain fallback behavior (defaults to causal_inference)
 - New domains (Phase H) have appropriate key terms in guidance
+- Phase N domains (sql, recommender_systems, adtech, algorithms, forecasting)
 """
 
 import pytest
@@ -25,7 +26,7 @@ from research_kb_extraction.domain_prompts import (
 pytestmark = pytest.mark.unit
 
 
-# All 14 expected domain IDs
+# All 19 expected domain IDs
 EXPECTED_DOMAINS = {
     "healthcare",
     "causal_inference",
@@ -41,6 +42,11 @@ EXPECTED_DOMAINS = {
     "statistics",
     "ml_engineering",
     "data_science",
+    "sql",
+    "recommender_systems",
+    "adtech",
+    "algorithms",
+    "forecasting",
 }
 
 # Required keys in every domain config
@@ -56,8 +62,8 @@ REQUIRED_KEYS = {
 class TestDomainRegistry:
     """Test the DOMAIN_PROMPTS registry structure."""
 
-    def test_all_fourteen_domains_present(self):
-        """All 14 expected domains exist in the registry."""
+    def test_all_nineteen_domains_present(self):
+        """All 19 expected domains exist in the registry."""
         assert set(DOMAIN_PROMPTS.keys()) == EXPECTED_DOMAINS
 
     @pytest.mark.parametrize("domain_id", EXPECTED_DOMAINS)
@@ -193,8 +199,8 @@ class TestGetDomainConfig:
 class TestListDomains:
     """Test list_domains()."""
 
-    def test_returns_all_fourteen_domains(self):
-        """Returns all 14 domain IDs."""
+    def test_returns_all_nineteen_domains(self):
+        """Returns all 19 domain IDs."""
         domains = list_domains()
         assert set(domains) == EXPECTED_DOMAINS
 
@@ -367,3 +373,107 @@ class TestNewDomainKeyTerms:
         assert abbrevs["eda"] == "exploratory data analysis"
         assert abbrevs["kpi"] == "key performance indicator"
         assert abbrevs["ltv"] == "lifetime value"
+
+
+class TestPhaseNDomainKeyTerms:
+    """Validate Phase N domain configs (sql, recommender_systems, adtech, algorithms, forecasting)."""
+
+    # --- SQL ---
+    def test_sql_mentions_key_terms(self):
+        """SQL guidance mentions window functions and CTEs."""
+        guidance = get_domain_prompt_section("sql")
+        assert "window function" in guidance.lower() or "CTE" in guidance
+        assert "index" in guidance.lower()
+
+    def test_sql_known_abbreviations(self):
+        """SQL has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("sql")
+        assert abbrevs["cte"] == "common table expression"
+        assert abbrevs["ddl"] == "data definition language"
+        assert abbrevs["mvcc"] == "multiversion concurrency control"
+
+    # --- Recommender Systems ---
+    def test_recommender_systems_mentions_key_terms(self):
+        """Recommender systems guidance mentions collaborative filtering and cold start."""
+        guidance = get_domain_prompt_section("recommender_systems")
+        assert "collaborative filtering" in guidance.lower()
+        assert "cold start" in guidance.lower()
+
+    def test_recommender_systems_known_abbreviations(self):
+        """Recommender systems has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("recommender_systems")
+        assert abbrevs["cf"] == "collaborative filtering"
+        assert abbrevs["mf"] == "matrix factorization"
+        assert abbrevs["ndcg"] == "normalized discounted cumulative gain"
+
+    # --- AdTech ---
+    def test_adtech_mentions_key_terms(self):
+        """AdTech guidance mentions auction and CTR."""
+        guidance = get_domain_prompt_section("adtech")
+        assert "auction" in guidance.lower()
+        assert "CTR" in guidance
+
+    def test_adtech_known_abbreviations(self):
+        """AdTech has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("adtech")
+        assert abbrevs["ctr"] == "click-through rate"
+        assert abbrevs["dsp"] == "demand-side platform"
+        assert abbrevs["roas"] == "return on ad spend"
+
+    # --- Algorithms ---
+    def test_algorithms_mentions_key_terms(self):
+        """Algorithms guidance mentions dynamic programming and complexity."""
+        guidance = get_domain_prompt_section("algorithms")
+        assert "dynamic programming" in guidance.lower()
+        assert "complexity" in guidance.lower()
+
+    def test_algorithms_known_abbreviations(self):
+        """Algorithms has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("algorithms")
+        assert abbrevs["dp"] == "dynamic programming"
+        assert abbrevs["bfs"] == "breadth-first search"
+        assert abbrevs["dag"] == "directed acyclic graph"
+
+    # --- Forecasting ---
+    def test_forecasting_mentions_key_terms(self):
+        """Forecasting guidance mentions ARIMA and horizon."""
+        guidance = get_domain_prompt_section("forecasting")
+        assert "ARIMA" in guidance
+        assert "horizon" in guidance.lower() or "forecast" in guidance.lower()
+
+    def test_forecasting_known_abbreviations(self):
+        """Forecasting has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("forecasting")
+        assert abbrevs["arima"] == "autoregressive integrated moving average"
+        assert abbrevs["ets"] == "error trend seasonality"
+        assert abbrevs["crps"] == "continuous ranked probability score"
+
+    # --- Cross-domain validation ---
+    @pytest.mark.parametrize(
+        "domain_id",
+        ["sql", "recommender_systems", "adtech", "algorithms", "forecasting"],
+    )
+    def test_phase_n_domain_has_at_least_6_examples(self, domain_id):
+        """Phase N domains have at least 6 relationship examples."""
+        examples = DOMAIN_PROMPTS[domain_id]["examples"]
+        assert len(examples) >= 6, f"{domain_id} has only {len(examples)} examples"
+
+    @pytest.mark.parametrize(
+        "domain_id",
+        ["sql", "recommender_systems", "adtech", "algorithms", "forecasting"],
+    )
+    def test_phase_n_domain_has_at_least_20_abbreviations(self, domain_id):
+        """Phase N domains have at least 20 abbreviations."""
+        abbrevs = DOMAIN_PROMPTS[domain_id]["abbreviations"]
+        assert len(abbrevs) >= 20, f"{domain_id} has only {len(abbrevs)} abbreviations"
+
+    @pytest.mark.parametrize(
+        "domain_id",
+        ["sql", "recommender_systems", "adtech", "algorithms", "forecasting"],
+    )
+    def test_phase_n_no_duplicate_abbreviation_keys(self, domain_id):
+        """No duplicate abbreviation keys within a domain (dict enforces this, but verify count)."""
+        abbrevs = DOMAIN_PROMPTS[domain_id]["abbreviations"]
+        # Dict can't have dups, but check all keys are lowercase
+        for key in abbrevs:
+            assert key == key.lower(), f"Key '{key}' not lowercase in {domain_id}"

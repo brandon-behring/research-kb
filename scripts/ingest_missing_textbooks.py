@@ -252,6 +252,25 @@ DOMAIN_KEYWORDS = {
     "portfolio": "portfolio_management",
     "data_scienc": "data_science",
     "fitness": "fitness",
+    # Algorithms
+    "algorithm": "algorithms",
+    "data_structure": "algorithms",
+    "roughgarden": "algorithms",
+    "common_sense_guide": "algorithms",
+    "problem_solving_with": "algorithms",
+    # SQL & Databases
+    "sql": "sql",
+    "database_internals": "sql",
+    # Recommender Systems
+    "recommender": "recommender_systems",
+    "collaborative_filtering": "recommender_systems",
+    "recommendation_system": "recommender_systems",
+    # AdTech
+    "ads_adtech": "adtech",
+    "adtech": "adtech",
+    # Forecasting
+    "demand_forecasting": "forecasting",
+    "practical_time_series": "forecasting",
 }
 
 
@@ -268,6 +287,7 @@ LEGACY_DOMAIN_MAP = {
 
 
 VALID_DOMAINS = {
+    "adtech",
     "algorithms",
     "causal_inference",
     "data_science",
@@ -285,7 +305,9 @@ VALID_DOMAINS = {
     "ml_engineering",
     "portfolio_management",
     "rag_llm",
+    "recommender_systems",
     "software_engineering",
+    "sql",
     "statistics",
     "time_series",
 }
