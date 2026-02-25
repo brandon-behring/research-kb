@@ -74,6 +74,7 @@ def sample_source():
         authors=["Judea Pearl", "Madelyn Glymour"],
         year=2016,
         source_type=SourceType.TEXTBOOK,
+        domain_id="causal_inference",
         file_hash="abc123",
         created_at=now,
         updated_at=now,
@@ -86,6 +87,7 @@ def sample_chunk(sample_source):
     return Chunk(
         id=uuid4(),
         source_id=sample_source.id,
+        domain_id="causal_inference",
         content="The backdoor criterion provides a graphical test for identifying causal effects.",
         content_hash="chunk123",
         page_start=42,
@@ -120,6 +122,7 @@ def sample_concept():
         name="backdoor criterion",
         canonical_name="backdoor_criterion",
         concept_type=ConceptType.THEOREM,
+        domain_id="causal_inference",
         definition="A graphical test for identifying adjustment sets",
         aliases=["backdoor", "back-door criterion"],
         created_at=datetime.now(),
@@ -563,7 +566,7 @@ class TestSourceOperations:
     async def test_get_source_by_id(self, sample_source):
         """Test get_source_by_id returns source."""
         with patch("research_kb_api.service.SourceStore") as mock_store:
-            mock_store.get = AsyncMock(return_value=sample_source)
+            mock_store.get_by_id = AsyncMock(return_value=sample_source)
             source_id = str(sample_source.id)
 
             result = await get_source_by_id(source_id)
@@ -574,7 +577,7 @@ class TestSourceOperations:
     async def test_get_source_by_id_not_found(self):
         """Test get_source_by_id returns None when not found."""
         with patch("research_kb_api.service.SourceStore") as mock_store:
-            mock_store.get = AsyncMock(return_value=None)
+            mock_store.get_by_id = AsyncMock(return_value=None)
 
             result = await get_source_by_id(str(uuid4()))
 
@@ -583,7 +586,7 @@ class TestSourceOperations:
     async def test_get_source_chunks(self, sample_source, sample_chunk):
         """Test get_source_chunks returns chunks for a source."""
         with patch("research_kb_api.service.ChunkStore") as mock_store:
-            mock_store.get_by_source = AsyncMock(return_value=[sample_chunk])
+            mock_store.list_by_source = AsyncMock(return_value=[sample_chunk])
 
             result = await get_source_chunks(str(sample_source.id), limit=50)
 
@@ -617,7 +620,7 @@ class TestConceptOperations:
             result = await get_concepts(query="backdoor", limit=50)
 
             assert len(result) == 1
-            mock_store.search.assert_called_once_with("backdoor", limit=50)
+            mock_store.search.assert_called_once_with("backdoor", limit=50, concept_type=None)
 
     async def test_get_concept_by_id(self, sample_concept):
         """Test get_concept_by_id returns concept."""
@@ -640,7 +643,7 @@ class TestConceptOperations:
         )
 
         with patch("research_kb_api.service.RelationshipStore") as mock_store:
-            mock_store.get_for_concept = AsyncMock(return_value=[relationship])
+            mock_store.list_all_for_concept = AsyncMock(return_value=[relationship])
 
             result = await get_concept_relationships(str(sample_concept.id))
 
@@ -694,6 +697,7 @@ class TestGraphOperations:
             name="instrumental variables",
             canonical_name="instrumental_variables",
             concept_type=ConceptType.METHOD,
+            domain_id="causal_inference",
             created_at=datetime.now(),
         )
 
@@ -782,6 +786,7 @@ class TestStatsAndCitations:
             id=uuid4(),
             title="Citing Paper",
             source_type=SourceType.PAPER,
+            domain_id="causal_inference",
             year=2020,
             file_hash="cite1",
             created_at=datetime.now(),
@@ -791,6 +796,7 @@ class TestStatsAndCitations:
             id=uuid4(),
             title="Cited Paper",
             source_type=SourceType.PAPER,
+            domain_id="causal_inference",
             year=2010,
             file_hash="cite2",
             created_at=datetime.now(),

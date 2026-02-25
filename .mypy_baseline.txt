@@ -65,15 +65,9 @@ packages/storage/src/research_kb_storage/graph_queries.py:637: error: Dict entry
 packages/storage/src/research_kb_storage/graph_queries.py:750: error: Argument 1 to "append" of "list" has incompatible type "str"; expected "list[Any]"  [arg-type]
 packages/storage/src/research_kb_storage/graph_queries.py:756: error: Dict entry 0 has incompatible type "str": "Concept"; expected "str": "list[Any]"  [dict-item]
 packages/storage/src/research_kb_storage/method_store.py:236: error: Incompatible return value type (got "Method | None", expected "Method")  [return-value]
-packages/storage/src/research_kb_storage/query_expander.py:22: error: Library stubs not installed for "yaml"  [import-untyped]
-packages/storage/src/research_kb_storage/query_expander.py:22: note: (or run "mypy --install-types" to install all missing stub packages)
-packages/storage/src/research_kb_storage/query_expander.py:22: note: Hint: "python3 -m pip install types-PyYAML"
-packages/storage/src/research_kb_storage/query_expander.py:22: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
-packages/storage/src/research_kb_storage/search.py:1115: error: Missing named argument "domain_id" for "Chunk"  [call-arg]
-packages/storage/src/research_kb_storage/search.py:1129: error: Missing named argument "domain_id" for "Source"  [call-arg]
-packages/storage/src/research_kb_storage/search.py:1160: error: Missing named argument "citation_score" for "SearchResult"  [call-arg]
-packages/storage/src/research_kb_storage/search.py:1160: error: Missing named argument "graph_score" for "SearchResult"  [call-arg]
-packages/storage/src/research_kb_storage/search.py:1160: error: Missing named argument "rerank_score" for "SearchResult"  [call-arg]
+packages/storage/src/research_kb_storage/search.py:1162: error: Missing named argument "citation_score" for "SearchResult"  [call-arg]
+packages/storage/src/research_kb_storage/search.py:1162: error: Missing named argument "graph_score" for "SearchResult"  [call-arg]
+packages/storage/src/research_kb_storage/search.py:1162: error: Missing named argument "rerank_score" for "SearchResult"  [call-arg]
 packages/storage/src/research_kb_storage/search.py:193: error: Argument "key" to "sort" of "list" has incompatible type "Callable[[tuple[str, float | None]], float | None]"; expected "Callable[[tuple[str, float | None]], SupportsDunderLT[Any] | SupportsDunderGT[Any]]"  [arg-type]
 packages/storage/src/research_kb_storage/search.py:193: error: Incompatible return value type (got "float | None", expected "SupportsDunderLT[Any] | SupportsDunderGT[Any]")  [return-value]
 packages/storage/src/research_kb_storage/search.py:641: error: Argument "query" to "rerank_search_results" of "RerankClient" has incompatible type "str | None"; expected "str"  [arg-type]

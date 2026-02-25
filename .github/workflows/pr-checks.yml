@@ -45,7 +45,7 @@ jobs:
           pip install -e packages/daemon
           pip install -e packages/mcp-server
           pip install -e packages/cli
-          pip install pytest pytest-asyncio pytest-cov
+          pip install pytest pytest-asyncio pytest-cov respx httpx
           pip install black ruff mypy
 
       - name: Code quality checks

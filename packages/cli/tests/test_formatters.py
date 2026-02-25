@@ -180,6 +180,7 @@ class TestFormatterEdgeCases:
         chunk = Chunk(
             id=uuid4(),
             source_id=uuid4(),
+            domain_id="causal_inference",
             content="A" * 1000,  # 1000 characters
             content_hash="hash",
             page_start=1,
@@ -194,6 +195,7 @@ class TestFormatterEdgeCases:
             authors=["Author"],
             year=2024,
             source_type=SourceType.PAPER,
+            domain_id="causal_inference",
             file_hash="hash",
             metadata={},
             created_at=datetime.now(),
@@ -228,6 +230,7 @@ class TestFormatterEdgeCases:
         chunk = Chunk(
             id=uuid4(),
             source_id=uuid4(),
+            domain_id="causal_inference",
             content='Content with "quotes" and \n newlines',
             content_hash="hash",
             page_start=1,
@@ -242,6 +245,7 @@ class TestFormatterEdgeCases:
             authors=["O'Brien"],
             year=2024,
             source_type=SourceType.PAPER,
+            domain_id="causal_inference",
             file_hash="hash",
             metadata={},
             created_at=datetime.now(),

@@ -49,7 +49,7 @@ jobs:
           pip install -e packages/mcp-server
           pip install -e packages/cli
           pip install pyyaml
-          pip install pytest pytest-asyncio pytest-cov
+          pip install pytest pytest-asyncio pytest-cov respx httpx
 
       - name: Apply database schema
         env:

@@ -14,6 +14,7 @@ from research_kb_contracts import (
     ConceptRelationship,
     SourceType,
     ConceptType,
+    RelationshipType,
 )
 
 
@@ -61,8 +62,11 @@ def sample_source():
         source_type=SourceType.PAPER,
         authors=["Chernozhukov, V.", "Chetverikov, D.", "Demirer, M."],
         year=2018,
+        domain_id="causal_inference",
+        file_hash="dml_test_hash",
         metadata={"doi": "10.1214/17-EJS1341SI"},
         created_at=datetime.now(),
+        updated_at=datetime.now(),
     )
 
 
@@ -72,8 +76,11 @@ def sample_concept():
     return Concept(
         id=uuid4(),
         name="Double Machine Learning",
+        canonical_name="double_machine_learning",
         concept_type=ConceptType.METHOD,
-        description="A method for causal inference using machine learning",
+        domain_id="causal_inference",
+        definition="A method for causal inference using machine learning",
+        created_at=datetime.now(),
     )
 
 
@@ -82,9 +89,10 @@ def sample_relationship(sample_concept):
     """Create a sample relationship for testing."""
     return ConceptRelationship(
         id=uuid4(),
-        source_id=sample_concept.id,
-        target_id=uuid4(),
-        relationship_type="USES",
+        source_concept_id=sample_concept.id,
+        target_concept_id=uuid4(),
+        relationship_type=RelationshipType.USES,
+        created_at=datetime.now(),
     )
 
 

@@ -107,6 +107,7 @@ class TestSearchToolExecution:
             source_type=SourceType.PAPER,
             authors=["Angrist, J.", "Imbens, G."],
             year=1995,
+            domain_id="causal_inference",
             file_hash="test123",
             metadata={},
             created_at=datetime.now(),
@@ -119,6 +120,7 @@ class TestSearchToolExecution:
         return Chunk(
             id=uuid4(),
             source_id=sample_source.id,
+            domain_id="causal_inference",
             content="Instrumental variables provide a way to estimate causal effects when there is unmeasured confounding.",
             content_hash="chunk123",
             page_start=10,

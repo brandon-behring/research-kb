@@ -20,6 +20,7 @@ def make_search_result(title: str = "Test Paper", content: str = "Test content")
         authors=["Author One"],
         year=2023,
         source_type=SourceType.PAPER,
+        domain_id="causal_inference",
         file_hash="abc123",
         created_at=now,
         updated_at=now,
@@ -27,6 +28,7 @@ def make_search_result(title: str = "Test Paper", content: str = "Test content")
     chunk = Chunk(
         id=uuid4(),
         source_id=source.id,
+        domain_id="causal_inference",
         content=content,
         content_hash="chunk_hash_123",
         page_start=1,

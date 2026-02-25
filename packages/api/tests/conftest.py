@@ -51,10 +51,13 @@ def mock_storage():
 
         source_mock.list_all = AsyncMock(return_value=[])
         source_mock.get = AsyncMock(return_value=None)
+        source_mock.get_by_id = AsyncMock(return_value=None)
 
         chunk_mock.get_by_source = AsyncMock(return_value=[])
+        chunk_mock.list_by_source = AsyncMock(return_value=[])
 
         rel_mock.get_for_concept = AsyncMock(return_value=[])
+        rel_mock.list_all_for_concept = AsyncMock(return_value=[])
 
         search_mock.return_value = []
         search_v2_mock.return_value = []

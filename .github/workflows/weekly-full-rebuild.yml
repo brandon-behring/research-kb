@@ -53,7 +53,7 @@ jobs:
           pip install -e packages/storage
           pip install -e packages/pdf-tools
           pip install -e packages/cli
-          pip install pytest pytest-asyncio numpy scikit-learn pyyaml
+          pip install pytest pytest-asyncio numpy scikit-learn pyyaml respx httpx pytest-cov
 
       - name: Apply database schema
         env:

@@ -75,6 +75,7 @@ class TestListConcepts:
                 name="Double Machine Learning",
                 canonical_name="double_machine_learning",
                 concept_type=ConceptType.METHOD,
+                domain_id="causal_inference",
                 created_at=datetime.now(),
             ),
             Concept(
@@ -82,6 +83,7 @@ class TestListConcepts:
                 name="Unconfoundedness",
                 canonical_name="unconfoundedness",
                 concept_type=ConceptType.ASSUMPTION,
+                domain_id="causal_inference",
                 created_at=datetime.now(),
             ),
         ]
@@ -163,6 +165,7 @@ class TestGetConcept:
             name="Instrumental Variables",
             canonical_name="instrumental_variables",
             concept_type=ConceptType.METHOD,
+            domain_id="causal_inference",
             definition="A method for causal inference when there is unmeasured confounding.",
             created_at=datetime.now(),
         )

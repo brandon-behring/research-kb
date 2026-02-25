@@ -18,6 +18,7 @@ def make_concept(name: str = "instrumental variables") -> Concept:
         name=name,
         canonical_name=name.lower().replace(" ", "_"),
         concept_type=ConceptType.METHOD,
+        domain_id="causal_inference",
         definition=f"Definition of {name}",
         aliases=[],
         created_at=datetime.now(),
@@ -71,7 +72,7 @@ async def test_get_concept(app_client, mock_storage):
     relationships = [make_relationship(concept.id, uuid4())]
 
     mock_storage["concept"].get.return_value = concept
-    mock_storage["relationship"].get_for_concept.return_value = relationships
+    mock_storage["relationship"].list_all_for_concept.return_value = relationships
 
     response = await app_client.get(f"/concepts/{concept.id}")
 

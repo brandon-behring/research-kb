@@ -731,12 +731,12 @@ async def _hybrid_search_for_rerank(
         FROM with_similarity
     )
     SELECT
-        c.id, c.source_id, c.content, c.content_hash, c.location,
+        c.id, c.source_id, c.domain_id, c.content, c.content_hash, c.location,
         c.page_start, c.page_end, c.embedding,
         c.metadata AS chunk_metadata,
         c.created_at AS chunk_created_at,
         s.id AS source__id, s.source_type, s.title, s.authors, s.year,
-        s.file_path, s.file_hash,
+        s.domain_id AS source_domain_id, s.file_path, s.file_hash,
         s.metadata AS source_metadata,
         s.created_at AS source_created_at, s.updated_at,
         n.fts_score,
@@ -832,12 +832,12 @@ async def _hybrid_search(conn: asyncpg.Connection, query: SearchQuery) -> list[S
         FROM with_similarity
     )
     SELECT
-        c.id, c.source_id, c.content, c.content_hash, c.location,
+        c.id, c.source_id, c.domain_id, c.content, c.content_hash, c.location,
         c.page_start, c.page_end, c.embedding,
         c.metadata AS chunk_metadata,
         c.created_at AS chunk_created_at,
         s.id AS source__id, s.source_type, s.title, s.authors, s.year,
-        s.file_path, s.file_hash,
+        s.domain_id AS source_domain_id, s.file_path, s.file_hash,
         s.metadata AS source_metadata,
         s.created_at AS source_created_at, s.updated_at,
         n.fts_score,
@@ -869,12 +869,12 @@ async def _fts_search(conn: asyncpg.Connection, query: SearchQuery) -> list[Sear
     """Execute FTS-only search."""
     sql = """
     SELECT
-        c.id, c.source_id, c.content, c.content_hash, c.location,
+        c.id, c.source_id, c.domain_id, c.content, c.content_hash, c.location,
         c.page_start, c.page_end, c.embedding,
         c.metadata AS chunk_metadata,
         c.created_at AS chunk_created_at,
         s.id AS source__id, s.source_type, s.title, s.authors, s.year,
-        s.file_path, s.file_hash,
+        s.domain_id AS source_domain_id, s.file_path, s.file_hash,
         s.metadata AS source_metadata,
         s.created_at AS source_created_at, s.updated_at,
         ts_rank(c.fts_vector, plainto_tsquery('english', $1)) AS fts_score
@@ -898,12 +898,12 @@ async def _vector_search(conn: asyncpg.Connection, query: SearchQuery) -> list[S
     """Execute vector-only search."""
     sql = """
     SELECT
-        c.id, c.source_id, c.content, c.content_hash, c.location,
+        c.id, c.source_id, c.domain_id, c.content, c.content_hash, c.location,
         c.page_start, c.page_end, c.embedding,
         c.metadata AS chunk_metadata,
         c.created_at AS chunk_created_at,
         s.id AS source__id, s.source_type, s.title, s.authors, s.year,
-        s.file_path, s.file_hash,
+        s.domain_id AS source_domain_id, s.file_path, s.file_hash,
         s.metadata AS source_metadata,
         s.created_at AS source_created_at, s.updated_at,
         c.embedding <=> $1::vector(1024) AS vector_distance
@@ -1115,6 +1115,7 @@ async def _row_to_search_result(
     chunk = Chunk(
         id=row["id"],
         source_id=row["source_id"],
+        domain_id=row["domain_id"],
         content=row["content"],
         content_hash=row["content_hash"],
         location=row["location"],
@@ -1132,6 +1133,7 @@ async def _row_to_search_result(
         title=row["title"],
         authors=row["authors"],
         year=row["year"],
+        domain_id=row["source_domain_id"],
         file_path=row["file_path"],
         file_hash=row["file_hash"],
         metadata=dict(row["source_metadata"]),  # Source metadata (arxiv_id, etc.)

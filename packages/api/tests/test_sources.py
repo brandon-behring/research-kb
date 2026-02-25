@@ -21,6 +21,7 @@ def make_source(title: str = "Test Paper") -> Source:
         authors=["Author One", "Author Two"],
         year=2023,
         source_type=SourceType.PAPER,
+        domain_id="causal_inference",
         file_path="/path/to/paper.pdf",
         file_hash="abc123",
         metadata={"abstract": "This paper discusses important topics."},
@@ -35,6 +36,7 @@ def make_chunk(source_id, content: str = "Chunk content") -> Chunk:
     return Chunk(
         id=uuid4(),
         source_id=source_id,
+        domain_id="causal_inference",
         content=content,
         content_hash="chunk_hash_123",
         page_start=1,
@@ -74,8 +76,8 @@ async def test_get_source(app_client, mock_storage):
     source = make_source()
     chunks = [make_chunk(source.id, f"Chunk {i}") for i in range(2)]
 
-    mock_storage["source"].get.return_value = source
-    mock_storage["chunk"].get_by_source.return_value = chunks
+    mock_storage["source"].get_by_id.return_value = source
+    mock_storage["chunk"].list_by_source.return_value = chunks
 
     response = await app_client.get(f"/sources/{source.id}")
 
@@ -88,7 +90,7 @@ async def test_get_source(app_client, mock_storage):
 
 async def test_get_source_not_found(app_client, mock_storage):
     """Get source returns 404 for unknown ID."""
-    mock_storage["source"].get.return_value = None
+    mock_storage["source"].get_by_id.return_value = None
 
     response = await app_client.get(f"/sources/{uuid4()}")
 
@@ -98,7 +100,7 @@ async def test_get_source_not_found(app_client, mock_storage):
 async def test_get_source_citations(app_client, mock_storage):
     """Get source citations returns citation graph."""
     source = make_source()
-    mock_storage["source"].get.return_value = source
+    mock_storage["source"].get_by_id.return_value = source
 
     with patch("research_kb_api.service.get_citations_for_source") as cite_mock:
         cite_mock.return_value = {
