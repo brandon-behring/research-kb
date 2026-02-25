@@ -22,7 +22,7 @@ pip install -e packages/common
 Graph-boosted search is enabled by default and provides the best results:
 
 ```bash
-research-kb query "instrumental variables"
+research-kb search query "instrumental variables"
 ```
 
 This combines:
@@ -35,7 +35,7 @@ This combines:
 Adjust how much the knowledge graph influences rankings:
 
 ```bash
-research-kb query "backdoor criterion" --graph-weight 0.3
+research-kb search query "backdoor criterion" --graph-weight 0.3
 ```
 
 Default graph weight is 0.2 (20% influence).
@@ -45,26 +45,26 @@ Default graph weight is 0.2 (20% influence).
 If you prefer traditional FTS + vector search only:
 
 ```bash
-research-kb query "double machine learning" --no-graph
+research-kb search query "double machine learning" --no-graph
 ```
 
 ### Other Query Options
 
 ```bash
 # Limit number of results
-research-kb query "propensity score" --limit 10
+research-kb search query "propensity score" --limit 10
 
 # Filter by source type
-research-kb query "matching" --source-type paper
+research-kb search query "matching" --source-type paper
 
 # Adjust context type (affects FTS/vector weights)
-research-kb query "cross-fitting" --context-type building
+research-kb search query "cross-fitting" --context-type building
 
 # JSON output
-research-kb query "IV estimation" --format json
+research-kb search query "IV estimation" --format json
 
 # Agent-optimized output
-research-kb query "causal trees" --format agent
+research-kb search query "causal trees" --format agent
 ```
 
 ## Browsing
@@ -72,25 +72,25 @@ research-kb query "causal trees" --format agent
 ### List Sources
 
 ```bash
-research-kb sources
+research-kb sources list
 ```
 
 ### Database Statistics
 
 ```bash
-research-kb stats
+research-kb sources stats
 ```
 
 ### Concept Search
 
 ```bash
-research-kb concepts "instrumental variables"
+research-kb graph concepts "instrumental variables"
 ```
 
 ### Extraction Status
 
 ```bash
-research-kb extraction-status
+research-kb sources extraction-status
 ```
 
 ## Knowledge Graph
@@ -98,29 +98,29 @@ research-kb extraction-status
 ### View Concept Neighborhood
 
 ```bash
-research-kb graph "double machine learning" --hops 2
+research-kb graph neighborhood "double machine learning" --hops 2
 ```
 
 ### Find Path Between Concepts
 
 ```bash
-research-kb path "instrumental variables" "exogeneity"
+research-kb graph path "instrumental variables" "exogeneity"
 ```
 
 ## Citation Network
 
 ```bash
 # List citations from a source
-research-kb citations <source>
+research-kb citations list <source>
 
 # Find sources citing this one
-research-kb cited-by <source>
+research-kb citations cited-by <source>
 
 # Find sources this one cites
-research-kb cites <source>
+research-kb citations cites <source>
 
 # Corpus citation statistics
-research-kb citation-stats
+research-kb citations stats
 ```
 
 ## Assumption Auditing
@@ -130,7 +130,7 @@ The **North Star feature** — audit the statistical assumptions required by any
 ### Basic Usage
 
 ```bash
-research-kb audit-assumptions "instrumental variables"
+research-kb search audit-assumptions "instrumental variables"
 ```
 
 Returns a structured list of assumptions (e.g., exclusion restriction, relevance, monotonicity) with descriptions, testability indicators, and references to corpus sources.
@@ -139,13 +139,13 @@ Returns a structured list of assumptions (e.g., exclusion restriction, relevance
 
 ```bash
 # Graph-only (no LLM fallback, instant from cache)
-research-kb audit-assumptions "IV" --no-ollama
+research-kb search audit-assumptions "IV" --no-ollama
 
 # JSON output for programmatic consumption
-research-kb audit-assumptions "double machine learning" --format json
+research-kb search audit-assumptions "double machine learning" --format json
 
 # Combine both
-research-kb audit-assumptions "propensity score matching" --no-ollama --format json
+research-kb search audit-assumptions "propensity score matching" --no-ollama --format json
 ```
 
 ### How It Works
@@ -235,8 +235,8 @@ research-kb query "test" --use-graph  # Opt-in to graph
 
 **After (v2)**:
 ```bash
-research-kb query "test"  # FTS + vector + graph (default)
-research-kb query "test" --no-graph  # Opt-out of graph
+research-kb search query "test"  # FTS + vector + graph (default)
+research-kb search query "test" --no-graph  # Opt-out of graph
 ```
 
 ### Compatibility

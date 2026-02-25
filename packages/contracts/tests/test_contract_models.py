@@ -48,6 +48,7 @@ class TestSource:
             id=uuid4(),
             source_type=SourceType.TEXTBOOK,
             title="Test Book",
+            domain_id="test_domain",
             file_hash="sha256:abc123",
             created_at=now,
             updated_at=now,
@@ -68,6 +69,7 @@ class TestSource:
             title="Causality: Models, Reasoning, and Inference",
             authors=["Judea Pearl"],
             year=2009,
+            domain_id="causal_inference",
             file_path="/test/pearl_causality.pdf",
             file_hash="sha256:def456",
             metadata={
@@ -93,6 +95,7 @@ class TestSource:
             title="Double/debiased machine learning",
             authors=["Victor Chernozhukov", "Denis Chetverikov"],
             year=2018,
+            domain_id="causal_inference",
             file_hash="sha256:ghi789",
             metadata={
                 "doi": "10.1111/ectj.12097",
@@ -115,6 +118,7 @@ class TestSource:
             title="scikit-learn/linear_model",
             authors=["scikit-learn developers"],
             year=2023,
+            domain_id="machine_learning",
             file_hash="sha256:jkl012",
             metadata={
                 "git_url": "https://github.com/scikit-learn/scikit-learn",
@@ -137,6 +141,7 @@ class TestSource:
                 id=uuid4(),
                 source_type=SourceType.TEXTBOOK,
                 title="Test",
+                domain_id="test_domain",
                 file_hash="",  # Empty hash should fail
                 created_at=now,
                 updated_at=now,
@@ -151,6 +156,7 @@ class TestSource:
             id=uuid4(),
             source_type=SourceType.TEXTBOOK,
             title="Test",
+            domain_id="test_domain",
             file_hash="  sha256:abc  ",
             created_at=now,
             updated_at=now,
@@ -168,6 +174,7 @@ class TestChunk:
         chunk = Chunk(
             id=uuid4(),
             source_id=uuid4(),
+            domain_id="test_domain",
             content="Test content",
             content_hash="sha256:chunk123",
             created_at=now,
@@ -184,6 +191,7 @@ class TestChunk:
         chunk = Chunk(
             id=uuid4(),
             source_id=uuid4(),
+            domain_id="causal_inference",
             content="The backdoor criterion states...",
             content_hash="sha256:chunk456",
             location="Chapter 3, Section 3.3, Theorem 3.3.1, p. 73",
@@ -211,6 +219,7 @@ class TestChunk:
         chunk = Chunk(
             id=uuid4(),
             source_id=uuid4(),
+            domain_id="machine_learning",
             content="class LogisticRegression(BaseEstimator): ...",
             content_hash="sha256:code789",
             location="sklearn/linear_model/_logistic.py:lines 1200-1450",
@@ -237,6 +246,7 @@ class TestChunk:
             Chunk(
                 id=uuid4(),
                 source_id=uuid4(),
+                domain_id="test_domain",
                 content="   ",  # Whitespace-only should fail
                 content_hash="sha256:test",
                 created_at=now,
@@ -252,6 +262,7 @@ class TestChunk:
         chunk = Chunk(
             id=uuid4(),
             source_id=uuid4(),
+            domain_id="test_domain",
             content="Test",
             content_hash="sha256:test",
             embedding=[0.1] * 1024,
@@ -264,6 +275,7 @@ class TestChunk:
             Chunk(
                 id=uuid4(),
                 source_id=uuid4(),
+                domain_id="test_domain",
                 content="Test",
                 content_hash="sha256:test",
                 embedding=[0.1] * 128,  # Wrong dimension
@@ -278,6 +290,7 @@ class TestChunk:
         chunk = Chunk(
             id=uuid4(),
             source_id=uuid4(),
+            domain_id="test_domain",
             content="Test",
             content_hash="sha256:test",
             embedding=None,
@@ -362,6 +375,7 @@ class TestSearchResult:
             id=uuid4(),
             source_type=SourceType.TEXTBOOK,
             title="Test Book",
+            domain_id="test_domain",
             file_hash="sha256:abc",
             created_at=now,
             updated_at=now,
@@ -369,6 +383,7 @@ class TestSearchResult:
         chunk = Chunk(
             id=uuid4(),
             source_id=source.id,
+            domain_id="test_domain",
             content="Test content",
             content_hash="sha256:chunk",
             created_at=now,
@@ -395,6 +410,7 @@ class TestSearchResult:
             id=uuid4(),
             source_type=SourceType.PAPER,
             title="Test Paper",
+            domain_id="test_domain",
             file_hash="sha256:def",
             created_at=now,
             updated_at=now,
@@ -402,6 +418,7 @@ class TestSearchResult:
         chunk = Chunk(
             id=uuid4(),
             source_id=source.id,
+            domain_id="test_domain",
             content="Abstract text",
             content_hash="sha256:abstract",
             created_at=now,
@@ -427,6 +444,7 @@ class TestSearchResult:
             id=uuid4(),
             source_type=SourceType.TEXTBOOK,
             title="Test",
+            domain_id="test_domain",
             file_hash="sha256:test",
             created_at=now,
             updated_at=now,
@@ -434,6 +452,7 @@ class TestSearchResult:
         chunk = Chunk(
             id=uuid4(),
             source_id=source.id,
+            domain_id="test_domain",
             content="Test",
             content_hash="sha256:test",
             created_at=now,
@@ -456,6 +475,7 @@ class TestSearchResult:
             id=uuid4(),
             source_type=SourceType.TEXTBOOK,
             title="Test",
+            domain_id="test_domain",
             file_hash="sha256:test",
             created_at=now,
             updated_at=now,
@@ -463,6 +483,7 @@ class TestSearchResult:
         chunk = Chunk(
             id=uuid4(),
             source_id=source.id,
+            domain_id="test_domain",
             content="Test",
             content_hash="sha256:test",
             created_at=now,

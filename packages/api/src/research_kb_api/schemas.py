@@ -30,6 +30,10 @@ class ConceptType(str, Enum):
     problem = "problem"
     definition = "definition"
     theorem = "theorem"
+    concept = "concept"
+    principle = "principle"
+    technique = "technique"
+    model = "model"
 
 
 class RelationshipType(str, Enum):

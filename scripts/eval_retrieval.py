@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Evaluate retrieval quality for research-kb.
 
-Master Plan Reference: Lines 596-601, 1382-1383
+See docs/INDEX.md for architecture overview.
 
 Metrics:
 - Hit Rate@K: % of queries where expected result appears in top K (target: 90%)

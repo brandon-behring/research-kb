@@ -40,12 +40,12 @@ This skill teaches agents how to query the research knowledge base for relevant 
 
 ### Basic Query
 ```bash
-research-kb query "backdoor criterion" --limit 5
+research-kb search query "backdoor criterion" --limit 5
 ```
 
 ### Agent-Friendly Format
 ```bash
-research-kb query "instrumental variables" --format agent
+research-kb search query "instrumental variables" --format agent
 ```
 
 Output:
@@ -66,12 +66,12 @@ COUNT: 5
 
 ### JSON for Programmatic Use
 ```bash
-research-kb query "propensity scores" --format json
+research-kb search query "propensity scores" --format json
 ```
 
 ### Source Filtering
 ```bash
-research-kb query "causal trees" --source-type paper
+research-kb search query "causal trees" --source-type paper
 ```
 
 ## Interpreting Authority Levels
@@ -158,7 +158,7 @@ Example interpretation:
 
 Check knowledge base coverage:
 ```bash
-research-kb stats
+research-kb sources stats
 ```
 
 Output:
@@ -182,7 +182,7 @@ By source type:
 Search for concepts in the knowledge graph by name or alias:
 
 ```bash
-research-kb concepts "instrumental variables"
+research-kb graph concepts "instrumental variables"
 ```
 
 Output:
@@ -216,7 +216,7 @@ Found 1 concept(s) matching 'instrumental variables':
 Explore concepts within N hops:
 
 ```bash
-research-kb graph "instrumental variables" --hops 2
+research-kb graph neighborhood "instrumental variables" --hops 2
 ```
 
 Output:
@@ -266,7 +266,7 @@ Relationships (8):
 Find conceptual connections between concepts:
 
 ```bash
-research-kb path "double machine learning" "k-fold cross-validation"
+research-kb graph path "double machine learning" "k-fold cross-validation"
 ```
 
 Output:
@@ -299,7 +299,7 @@ END: K-Fold Cross-Validation
 Monitor concept extraction pipeline:
 
 ```bash
-research-kb extraction-status
+research-kb sources extraction-status
 ```
 
 Output:
@@ -347,25 +347,25 @@ Chunk coverage: 4/3631 (0.1%)
 
 ### When to Use Each Method
 
-**Text Search (`research-kb query`):**
+**Text Search (`research-kb search query`):**
 - Finding specific passages or proofs
 - Searching for exact terminology
 - Broad exploratory research
 - When you need content snippets
 
-**Concept Lookup (`research-kb concepts`):**
+**Concept Lookup (`research-kb graph concepts`):**
 - Finding definitions
 - Checking aliases and synonyms
 - Understanding relationships
 - Quick concept verification
 
-**Graph Exploration (`research-kb graph`):**
+**Graph Exploration (`research-kb graph neighborhood`):**
 - Understanding method requirements
 - Finding related techniques
 - Mapping conceptual dependencies
 - Discovering alternatives
 
-**Path Finding (`research-kb path`):**
+**Path Finding (`research-kb graph path`):**
 - Understanding connections
 - Tracing method evolution
 - Finding conceptual bridges
@@ -377,40 +377,40 @@ Chunk coverage: 4/3631 (0.1%)
 
 ```bash
 # 1. Find the method concept
-research-kb concepts "difference-in-differences"
+research-kb graph concepts "difference-in-differences"
 
 # 2. Explore requirements and relationships
-research-kb graph "difference-in-differences" --hops 1
+research-kb graph neighborhood "difference-in-differences" --hops 1
 
 # 3. Get detailed content from papers
-research-kb query "difference-in-differences" --limit 5 --format markdown
+research-kb search query "difference-in-differences" --limit 5 --format markdown
 ```
 
 #### Verifying Assumptions
 
 ```bash
 # 1. Find required assumptions for method
-research-kb graph "propensity score matching" --type REQUIRES
+research-kb graph neighborhood "propensity score matching" --type REQUIRES
 
 # 2. Look up each assumption
-research-kb concepts "unconfoundedness"
+research-kb graph concepts "unconfoundedness"
 
 # 3. Find how to test assumption
-research-kb query "testing unconfoundedness" --context-type auditing
+research-kb search query "testing unconfoundedness" --context-type auditing
 ```
 
 #### Finding Alternative Methods
 
 ```bash
 # 1. Understand problem
-research-kb concepts "endogeneity"
+research-kb graph concepts "endogeneity"
 
 # 2. Find methods that address it
-research-kb graph "endogeneity" --type ADDRESSES --hops 1
+research-kb graph neighborhood "endogeneity" --type ADDRESSES --hops 1
 
 # 3. Compare alternatives
-research-kb concepts "instrumental variables"
-research-kb concepts "regression discontinuity"
+research-kb graph concepts "instrumental variables"
+research-kb graph concepts "regression discontinuity"
 ```
 
 ---

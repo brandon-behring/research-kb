@@ -385,6 +385,11 @@ async def get_sources(
     return await SourceStore.list_all(limit=limit, offset=offset, source_type=source_type)
 
 
+async def count_sources(source_type: Optional[str] = None) -> int:
+    """Count sources with optional type filter."""
+    return await SourceStore.count(source_type=source_type)
+
+
 async def get_source_by_id(source_id: str) -> Optional[Source]:
     """Get a single source by ID."""
     return await SourceStore.get_by_id(UUID(source_id))

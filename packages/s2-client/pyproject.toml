@@ -22,11 +22,9 @@ Repository = "https://github.com/brandonmbehring-dev/research-kb"
 [tool.hatch.build.targets.wheel]
 packages = ["src/s2_client"]
 
+[tool.uv.sources]
+research-kb-common = { workspace = true }
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"

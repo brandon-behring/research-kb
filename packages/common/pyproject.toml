@@ -24,6 +24,9 @@ Repository = "https://github.com/brandonmbehring-dev/research-kb"
 [tool.hatch.build.targets.wheel]
 packages = ["src/research_kb_common"]
 
+[tool.uv.sources]
+research-kb-contracts = { workspace = true }
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]

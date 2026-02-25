@@ -12,7 +12,7 @@ Architecture (KuzuDB Migration):
 - Fallback: PostgreSQL recursive CTEs (for robustness)
 - Sync: KuzuDB mirrors PostgreSQL via scripts/sync_kuzu.py
 
-Master Plan Reference: Lines 616-673 (Phase 2 knowledge graph)
+See CLAUDE.md "KuzuDB Graph Engine" section for architecture.
 """
 
 import asyncio

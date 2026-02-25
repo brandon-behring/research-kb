@@ -46,6 +46,3 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
 ignore = ["E402", "E501", "E741", "F841"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]

@@ -43,9 +43,7 @@ async def list_sources(
         source_type=source_type,
     )
 
-    # Get total count (simplified - could be optimized with COUNT query)
-    all_sources = await service.get_sources(limit=10000, source_type=source_type)
-    total = len(all_sources)
+    total = await service.count_sources(source_type=source_type)
 
     return schemas.SourceListResponse(
         sources=[

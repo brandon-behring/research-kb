@@ -417,6 +417,20 @@ class TestNeighborhood:
         assert result["neighbors"] == []
         assert result["relationships"] == []
 
+    async def test_cypher_injection_rejected(self, populated_graph):
+        """Malicious relationship_type values must be rejected before query execution."""
+        ids = populated_graph
+        with pytest.raises(ValueError, match="Invalid relationship_type"):
+            await get_neighborhood_kuzu(
+                ids["a"], hops=1, relationship_type="'; DROP TABLE concepts; --"
+            )
+
+    async def test_invalid_relationship_type_rejected(self, populated_graph):
+        """Non-enum relationship_type values must be rejected."""
+        ids = populated_graph
+        with pytest.raises(ValueError, match="Invalid relationship_type"):
+            await get_neighborhood_kuzu(ids["a"], hops=1, relationship_type="NONEXISTENT_TYPE")
+
 
 # ===================================================================
 # 8. Batch Graph Scores

@@ -31,6 +31,7 @@ def mock_chunk():
     return Chunk(
         id=uuid4(),
         source_id=uuid4(),
+        domain_id="causal_inference",
         content="""
         Instrumental variables (IV) estimation is a widely used approach for addressing
         endogeneity in econometric analysis. The IV method relies on two key assumptions:
@@ -95,6 +96,7 @@ class TestExtractFromChunk:
         short_chunk = Chunk(
             id=uuid4(),
             source_id=uuid4(),
+            domain_id="test_domain",
             content="Too short",
             content_hash="short",
             created_at=datetime.now(timezone.utc),

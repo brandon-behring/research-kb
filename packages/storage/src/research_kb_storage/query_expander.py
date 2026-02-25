@@ -12,14 +12,14 @@ Design decisions:
 - Graph expansion limited to 1-hop to avoid noise
 - HyDE improves terse queries by 5-10% (configurable backend: Ollama/Anthropic)
 
-Master Plan Reference: Phase 3 Enhanced Retrieval
+See CLAUDE.md "Hybrid Search" section for architecture.
 """
 
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from research_kb_common import get_logger
 

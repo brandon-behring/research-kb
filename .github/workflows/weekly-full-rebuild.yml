@@ -34,10 +34,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       # Cache the BGE-large-en-v1.5 model (~400MB)
       - name: Cache embedding model
@@ -47,20 +49,7 @@ jobs:
           key: bge-large-en-v1.5-${{ runner.os }}
 
       - name: Install dependencies
-        run: |
-          pip install -e packages/contracts
-          pip install -e packages/common
-          pip install -e packages/storage
-          pip install -e packages/pdf-tools
-          pip install -e packages/cli
-          pip install -e packages/extraction
-          pip install -e packages/api
-          pip install -e packages/dashboard
-          pip install -e packages/daemon
-          pip install -e packages/mcp-server
-          pip install -e packages/client
-          pip install -e packages/s2-client
-          pip install pytest pytest-asyncio numpy scikit-learn pyyaml respx httpx pytest-cov
+        run: uv sync
 
       - name: Apply database schema
         env:

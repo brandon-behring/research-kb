@@ -79,7 +79,7 @@ done
 pytest packages/cli/tests/ -v
 
 # Test CLI
-research-kb stats
+research-kb sources stats
 ```
 
 ---
@@ -100,13 +100,13 @@ python scripts/ingest_corpus.py
 
 ```bash
 # Basic search
-research-kb query "instrumental variables"
+research-kb search query "instrumental variables"
 
 # With graph boost
-research-kb query "instrumental variables" --context building
+research-kb search query "instrumental variables" --context building
 
 # Without graph
-research-kb query "test" --no-graph
+research-kb search query "test" --no-graph
 ```
 
 ### Extract Concepts (Requires Ollama)
@@ -193,19 +193,19 @@ PGPASSWORD=postgres psql -h localhost -U postgres -d research_kb -c "SELECT 1"
 
 ```bash
 # Database stats
-research-kb stats
+research-kb sources stats
 
 # List sources
-research-kb sources
+research-kb sources list
 
 # Concept search
-research-kb concepts "IV"
+research-kb graph concepts "IV"
 
 # Graph exploration
-research-kb graph "double machine learning" --hops 2
+research-kb graph neighborhood "double machine learning" --hops 2
 
 # Extraction status
-research-kb extraction-status
+research-kb sources extraction-status
 ```
 
 ---

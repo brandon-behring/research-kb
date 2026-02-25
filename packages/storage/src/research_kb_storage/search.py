@@ -475,37 +475,26 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             r.citation_score and r.citation_score > 0 for r in base_results
         )
 
-        # Collect contributing weights
-        contributing_weights = [
-            ("fts", query.fts_weight),
-            ("vector", query.vector_weight),
-        ]
-        if has_graph_contribution:
-            contributing_weights.append(("graph", query.graph_weight))
-        else:
-            query.graph_weight = 0.0
-
-        if has_citation_contribution:
-            contributing_weights.append(("citation", query.citation_weight))
-        else:
-            query.citation_weight = 0.0
+        # Compute effective weights (local vars — never mutate the input query)
+        fts_w = query.fts_weight
+        vector_w = query.vector_weight
+        graph_w = query.graph_weight if has_graph_contribution else 0.0
+        citation_w = query.citation_weight if has_citation_contribution else 0.0
 
         # Renormalize to contributing signals only
-        total_weight = sum(w for _, w in contributing_weights)
+        total_weight = fts_w + vector_w + graph_w + citation_w
         if total_weight > 0:
-            query.fts_weight = query.fts_weight / total_weight
-            query.vector_weight = query.vector_weight / total_weight
-            if has_graph_contribution:
-                query.graph_weight = query.graph_weight / total_weight
-            if has_citation_contribution:
-                query.citation_weight = query.citation_weight / total_weight
+            fts_w /= total_weight
+            vector_w /= total_weight
+            graph_w /= total_weight
+            citation_w /= total_weight
 
         logger.debug(
             "weights_after_renormalization",
-            fts=query.fts_weight,
-            vector=query.vector_weight,
-            graph=query.graph_weight,
-            citation=query.citation_weight,
+            fts=fts_w,
+            vector=vector_w,
+            graph=graph_w,
+            citation=citation_w,
             has_graph=has_graph_contribution,
             has_citation=has_citation_contribution,
         )
@@ -544,10 +533,10 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
 
                 # Compute combined score with 4-way weighting
                 result.combined_score = (
-                    query.fts_weight * fts_score_norm
-                    + query.vector_weight * vector_score_norm
-                    + query.graph_weight * graph_score_norm
-                    + query.citation_weight * citation_score_norm
+                    fts_w * fts_score_norm
+                    + vector_w * vector_score_norm
+                    + graph_w * graph_score_norm
+                    + citation_w * citation_score_norm
                 )
 
         # Sort by combined score and apply final limit
@@ -562,8 +551,8 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             "enhanced_search_completed",
             result_count=len(final_results),
             query_concepts=len(query_concept_ids),
-            graph_weight=query.graph_weight,
-            citation_weight=query.citation_weight,
+            graph_weight=graph_w,
+            citation_weight=citation_w,
             scoring_method=query.scoring_method,
         )
 
@@ -661,14 +650,16 @@ async def search_with_rerank(
         return candidates[:rerank_top_k]
 
 
-async def _hybrid_search_for_rerank(
-    conn: asyncpg.Connection, query: SearchQuery, limit: int
-) -> list[SearchResult]:
-    """Execute hybrid search for re-ranking.
+def _build_hybrid_sql() -> str:
+    """Build the shared hybrid search SQL query.
 
-    Same as _hybrid_search but with custom limit and returns mutable results.
+    Used by both _hybrid_search and _hybrid_search_for_rerank — the only
+    difference is the limit parameter ($5) passed at execution time.
+
+    Parameters: $1=text, $2=embedding, $3=fts_weight, $4=vector_weight,
+                $5=limit, $6=source_filter, $7=domain_id
     """
-    sql = """
+    return """
     WITH fts_results AS (
         SELECT
             c.id,
@@ -749,6 +740,16 @@ async def _hybrid_search_for_rerank(
     ORDER BY combined_score DESC
     LIMIT $5
     """
+
+
+async def _hybrid_search_for_rerank(
+    conn: asyncpg.Connection, query: SearchQuery, limit: int
+) -> list[SearchResult]:
+    """Execute hybrid search for re-ranking.
+
+    Same as _hybrid_search but with custom limit and returns mutable results.
+    """
+    sql = _build_hybrid_sql()
 
     rows = await conn.fetch(
         sql,
@@ -769,87 +770,7 @@ async def _hybrid_search(conn: asyncpg.Connection, query: SearchQuery) -> list[S
 
     Combined score = (fts_weight * fts_score_normalized) + (vector_weight * vector_score_normalized)
     """
-    sql = """
-    WITH fts_results AS (
-        SELECT
-            c.id,
-            c.source_id,
-            ts_rank(c.fts_vector, plainto_tsquery('english', $1)) AS fts_score
-        FROM chunks c
-        WHERE c.fts_vector @@ plainto_tsquery('english', $1)
-          AND c.embedding IS NOT NULL
-          AND ($7::text IS NULL OR c.domain_id = $7)
-    ),
-    vector_results AS (
-        SELECT
-            c.id,
-            c.source_id,
-            c.embedding <=> $2::vector(1024) AS vector_distance
-        FROM chunks c
-        WHERE c.embedding IS NOT NULL
-          AND ($7::text IS NULL OR c.domain_id = $7)
-    ),
-    combined AS (
-        SELECT
-            COALESCE(fts.id, vec.id) AS chunk_id,
-            COALESCE(fts.source_id, vec.source_id) AS source_id,
-            COALESCE(fts.fts_score, 0) AS fts_score,
-            COALESCE(vec.vector_distance, 2.0) AS vector_distance
-        FROM fts_results fts
-        FULL OUTER JOIN vector_results vec ON fts.id = vec.id
-    ),
-    with_similarity AS (
-        SELECT
-            chunk_id,
-            source_id,
-            fts_score,
-            vector_distance,
-            -- Convert vector distance to similarity (0=identical, 2=opposite -> 1=identical, 0=opposite)
-            1.0 - (vector_distance / 2.0) AS vector_similarity
-        FROM combined
-    ),
-    normalized AS (
-        SELECT
-            chunk_id,
-            source_id,
-            fts_score,
-            vector_distance,
-            vector_similarity,
-            -- Normalize FTS score (min-max to 0-1 within result set)
-            CASE
-                WHEN MAX(fts_score) OVER () - MIN(fts_score) OVER () > 0
-                THEN (fts_score - MIN(fts_score) OVER ()) / (MAX(fts_score) OVER () - MIN(fts_score) OVER ())
-                WHEN MAX(fts_score) OVER () > 0 THEN 1.0
-                ELSE 0
-            END AS fts_normalized,
-            -- Normalize vector similarity (min-max to 0-1 within result set)
-            CASE
-                WHEN MAX(vector_similarity) OVER () - MIN(vector_similarity) OVER () > 0
-                THEN (vector_similarity - MIN(vector_similarity) OVER ()) / (MAX(vector_similarity) OVER () - MIN(vector_similarity) OVER ())
-                WHEN MAX(vector_similarity) OVER () > 0 THEN 1.0
-                ELSE 0
-            END AS vector_normalized
-        FROM with_similarity
-    )
-    SELECT
-        c.id, c.source_id, c.domain_id, c.content, c.content_hash, c.location,
-        c.page_start, c.page_end, c.embedding,
-        c.metadata AS chunk_metadata,
-        c.created_at AS chunk_created_at,
-        s.id AS source__id, s.source_type, s.title, s.authors, s.year,
-        s.domain_id AS source_domain_id, s.file_path, s.file_hash,
-        s.metadata AS source_metadata,
-        s.created_at AS source_created_at, s.updated_at,
-        n.fts_score,
-        n.vector_distance,
-        ($3 * n.fts_normalized + $4 * n.vector_normalized) AS combined_score
-    FROM normalized n
-    JOIN chunks c ON c.id = n.chunk_id
-    JOIN sources s ON s.id = n.source_id
-    WHERE ($6::text IS NULL OR s.source_type = $6)
-    ORDER BY combined_score DESC
-    LIMIT $5
-    """
+    sql = _build_hybrid_sql()
 
     rows = await conn.fetch(
         sql,

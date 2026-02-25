@@ -26,11 +26,12 @@ Repository = "https://github.com/brandonmbehring-dev/research-kb"
 [tool.hatch.build.targets.wheel]
 packages = ["src/research_kb_mcp"]
 
+[tool.uv.sources]
+research-kb-api = { workspace = true }
+research-kb-storage = { workspace = true }
+research-kb-contracts = { workspace = true }
+research-kb-common = { workspace = true }
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"

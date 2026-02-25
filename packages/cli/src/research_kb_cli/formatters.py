@@ -5,7 +5,7 @@ Provides multiple output formats:
 - json: Machine-parseable JSON
 - agent: Agent-friendly format with authority tiers and structured metadata
 
-Master Plan Reference: Lines 588-590, 1318
+See CLAUDE.md "CLI Usage" section for command reference.
 """
 
 import json
@@ -142,8 +142,6 @@ def format_result_agent(result: SearchResult) -> str:
     - Provenance (exact source, page, section)
     - Authority tier for trust calibration
     - Structured metadata for downstream processing
-
-    Master Plan Reference: Line 1318
 
     Args:
         result: Search result to format

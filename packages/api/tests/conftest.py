@@ -50,6 +50,7 @@ def mock_storage():
         concept_mock.get = AsyncMock(return_value=None)
 
         source_mock.list_all = AsyncMock(return_value=[])
+        source_mock.count = AsyncMock(return_value=0)
         source_mock.get = AsyncMock(return_value=None)
         source_mock.get_by_id = AsyncMock(return_value=None)
 

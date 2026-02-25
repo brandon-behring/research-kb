@@ -1,26 +1,34 @@
 ## research-kb-storage
 
-PostgreSQL storage layer for the research-kb system.
-
-**Version**: 1.0.0
+PostgreSQL + pgvector + KuzuDB storage layer for the research-kb system.
 
 ## Purpose
 
 This package provides **exclusive database access** for all research-kb operations:
 
-- **Connection management** - asyncpg connection pooling
-- **SourceStore** - CRUD operations for sources table
-- **ChunkStore** - CRUD operations for chunks table with pgvector support
-- **Hybrid search** - FTS + vector similarity search
+- **Connection management** -- asyncpg connection pooling (2-10 connections)
+- **SourceStore / ChunkStore** -- CRUD for sources and chunks tables
+- **CitationStore / BiblioStore** -- Citation network and bibliographic coupling
+- **ConceptStore / RelationshipStore / ChunkConceptStore** -- Knowledge graph entities
+- **MethodStore / AssumptionStore** -- Method-assumption cache for auditing
+- **DomainStore** -- Multi-domain corpus management (19 domains)
+- **DiscoveryStore / QueueStore** -- Paper discovery and ingestion queue
+- **CrossDomainStore** -- Cross-domain concept links
+- **4-way hybrid search** -- FTS + vector + graph + citation authority
+- **KuzuDB graph engine** -- Sub-100ms concept traversal
+- **HyDE query expansion** -- Hypothetical document embeddings
+- **Reranking** -- Cross-encoder reranking for precision
+- **Assumption auditing** -- North Star feature for method assumptions
 
-**Exclusive DB ownership** - No other packages access PostgreSQL directly.
+**Exclusive DB ownership** -- No other packages access PostgreSQL directly.
 
 ## Dependencies
 
-- `research-kb-contracts` (schemas)
-- `research-kb-common` (logging, errors)
+- `research-kb-contracts` (Pydantic schemas)
+- `research-kb-common` (logging, errors, retry)
 - `asyncpg` (async PostgreSQL driver)
-- `pgvector` (vector support)
+- `pgvector` (vector support, 1024 dimensions)
+- `kuzu` (embedded graph database)
 
 ## Usage
 
@@ -29,7 +37,6 @@ This package provides **exclusive database access** for all research-kb operatio
 ```python
 from research_kb_storage import DatabaseConfig, get_connection_pool
 
-# Configure database
 config = DatabaseConfig(
     host="localhost",
     port=5432,
@@ -38,7 +45,6 @@ config = DatabaseConfig(
     password="postgres",
 )
 
-# Initialize connection pool (once at startup)
 pool = await get_connection_pool(config)
 ```
 
@@ -48,25 +54,13 @@ pool = await get_connection_pool(config)
 from research_kb_storage import SourceStore
 from research_kb_contracts import SourceType
 
-# Create source
 source = await SourceStore.create(
     source_type=SourceType.TEXTBOOK,
     title="Causality: Models, Reasoning, and Inference",
+    domain_id="causal_inference",
     file_hash="sha256:abc123",
     authors=["Judea Pearl"],
     metadata={"isbn": "978-0521895606"},
-)
-
-# Retrieve by ID
-source = await SourceStore.get_by_id(source_id)
-
-# Check if file already ingested
-existing = await SourceStore.get_by_file_hash("sha256:abc123")
-
-# Update metadata
-source = await SourceStore.update_metadata(
-    source_id=source.id,
-    metadata={"citations_count": 1200},
 )
 ```
 
@@ -75,81 +69,93 @@ source = await SourceStore.update_metadata(
 ```python
 from research_kb_storage import ChunkStore
 
-# Create chunk with embedding
 chunk = await ChunkStore.create(
     source_id=source.id,
+    domain_id="causal_inference",
     content="The backdoor criterion states...",
     content_hash="sha256:chunk123",
     location="Chapter 3, p. 73",
-    embedding=[0.1] * 384,  # BGE-large-en-v1.5
+    embedding=[0.1] * 1024,  # BGE-large-en-v1.5 (1024 dimensions)
     metadata={"chunk_type": "theorem"},
 )
-
-# Batch create (for ingestion pipeline)
-chunks = await ChunkStore.batch_create([
-    {"source_id": source.id, "content": "...", "content_hash": "..."},
-    {"source_id": source.id, "content": "...", "content_hash": "..."},
-])
-
-# List chunks for a source
-chunks = await ChunkStore.list_by_source(source.id, limit=100)
-
-# Count chunks
-count = await ChunkStore.count_by_source(source.id)
 ```
 
-### Hybrid Search
+### 4-Way Hybrid Search
 
 ```python
-from research_kb_storage import SearchQuery, search_hybrid
+from research_kb_storage import SearchQuery, search_hybrid_v2
 
-# FTS + vector hybrid search
-results = await search_hybrid(SearchQuery(
+results = await search_hybrid_v2(SearchQuery(
     text="backdoor criterion",
-    embedding=[0.1] * 384,
+    embedding=[0.1] * 1024,
     fts_weight=0.3,
     vector_weight=0.7,
+    use_graph=True,        # Add knowledge graph signal
+    use_citations=True,    # Add citation authority signal
+    context_type="balanced",
     limit=10,
 ))
 
 for result in results:
     print(f"Rank {result.rank}: {result.source.title}")
-    print(f"  Location: {result.chunk.location}")
-    print(f"  FTS score: {result.fts_score}")
-    print(f"  Vector score: {result.vector_score}")
-    print(f"  Combined: {result.combined_score}")
+    print(f"  Combined: {result.combined_score:.3f}")
+```
+
+### Knowledge Graph
+
+```python
+from research_kb_storage import find_shortest_path, get_neighborhood
+
+# Find conceptual path
+path = await find_shortest_path("IV", "unconfoundedness")
+
+# Explore neighborhood (KuzuDB-accelerated)
+neighbors = await get_neighborhood(concept_id, hops=2)
+```
+
+### Assumption Auditing
+
+```python
+from research_kb_storage import MethodAssumptionAuditor
+
+auditor = MethodAssumptionAuditor(pool)
+result = await auditor.audit_method("instrumental variables")
+for assumption in result.assumptions:
+    print(f"  {assumption.name}: {assumption.description}")
 ```
 
 ## Testing
 
-**Requires PostgreSQL container running:**
-
 ```bash
-# Start PostgreSQL
-cd ~/Claude/research-kb
-docker compose up -d postgres
+# Unit tests (mocked, no services needed)
+pytest packages/storage/tests/ -m unit -v
 
-# Run tests
-cd packages/storage
-poetry install
-poetry run pytest
+# Integration tests (requires PostgreSQL)
+docker compose up -d postgres
+pytest packages/storage/tests/ -m integration -v
 ```
 
 ## Architecture
 
-### Connection Pooling
+### Search Pipeline
 
-- Global connection pool (singleton)
-- Default pool size: 2-10 connections
-- 60-second command timeout
-- Auto-reconnect on failure
+4-way ranking: `score = fts_w * fts + vector_w * vector + graph_w * graph + citation_w * citation`
+
+- **FTS**: PostgreSQL full-text search with location boosting
+- **Vector**: BGE-large-en-v1.5 cosine similarity (1024 dimensions)
+- **Graph**: KuzuDB concept co-occurrence (sub-100ms)
+- **Citation**: PageRank-style authority over 15K+ citation links
+
+### KuzuDB Graph Engine
+
+- Primary graph traversal engine (~150ms batch scoring)
+- PostgreSQL recursive CTEs as fallback (2-second timeout)
+- Data synced via `scripts/sync_kuzu.py`
+- Path: `~/.research_kb/kuzu/research_kb.kuzu`
 
 ### Error Handling
 
-All operations raise `StorageError` on failure:
-- Explicit error messages
-- Wrapped exceptions with context
-- Logged via structlog
+All operations raise `StorageError` on failure with explicit messages, wrapped exceptions, and structlog context.
 
 ### CASCADE Delete
 
@@ -157,13 +163,12 @@ Deleting a source **automatically deletes all its chunks** (PostgreSQL CASCADE).
 
 ## Performance
 
-- **Connection pooling**: Reuse connections across requests
+- **Connection pooling**: 2-10 connections (asyncpg)
 - **Batch operations**: `batch_create()` uses transactions
-- **Vector search**: pgvector IVFFlat index (lists=100)
+- **Vector search**: pgvector HNSW index (1024 dimensions)
 - **FTS**: GIN index on tsvector with location boosting
+- **Graph**: KuzuDB embedded (sub-100ms traversal)
 
 ## Version Policy
 
-This package follows semantic versioning. Breaking changes increment the major version.
-
-See: `docs/plans/active/dazzling-soaring-origami.md` for architecture details.
+This package follows semantic versioning. See CLAUDE.md for architecture details.

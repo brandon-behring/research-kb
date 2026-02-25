@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 ### Prerequisites
 
-- Python 3.10+
+- Python 3.11+
 - PostgreSQL 14+ with pgvector extension
 - Docker (for GROBID and PostgreSQL)
 
@@ -16,37 +16,20 @@ Thank you for your interest in contributing! This guide will help you get starte
 # Clone and set up
 git clone https://github.com/brandonmbehring-dev/research-kb.git
 cd research-kb
+
+# Option A: uv (recommended — single command, workspace-aware)
+uv sync
+
+# Option B: pip (fallback — manual editable installs)
 python -m venv venv
 source venv/bin/activate
-
-# Install packages in development mode
-pip install -e packages/common
-pip install -e packages/contracts
-pip install -e packages/storage
-pip install -e packages/cli
-pip install -e packages/pdf-tools
+make setup-pip
 
 # Start services
 docker compose up -d
 
 # Run tests
 pytest -m unit
-```
-
-### Optional Dependencies
-
-```bash
-# For concept extraction (requires Ollama or Anthropic API key)
-pip install -e packages/extraction
-
-# For the dashboard
-pip install -e packages/dashboard
-
-# For the MCP server (Claude Code integration)
-pip install -e packages/mcp-server
-
-# For Semantic Scholar discovery
-pip install -e packages/s2-client
 ```
 
 ## Code Style

@@ -39,12 +39,11 @@ pytest -m "integration and not requires_embedding and not requires_ollama and no
 ### Installation
 
 ```bash
-pip install -e packages/cli
-pip install -e packages/storage
-pip install -e packages/pdf-tools
-pip install -e packages/contracts
-pip install -e packages/common
-pip install -e packages/extraction  # Optional
+# Recommended (uv workspace — single command)
+uv sync
+
+# Fallback (pip — manual editable installs)
+make setup-pip
 ```
 
 ### Docker Services
@@ -121,33 +120,33 @@ OLLAMA_KV_CACHE_TYPE=q8_0  # Quantized KV cache
 
 ```bash
 # Search and retrieval (4-way ranking: FTS + vector + graph + citation)
-research-kb query "instrumental variables"            # Default (all signals)
-research-kb query "test" --no-graph                   # Without graph
-research-kb query "IV" --no-citations                 # Without citation authority
-research-kb query "IV" --citation-weight 0.25         # Boost citation influence
-research-kb query "IV" --context building             # Context-tuned weights
+research-kb search query "instrumental variables"            # Default (all signals)
+research-kb search query "test" --no-graph                   # Without graph
+research-kb search query "IV" --no-citations                 # Without citation authority
+research-kb search query "IV" --citation-weight 0.25         # Boost citation influence
+research-kb search query "IV" --context building             # Context-tuned weights
 
 # Source management
-research-kb sources                                   # List sources
-research-kb stats                                     # Database statistics
-research-kb extraction-status                         # Extraction pipeline stats
+research-kb sources list                                     # List sources
+research-kb sources stats                                    # Database statistics
+research-kb sources extraction-status                        # Extraction pipeline stats
 
 # Knowledge graph
-research-kb concepts "IV"                             # Concept search
-research-kb graph "double machine learning" --hops 2  # Graph exploration
-research-kb path "IV" "unconfoundedness"              # Shortest path between concepts
+research-kb graph concepts "IV"                              # Concept search
+research-kb graph neighborhood "DML" --hops 2                # Graph exploration
+research-kb graph path "IV" "unconfoundedness"               # Shortest path between concepts
 
 # Citation network
-research-kb citations <source>                        # List citations from a source
-research-kb cited-by <source>                         # Find sources citing this one
-research-kb cites <source>                            # Find sources this one cites
-research-kb citation-stats                            # Corpus citation statistics
-research-kb biblio-similar <source>                   # Find similar sources (shared refs)
+research-kb citations list <source>                          # List citations from a source
+research-kb citations cited-by <source>                      # Find sources citing this one
+research-kb citations cites <source>                         # Find sources this one cites
+research-kb citations stats                                  # Corpus citation statistics
+research-kb citations similar <source>                       # Find similar sources (shared refs)
 
 # Assumption auditing (North Star feature)
-research-kb audit-assumptions "double machine learning"  # Get required assumptions
-research-kb audit-assumptions "IV" --no-ollama           # Graph only, no LLM fallback
-research-kb audit-assumptions "DML" --format json        # JSON output
+research-kb search audit-assumptions "double machine learning"  # Get required assumptions
+research-kb search audit-assumptions "IV" --no-ollama           # Graph only, no LLM fallback
+research-kb search audit-assumptions "DML" --format json        # JSON output
 
 # Semantic Scholar discovery (s2-client)
 research-kb discover search "double machine learning"  # Search S2 for papers
@@ -329,7 +328,7 @@ See [`docs/RECOVERY.md`](docs/RECOVERY.md) for detailed recovery procedures.
 - GROBID takes ~60s to start (healthcheck has 60s start_period)
 - Graph search gracefully falls back to FTS+vector if concepts not extracted
 - Table name is `concept_relationships` (not `relationships`)
-- CLI adds packages to `sys.path` for development mode imports
+- Uses `uv` workspaces for package resolution (`uv sync`); `pip install -e` still works as fallback
 - **NEVER use `docker compose down -v`** without the safe wrapper — it deletes all data
 
 ## Documentation Protocol

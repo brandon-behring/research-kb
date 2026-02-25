@@ -1,10 +1,12 @@
-"""Tests for CLI commands."""
+"""Tests for CLI commands.
+
+Tests the sub-app structure: search, graph, citations, sources.
+All commands now live under grouped sub-apps (Phase 4 restructure).
+"""
 
 from unittest.mock import patch
 from uuid import uuid4
 
-
-# Import the CLI app
 from research_kb_cli.main import app
 import pytest
 
@@ -12,29 +14,28 @@ pytestmark = pytest.mark.unit
 
 
 # ============================================================================
-# Tier 1: Simple Commands
+# Tier 1: Simple Commands (sources sub-app)
 # ============================================================================
 
 
-class TestSourcesCommand:
-    """Tests for the sources command."""
+class TestSourcesListCommand:
+    """Tests for the sources list command."""
 
     def test_sources_empty_database(self, cli_runner):
-        """Test sources command with no data."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
-            mock_run.return_value = []  # Empty list
+        """Test sources list command with no data."""
+        with patch("research_kb_cli.commands.sources.asyncio.run") as mock_run:
+            mock_run.return_value = []
 
-            result = cli_runner.invoke(app, ["sources"])
+            result = cli_runner.invoke(app, ["sources", "list"])
 
             assert result.exit_code == 0
             assert "No sources" in result.stdout
 
     def test_sources_with_data(self, cli_runner):
-        """Test sources command lists all sources."""
+        """Test sources list command lists all sources."""
         from research_kb_contracts import Source, SourceType
         from datetime import datetime
 
-        # Create mock sources
         mock_sources = [
             Source(
                 id=uuid4(),
@@ -62,10 +63,10 @@ class TestSourcesCommand:
             ),
         ]
 
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.sources.asyncio.run") as mock_run:
             mock_run.return_value = mock_sources
 
-            result = cli_runner.invoke(app, ["sources"])
+            result = cli_runner.invoke(app, ["sources", "list"])
 
             assert result.exit_code == 0
             assert "Test Paper 1" in result.stdout
@@ -74,23 +75,25 @@ class TestSourcesCommand:
 
     def test_sources_database_connection_error(self, cli_runner):
         """Test error handling when DB unavailable."""
-        with patch("research_kb_cli.main.asyncio.run", side_effect=ConnectionError("DB down")):
-            result = cli_runner.invoke(app, ["sources"])
+        with patch(
+            "research_kb_cli.commands.sources.asyncio.run",
+            side_effect=ConnectionError("DB down"),
+        ):
+            result = cli_runner.invoke(app, ["sources", "list"])
 
             assert result.exit_code == 1
-            # Typer writes errors to stdout or output, check both
             assert "Error" in result.output or "Error" in result.stdout
 
 
 class TestStatsCommand:
-    """Tests for the stats command."""
+    """Tests for the sources stats command."""
 
     def test_stats_empty_database(self, cli_runner):
         """Test stats with zero data."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
-            mock_run.return_value = (0, 0, [])  # source_count, chunk_count, by_type
+        with patch("research_kb_cli.commands.sources.asyncio.run") as mock_run:
+            mock_run.return_value = (0, 0, [])
 
-            result = cli_runner.invoke(app, ["stats"])
+            result = cli_runner.invoke(app, ["sources", "stats"])
 
             assert result.exit_code == 0
             assert "Total sources: 0" in result.stdout
@@ -98,14 +101,14 @@ class TestStatsCommand:
 
     def test_stats_with_data(self, cli_runner):
         """Test stats with ingested data."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.sources.asyncio.run") as mock_run:
             by_type = [
                 {"source_type": "paper", "count": 5},
                 {"source_type": "textbook", "count": 2},
             ]
             mock_run.return_value = (7, 150, by_type)
 
-            result = cli_runner.invoke(app, ["stats"])
+            result = cli_runner.invoke(app, ["sources", "stats"])
 
             assert result.exit_code == 0
             assert "Total sources: 7" in result.stdout
@@ -115,11 +118,11 @@ class TestStatsCommand:
 
 
 class TestExtractionStatusCommand:
-    """Tests for the extraction-status command."""
+    """Tests for the sources extraction-status command."""
 
     def test_extraction_status_no_extractions(self, cli_runner):
         """Test extraction-status with no concepts."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.sources.asyncio.run") as mock_run:
             mock_run.return_value = {
                 "concept_count": 0,
                 "concepts_by_type": [],
@@ -132,14 +135,14 @@ class TestExtractionStatusCommand:
                 "total_chunks": 100,
             }
 
-            result = cli_runner.invoke(app, ["extraction-status"])
+            result = cli_runner.invoke(app, ["sources", "extraction-status"])
 
             assert result.exit_code == 0
             assert "Total concepts extracted: 0" in result.stdout
 
     def test_extraction_status_with_extractions(self, cli_runner):
         """Test extraction-status shows aggregations."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.sources.asyncio.run") as mock_run:
             mock_run.return_value = {
                 "concept_count": 50,
                 "concepts_by_type": [
@@ -161,7 +164,7 @@ class TestExtractionStatusCommand:
                 "total_chunks": 100,
             }
 
-            result = cli_runner.invoke(app, ["extraction-status"])
+            result = cli_runner.invoke(app, ["sources", "extraction-status"])
 
             assert result.exit_code == 0
             assert "Total concepts extracted: 50" in result.stdout
@@ -170,85 +173,81 @@ class TestExtractionStatusCommand:
 
 
 # ============================================================================
-# Tier 2: Graph Commands
+# Tier 2: Graph Commands (graph sub-app)
 # ============================================================================
 
 
 class TestConceptsCommand:
-    """Tests for the concepts command."""
+    """Tests for the graph concepts command."""
 
     def test_concepts_exact_match(self, cli_runner, mock_concepts):
         """Test exact concept name matching."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = ([mock_concepts[0]], [])
 
-            result = cli_runner.invoke(app, ["concepts", "Instrumental Variables"])
+            result = cli_runner.invoke(app, ["graph", "concepts", "Instrumental Variables"])
 
-            # asyncio.run is called, but we need to check if it returns the right value
-            # The actual result depends on the mock
             assert result.exit_code == 0
 
     def test_concepts_fuzzy_search(self, cli_runner, mock_concepts):
         """Test fuzzy matching (e.g., 'iv' matches 'instrumental variables')."""
-
-        async def mock_search():
-            return [mock_concepts[0]], []
-
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = ([mock_concepts[0]], [])
 
-            result = cli_runner.invoke(app, ["concepts", "iv"])
+            result = cli_runner.invoke(app, ["graph", "concepts", "iv"])
 
             assert result.exit_code == 0
 
     def test_concepts_not_found(self, cli_runner):
         """Test concept not found error."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = ([], [])
 
-            result = cli_runner.invoke(app, ["concepts", "NonexistentConcept"])
+            result = cli_runner.invoke(app, ["graph", "concepts", "NonexistentConcept"])
 
             assert result.exit_code == 0
             assert "No concepts found" in result.stdout
 
     def test_concepts_with_relationships(self, cli_runner, mock_concepts, mock_relationships):
         """Test concept with relationships displayed."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = ([mock_concepts[0]], mock_relationships)
 
-            result = cli_runner.invoke(app, ["concepts", "Instrumental Variables"])
+            result = cli_runner.invoke(app, ["graph", "concepts", "Instrumental Variables"])
 
             assert result.exit_code == 0
 
 
-class TestGraphCommand:
-    """Tests for the graph command."""
+class TestNeighborhoodCommand:
+    """Tests for the graph neighborhood command (formerly 'graph')."""
 
-    def test_graph_1_hop(self, cli_runner, mock_concepts):
+    def test_neighborhood_1_hop(self, cli_runner, mock_concepts):
         """Test 1-hop neighborhood retrieval."""
         neighborhood = {
             "concepts": mock_concepts,
             "relationships": [],
         }
 
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = (mock_concepts[0], neighborhood, None)
 
-            result = cli_runner.invoke(app, ["graph", "Instrumental Variables", "--hops", "1"])
+            result = cli_runner.invoke(
+                app, ["graph", "neighborhood", "Instrumental Variables", "--hops", "1"]
+            )
 
             assert result.exit_code == 0
 
-    def test_graph_concept_not_found(self, cli_runner):
-        """Test graph command when concept doesn't exist."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+    def test_neighborhood_concept_not_found(self, cli_runner):
+        """Test neighborhood command when concept doesn't exist."""
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = (None, None, None)
 
-            result = cli_runner.invoke(app, ["graph", "NonexistentConcept"])
+            result = cli_runner.invoke(app, ["graph", "neighborhood", "NonexistentConcept"])
 
             assert result.exit_code == 0
             assert "not found" in result.stdout
 
-    def test_graph_with_relationship_filter(self, cli_runner, mock_concepts):
+    def test_neighborhood_with_relationship_filter(self, cli_runner, mock_concepts):
         """Test filtering by relationship type."""
         from research_kb_contracts import RelationshipType
 
@@ -257,122 +256,120 @@ class TestGraphCommand:
             "relationships": [],
         }
 
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = (
                 mock_concepts[0],
                 neighborhood,
                 RelationshipType.REQUIRES,
             )
 
-            result = cli_runner.invoke(app, ["graph", "IV", "--hops", "2", "--type", "REQUIRES"])
+            result = cli_runner.invoke(
+                app, ["graph", "neighborhood", "IV", "--hops", "2", "--type", "REQUIRES"]
+            )
 
             assert result.exit_code == 0
 
 
 class TestPathCommand:
-    """Tests for the path command."""
+    """Tests for the graph path command."""
 
     def test_path_direct_connection(self, cli_runner, mock_concepts, mock_relationships):
         """Test shortest path between directly connected concepts."""
-        # Create path with proper tuple structure (concept, relationship)
         path = [
             (mock_concepts[0], None),
             (mock_concepts[1], mock_relationships[0]),
         ]
 
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = (mock_concepts[0], mock_concepts[1], path)
 
-            result = cli_runner.invoke(app, ["path", "Instrumental Variables", "Exogeneity"])
+            result = cli_runner.invoke(
+                app, ["graph", "path", "Instrumental Variables", "Exogeneity"]
+            )
 
             assert result.exit_code == 0
             assert "Path length: 1 hop" in result.stdout or "Path length: 1 hop" in result.output
 
     def test_path_no_connection(self, cli_runner, mock_concepts):
         """Test no path exists between concepts."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = (mock_concepts[0], mock_concepts[1], None)
 
-            result = cli_runner.invoke(app, ["path", "ConceptA", "ConceptB"])
+            result = cli_runner.invoke(app, ["graph", "path", "ConceptA", "ConceptB"])
 
             assert result.exit_code == 0
             assert "No path found" in result.stdout
 
     def test_path_start_concept_not_found(self, cli_runner):
         """Test path command when start concept doesn't exist."""
-        with patch("research_kb_cli.main.asyncio.run") as mock_run:
+        with patch("research_kb_cli.commands.graph.asyncio.run") as mock_run:
             mock_run.return_value = (None, None, None)
 
-            result = cli_runner.invoke(app, ["path", "NonexistentStart", "SomeEnd"])
+            result = cli_runner.invoke(app, ["graph", "path", "NonexistentStart", "SomeEnd"])
 
             assert result.exit_code == 0
             assert "not found" in result.stdout
 
 
 # ============================================================================
-# Tier 3: Complex Query Command
+# Tier 3: Search Commands (search sub-app)
 # ============================================================================
 
 
 class TestQueryCommand:
-    """Tests for the query command."""
+    """Tests for the search query command."""
 
     def test_query_basic_markdown(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test basic query with markdown output."""
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
-            with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                # run_query returns (results, expanded_query) tuple
+            with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                 mock_run.return_value = (mock_search_results, None)
 
                 result = cli_runner.invoke(
-                    app, ["query", "instrumental variables", "--format", "markdown"]
+                    app, ["search", "query", "instrumental variables", "--format", "markdown"]
                 )
 
-                # The command should execute successfully
-                # Actual formatting depends on formatters which we test separately
                 assert result.exit_code == 0
 
     def test_query_json_format(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test JSON output format."""
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
-            with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                # run_query returns (results, expanded_query) tuple
+            with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                 mock_run.return_value = (mock_search_results, None)
 
-                result = cli_runner.invoke(app, ["query", "test query", "--format", "json"])
+                result = cli_runner.invoke(
+                    app, ["search", "query", "test query", "--format", "json"]
+                )
 
                 assert result.exit_code == 0
-                # Output should be valid JSON (tested in formatter tests)
 
     def test_query_agent_format(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test agent-optimized output format."""
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
-            with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                # run_query returns (results, expanded_query) tuple
+            with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                 mock_run.return_value = (mock_search_results, None)
 
-                result = cli_runner.invoke(app, ["query", "test", "--format", "agent"])
+                result = cli_runner.invoke(app, ["search", "query", "test", "--format", "agent"])
 
                 assert result.exit_code == 0
 
     def test_query_with_limit(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test result limit parameter."""
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
-            with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                # run_query returns (results, expanded_query) tuple
+            with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                 mock_run.return_value = (mock_search_results[:3], None)
 
-                result = cli_runner.invoke(app, ["query", "test", "--limit", "3"])
+                result = cli_runner.invoke(app, ["search", "query", "test", "--limit", "3"])
 
                 assert result.exit_code == 0
 
     def test_query_embedding_server_down(self, cli_runner):
         """Test error when embedding server unavailable."""
         with patch(
-            "research_kb_cli.main.asyncio.run",
+            "research_kb_cli.commands.search.asyncio.run",
             side_effect=ConnectionError("Embed server down"),
         ):
-            result = cli_runner.invoke(app, ["query", "test"])
+            result = cli_runner.invoke(app, ["search", "query", "test"])
 
             assert result.exit_code == 1
             assert "Error" in result.output or "Error" in result.stdout
@@ -382,22 +379,24 @@ class TestQueryCommand:
     ):
         """Test context type affects search weights."""
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
-            with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                # run_query returns (results, expanded_query) tuple
+            with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                 mock_run.return_value = (mock_search_results, None)
 
-                result = cli_runner.invoke(app, ["query", "test", "--context-type", "building"])
+                result = cli_runner.invoke(
+                    app, ["search", "query", "test", "--context-type", "building"]
+                )
 
                 assert result.exit_code == 0
 
     def test_query_source_filter(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test filtering by source type."""
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
-            with patch("research_kb_cli.main.asyncio.run") as mock_run:
-                # run_query returns (results, expanded_query) tuple
+            with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                 mock_run.return_value = (mock_search_results, None)
 
-                result = cli_runner.invoke(app, ["query", "test", "--source-type", "paper"])
+                result = cli_runner.invoke(
+                    app, ["search", "query", "test", "--source-type", "paper"]
+                )
 
                 assert result.exit_code == 0
 
@@ -413,24 +412,22 @@ class TestErrorHandling:
     def test_database_connection_failure_stats(self, cli_runner):
         """Test stats command handles DB connection errors gracefully."""
         with patch(
-            "research_kb_cli.main.asyncio.run",
+            "research_kb_cli.commands.sources.asyncio.run",
             side_effect=ConnectionError("DB unavailable"),
         ):
-            result = cli_runner.invoke(app, ["stats"])
+            result = cli_runner.invoke(app, ["sources", "stats"])
 
             assert result.exit_code == 1
             assert "Error" in result.output or "Error" in result.stdout
 
     def test_invalid_format_argument(self, cli_runner):
         """Test commands reject invalid format argument."""
-        # Typer should catch this before execution
-        result = cli_runner.invoke(app, ["query", "test", "--format", "invalid"])
+        result = cli_runner.invoke(app, ["search", "query", "test", "--format", "invalid"])
 
-        # Should fail with argument error
         assert result.exit_code != 0
 
     def test_missing_required_arguments(self, cli_runner):
         """Test commands fail with missing required args."""
-        result = cli_runner.invoke(app, ["query"])  # Missing query text
+        result = cli_runner.invoke(app, ["search", "query"])  # Missing query text
 
         assert result.exit_code != 0

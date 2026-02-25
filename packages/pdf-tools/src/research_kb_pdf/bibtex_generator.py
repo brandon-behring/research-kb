@@ -4,7 +4,7 @@ Generates valid BibTeX entries for:
 1. Source documents (papers, textbooks)
 2. Citations extracted from source documents
 
-Master Plan Reference: Line 584
+See CLAUDE.md for architecture overview.
 """
 
 from typing import Optional

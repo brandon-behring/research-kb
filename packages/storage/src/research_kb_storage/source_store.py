@@ -534,6 +534,52 @@ class SourceStore:
             raise StorageError(f"Failed to list sources: {e}") from e
 
     @staticmethod
+    async def count(
+        source_type: Optional[str] = None,
+        domain_id: Optional[str] = None,
+    ) -> int:
+        """Count sources with optional filtering.
+
+        Args:
+            source_type: Optional filter by source type (string value, e.g. "paper")
+            domain_id: Optional filter by domain
+
+        Returns:
+            Total count of matching sources
+
+        Example:
+            >>> total = await SourceStore.count()
+            >>> papers = await SourceStore.count(source_type="paper")
+        """
+        pool = await get_connection_pool()
+
+        try:
+            async with pool.acquire() as conn:
+                conditions = []
+                params: list[Any] = []
+                param_idx = 1
+
+                if source_type:
+                    conditions.append(f"source_type = ${param_idx}")
+                    params.append(source_type)
+                    param_idx += 1
+
+                if domain_id:
+                    conditions.append(f"domain_id = ${param_idx}")
+                    params.append(domain_id)
+                    param_idx += 1
+
+                where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+                query = f"SELECT COUNT(*) FROM sources {where_clause}"
+
+                result = await conn.fetchval(query, *params)
+                return int(result) if result is not None else 0
+
+        except Exception as e:
+            logger.error("source_count_failed", error=str(e))
+            raise StorageError(f"Failed to count sources: {e}") from e
+
+    @staticmethod
     async def list_by_type(
         source_type: SourceType,
         limit: int = 100,

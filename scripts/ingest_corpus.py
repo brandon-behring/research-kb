@@ -1675,7 +1675,7 @@ async def ingest_pdf(
     chunks_created = 0
     for chunk in chunks:
         # Sanitize content (remove null bytes and other control characters)
-        sanitized_content = chunk.content.replace("\x00", "").replace("\uFFFD", "")
+        sanitized_content = chunk.content.replace("\x00", "").replace("\ufffd", "")
 
         # Generate embedding
         embedding = embedding_client.embed(sanitized_content)

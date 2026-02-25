@@ -14,7 +14,7 @@ Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge
 - **20-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
 - **Knowledge graph** -- 307K concepts and 742K relationships extracted from research literature, served by KuzuDB
 - **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
-- **Multi-domain** -- 19 corpus domains, 14 extraction prompt configs, extensible to new domains
+- **Multi-domain** -- 19 corpus domains, 20 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
 - **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
 
@@ -71,7 +71,7 @@ python scripts/ingest_corpus.py            # Ingest PDFs from configured corpus 
 ### 4. Search
 
 ```bash
-research-kb query "instrumental variables"
+research-kb search query "instrumental variables"
 ```
 
 ### 5. Start the MCP server (optional)
@@ -248,45 +248,45 @@ Quick reference:
 
 ```bash
 # Search and retrieval
-research-kb query "instrumental variables"        # Hybrid search (all 4 signals)
-research-kb query "IV" --no-graph                 # Disable graph signal
-research-kb query "IV" --no-citations             # Disable citation authority
+research-kb search query "instrumental variables"        # Hybrid search (all 4 signals)
+research-kb search query "IV" --no-graph                 # Disable graph signal
+research-kb search query "IV" --no-citations             # Disable citation authority
 
 # Source management
-research-kb sources                               # List sources
-research-kb stats                                 # Database statistics
-research-kb extraction-status                     # Extraction pipeline stats
+research-kb sources list                                 # List sources
+research-kb sources stats                                # Database statistics
+research-kb sources extraction-status                    # Extraction pipeline stats
 
 # Knowledge graph
-research-kb concepts "IV"                         # Concept search
-research-kb graph "double machine learning"       # Graph exploration
-research-kb path "IV" "unconfoundedness"          # Shortest path
+research-kb graph concepts "IV"                          # Concept search
+research-kb graph neighborhood "double machine learning" # Graph exploration
+research-kb graph path "IV" "unconfoundedness"           # Shortest path
 
 # Citation network
-research-kb citations <source>                    # List citations from a source
-research-kb cited-by <source>                     # Find sources citing this one
-research-kb cites <source>                        # Find sources this one cites
-research-kb citation-stats                        # Corpus citation statistics
-research-kb biblio-similar <source>               # Find similar sources (shared refs)
+research-kb citations list <source>                      # List citations from a source
+research-kb citations cited-by <source>                  # Find sources citing this one
+research-kb citations cites <source>                     # Find sources this one cites
+research-kb citations stats                              # Corpus citation statistics
+research-kb citations similar <source>                   # Find similar sources (shared refs)
 
 # Assumption auditing (North Star feature)
-research-kb audit-assumptions "IV"                # Get required assumptions
-research-kb audit-assumptions "IV" --no-ollama    # Graph-only (no LLM fallback)
-research-kb audit-assumptions "DML" --format json # JSON output
+research-kb search audit-assumptions "IV"                # Get required assumptions
+research-kb search audit-assumptions "IV" --no-ollama    # Graph-only (no LLM fallback)
+research-kb search audit-assumptions "DML" --format json # JSON output
 
 # Semantic Scholar discovery
-research-kb discover search "causal inference"    # Search S2 for papers
-research-kb discover topics                       # Browse by topic
-research-kb discover author "Chernozhukov"        # Find by author
-research-kb enrich citations                      # Enrich with S2 metadata
-research-kb enrich status                         # Show enrichment status
-research-kb enrich job-status                     # Check enrichment job status
+research-kb discover search "causal inference"           # Search S2 for papers
+research-kb discover topics                              # Browse by topic
+research-kb discover author "Chernozhukov"               # Find by author
+research-kb enrich citations                             # Enrich with S2 metadata
+research-kb enrich status                                # Show enrichment status
+research-kb enrich job-status                            # Check enrichment job status
 ```
 <!-- AUTO-GEN:cli-commands:END -->
 
 ## Multi-Domain Support
 
-research-kb supports 19 corpus domains with 14 extraction prompt configurations:
+research-kb supports 19 corpus domains with 20 extraction prompt configurations:
 
 | Domain | Sources | Description |
 |--------|---------|-------------|

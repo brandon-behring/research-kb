@@ -20,7 +20,7 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
         args: [--maxkb=500]
-        exclude: ^fixtures/demo/data/
+        exclude: ^fixtures/demo/data/|^uv\.lock$
 
   - repo: local
     hooks:

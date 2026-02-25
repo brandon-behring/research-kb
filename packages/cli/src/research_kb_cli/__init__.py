@@ -1,6 +1,6 @@
 """Research KB CLI - Command-line interface for querying the knowledge base.
 
-Master Plan Reference: Lines 588-590
+See CLAUDE.md for architecture and CLI command reference.
 """
 
 __version__ = "1.0.0"

@@ -23,5 +23,11 @@ research-kb = "research_kb_cli.main:main"
 Homepage = "https://github.com/brandonmbehring-dev/research-kb"
 Repository = "https://github.com/brandonmbehring-dev/research-kb"
 
+[tool.uv.sources]
+research-kb-storage = { workspace = true }
+research-kb-pdf = { workspace = true }
+research-kb-contracts = { workspace = true }
+s2-client = { workspace = true }
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/research_kb_cli"]

@@ -48,9 +48,9 @@ python scripts/setup_demo.py
 ### 5. Search
 
 ```bash
-research-kb query "instrumental variables"
-research-kb stats
-research-kb concepts "double machine learning"
+research-kb search query "instrumental variables"
+research-kb sources stats
+research-kb graph concepts "double machine learning"
 ```
 
 ## Optional Setup

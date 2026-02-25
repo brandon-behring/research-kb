@@ -48,7 +48,7 @@ pip install -e packages/cli
 python scripts/setup_demo.py
 
 # Search
-research-kb query "instrumental variables"
+research-kb search query "instrumental variables"
 ```
 
 ## Pages

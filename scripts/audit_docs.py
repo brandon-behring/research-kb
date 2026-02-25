@@ -60,31 +60,65 @@ def header(msg: str) -> None:
     print(f"\n{Colors.BOLD}=== {msg} ==={Colors.RESET}")
 
 
+def _extract_commands_from_file(filepath: Path) -> set[str]:
+    """Extract @app.command() names from a Typer module.
+
+    Handles both named commands and bare @app.command() decorators.
+    """
+    content = filepath.read_text()
+    commands = set(re.findall(r'@\w+\.command\(\s*(?:name\s*=\s*)?["\']([^"\']+)["\']', content))
+
+    lines = content.splitlines()
+    for i, line in enumerate(lines):
+        if re.match(r"\s*@\w+\.command\(\s*\)\s*$", line):
+            for j in range(i + 1, min(i + 5, len(lines))):
+                func_match = re.match(r"\s*(?:async\s+)?def\s+(\w+)", lines[j])
+                if func_match:
+                    cmd_name = func_match.group(1).replace("_", "-")
+                    commands.add(cmd_name)
+                    break
+
+    return commands
+
+
 def check_cli_commands() -> tuple[bool, list[str]]:
     """Check CLI commands in code vs CLAUDE.md."""
     header("Check 1: CLI Commands Documentation")
 
     issues = []
+    code_commands: set[str] = set()
 
-    # Find commands in CLI code
-    cli_main = REPO_ROOT / "packages/cli/src/research_kb_cli/main.py"
+    cli_base = REPO_ROOT / "packages/cli/src/research_kb_cli"
+    cli_main = cli_base / "main.py"
     if not cli_main.exists():
         error("CLI main.py not found")
         return False, ["CLI main.py not found"]
 
-    content = cli_main.read_text()
+    main_content = cli_main.read_text()
 
-    # Extract @app.command decorators
-    code_commands = set(re.findall(r'@app\.command\(["\'](\w+)["\']', content))
+    # Find registered sub-apps: app.add_typer(..., name="X")
+    subgroup_names = re.findall(
+        r'app\.add_typer\(\s*\w+\s*,\s*name\s*=\s*["\'](\w+)["\']', main_content
+    )
 
-    # Also check for subcommand groups
-    subgroups = re.findall(r"(\w+)_app\s*=\s*typer\.Typer", content)
-    for group in subgroups:
-        group_file = REPO_ROOT / f"packages/cli/src/research_kb_cli/{group}.py"
+    # Scan commands/ directory for sub-app modules
+    commands_dir = cli_base / "commands"
+    if commands_dir.is_dir():
+        for py_file in sorted(commands_dir.glob("*.py")):
+            if py_file.name.startswith("_"):
+                continue
+            # Derive sub-app name from filename (e.g., search.py -> search)
+            group_name = py_file.stem
+            cmds = _extract_commands_from_file(py_file)
+            for cmd in cmds:
+                code_commands.add(f"{group_name} {cmd}")
+
+    # Scan top-level sub-app files (discover.py, enrich.py)
+    for group in subgroup_names:
+        group_file = cli_base / f"{group}.py"
         if group_file.exists():
-            group_content = group_file.read_text()
-            sub_commands = re.findall(r'@\w+\.command\(["\'](\w+)["\']', group_content)
-            for cmd in sub_commands:
+            cmds = _extract_commands_from_file(group_file)
+            for cmd in cmds:
                 code_commands.add(f"{group} {cmd}")
 
     # Check CLAUDE.md
@@ -95,8 +129,15 @@ def check_cli_commands() -> tuple[bool, list[str]]:
     readme = REPO_ROOT / "README.md"
     readme_content = readme.read_text()
 
-    # Commands that should be documented
-    critical_commands = {"query", "sources", "stats", "concepts", "graph", "path"}
+    # Critical commands that should be documented (new sub-app syntax)
+    critical_commands = {
+        "search query",
+        "sources list",
+        "sources stats",
+        "graph concepts",
+        "graph neighborhood",
+        "graph path",
+    }
 
     for cmd in critical_commands:
         if f"research-kb {cmd}" not in claude_content:

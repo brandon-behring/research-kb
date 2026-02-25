@@ -12,13 +12,13 @@ pip install -e packages/cli
 
 ## Commands
 
-### `research-kb query`
+### `research-kb search query`
 
 Search the knowledge base using hybrid retrieval (full-text + vector similarity).
 
 **Usage:**
 ```bash
-research-kb query "backdoor criterion" [OPTIONS]
+research-kb search query "backdoor criterion" [OPTIONS]
 ```
 
 **Options:**
@@ -31,24 +31,24 @@ research-kb query "backdoor criterion" [OPTIONS]
 **Examples:**
 ```bash
 # Basic query
-research-kb query "instrumental variables"
+research-kb search query "instrumental variables"
 
 # Agent-friendly format with 10 results
-research-kb query "difference-in-differences" --limit 10 --format agent
+research-kb search query "difference-in-differences" --limit 10 --format agent
 
 # Precise term matching for auditing
-research-kb query "cross-fitting" --context-type auditing --source-type paper
+research-kb search query "cross-fitting" --context-type auditing --source-type paper
 ```
 
 ---
 
-### `research-kb concepts`
+### `research-kb graph concepts`
 
 Search for concepts in the knowledge graph.
 
 **Usage:**
 ```bash
-research-kb concepts "instrumental variables" [OPTIONS]
+research-kb graph concepts "instrumental variables" [OPTIONS]
 ```
 
 **Options:**
@@ -58,24 +58,24 @@ research-kb concepts "instrumental variables" [OPTIONS]
 **Examples:**
 ```bash
 # Find concept by name
-research-kb concepts "instrumental variables"
+research-kb graph concepts "instrumental variables"
 
 # Search by alias
-research-kb concepts "IV" --limit 5
+research-kb graph concepts "IV" --limit 5
 
 # Hide relationships
-research-kb concepts "matching" --no-relationships
+research-kb graph concepts "matching" --no-relationships
 ```
 
 ---
 
-### `research-kb graph`
+### `research-kb graph neighborhood`
 
 Visualize concept neighborhood in the knowledge graph.
 
 **Usage:**
 ```bash
-research-kb graph "instrumental variables" [OPTIONS]
+research-kb graph neighborhood "instrumental variables" [OPTIONS]
 ```
 
 **Options:**
@@ -85,24 +85,24 @@ research-kb graph "instrumental variables" [OPTIONS]
 **Examples:**
 ```bash
 # Show 1-hop neighborhood
-research-kb graph "instrumental variables"
+research-kb graph neighborhood "instrumental variables"
 
 # Show 2-hop neighborhood
-research-kb graph "IV" --hops 2
+research-kb graph neighborhood "IV" --hops 2
 
 # Filter by relationship type
-research-kb graph "matching" --type REQUIRES --hops 1
+research-kb graph neighborhood "matching" --type REQUIRES --hops 1
 ```
 
 ---
 
-### `research-kb path`
+### `research-kb graph path`
 
 Find shortest path between two concepts in the knowledge graph.
 
 **Usage:**
 ```bash
-research-kb path "start concept" "end concept" [OPTIONS]
+research-kb graph path "start concept" "end concept" [OPTIONS]
 ```
 
 **Options:**
@@ -111,24 +111,24 @@ research-kb path "start concept" "end concept" [OPTIONS]
 **Examples:**
 ```bash
 # Find path between concepts
-research-kb path "double machine learning" "k-fold cross-validation"
+research-kb graph path "double machine learning" "k-fold cross-validation"
 
 # Search with shorter max hops
-research-kb path "IV" "endogeneity" --max-hops 3
+research-kb graph path "IV" "endogeneity" --max-hops 3
 
 # Check if concepts are connected
-research-kb path "matching" "propensity score" --max-hops 2
+research-kb graph path "matching" "propensity score" --max-hops 2
 ```
 
 ---
 
-### `research-kb extraction-status`
+### `research-kb sources extraction-status`
 
 Show extraction pipeline statistics.
 
 **Usage:**
 ```bash
-research-kb extraction-status
+research-kb sources extraction-status
 ```
 
 Displays:
@@ -140,34 +140,34 @@ Displays:
 
 **Example:**
 ```bash
-research-kb extraction-status
+research-kb sources extraction-status
 ```
 
 ---
 
-### `research-kb sources`
+### `research-kb sources list`
 
 List all ingested sources in the knowledge base.
 
 **Usage:**
 ```bash
-research-kb sources
+research-kb sources list
 ```
 
 **Example:**
 ```bash
-research-kb sources
+research-kb sources list
 ```
 
 ---
 
-### `research-kb stats`
+### `research-kb sources stats`
 
 Show knowledge base statistics.
 
 **Usage:**
 ```bash
-research-kb stats
+research-kb sources stats
 ```
 
 Displays:
@@ -176,14 +176,14 @@ Displays:
 
 **Example:**
 ```bash
-research-kb stats
+research-kb sources stats
 ```
 
 ---
 
 ## Context Types
 
-The `query` command supports different context modes:
+The `search query` command supports different context modes:
 
 ### Building Context
 **Use case**: Initial research, broad exploration
@@ -191,7 +191,7 @@ The `query` command supports different context modes:
 **Weights**: 20% FTS, 80% vector
 
 ```bash
-research-kb query "matching methods" --context-type building
+research-kb search query "matching methods" --context-type building
 ```
 
 ### Auditing Context
@@ -200,7 +200,7 @@ research-kb query "matching methods" --context-type building
 **Weights**: 50% FTS, 50% vector
 
 ```bash
-research-kb query "Theorem 3.1" --context-type auditing
+research-kb search query "Theorem 3.1" --context-type auditing
 ```
 
 ### Balanced Context (Default)
@@ -209,7 +209,7 @@ research-kb query "Theorem 3.1" --context-type auditing
 **Weights**: 30% FTS, 70% vector
 
 ```bash
-research-kb query "backdoor criterion"  # Uses balanced by default
+research-kb search query "backdoor criterion"  # Uses balanced by default
 ```
 
 ---
@@ -220,21 +220,21 @@ research-kb query "backdoor criterion"  # Uses balanced by default
 Human-readable format with provenance and content snippets.
 
 ```bash
-research-kb query "IV" --format markdown
+research-kb search query "IV" --format markdown
 ```
 
 ### JSON
 Machine-parseable format for programmatic use.
 
 ```bash
-research-kb query "IV" --format json > results.json
+research-kb search query "IV" --format json > results.json
 ```
 
 ### Agent
 Optimized format for AI agent consumption with structured metadata.
 
 ```bash
-research-kb query "IV" --format agent
+research-kb search query "IV" --format agent
 ```
 
 ---
@@ -257,7 +257,7 @@ All graph commands traverse directed edges from source to target. Use different 
 
 **Example:** To see what methods require a specific assumption:
 ```bash
-research-kb graph "unconfoundedness" --hops 1
+research-kb graph neighborhood "unconfoundedness" --hops 1
 ```
 
 ---
@@ -266,22 +266,22 @@ research-kb graph "unconfoundedness" --hops 1
 
 1. **Fuzzy matching**: Concept search supports partial matching and aliases
    ```bash
-   research-kb concepts "DiD"  # Finds "difference-in-differences"
+   research-kb graph concepts "DiD"  # Finds "difference-in-differences"
    ```
 
 2. **Relationship exploration**: Start from problems to find solving methods
    ```bash
-   research-kb graph "endogeneity" --hops 1  # Shows IV and other solutions
+   research-kb graph neighborhood "endogeneity" --hops 1  # Shows IV and other solutions
    ```
 
 3. **Path finding**: Discover conceptual connections
    ```bash
-   research-kb path "double ML" "cross-fitting"  # Shows how concepts relate
+   research-kb graph path "double ML" "cross-fitting"  # Shows how concepts relate
    ```
 
 4. **Quality monitoring**: Check extraction pipeline health
    ```bash
-   research-kb extraction-status  # View confidence scores and coverage
+   research-kb sources extraction-status  # View confidence scores and coverage
    ```
 
 ---

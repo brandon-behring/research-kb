@@ -34,7 +34,7 @@ Weights adapt to search context:
 The "North Star" feature: for any causal inference method, enumerate the assumptions required for valid conclusions.
 
 ```bash
-research-kb audit-assumptions "instrumental variables"
+research-kb search audit-assumptions "instrumental variables"
 ```
 
 Returns structured output with assumption definitions, importance levels, testability, and source references.

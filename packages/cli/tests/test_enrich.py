@@ -323,14 +323,6 @@ class TestEnrichmentStatusCommand:
 class TestEnrichErrorHandling:
     """Tests for error handling in enrich commands."""
 
-    def test_missing_s2_client_import(self, cli_runner):
-        """Graceful handling when s2-client not installed."""
-
-        with patch.dict("sys.modules", {"s2_client": None}):
-            # This would only trigger if we actually hit the import
-            # In practice, the module is installed, so we test the error path differently
-            pass
-
     @patch("research_kb_cli.enrich.asyncio.run")
     def test_database_error_handling(self, mock_run, cli_runner):
         """Database errors are handled gracefully."""
@@ -342,26 +334,3 @@ class TestEnrichErrorHandling:
 
         assert result.exit_code == 1
         assert "Error" in result.output
-
-
-# -----------------------------------------------------------------------------
-# Confidence Score Tests
-# -----------------------------------------------------------------------------
-
-
-class TestConfidenceScoring:
-    """Tests for citation matching confidence scores."""
-
-    def test_doi_match_high_confidence(self):
-        """DOI match should have confidence 1.0."""
-        # This tests the underlying enrichment logic
-        # The actual match_citation function is in s2_client
-        pass
-
-    def test_arxiv_match_high_confidence(self):
-        """arXiv match should have confidence ~0.95."""
-        pass
-
-    def test_fuzzy_match_threshold(self):
-        """Fuzzy matches below 0.8 should be marked ambiguous."""
-        pass

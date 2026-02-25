@@ -24,6 +24,7 @@ from uuid import UUID
 import kuzu
 
 from research_kb_common import get_logger, StorageError
+from research_kb_contracts.models import RelationshipType
 
 logger = get_logger(__name__)
 
@@ -309,13 +310,20 @@ async def get_neighborhood_kuzu(
         - 'neighbors': List of neighbor concept dicts
         - 'relationships': List of relationship dicts
     """
+    # Validate relationship_type against enum before query construction (injection prevention)
+    rel_filter = ""
+    if relationship_type:
+        valid_types = {rt.value for rt in RelationshipType}
+        if relationship_type not in valid_types:
+            raise ValueError(
+                f"Invalid relationship_type: {relationship_type!r}. "
+                f"Must be one of: {sorted(valid_types)}"
+            )
+        rel_filter = f"AND r.relationship_type = '{relationship_type}'"
+
     conn = get_kuzu_connection()
 
     try:
-        # Build relationship type filter
-        rel_filter = ""
-        if relationship_type:
-            rel_filter = f"AND r.relationship_type = '{relationship_type}'"
 
         async with _kuzu_lock:
             # Get neighbors within N hops

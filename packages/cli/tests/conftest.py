@@ -3,19 +3,7 @@
 import pytest
 from typer.testing import CliRunner
 from unittest.mock import MagicMock
-from pathlib import Path
 from uuid import uuid4
-import sys
-
-# Add CLI package to path
-repo_root = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(repo_root / "packages/cli/src"))
-sys.path.insert(0, str(repo_root / "packages/contracts/src"))
-sys.path.insert(0, str(repo_root / "packages/storage/src"))
-sys.path.insert(0, str(repo_root / "packages/pdf-tools/src"))
-sys.path.insert(0, str(repo_root / "packages/common/src"))
-
-# Import CLI app (after path setup)
 
 
 @pytest.fixture

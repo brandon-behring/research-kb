@@ -370,9 +370,11 @@ class TestRouteIntegration:
         with (
             patch("research_kb_api.main.get_connection_pool", return_value=mock_pool),
             patch("research_kb_api.service.get_sources") as sources_mock,
+            patch("research_kb_api.service.count_sources") as count_mock,
         ):
 
             sources_mock.return_value = []
+            count_mock.return_value = 0
 
             app_instance = create_app()
             app_instance.state.pool = mock_pool

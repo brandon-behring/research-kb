@@ -293,7 +293,7 @@ for rel in requiring_methods:
 
 ```bash
 # Look up specific assumption
-research-kb concepts "unconfoundedness"
+research-kb graph concepts "unconfoundedness"
 
 # Output:
 # [1] Unconfoundedness
@@ -312,7 +312,7 @@ research-kb concepts "unconfoundedness"
 
 ```bash
 # Get method's required assumptions
-research-kb graph "instrumental variables" --type REQUIRES --hops 1
+research-kb graph neighborhood "instrumental variables" --type REQUIRES --hops 1
 
 # Output:
 # CENTER: Instrumental Variables (method)
@@ -330,7 +330,7 @@ research-kb graph "instrumental variables" --type REQUIRES --hops 1
 
 ```bash
 # Understand why method works for problem
-research-kb path "instrumental variables" "endogeneity"
+research-kb graph path "instrumental variables" "endogeneity"
 
 # Output:
 # Path length: 1 hop(s)

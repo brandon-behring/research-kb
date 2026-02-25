@@ -21,24 +21,24 @@ class TestGraphBoostedSearch:
 
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
-                with patch("research_kb_cli.main.asyncio.run") as mock_run:
+                with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                     # run_query returns (results, expanded_query) tuple
                     mock_run.return_value = (mock_search_results, None)
 
                     # No --use-graph flag needed - it's the default
-                    result = cli_runner.invoke(app, ["query", "instrumental variables"])
+                    result = cli_runner.invoke(app, ["search", "query", "instrumental variables"])
 
                     assert result.exit_code == 0
 
     def test_query_no_graph_fallback(self, cli_runner, mock_embedding_client, mock_search_results):
         """Test --no-graph flag falls back to v1."""
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
-            with patch("research_kb_cli.main.asyncio.run") as mock_run:
+            with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                 # run_query returns (results, expanded_query) tuple
                 mock_run.return_value = (mock_search_results, None)
 
                 # Explicitly disable graph
-                result = cli_runner.invoke(app, ["query", "test query", "--no-graph"])
+                result = cli_runner.invoke(app, ["search", "query", "test query", "--no-graph"])
 
                 assert result.exit_code == 0
 
@@ -52,11 +52,11 @@ class TestGraphBoostedSearch:
 
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
-                with patch("research_kb_cli.main.asyncio.run") as mock_run:
+                with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                     # run_query returns (results, expanded_query) tuple
                     mock_run.return_value = (mock_search_results, None)
 
-                    result = cli_runner.invoke(app, ["query", "test query"])
+                    result = cli_runner.invoke(app, ["search", "query", "test query"])
 
                     # Should succeed (fall back to non-graph search)
                     assert result.exit_code == 0
@@ -70,11 +70,13 @@ class TestGraphBoostedSearch:
 
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
-                with patch("research_kb_cli.main.asyncio.run") as mock_run:
+                with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                     # run_query returns (results, expanded_query) tuple
                     mock_run.return_value = (mock_search_results, None)
 
-                    result = cli_runner.invoke(app, ["query", "test", "--graph-weight", "0.5"])
+                    result = cli_runner.invoke(
+                        app, ["search", "query", "test", "--graph-weight", "0.5"]
+                    )
 
                     assert result.exit_code == 0
 
@@ -87,13 +89,14 @@ class TestGraphBoostedSearch:
 
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
-                with patch("research_kb_cli.main.asyncio.run") as mock_run:
+                with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                     # run_query returns (results, expanded_query) tuple
                     mock_run.return_value = (mock_search_results, None)
 
                     result = cli_runner.invoke(
                         app,
                         [
+                            "search",
                             "query",
                             "instrumental variables",
                             "--graph-weight",
@@ -122,11 +125,13 @@ class TestGraphSearchIntegration:
 
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
-                with patch("research_kb_cli.main.asyncio.run") as mock_run:
+                with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                     # run_query returns (results, expanded_query) tuple
                     mock_run.return_value = (mock_search_results, None)
 
-                    result = cli_runner.invoke(app, ["query", "test", "--format", "markdown"])
+                    result = cli_runner.invoke(
+                        app, ["search", "query", "test", "--format", "markdown"]
+                    )
 
                     assert result.exit_code == 0
 
@@ -137,10 +142,10 @@ class TestGraphSearchIntegration:
 
         with patch("research_kb_pdf.EmbeddingClient", return_value=mock_embedding_client):
             with patch("research_kb_storage.ConceptStore", mock_concept_store):
-                with patch("research_kb_cli.main.asyncio.run") as mock_run:
+                with patch("research_kb_cli.commands.search.asyncio.run") as mock_run:
                     # run_query returns (results, expanded_query) tuple
                     mock_run.return_value = (mock_search_results, None)
 
-                    result = cli_runner.invoke(app, ["query", "test", "--format", "json"])
+                    result = cli_runner.invoke(app, ["search", "query", "test", "--format", "json"])
 
                     assert result.exit_code == 0

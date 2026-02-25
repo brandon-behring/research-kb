@@ -1,9 +1,12 @@
-.PHONY: setup test lint demo clean help
+.PHONY: setup setup-pip test lint demo clean help
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-setup: ## Install all packages in development mode
+setup: ## Install all packages in development mode (uv workspace)
+	uv sync
+
+setup-pip: ## Install via pip (fallback, no uv required)
 	pip install -e packages/contracts
 	pip install -e packages/common
 	pip install -e packages/storage
