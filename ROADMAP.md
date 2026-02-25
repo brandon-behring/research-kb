@@ -92,17 +92,27 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - Daemon connection timeout 5s→10s (graph queries take 1.7-5.8s)
 - Dashboard AppTest suite: 24 new tests (search + citations pages)
 
+## Phase N: Domain Gap Expansion ✅ COMPLETE
+
+- 3 new domains registered: `sql`, `recommender_systems`, `adtech` (22 total)
+- 5 new domain prompt configs: sql, recommender_systems, adtech, algorithms, forecasting (19 total)
+- 232 domain prompt tests (up from 162)
+- 97 sidecar JSON domain corrections in `fixtures/textbooks/migrated/`
+- 88 DB source retags (causal_inference fallback → correct domain)
+- 27,965 chunk domain_id propagation via `sync_chunk_domains.py`
+- Ingestion infrastructure updated: VALID_DOMAINS, DOMAIN_KEYWORDS
+
 ---
 
-**Current Status**: All phases H-K and M complete.
+**Current Status**: All phases H-K, M, and N complete.
 
-**Key Metrics** (as of 2026-02-24):
-- Sources: 485 (across 19 domains)
+**Key Metrics** (as of 2026-02-25):
+- Sources: 485 (across 22 domains, 3 empty)
 - Chunks: ~226,000 (100% with embeddings)
 - Concepts: 307,000 (742,000 relationships)
 - KuzuDB: ~110MB graph engine
-- Tests: ~2,166 functions (unit + integration + quality)
-- Domains: 19 tagged (causal_inference, rag_llm, time_series, econometrics, software_engineering, deep_learning, mathematics, interview_prep, finance, machine_learning, statistics, ml_engineering, data_science, portfolio_management, functional_programming, algorithms, forecasting, fitness, economics)
+- Tests: ~2,236 functions (unit + integration + quality)
+- Domains: 22 registered — 19 populated (causal_inference 299, time_series 47, mathematics 27, interview_prep 22, rag_llm 17, software_engineering 15, statistics 10, machine_learning 10, algorithms 9, deep_learning 9, functional_programming 8, data_science 4, ml_engineering 3, fitness 2, economics 1, finance 1, forecasting 1) + 3 empty (sql, recommender_systems, adtech)
 - Method cache: 10/10 top methods, 55 cached assumptions, 87.5% readiness
 
 **Architecture**: 12 packages (contracts → common → storage → cli/daemon/api/dashboard/mcp-server/client/pdf-tools/extraction/s2-client)
