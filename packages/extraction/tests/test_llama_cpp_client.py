@@ -67,7 +67,6 @@ class TestLlamaCppClientInit:
 class TestLlamaCppAvailability:
     """Tests for availability checks."""
 
-    @pytest.mark.asyncio
     async def test_is_available_model_exists(self):
         """Test is_available returns True when model file exists."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
@@ -78,7 +77,6 @@ class TestLlamaCppAvailability:
                 result = await client.is_available()
                 assert result is True
 
-    @pytest.mark.asyncio
     async def test_is_available_model_not_found(self):
         """Test is_available returns False when model not found."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
@@ -88,7 +86,6 @@ class TestLlamaCppAvailability:
             result = await client.is_available()
             assert result is False
 
-    @pytest.mark.asyncio
     async def test_is_available_import_error(self):
         """Test is_available returns False when llama_cpp not installed."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
@@ -267,7 +264,6 @@ class TestLlamaCppGenerate:
 class TestLlamaCppExtraction:
     """Tests for concept extraction."""
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_success(self):
         """Test successful concept extraction."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
@@ -302,7 +298,6 @@ class TestLlamaCppExtraction:
             assert result.concepts[0].name == "double machine learning"
             assert len(result.relationships) == 1
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_invalid_json(self):
         """Test handling of invalid JSON returns empty extraction."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
@@ -316,7 +311,6 @@ class TestLlamaCppExtraction:
             assert isinstance(result, ChunkExtraction)
             assert len(result.concepts) == 0
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_validation_error(self):
         """Test handling of schema validation errors."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
@@ -336,7 +330,6 @@ class TestLlamaCppExtraction:
 class TestLlamaCppContextManager:
     """Tests for async context manager."""
 
-    @pytest.mark.asyncio
     async def test_context_manager_preloads_model(self):
         """Test context manager preloads model on entry."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
@@ -347,7 +340,6 @@ class TestLlamaCppContextManager:
             async with client:
                 mock_load.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_context_manager_closes_on_exit(self):
         """Test context manager calls close on exit."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient
@@ -361,7 +353,6 @@ class TestLlamaCppContextManager:
 
                 mock_close.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_close_releases_model(self):
         """Test close() releases model resources."""
         from research_kb_extraction.llama_cpp_client import LlamaCppClient

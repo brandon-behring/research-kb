@@ -86,7 +86,6 @@ class TestConcreteImplementation:
 
         assert client.extraction_method == "ollama:llama3.1:8b"
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_returns_chunk_extraction(self):
         """Test extract_concepts returns ChunkExtraction."""
         client = ConcreteClient()
@@ -95,7 +94,6 @@ class TestConcreteImplementation:
 
         assert isinstance(result, ChunkExtraction)
 
-    @pytest.mark.asyncio
     async def test_is_available_returns_bool(self):
         """Test is_available returns boolean."""
         client = ConcreteClient()
@@ -105,7 +103,6 @@ class TestConcreteImplementation:
         assert isinstance(result, bool)
         assert result is True
 
-    @pytest.mark.asyncio
     async def test_close_is_callable(self):
         """Test close method can be called."""
         client = ConcreteClient()
@@ -118,7 +115,6 @@ class TestConcreteImplementation:
 class TestExtractBatch:
     """Tests for default extract_batch implementation."""
 
-    @pytest.mark.asyncio
     async def test_extract_batch_processes_all_chunks(self):
         """Test extract_batch processes all chunks."""
         client = ConcreteClient()
@@ -133,7 +129,6 @@ class TestExtractBatch:
         assert len(results) == 3
         assert all(isinstance(r, ChunkExtraction) for r in results)
 
-    @pytest.mark.asyncio
     async def test_extract_batch_empty_list(self):
         """Test extract_batch with empty chunk list."""
         client = ConcreteClient()
@@ -142,7 +137,6 @@ class TestExtractBatch:
 
         assert results == []
 
-    @pytest.mark.asyncio
     async def test_extract_batch_calls_extract_concepts(self):
         """Test extract_batch calls extract_concepts for each chunk."""
         client = ConcreteClient()
@@ -161,7 +155,6 @@ class TestExtractBatch:
 
         assert call_count == 2
 
-    @pytest.mark.asyncio
     async def test_extract_batch_respects_prompt_type(self):
         """Test extract_batch passes prompt_type to extract_concepts."""
         captured_prompt_types = []
@@ -184,7 +177,6 @@ class TestExtractBatch:
 
         assert all(pt == "quick" for pt in captured_prompt_types)
 
-    @pytest.mark.asyncio
     async def test_extract_batch_calls_progress_callback(self):
         """Test extract_batch calls progress callback."""
         client = ConcreteClient()
@@ -201,7 +193,6 @@ class TestExtractBatch:
         assert progress_calls[1] == (2, 3)
         assert progress_calls[2] == (3, 3)
 
-    @pytest.mark.asyncio
     async def test_extract_batch_no_progress_callback(self):
         """Test extract_batch works without progress callback."""
         client = ConcreteClient()
@@ -215,7 +206,6 @@ class TestExtractBatch:
 class TestAsyncContextManager:
     """Tests for async context manager protocol."""
 
-    @pytest.mark.asyncio
     async def test_aenter_returns_self(self):
         """Test __aenter__ returns the client instance."""
         client = ConcreteClient()
@@ -224,7 +214,6 @@ class TestAsyncContextManager:
 
         assert result is client
 
-    @pytest.mark.asyncio
     async def test_aexit_calls_close(self):
         """Test __aexit__ calls close method."""
         client = ConcreteClient()
@@ -234,7 +223,6 @@ class TestAsyncContextManager:
 
         assert client._closed is True
 
-    @pytest.mark.asyncio
     async def test_async_with_syntax(self):
         """Test client works with async with syntax."""
         async with ConcreteClient() as client:
@@ -244,7 +232,6 @@ class TestAsyncContextManager:
 
         assert client._closed is True
 
-    @pytest.mark.asyncio
     async def test_context_manager_closes_on_exception(self):
         """Test close is called even when exception occurs."""
         client = ConcreteClient()
@@ -320,7 +307,6 @@ class TestExtractionMethodNaming:
 class TestEdgeCases:
     """Tests for edge cases and error handling."""
 
-    @pytest.mark.asyncio
     async def test_extract_batch_with_none_progress(self):
         """Test extract_batch handles None progress callback."""
         client = ConcreteClient()
@@ -332,7 +318,6 @@ class TestEdgeCases:
 
         assert len(results) == 1
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_with_empty_chunk(self):
         """Test extract_concepts handles empty string."""
         client = ConcreteClient()
@@ -341,7 +326,6 @@ class TestEdgeCases:
 
         assert isinstance(result, ChunkExtraction)
 
-    @pytest.mark.asyncio
     async def test_multiple_closes_are_safe(self):
         """Test calling close multiple times is safe."""
         client = ConcreteClient()
@@ -355,7 +339,6 @@ class TestEdgeCases:
 class TestPromptTypes:
     """Tests for prompt type parameter."""
 
-    @pytest.mark.asyncio
     async def test_default_prompt_type(self):
         """Test default prompt type is 'full'."""
         captured_prompt_type = None
@@ -376,7 +359,6 @@ class TestPromptTypes:
 
         assert captured_prompt_type == "full"
 
-    @pytest.mark.asyncio
     async def test_prompt_types_supported(self):
         """Test various prompt types are passed through."""
         for prompt_type in ["full", "definition", "relationship", "quick"]:

@@ -145,14 +145,12 @@ class TestS2Paper:
 class TestRateLimiter:
     """Tests for RateLimiter."""
 
-    @pytest.mark.asyncio
     async def test_acquire_immediate(self):
         """First acquire should be immediate with full bucket."""
         limiter = RateLimiter(requests_per_second=10)
         await limiter.acquire()  # Should not block
         assert limiter.available_tokens >= 9
 
-    @pytest.mark.asyncio
     async def test_context_manager(self):
         """Context manager should acquire token."""
         limiter = RateLimiter(requests_per_second=10)
@@ -172,7 +170,6 @@ class TestRateLimiter:
 class TestS2Cache:
     """Tests for S2Cache."""
 
-    @pytest.mark.asyncio
     async def test_cache_roundtrip(self, tmp_cache_dir: Path):
         """Data should survive cache roundtrip."""
         cache = S2Cache(cache_dir=tmp_cache_dir)
@@ -186,7 +183,6 @@ class TestS2Cache:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_cache_miss(self, tmp_cache_dir: Path):
         """Non-existent key should return None."""
         cache = S2Cache(cache_dir=tmp_cache_dir)
@@ -197,7 +193,6 @@ class TestS2Cache:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_cache_stats(self, tmp_cache_dir: Path):
         """Stats should reflect cache state."""
         cache = S2Cache(cache_dir=tmp_cache_dir)
@@ -211,7 +206,6 @@ class TestS2Cache:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_cache_context_manager(self, tmp_cache_dir: Path):
         """Context manager should initialize and close."""
         async with S2Cache(cache_dir=tmp_cache_dir) as cache:
@@ -228,7 +222,6 @@ class TestS2Cache:
 class TestS2Client:
     """Tests for S2Client with mocked HTTP."""
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_search_papers(self, sample_search_response: dict, tmp_cache_dir: Path):
         """Search should parse results correctly."""
@@ -243,7 +236,6 @@ class TestS2Client:
         assert len(result.data) == 1
         assert result.data[0].title.startswith("Double/debiased")
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_get_paper(self, sample_paper_response: dict):
         """Get paper by ID should return parsed paper."""
@@ -257,7 +249,6 @@ class TestS2Client:
         assert paper.paper_id == "649def34f8be52c8b66281af98ae884c09aef38b"
         assert paper.doi == "10.1214/17-AOS1609"
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_rate_limit_error(self):
         """429 response should raise S2RateLimitError."""
@@ -271,7 +262,6 @@ class TestS2Client:
 
         assert exc_info.value.retry_after == 60.0
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_not_found_error(self):
         """404 response should raise S2NotFoundError."""
@@ -334,7 +324,6 @@ class TestSearchFilters:
 class TestTopicDiscovery:
     """Tests for TopicDiscovery."""
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_deduplicates(self, sample_paper_response: dict):
         """Discovery should deduplicate papers across topics."""

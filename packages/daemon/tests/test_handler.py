@@ -65,7 +65,6 @@ class TestDispatch:
         assert "health" in METHODS
         assert "stats" in METHODS
 
-    @pytest.mark.asyncio
     async def test_dispatch_calls_handler(self):
         """Test dispatch routes to correct handler."""
         mock_health = AsyncMock(return_value={"status": "healthy"})
@@ -73,7 +72,6 @@ class TestDispatch:
             result = await dispatch("health", {})
             mock_health.assert_called_once_with({})
 
-    @pytest.mark.asyncio
     async def test_dispatch_unknown_method(self):
         """Test dispatch raises for unknown method."""
         with pytest.raises(ValueError, match="Method not found"):
@@ -83,13 +81,11 @@ class TestDispatch:
 class TestHandleSearch:
     """Tests for search handler."""
 
-    @pytest.mark.asyncio
     async def test_search_requires_query(self):
         """Test search requires query parameter."""
         with pytest.raises(ValueError, match="Missing required parameter: query"):
             await handle_search({})
 
-    @pytest.mark.asyncio
     async def test_search_with_defaults(self, mock_embed_response):
         """Test search with default parameters."""
         mock_embed_client = AsyncMock()
@@ -123,7 +119,6 @@ class TestHandleSearch:
             assert search_query.fts_weight == pytest.approx(0.3, rel=0.01)
             assert search_query.vector_weight == pytest.approx(0.7, rel=0.01)
 
-    @pytest.mark.asyncio
     async def test_search_context_types(self, mock_embed_response):
         """Test search respects context type presets."""
         mock_embed_client = AsyncMock()
@@ -157,7 +152,6 @@ class TestHandleSearch:
 class TestHandleHealth:
     """Tests for health handler."""
 
-    @pytest.mark.asyncio
     async def test_health_returns_status(self):
         """Test health returns expected structure."""
         mock_pool = AsyncMock()
@@ -194,7 +188,6 @@ class TestHandleHealth:
 class TestHandleStats:
     """Tests for stats handler."""
 
-    @pytest.mark.asyncio
     async def test_stats_returns_counts(self):
         """Test stats returns database counts."""
         mock_pool = AsyncMock()

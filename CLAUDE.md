@@ -155,6 +155,7 @@ research-kb discover topics                            # Browse by topic
 research-kb discover author "Chernozhukov"             # Find by author
 research-kb enrich citations                           # Enrich corpus with S2 metadata
 research-kb enrich status                              # Show enrichment status
+research-kb enrich job-status                          # Check enrichment job status
 ```
 
 ## Architecture
@@ -198,7 +199,7 @@ common (logging, retry, instrumentation)
 
 ### Database Schema
 
-**Core tables:** `sources`, `chunks`, `citations`
+**Core tables:** `sources`, `chunks`, `citations`, `source_citations`
 **Knowledge graph:** `concepts`, `concept_relationships`, `chunk_concepts`, `methods`, `assumptions`
 **Assumption auditing:** `method_assumption_cache`, `method_aliases` (Phase 4.1)
 
@@ -231,12 +232,12 @@ score = fts_weight × fts + vector_weight × vector + graph_weight × graph + ci
 - **Graph**: Concept co-occurrence boost (knowledge graph)
 - **Citation**: PageRank-style authority score (citation network)
 
-Context types adjust weights (FTS + vector only; graph and citation are opt-in, disabled by default):
+Context types adjust weights (base FTS + vector; graph and citation are **enabled by default** in CLI/MCP; disable with `--no-graph`/`--no-citations`):
 - **building**: 20% FTS, 80% vector (favor semantic breadth)
 - **auditing**: 50% FTS, 50% vector (favor precision)
 - **balanced**: 30% FTS, 70% vector (default)
 
-When `use_graph` or `use_citations` are enabled, each adds 15% weight (FTS/vector reduced proportionally).
+When `use_graph` or `use_citations` are active, each adds 15% weight (FTS/vector reduced proportionally).
 
 ### HyDE (Hypothetical Document Embeddings)
 
@@ -294,9 +295,9 @@ Single model: BGE-large-en-v1.5 (1024 dimensions). All vector columns are `vecto
 
 ## CI/CD Tiers
 
-1. **PR Checks** (<10 min): Unit + integration tests with mocked services, pytest-cov coverage reports (XML)
-2. **Weekly Integration** (10 min, Sunday 2AM): Search pipeline + quality tests + script tests + doc freshness gate (`audit_docs.py`, `generate_status.py --check`)
-3. **Full Rebuild** (Deferred): Complete from-scratch validation with full service stack — not yet implemented
+1. **PR Checks** (<10 min): Unit + integration tests with mocked services, pytest-cov coverage reports (XML), doc freshness gate
+2. **Weekly Integration** (15 min, Sunday 2AM): Search pipeline + quality tests + script tests + doc freshness gate (`audit_docs.py`, `generate_status.py --check`)
+3. **Full Rebuild** (45 min, Sunday 3AM): Demo data load, embedding generation, retrieval eval against golden dataset with per-domain metrics (`weekly-full-rebuild.yml`)
 
 ## Data Protection
 
@@ -357,7 +358,7 @@ See [docs/INTEGRATION.md](docs/INTEGRATION.md) for full details.
 
 ### Daemon Service
 
-Low-latency query service providing sub-100ms responses via Unix domain socket.
+Low-latency query service via Unix domain socket (~200ms vector search, ~20ms health).
 
 **Starting the daemon:**
 ```bash
@@ -423,7 +424,7 @@ The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 | `research_kb_graph_neighborhood` | Explore concept neighborhood |
 | `research_kb_graph_path` | Find path between concepts (KuzuDB-accelerated) |
 | `research_kb_list_domains` | List available knowledge domains |
-| `research_kb_audit_assumptions` | Get required assumptions for a method (North Star) |
+| `research_kb_audit_assumptions` | Get required assumptions for a method (North Star; uses Anthropic backend) |
 | `research_kb_stats` | Database statistics |
 | `research_kb_health` | Health check (includes KuzuDB status) |
 

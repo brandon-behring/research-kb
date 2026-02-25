@@ -43,7 +43,6 @@ def make_chunk(source_id, content: str = "Chunk content") -> Chunk:
     )
 
 
-@pytest.mark.asyncio
 async def test_list_sources(app_client, mock_storage):
     """List sources returns paginated results."""
     sources = [make_source(f"Paper {i}") for i in range(3)]
@@ -59,7 +58,6 @@ async def test_list_sources(app_client, mock_storage):
     assert "offset" in data
 
 
-@pytest.mark.asyncio
 async def test_list_sources_with_filter(app_client, mock_storage):
     """List sources respects source_type filter."""
     sources = [make_source()]
@@ -71,7 +69,6 @@ async def test_list_sources_with_filter(app_client, mock_storage):
     mock_storage["source"].list_all.assert_called()
 
 
-@pytest.mark.asyncio
 async def test_get_source(app_client, mock_storage):
     """Get source by ID returns source with chunks."""
     source = make_source()
@@ -89,7 +86,6 @@ async def test_get_source(app_client, mock_storage):
     assert data["chunk_count"] == 2
 
 
-@pytest.mark.asyncio
 async def test_get_source_not_found(app_client, mock_storage):
     """Get source returns 404 for unknown ID."""
     mock_storage["source"].get.return_value = None
@@ -99,7 +95,6 @@ async def test_get_source_not_found(app_client, mock_storage):
     assert response.status_code == 404
 
 
-@pytest.mark.asyncio
 async def test_get_source_citations(app_client, mock_storage):
     """Get source citations returns citation graph."""
     source = make_source()

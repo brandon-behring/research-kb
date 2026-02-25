@@ -9,7 +9,6 @@ from uuid import uuid4
 pytestmark = pytest.mark.unit
 
 
-@pytest.mark.asyncio
 async def test_get_neighborhood(app_client, mock_storage):
     """Get neighborhood returns graph structure."""
     concept_id = str(uuid4())
@@ -43,7 +42,6 @@ async def test_get_neighborhood(app_client, mock_storage):
         assert len(data["edges"]) == 1
 
 
-@pytest.mark.asyncio
 async def test_get_neighborhood_not_found(app_client, mock_storage):
     """Get neighborhood returns 404 for unknown concept."""
     with patch("research_kb_api.service.get_graph_neighborhood") as neighborhood_mock:
@@ -54,7 +52,6 @@ async def test_get_neighborhood_not_found(app_client, mock_storage):
         assert response.status_code == 404
 
 
-@pytest.mark.asyncio
 async def test_get_neighborhood_with_hops(app_client, mock_storage):
     """Get neighborhood respects hops parameter."""
     with patch("research_kb_api.service.get_graph_neighborhood") as neighborhood_mock:
@@ -72,7 +69,6 @@ async def test_get_neighborhood_with_hops(app_client, mock_storage):
         assert call_kwargs["hops"] == 3
 
 
-@pytest.mark.asyncio
 async def test_get_path(app_client, mock_storage):
     """Get path returns shortest path between concepts."""
     with patch("research_kb_api.service.get_graph_path") as path_mock:
@@ -104,7 +100,6 @@ async def test_get_path(app_client, mock_storage):
         assert data["path_length"] == 2
 
 
-@pytest.mark.asyncio
 async def test_get_path_not_found(app_client, mock_storage):
     """Get path returns 404 when no path exists."""
     with patch("research_kb_api.service.get_graph_path") as path_mock:

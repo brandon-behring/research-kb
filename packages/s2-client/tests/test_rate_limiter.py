@@ -69,7 +69,6 @@ class TestRateLimiterInit:
 class TestRateLimiterAcquire:
     """Tests for token acquisition."""
 
-    @pytest.mark.asyncio
     async def test_acquire_immediate_when_full(self):
         """First acquire should be immediate with full bucket."""
         limiter = RateLimiter(requests_per_second=10)
@@ -81,7 +80,6 @@ class TestRateLimiterAcquire:
         # Should be nearly instant (< 50ms)
         assert elapsed < 0.05
 
-    @pytest.mark.asyncio
     async def test_acquire_decrements_tokens(self):
         """Acquire should decrement available tokens."""
         limiter = RateLimiter(requests_per_second=10, burst_size=10)
@@ -93,7 +91,6 @@ class TestRateLimiterAcquire:
         # Should have used ~1 token (allow for timing variance)
         assert initial_tokens - after_tokens >= 0.9
 
-    @pytest.mark.asyncio
     async def test_multiple_acquires_from_full_bucket(self):
         """Multiple rapid acquires should succeed from full bucket."""
         limiter = RateLimiter(requests_per_second=10, burst_size=10)
@@ -109,7 +106,6 @@ class TestRateLimiterAcquire:
         # Should have ~5 tokens left
         assert limiter.available_tokens >= 4.5
 
-    @pytest.mark.asyncio
     async def test_acquire_waits_when_empty(self):
         """Acquire should wait when bucket is empty."""
         # Very fast rate to empty bucket quickly
@@ -136,7 +132,6 @@ class TestRateLimiterAcquire:
 class TestRateLimiterRefill:
     """Tests for token refill over time."""
 
-    @pytest.mark.asyncio
     async def test_tokens_refill_over_time(self):
         """Tokens should refill based on elapsed time."""
         limiter = RateLimiter(requests_per_second=100, burst_size=10)
@@ -154,7 +149,6 @@ class TestRateLimiterRefill:
         # Should have some tokens back
         assert limiter.available_tokens >= 4
 
-    @pytest.mark.asyncio
     async def test_refill_caps_at_burst_size(self):
         """Tokens should not exceed burst size."""
         limiter = RateLimiter(requests_per_second=100, burst_size=5)
@@ -165,7 +159,6 @@ class TestRateLimiterRefill:
         # Should not exceed burst size
         assert limiter.available_tokens <= 5.0
 
-    @pytest.mark.asyncio
     async def test_available_tokens_triggers_refill(self):
         """Checking available_tokens should update token count."""
         limiter = RateLimiter(requests_per_second=100, burst_size=10)
@@ -193,7 +186,6 @@ class TestRateLimiterRefill:
 class TestRateLimiterContextManager:
     """Tests for async context manager interface."""
 
-    @pytest.mark.asyncio
     async def test_context_manager_acquires_token(self):
         """Context manager entry should acquire a token."""
         limiter = RateLimiter(requests_per_second=10)
@@ -205,7 +197,6 @@ class TestRateLimiterContextManager:
         # Token should be consumed
         assert limiter.available_tokens < initial_tokens
 
-    @pytest.mark.asyncio
     async def test_context_manager_returns_self(self):
         """Context manager should return limiter instance."""
         limiter = RateLimiter(requests_per_second=10)
@@ -213,7 +204,6 @@ class TestRateLimiterContextManager:
         async with limiter as ctx:
             assert ctx is limiter
 
-    @pytest.mark.asyncio
     async def test_context_manager_no_release(self):
         """Context manager exit should not release token (non-releasing design)."""
         limiter = RateLimiter(requests_per_second=10, burst_size=10)
@@ -230,7 +220,6 @@ class TestRateLimiterContextManager:
         # Tokens should be slightly higher due to refill
         assert limiter.available_tokens >= tokens_after
 
-    @pytest.mark.asyncio
     async def test_multiple_context_managers(self):
         """Multiple context managers should each consume a token."""
         limiter = RateLimiter(requests_per_second=10, burst_size=10)
@@ -254,7 +243,6 @@ class TestRateLimiterContextManager:
 class TestRateLimiterConcurrency:
     """Tests for concurrent access patterns."""
 
-    @pytest.mark.asyncio
     async def test_concurrent_acquires_are_serialized(self):
         """Concurrent acquires should be properly serialized."""
         limiter = RateLimiter(requests_per_second=100, burst_size=5)
@@ -272,7 +260,6 @@ class TestRateLimiterConcurrency:
         # All 10 should have completed
         assert len(results) == 10
 
-    @pytest.mark.asyncio
     async def test_concurrent_acquires_respect_rate(self):
         """Concurrent acquires should respect rate limit."""
         limiter = RateLimiter(requests_per_second=50, burst_size=2)
@@ -289,7 +276,6 @@ class TestRateLimiterConcurrency:
         # (2 immediate + 3 more at 20ms each)
         assert elapsed >= 0.05
 
-    @pytest.mark.asyncio
     async def test_lock_prevents_race_conditions(self):
         """Internal lock should prevent race conditions."""
         limiter = RateLimiter(requests_per_second=1000, burst_size=100)
@@ -317,7 +303,6 @@ class TestRateLimiterConcurrency:
 class TestRateLimiterEdgeCases:
     """Tests for edge cases and boundary conditions."""
 
-    @pytest.mark.asyncio
     async def test_very_high_rps(self):
         """Very high RPS should work correctly."""
         limiter = RateLimiter(requests_per_second=10000, burst_size=100)
@@ -330,7 +315,6 @@ class TestRateLimiterEdgeCases:
         # Should be very fast
         assert elapsed < 0.1
 
-    @pytest.mark.asyncio
     async def test_very_low_rps(self):
         """Very low RPS should properly throttle."""
         limiter = RateLimiter(requests_per_second=10, burst_size=1)
@@ -356,7 +340,6 @@ class TestRateLimiterEdgeCases:
         # Initial value should be burst_size
         assert limiter.available_tokens == pytest.approx(5.0, rel=0.1)
 
-    @pytest.mark.asyncio
     async def test_burst_allows_immediate_requests(self):
         """Burst size should allow that many immediate requests."""
         limiter = RateLimiter(requests_per_second=1, burst_size=5)
@@ -378,7 +361,6 @@ class TestRateLimiterEdgeCases:
 class TestRateLimiterIntegration:
     """Integration tests simulating real usage patterns."""
 
-    @pytest.mark.asyncio
     async def test_api_call_pattern(self):
         """Simulate typical API call pattern."""
         limiter = RateLimiter(requests_per_second=20, burst_size=5)
@@ -398,7 +380,6 @@ class TestRateLimiterIntegration:
         assert all(results)
         assert len(results) == 10
 
-    @pytest.mark.asyncio
     async def test_steady_state_rate(self):
         """Verify steady-state rate matches configuration."""
         target_rps = 50

@@ -107,7 +107,6 @@ class TestAnthropicClientInit:
 class TestAnthropicAvailability:
     """Tests for availability checks."""
 
-    @pytest.mark.asyncio
     async def test_is_available_success(self):
         """Test is_available returns True when API responds."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -123,7 +122,6 @@ class TestAnthropicAvailability:
 
                 assert result is True
 
-    @pytest.mark.asyncio
     async def test_is_available_failure(self):
         """Test is_available returns False on API error."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -143,7 +141,6 @@ class TestAnthropicAvailability:
 class TestAnthropicExtraction:
     """Tests for concept extraction."""
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_success(self):
         """Test successful concept extraction via tool_use."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -184,7 +181,6 @@ class TestAnthropicExtraction:
                 assert result.concepts[0].name == "instrumental variables"
                 assert result.concepts[0].concept_type == "method"
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_no_tool_use(self):
         """Test fallback when no tool_use in response."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -209,7 +205,6 @@ class TestAnthropicExtraction:
                 assert isinstance(result, ChunkExtraction)
                 assert len(result.concepts) == 0
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_validation_error_returns_empty(self):
         """Test that validation errors return empty extraction (graceful degradation)."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -239,7 +234,6 @@ class TestAnthropicExtraction:
                 assert isinstance(result, ChunkExtraction)
                 assert len(result.concepts) == 0
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_api_error(self):
         """Test that API errors are wrapped in AnthropicError."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -276,7 +270,6 @@ class TestAnthropicInterfaceCompliance:
                 client = AnthropicClient(model="sonnet")
                 assert client.extraction_method == "anthropic:sonnet"
 
-    @pytest.mark.asyncio
     async def test_get_model_info(self):
         """Test get_model_info returns configuration."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -291,7 +284,6 @@ class TestAnthropicInterfaceCompliance:
                 assert info["temperature"] == 0.2
                 assert info["backend"] == "anthropic"
 
-    @pytest.mark.asyncio
     async def test_close_is_noop(self):
         """Test close() completes without error."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
@@ -305,7 +297,6 @@ class TestAnthropicInterfaceCompliance:
 class TestAnthropicContextManager:
     """Tests for async context manager."""
 
-    @pytest.mark.asyncio
     async def test_context_manager_usage(self):
         """Test async context manager works correctly."""
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):

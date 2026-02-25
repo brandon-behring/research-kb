@@ -140,7 +140,6 @@ class TestCitationNetworkTool:
             ),
         ]
 
-    @pytest.mark.asyncio
     async def test_citation_network_success(self, sample_source, citing_sources, cited_sources):
         """Citation network returns formatted results."""
         mcp = MockFastMCP()
@@ -166,7 +165,6 @@ class TestCitationNetworkTool:
             assert "Citing This Source" in result
             assert "Cited By This Source" in result
 
-    @pytest.mark.asyncio
     async def test_citation_network_not_found(self):
         """Citation network returns error for missing source."""
         mcp = MockFastMCP()
@@ -225,7 +223,6 @@ class TestBiblioCouplingTool:
             },
         ]
 
-    @pytest.mark.asyncio
     async def test_biblio_coupling_success(self, sample_source, similar_sources):
         """Bibliographic coupling returns formatted results."""
         mcp = MockFastMCP()
@@ -251,7 +248,6 @@ class TestBiblioCouplingTool:
             assert "45.0%" in result  # coupling percentage
             assert "5 shared refs" in result
 
-    @pytest.mark.asyncio
     async def test_biblio_coupling_not_found(self):
         """Bibliographic coupling returns error for missing source."""
         mcp = MockFastMCP()
@@ -267,7 +263,6 @@ class TestBiblioCouplingTool:
             assert "Error" in result
             assert "not found" in result
 
-    @pytest.mark.asyncio
     async def test_biblio_coupling_empty_results(self, sample_source):
         """Bibliographic coupling handles no similar sources."""
         mcp = MockFastMCP()
@@ -347,7 +342,6 @@ class TestChunkConceptsTool:
 
         return concepts, chunk_concepts
 
-    @pytest.mark.asyncio
     async def test_chunk_concepts_success(self, sample_chunk, sample_concepts):
         """Chunk concepts returns formatted results."""
         mcp = MockFastMCP()
@@ -376,7 +370,6 @@ class TestChunkConceptsTool:
             assert "Defines" in result
             assert "References" in result
 
-    @pytest.mark.asyncio
     async def test_chunk_concepts_not_found(self):
         """Chunk concepts returns error for missing chunk."""
         mcp = MockFastMCP()
@@ -394,7 +387,6 @@ class TestChunkConceptsTool:
             assert "Error" in result
             assert "not found" in result
 
-    @pytest.mark.asyncio
     async def test_chunk_concepts_empty(self, sample_chunk):
         """Chunk concepts handles no linked concepts."""
         mcp = MockFastMCP()

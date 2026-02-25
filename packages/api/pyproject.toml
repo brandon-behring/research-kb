@@ -1,39 +1,33 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "research-kb-api"
 version = "1.0.0"
 description = "FastAPI REST API for research-kb semantic search"
-authors = ["Brandon Behring"]
-packages = [{include = "research_kb_api", from = "src"}]
-
+requires-python = ">=3.11"
 license = "MIT"
+dependencies = [
+    "research-kb-storage",
+    "research-kb-contracts",
+    "research-kb-common",
+    "research-kb-pdf",
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "prometheus-client>=0.19.0",
+]
 
-[tool.poetry.urls]
+[project.urls]
 Homepage = "https://github.com/brandonmbehring-dev/research-kb"
 Repository = "https://github.com/brandonmbehring-dev/research-kb"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-research-kb-storage = {path = "../storage", develop = true}
-research-kb-contracts = {path = "../contracts", develop = true}
-research-kb-common = {path = "../common", develop = true}
-research-kb-pdf = {path = "../pdf-tools", develop = true}
-fastapi = "^0.109.0"
-uvicorn = {extras = ["standard"], version = "^0.27.0"}
-prometheus-client = "^0.19.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-pytest-asyncio = "^0.23.0"
-httpx = "^0.27.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.hatch.build.targets.wheel]
+packages = ["src/research_kb_api"]
 
 [tool.black]
 line-length = 100
 target-version = ["py311"]
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
 testpaths = ["tests"]

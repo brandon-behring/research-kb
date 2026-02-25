@@ -212,7 +212,6 @@ class TestSubmitBatch:
     """Tests for submit_batch method."""
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_empty_chunks_raises(self, mock_anthropic_module):
         """Test empty chunks list raises ValueError."""
         from research_kb_extraction.batch_client import BatchClient
@@ -225,7 +224,6 @@ class TestSubmitBatch:
         assert "No chunks" in str(exc_info.value)
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_exceeds_max_raises(self, mock_anthropic_module):
         """Test exceeding max batch size raises ValueError."""
         from research_kb_extraction.batch_client import BatchClient
@@ -241,7 +239,6 @@ class TestSubmitBatch:
         assert "100,000" in str(exc_info.value)
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_success_returns_batch_id(self, mock_anthropic_module):
         """Test successful submission returns batch ID."""
         from research_kb_extraction.batch_client import BatchClient
@@ -266,7 +263,6 @@ class TestGetBatchStatus:
     """Tests for get_batch_status method."""
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_returns_status_dict(self, mock_anthropic_module):
         """Test status returns dict with correct fields."""
         from research_kb_extraction.batch_client import BatchClient
@@ -289,7 +285,6 @@ class TestGetBatchStatus:
         assert "request_counts" in status
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_handles_ended_status(self, mock_anthropic_module):
         """Test handling of ended batch status."""
         from research_kb_extraction.batch_client import BatchClient
@@ -315,7 +310,6 @@ class TestWaitForResults:
     """Tests for wait_for_results method."""
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_polls_until_ended(self, mock_anthropic_module):
         """Test polling continues until batch ends."""
         from research_kb_extraction.batch_client import BatchClient
@@ -348,7 +342,6 @@ class TestWaitForResults:
         assert call_count >= 2
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_raises_on_failed_status(self, mock_anthropic_module):
         """Test RuntimeError raised on failed batch."""
         from research_kb_extraction.batch_client import BatchClient
@@ -375,7 +368,6 @@ class TestFetchResults:
     """Tests for _fetch_results method."""
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_parses_successful_results(self, mock_anthropic_module):
         """Test successful results are parsed correctly."""
         from research_kb_extraction.batch_client import BatchClient
@@ -407,7 +399,6 @@ class TestFetchResults:
         assert results[0].chunk_id == chunk_id
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_handles_failed_results(self, mock_anthropic_module):
         """Test failed results are handled correctly."""
         from research_kb_extraction.batch_client import BatchClient
@@ -497,7 +488,6 @@ class TestExtractWithRetry:
     """Tests for extract_with_retry method."""
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_success_on_first_attempt(self, mock_anthropic_module):
         """Test successful extraction on first attempt."""
         from research_kb_extraction.batch_client import BatchClient
@@ -536,7 +526,6 @@ class TestExtractWithRetry:
         assert len(quarantined) == 0
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"})
-    @pytest.mark.asyncio
     async def test_quarantines_after_max(self, mock_anthropic_module):
         """Test chunks are quarantined after max retries."""
         from research_kb_extraction.batch_client import BatchClient

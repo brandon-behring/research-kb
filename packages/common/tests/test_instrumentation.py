@@ -97,7 +97,6 @@ class TestInstrumentFunction:
         result = my_named_function()
         assert result == "success"
 
-    @pytest.mark.asyncio
     async def test_instrument_async_function(self):
         """Test decorator works with async functions."""
 
@@ -108,7 +107,6 @@ class TestInstrumentFunction:
         result = await async_func(4)
         assert result == 12
 
-    @pytest.mark.asyncio
     async def test_instrument_async_function_default_name(self):
         """Test decorator uses function name for async functions."""
 
@@ -140,7 +138,6 @@ class TestInstrumentFunction:
         result = func_with_params(1, 2, c=3)
         assert result == 6
 
-    @pytest.mark.asyncio
     async def test_instrument_async_with_exception(self):
         """Test decorator propagates exceptions correctly."""
 

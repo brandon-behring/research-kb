@@ -75,7 +75,6 @@ def test_database_config_get_dsn_special_characters():
     assert "p@ss:w/ord" in dsn
 
 
-@pytest.mark.asyncio
 async def test_get_connection_pool_default_config(test_db):
     """Test getting connection pool with default config."""
     pool = await get_connection_pool()
@@ -84,7 +83,6 @@ async def test_get_connection_pool_default_config(test_db):
     assert not pool._closed
 
 
-@pytest.mark.asyncio
 async def test_get_connection_pool_custom_config(test_db):
     """Test getting connection pool with custom config."""
     config = DatabaseConfig(
@@ -103,7 +101,6 @@ async def test_get_connection_pool_custom_config(test_db):
     assert not pool._closed
 
 
-@pytest.mark.asyncio
 async def test_get_connection_pool_is_singleton(test_db):
     """Test that connection pool is a singleton (returns same instance)."""
     pool1 = await get_connection_pool()
@@ -112,7 +109,6 @@ async def test_get_connection_pool_is_singleton(test_db):
     assert pool1 is pool2
 
 
-@pytest.mark.asyncio
 async def test_connection_pool_basic_query(test_db):
     """Test executing a basic query through the pool."""
     pool = await get_connection_pool()
@@ -123,7 +119,6 @@ async def test_connection_pool_basic_query(test_db):
     assert result == 1
 
 
-@pytest.mark.asyncio
 async def test_connection_pool_concurrent_queries(test_db):
     """Test multiple concurrent queries through the pool."""
     pool = await get_connection_pool()
@@ -141,7 +136,6 @@ async def test_connection_pool_concurrent_queries(test_db):
     assert all(r == 2 for r in results)
 
 
-@pytest.mark.asyncio
 async def test_close_connection_pool(test_db):
     """Test closing the connection pool."""
     # Get pool
@@ -155,7 +149,6 @@ async def test_close_connection_pool(test_db):
     assert pool._closed
 
 
-@pytest.mark.asyncio
 async def test_close_connection_pool_idempotent(test_db):
     """Test that closing pool multiple times is safe."""
     await get_connection_pool()
@@ -167,7 +160,6 @@ async def test_close_connection_pool_idempotent(test_db):
     # Should not raise exception
 
 
-@pytest.mark.asyncio
 async def test_check_connection_health_healthy(test_db):
     """Test health check with healthy connection."""
     await get_connection_pool()
@@ -177,7 +169,6 @@ async def test_check_connection_health_healthy(test_db):
     assert healthy is True
 
 
-@pytest.mark.asyncio
 async def test_get_connection_pool_after_close(test_db):
     """Test getting pool after closing creates new pool."""
     # Get and close pool
@@ -193,7 +184,6 @@ async def test_get_connection_pool_after_close(test_db):
     assert not pool2._closed
 
 
-@pytest.mark.asyncio
 async def test_connection_pool_transaction(test_db):
     """Test using connection pool with transaction."""
     pool = await get_connection_pool()
@@ -217,7 +207,6 @@ async def test_connection_pool_transaction(test_db):
     assert result == 1
 
 
-@pytest.mark.asyncio
 async def test_connection_pool_rollback(test_db):
     """Test transaction rollback."""
     pool = await get_connection_pool()
@@ -248,7 +237,6 @@ async def test_connection_pool_rollback(test_db):
     assert count == 0
 
 
-@pytest.mark.asyncio
 async def test_connection_pool_multiple_connections(test_db):
     """Test acquiring multiple connections from pool."""
     pool = await get_connection_pool()
@@ -263,7 +251,6 @@ async def test_connection_pool_multiple_connections(test_db):
     assert result2 == 2
 
 
-@pytest.mark.asyncio
 async def test_connection_pool_with_timeout(test_db):
     """Test that pool respects command timeout."""
     pool = await get_connection_pool()

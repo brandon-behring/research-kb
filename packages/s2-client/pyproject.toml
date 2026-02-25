@@ -1,37 +1,30 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "s2-client"
 version = "1.0.0"
 description = "Semantic Scholar API client for research-kb (async, rate-limited, cached)"
-authors = ["Brandon Behring"]
-packages = [{include = "s2_client", from = "src"}]
-
+requires-python = ">=3.11"
 license = "MIT"
+dependencies = [
+    "research-kb-common",
+    "httpx>=0.27.0",
+    "pydantic>=2.5.0",
+    "aiosqlite>=0.20.0",
+]
 
-[tool.poetry.urls]
+[project.urls]
 Homepage = "https://github.com/brandonmbehring-dev/research-kb"
 Repository = "https://github.com/brandonmbehring-dev/research-kb"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-research-kb-common = {path = "../common", develop = true}
-httpx = ">=0.27.0"
-pydantic = "^2.5.0"
-aiosqlite = "^0.20.0"  # Async SQLite for cache
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-pytest-asyncio = "^0.23.0"
-pytest-httpx = "^0.30.0"  # Mock httpx requests
-respx = "^0.21.0"  # Alternative httpx mocking
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.hatch.build.targets.wheel]
+packages = ["src/s2_client"]
 
 [tool.black]
 line-length = 100
 target-version = ["py311"]
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
 testpaths = ["tests"]

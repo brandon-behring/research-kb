@@ -54,7 +54,6 @@ class TestS2CacheInit:
 class TestS2CacheInitialize:
     """Tests for cache initialization."""
 
-    @pytest.mark.asyncio
     async def test_initialize_creates_directory(self, tmp_path):
         """Initialize should create cache directory."""
         cache_dir = tmp_path / "new_cache"
@@ -66,7 +65,6 @@ class TestS2CacheInitialize:
         assert cache_dir.exists()
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_initialize_creates_database(self, tmp_path):
         """Initialize should create database file."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -77,7 +75,6 @@ class TestS2CacheInitialize:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_initialize_creates_table(self, tmp_path):
         """Initialize should create cache table."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -93,7 +90,6 @@ class TestS2CacheInitialize:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_initialize_creates_index(self, tmp_path):
         """Initialize should create expiration index."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -108,7 +104,6 @@ class TestS2CacheInitialize:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_initialize_idempotent(self, tmp_path):
         """Initialize should be idempotent."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -133,7 +128,6 @@ class TestS2CacheInitialize:
 class TestS2CacheGetSet:
     """Tests for cache get and set operations."""
 
-    @pytest.mark.asyncio
     async def test_set_and_get_roundtrip(self, tmp_path):
         """Data should survive cache roundtrip."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -147,7 +141,6 @@ class TestS2CacheGetSet:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_get_returns_none_for_missing(self, tmp_path):
         """Get should return None for non-existent key."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -158,7 +151,6 @@ class TestS2CacheGetSet:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_get_with_different_params(self, tmp_path):
         """Different params should produce different cache keys."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -175,7 +167,6 @@ class TestS2CacheGetSet:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_set_overwrites_existing(self, tmp_path):
         """Set should overwrite existing cache entry."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -189,7 +180,6 @@ class TestS2CacheGetSet:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_get_without_initialize_raises(self, tmp_path):
         """Get without initialize should raise S2CacheError."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -197,7 +187,6 @@ class TestS2CacheGetSet:
         with pytest.raises(S2CacheError, match="not initialized"):
             await cache.get("test", None)
 
-    @pytest.mark.asyncio
     async def test_set_without_initialize_raises(self, tmp_path):
         """Set without initialize should raise S2CacheError."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -205,7 +194,6 @@ class TestS2CacheGetSet:
         with pytest.raises(S2CacheError, match="not initialized"):
             await cache.set("test", None, {"data": 1})
 
-    @pytest.mark.asyncio
     async def test_get_with_none_params(self, tmp_path):
         """Get with None params should work."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -218,7 +206,6 @@ class TestS2CacheGetSet:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_get_with_empty_params(self, tmp_path):
         """Get with empty params dict should work."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -231,7 +218,6 @@ class TestS2CacheGetSet:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_params_order_does_not_matter(self, tmp_path):
         """Params order should not affect cache key."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -256,7 +242,6 @@ class TestS2CacheGetSet:
 class TestS2CacheExpiration:
     """Tests for cache expiration behavior."""
 
-    @pytest.mark.asyncio
     async def test_expired_entries_not_returned(self, tmp_path):
         """Expired entries should not be returned by get."""
         # Use very short TTL
@@ -278,7 +263,6 @@ class TestS2CacheExpiration:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_cleanup_removes_expired(self, tmp_path):
         """Cleanup should remove expired entries."""
         cache = S2Cache(cache_dir=tmp_path, ttl_seconds=1)
@@ -303,7 +287,6 @@ class TestS2CacheExpiration:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_initialize_cleans_expired(self, tmp_path):
         """Initialize should clean up expired entries."""
         # Create cache and add entry
@@ -334,7 +317,6 @@ class TestS2CacheExpiration:
 class TestS2CacheInvalidate:
     """Tests for cache invalidation."""
 
-    @pytest.mark.asyncio
     async def test_invalidate_removes_entry(self, tmp_path):
         """Invalidate should remove specific entry."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -350,7 +332,6 @@ class TestS2CacheInvalidate:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_invalidate_nonexistent_no_error(self, tmp_path):
         """Invalidating nonexistent key should not raise."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -361,7 +342,6 @@ class TestS2CacheInvalidate:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_invalidate_without_connection(self, tmp_path):
         """Invalidate without connection should be no-op."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -379,7 +359,6 @@ class TestS2CacheInvalidate:
 class TestS2CacheClear:
     """Tests for cache clearing."""
 
-    @pytest.mark.asyncio
     async def test_clear_removes_all_entries(self, tmp_path):
         """Clear should remove all cached entries."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -399,7 +378,6 @@ class TestS2CacheClear:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_clear_without_connection(self, tmp_path):
         """Clear without connection should be no-op."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -417,7 +395,6 @@ class TestS2CacheClear:
 class TestS2CacheStats:
     """Tests for cache statistics."""
 
-    @pytest.mark.asyncio
     async def test_stats_empty_cache(self, tmp_path):
         """Stats should report zeros for empty cache."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -431,7 +408,6 @@ class TestS2CacheStats:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_stats_with_entries(self, tmp_path):
         """Stats should reflect cache state."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -449,7 +425,6 @@ class TestS2CacheStats:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_stats_includes_size(self, tmp_path):
         """Stats should include database size."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -465,7 +440,6 @@ class TestS2CacheStats:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_stats_includes_ttl(self, tmp_path):
         """Stats should include TTL setting."""
         cache = S2Cache(cache_dir=tmp_path, ttl_seconds=3600)
@@ -477,7 +451,6 @@ class TestS2CacheStats:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_stats_includes_path(self, tmp_path):
         """Stats should include cache path."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -490,7 +463,6 @@ class TestS2CacheStats:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_stats_without_initialization(self, tmp_path):
         """Stats without initialization should return error."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -500,7 +472,6 @@ class TestS2CacheStats:
         assert "error" in stats
         assert "not initialized" in stats["error"]
 
-    @pytest.mark.asyncio
     async def test_stats_tracks_expired_entries(self, tmp_path):
         """Stats should differentiate valid and expired entries."""
         cache = S2Cache(cache_dir=tmp_path, ttl_seconds=1)
@@ -532,7 +503,6 @@ class TestS2CacheStats:
 class TestS2CacheKeyGeneration:
     """Tests for cache key generation."""
 
-    @pytest.mark.asyncio
     async def test_key_is_sha256_hash(self, tmp_path):
         """Key should be SHA256 hash."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -543,7 +513,6 @@ class TestS2CacheKeyGeneration:
         assert len(key) == 64
         assert all(c in "0123456789abcdef" for c in key)
 
-    @pytest.mark.asyncio
     async def test_same_inputs_same_key(self, tmp_path):
         """Same inputs should produce same key."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -553,7 +522,6 @@ class TestS2CacheKeyGeneration:
 
         assert key1 == key2
 
-    @pytest.mark.asyncio
     async def test_different_endpoints_different_keys(self, tmp_path):
         """Different endpoints should produce different keys."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -563,7 +531,6 @@ class TestS2CacheKeyGeneration:
 
         assert key1 != key2
 
-    @pytest.mark.asyncio
     async def test_different_params_different_keys(self, tmp_path):
         """Different params should produce different keys."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -573,7 +540,6 @@ class TestS2CacheKeyGeneration:
 
         assert key1 != key2
 
-    @pytest.mark.asyncio
     async def test_param_order_does_not_affect_key(self, tmp_path):
         """Param order should not affect key (sorted)."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -592,13 +558,11 @@ class TestS2CacheKeyGeneration:
 class TestS2CacheContextManager:
     """Tests for async context manager interface."""
 
-    @pytest.mark.asyncio
     async def test_context_manager_initializes(self, tmp_path):
         """Context manager should initialize cache."""
         async with S2Cache(cache_dir=tmp_path) as cache:
             assert cache._conn is not None
 
-    @pytest.mark.asyncio
     async def test_context_manager_closes(self, tmp_path):
         """Context manager should close on exit."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -608,7 +572,6 @@ class TestS2CacheContextManager:
 
         assert cache._conn is None
 
-    @pytest.mark.asyncio
     async def test_context_manager_allows_operations(self, tmp_path):
         """Context manager should allow cache operations."""
         async with S2Cache(cache_dir=tmp_path) as cache:
@@ -616,7 +579,6 @@ class TestS2CacheContextManager:
             result = await cache.get("test", None)
             assert result == {"value": 42}
 
-    @pytest.mark.asyncio
     async def test_context_manager_closes_on_exception(self, tmp_path):
         """Context manager should close even on exception."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -636,7 +598,6 @@ class TestS2CacheContextManager:
 class TestS2CacheClose:
     """Tests for cache closing."""
 
-    @pytest.mark.asyncio
     async def test_close_sets_conn_none(self, tmp_path):
         """Close should set connection to None."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -648,7 +609,6 @@ class TestS2CacheClose:
 
         assert cache._conn is None
 
-    @pytest.mark.asyncio
     async def test_close_idempotent(self, tmp_path):
         """Close should be idempotent."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -659,7 +619,6 @@ class TestS2CacheClose:
 
         assert cache._conn is None
 
-    @pytest.mark.asyncio
     async def test_close_without_initialize(self, tmp_path):
         """Close without initialize should not raise."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -674,7 +633,6 @@ class TestS2CacheClose:
 class TestS2CacheConcurrency:
     """Tests for concurrent cache access."""
 
-    @pytest.mark.asyncio
     async def test_concurrent_reads(self, tmp_path):
         """Concurrent reads should work correctly."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -690,7 +648,6 @@ class TestS2CacheConcurrency:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_concurrent_writes(self, tmp_path):
         """Concurrent writes should not corrupt data."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -719,7 +676,6 @@ class TestS2CacheConcurrency:
 class TestS2CacheComplexData:
     """Tests for caching complex data structures."""
 
-    @pytest.mark.asyncio
     async def test_nested_dict(self, tmp_path):
         """Cache should handle nested dictionaries."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -743,7 +699,6 @@ class TestS2CacheComplexData:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_large_response(self, tmp_path):
         """Cache should handle large responses."""
         cache = S2Cache(cache_dir=tmp_path)
@@ -760,7 +715,6 @@ class TestS2CacheComplexData:
 
         await cache.close()
 
-    @pytest.mark.asyncio
     async def test_unicode_content(self, tmp_path):
         """Cache should handle Unicode content."""
         cache = S2Cache(cache_dir=tmp_path)

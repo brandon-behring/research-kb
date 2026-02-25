@@ -99,7 +99,6 @@ class TestKnownConceptManagement:
 class TestDeduplication:
     """Tests for batch deduplication."""
 
-    @pytest.mark.asyncio
     async def test_deduplicate_unique_concepts(self):
         """Test deduplicating unique concepts."""
         dedup = Deduplicator(domain_id="causal_inference")
@@ -115,7 +114,6 @@ class TestDeduplication:
         assert len(results) == 3
         assert all(r.is_new for r in results)
 
-    @pytest.mark.asyncio
     async def test_deduplicate_with_abbreviations(self):
         """Test deduplicating concepts with abbreviations."""
         dedup = Deduplicator(domain_id="causal_inference")
@@ -138,7 +136,6 @@ class TestDeduplication:
         # IV matches instrumental variables
         assert new_count == 2
 
-    @pytest.mark.asyncio
     async def test_deduplicate_against_known(self):
         """Test deduplicating against pre-registered concepts."""
         dedup = Deduplicator(domain_id="causal_inference")
@@ -155,7 +152,6 @@ class TestDeduplication:
         assert not results[0].is_new
         assert results[0].matched_concept_id == existing_id
 
-    @pytest.mark.asyncio
     async def test_deduplicate_empty(self):
         """Test deduplicating empty list."""
         dedup = Deduplicator(domain_id="causal_inference")
@@ -168,7 +164,6 @@ class TestDeduplication:
 class TestSimilarity:
     """Tests for similarity computation."""
 
-    @pytest.mark.asyncio
     async def test_exact_canonical_match(self):
         """Test exact canonical name match."""
         dedup = Deduplicator(domain_id="causal_inference")
@@ -179,7 +174,6 @@ class TestSimilarity:
         similarity = await dedup.compute_similarity(c1, c2)
         assert similarity == 1.0
 
-    @pytest.mark.asyncio
     async def test_alias_match(self):
         """Test alias matching gives high similarity."""
         dedup = Deduplicator(domain_id="causal_inference")
@@ -194,7 +188,6 @@ class TestSimilarity:
         similarity = await dedup.compute_similarity(c1, c2)
         assert similarity >= 0.95
 
-    @pytest.mark.asyncio
     async def test_different_concepts(self):
         """Test different concepts have low similarity."""
         dedup = Deduplicator(domain_id="causal_inference")

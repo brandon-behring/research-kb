@@ -70,7 +70,6 @@ class TestConceptExtractorInit:
 class TestExtractFromChunk:
     """Tests for extract_from_chunk method."""
 
-    @pytest.mark.asyncio
     async def test_extract_basic(self, mock_ollama, mock_chunk):
         """Test basic extraction from chunk."""
         mock_ollama.extract_concepts.return_value = ChunkExtraction(
@@ -91,7 +90,6 @@ class TestExtractFromChunk:
         assert len(result.concepts) == 1
         mock_ollama.extract_concepts.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_skip_short_chunk(self, mock_ollama):
         """Test short chunks are skipped."""
         short_chunk = Chunk(
@@ -112,7 +110,6 @@ class TestExtractFromChunk:
         assert len(result.concepts) == 0
         mock_ollama.extract_concepts.assert_not_called()
 
-    @pytest.mark.asyncio
     async def test_confidence_filtering(self, mock_ollama, mock_chunk):
         """Test low confidence concepts are filtered."""
         mock_ollama.extract_concepts.return_value = ChunkExtraction(
@@ -133,7 +130,6 @@ class TestExtractFromChunk:
         assert len(result.concepts) == 1
         assert result.concepts[0].name == "high conf"
 
-    @pytest.mark.asyncio
     async def test_relationship_filtering(self, mock_ollama, mock_chunk):
         """Test relationships with unknown concepts are filtered."""
         mock_ollama.extract_concepts.return_value = ChunkExtraction(
@@ -169,7 +165,6 @@ class TestExtractFromChunk:
 class TestExtractFromText:
     """Tests for extract_from_text method."""
 
-    @pytest.mark.asyncio
     async def test_extract_from_text(self, mock_ollama, sample_chunk_text):
         """Test extraction from raw text."""
         mock_ollama.extract_concepts.return_value = ChunkExtraction(
@@ -185,7 +180,6 @@ class TestExtractFromText:
         assert isinstance(result, ChunkExtraction)
         assert len(result.concepts) == 1
 
-    @pytest.mark.asyncio
     async def test_extract_from_short_text(self, mock_ollama):
         """Test short text returns empty extraction."""
         extractor = ConceptExtractor(
@@ -202,7 +196,6 @@ class TestExtractFromText:
 class TestConceptNormalization:
     """Tests for concept normalization."""
 
-    @pytest.mark.asyncio
     async def test_whitespace_cleanup(self, mock_ollama, mock_chunk):
         """Test whitespace is cleaned in concept names."""
         mock_ollama.extract_concepts.return_value = ChunkExtraction(
@@ -221,7 +214,6 @@ class TestConceptNormalization:
 
         assert result.concepts[0].name == "instrumental variables"
 
-    @pytest.mark.asyncio
     async def test_quote_removal(self, mock_ollama, mock_chunk):
         """Test quotes are removed from concept names."""
         mock_ollama.extract_concepts.return_value = ChunkExtraction(
@@ -244,7 +236,6 @@ class TestConceptNormalization:
 class TestDeduplication:
     """Tests for concept deduplication."""
 
-    @pytest.mark.asyncio
     async def test_deduplicate_concepts(self, mock_ollama):
         """Test deduplication across extractions."""
         extractions = [
@@ -278,7 +269,6 @@ class TestDeduplication:
 class TestContextManager:
     """Tests for async context manager."""
 
-    @pytest.mark.asyncio
     async def test_context_manager_closes(self, mock_ollama):
         """Test context manager closes client."""
         async with ConceptExtractor(domain_id="causal_inference", ollama_client=mock_ollama):

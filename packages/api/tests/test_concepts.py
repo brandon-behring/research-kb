@@ -39,7 +39,6 @@ def make_relationship(source_id, target_id):
     return rel
 
 
-@pytest.mark.asyncio
 async def test_list_concepts(app_client, mock_storage):
     """List concepts returns all concepts."""
     concepts = [make_concept(f"concept {i}") for i in range(3)]
@@ -53,7 +52,6 @@ async def test_list_concepts(app_client, mock_storage):
     assert data["total"] == 3
 
 
-@pytest.mark.asyncio
 async def test_search_concepts(app_client, mock_storage):
     """Search concepts by query."""
     concepts = [make_concept("instrumental variables")]
@@ -67,7 +65,6 @@ async def test_search_concepts(app_client, mock_storage):
     assert "instrumental" in data["concepts"][0]["name"]
 
 
-@pytest.mark.asyncio
 async def test_get_concept(app_client, mock_storage):
     """Get concept by ID returns concept with relationships."""
     concept = make_concept()
@@ -85,7 +82,6 @@ async def test_get_concept(app_client, mock_storage):
     assert data["relationships"][0]["relationship_type"] == "REQUIRES"
 
 
-@pytest.mark.asyncio
 async def test_get_concept_not_found(app_client, mock_storage):
     """Get concept returns 404 for unknown ID."""
     mock_storage["concept"].get.return_value = None

@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "research-kb-dashboard"
@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Streamlit visualization dashboard for research-kb"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
 dependencies = [
     "streamlit>=1.29.0",
     "pyvis>=0.3.2",
@@ -18,7 +19,6 @@ dependencies = [
     "research-kb-storage",
     "research-kb-contracts",
 ]
-license = {text = "MIT"}
 
 [project.urls]
 Homepage = "https://github.com/brandonmbehring-dev/research-kb"
@@ -30,5 +30,5 @@ dev = [
     "pytest-asyncio>=0.21.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/research_kb_dashboard"]

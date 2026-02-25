@@ -68,7 +68,6 @@ class TestStatsTool:
             "chunk_concepts": 500000,
         }
 
-    @pytest.mark.asyncio
     async def test_stats_returns_counts(self, sample_stats):
         """Stats returns formatted database counts."""
         mcp = MockFastMCP()
@@ -82,7 +81,6 @@ class TestStatsTool:
             stats_mock.assert_called_once()
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_stats_format(self, sample_stats):
         """Stats result is properly formatted."""
         mcp = MockFastMCP()
@@ -110,7 +108,6 @@ class TestHealthTool:
             "concepts": 10000,
         }
 
-    @pytest.mark.asyncio
     async def test_health_all_healthy(self, healthy_stats):
         """Health returns healthy status when all components work."""
         mcp = MockFastMCP()
@@ -125,7 +122,6 @@ class TestHealthTool:
             assert isinstance(result, str)
             assert "Healthy" in result or "healthy" in result.lower()
 
-    @pytest.mark.asyncio
     async def test_health_degraded(self):
         """Health returns unhealthy when stats fail."""
         mcp = MockFastMCP()
@@ -141,7 +137,6 @@ class TestHealthTool:
                 "Unhealthy" in result or "unhealthy" in result.lower() or "error" in result.lower()
             )
 
-    @pytest.mark.asyncio
     async def test_health_connection_error(self):
         """Health handles connection errors gracefully."""
         mcp = MockFastMCP()

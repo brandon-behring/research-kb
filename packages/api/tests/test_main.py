@@ -183,7 +183,6 @@ class TestCORSMiddleware:
         # Note: FastAPI wraps it, so we check user_middleware
         assert len(app_instance.user_middleware) > 0
 
-    @pytest.mark.asyncio
     async def test_cors_allows_requests(self, mock_pool, mock_storage_layer):
         """Test CORS headers are present in responses."""
         with patch("research_kb_api.main.get_connection_pool", return_value=mock_pool):
@@ -212,7 +211,6 @@ class TestCORSMiddleware:
 class TestLifespan:
     """Test lifespan context manager."""
 
-    @pytest.mark.asyncio
     async def test_lifespan_initializes_pool(self, mock_pool):
         """Test lifespan initializes database pool on startup."""
         with (
@@ -230,7 +228,6 @@ class TestLifespan:
                 assert hasattr(app_instance.state, "pool")
                 assert app_instance.state.pool is mock_pool
 
-    @pytest.mark.asyncio
     async def test_lifespan_closes_pool_on_shutdown(self, mock_pool):
         """Test lifespan closes database pool on shutdown."""
         with (
@@ -249,7 +246,6 @@ class TestLifespan:
             # Pool should be closed
             mock_pool.close.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_lifespan_logs_startup(self, mock_pool):
         """Test lifespan logs startup message."""
         with (
@@ -270,7 +266,6 @@ class TestLifespan:
             calls = [call[0][0] for call in logger_mock.info.call_args_list]
             assert any("start" in c.lower() for c in calls)
 
-    @pytest.mark.asyncio
     async def test_lifespan_logs_shutdown(self, mock_pool):
         """Test lifespan logs shutdown message."""
         with (
@@ -300,7 +295,6 @@ class TestLifespan:
 class TestAppState:
     """Test application state management."""
 
-    @pytest.mark.asyncio
     async def test_pool_accessible_from_app_state(self, mock_pool):
         """Test database pool is accessible from app.state."""
         with (
@@ -344,7 +338,6 @@ class TestModuleLevelApp:
 class TestRouteIntegration:
     """Test integration between main app and routes."""
 
-    @pytest.mark.asyncio
     async def test_health_endpoint_accessible(self, mock_pool, mock_storage_layer):
         """Test health endpoint is accessible after app creation."""
         with patch("research_kb_api.main.get_connection_pool", return_value=mock_pool):
@@ -357,7 +350,6 @@ class TestRouteIntegration:
 
                 assert response.status_code == 200
 
-    @pytest.mark.asyncio
     async def test_search_endpoint_accessible(self, mock_pool, mock_storage_layer):
         """Test search endpoint is accessible."""
         with patch("research_kb_api.main.get_connection_pool", return_value=mock_pool):
@@ -373,7 +365,6 @@ class TestRouteIntegration:
 
                 assert response.status_code == 200
 
-    @pytest.mark.asyncio
     async def test_sources_endpoint_accessible(self, mock_pool, mock_storage_layer):
         """Test sources endpoint is accessible."""
         with (
@@ -441,7 +432,6 @@ class TestOpenAPIDocumentation:
 class TestErrorHandling:
     """Test error handling in app setup."""
 
-    @pytest.mark.asyncio
     async def test_lifespan_handles_pool_error(self):
         """Test lifespan handles database connection error."""
         with (
@@ -457,7 +447,6 @@ class TestErrorHandling:
                 async with lifespan(app_instance):
                     pass
 
-    @pytest.mark.asyncio
     async def test_lifespan_pool_close_error_handled(self, mock_pool):
         """Test lifespan handles error during pool close."""
         mock_pool.close.side_effect = RuntimeError("Close failed")
@@ -485,7 +474,6 @@ class TestErrorHandling:
 class TestConfiguration:
     """Test app configuration options."""
 
-    @pytest.mark.asyncio
     async def test_database_config_used(self, mock_pool):
         """Test DatabaseConfig is used for connection."""
         mock_config = MagicMock()

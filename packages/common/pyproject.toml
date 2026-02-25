@@ -1,32 +1,28 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "research-kb-common"
 version = "1.0.0"
 description = "Common utilities for research-kb system (logging, retry, instrumentation)"
-authors = ["Brandon Behring"]
-packages = [{include = "research_kb_common", from = "src"}]
-
+requires-python = ">=3.11"
 license = "MIT"
+dependencies = [
+    "research-kb-contracts",
+    "opentelemetry-api>=1.27.0",
+    "opentelemetry-sdk>=1.27.0",
+    "tenacity>=9.0.0",
+    "structlog>=24.0.0",
+    "pydantic-settings>=2.0.0",
+]
 
-[tool.poetry.urls]
+[project.urls]
 Homepage = "https://github.com/brandonmbehring-dev/research-kb"
 Repository = "https://github.com/brandonmbehring-dev/research-kb"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-research-kb-contracts = {path = "../contracts", develop = true}
-opentelemetry-api = "^1.27.0"
-opentelemetry-sdk = "^1.27.0"
-tenacity = "^9.0.0"  # Retry/backoff patterns
-structlog = "^24.0.0"  # Structured logging
-pydantic-settings = "^2.0.0"  # Environment-based configuration
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-pytest-asyncio = "^0.23.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.hatch.build.targets.wheel]
+packages = ["src/research_kb_common"]
 
 [tool.black]
 line-length = 100

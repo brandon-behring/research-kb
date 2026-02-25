@@ -158,7 +158,6 @@ class TestSynonymExpansion:
 class TestGraphExpansion:
     """Tests for knowledge graph relationship expansion."""
 
-    @pytest.mark.asyncio
     async def test_graph_expansion_finds_related_concepts(self, expander):
         """Verify graph expansion returns related concept names."""
         # Given: Mocked graph query results
@@ -189,7 +188,6 @@ class TestGraphExpansion:
             assert "endogeneity" in expansions
             assert "exogeneity" in expansions
 
-    @pytest.mark.asyncio
     async def test_graph_expansion_respects_max_concepts(self, expander):
         """Verify max_concepts parameter is respected."""
         # Given: Many concepts in neighborhood
@@ -217,7 +215,6 @@ class TestGraphExpansion:
             # Then: At most 3 concepts returned
             assert len(expansions) <= 3
 
-    @pytest.mark.asyncio
     async def test_graph_expansion_handles_no_concepts(self, expander):
         """Verify graceful handling when no concepts found."""
         with patch(
@@ -231,7 +228,6 @@ class TestGraphExpansion:
             # Then: Empty list returned
             assert expansions == []
 
-    @pytest.mark.asyncio
     async def test_graph_expansion_handles_errors_gracefully(self, expander):
         """Verify errors in graph queries don't crash expansion."""
         with patch(
@@ -322,7 +318,6 @@ class TestFTSQueryBuilding:
 class TestCombinedExpansion:
     """Tests for full expand() method combining strategies."""
 
-    @pytest.mark.asyncio
     async def test_expand_with_synonyms_only(self, expander):
         """Verify expansion with synonyms only."""
         # When: We expand with only synonyms enabled
@@ -340,7 +335,6 @@ class TestCombinedExpansion:
         assert "synonyms" in result.expansion_sources
         assert "graph" not in result.expansion_sources
 
-    @pytest.mark.asyncio
     async def test_expand_combined_synonym_and_graph(self, expander):
         """Verify combined synonym + graph expansion."""
         # Given: Mocked graph expansion
@@ -379,7 +373,6 @@ class TestCombinedExpansion:
             # Graph expansion present
             assert "endogeneity" in result.expanded_terms
 
-    @pytest.mark.asyncio
     async def test_expand_empty_query(self, expander):
         """Verify empty query handling."""
         # When: We expand empty/whitespace queries
@@ -392,7 +385,6 @@ class TestCombinedExpansion:
             assert result.original == query
             assert result.expanded_terms == []
 
-    @pytest.mark.asyncio
     async def test_expand_generates_valid_fts_query(self, expander):
         """Verify FTS query is generated in result."""
         # When: We expand a query
@@ -408,7 +400,6 @@ class TestCombinedExpansion:
         assert "DML:A" in result.fts_query  # Original term
         assert ":B" in result.fts_query  # Expansion terms
 
-    @pytest.mark.asyncio
     async def test_expand_deduplicates_across_sources(self, expander):
         """Verify no duplicate terms across expansion sources."""
         # Given: Graph returns same term as synonyms
@@ -457,7 +448,6 @@ class TestCombinedExpansion:
 class TestModuleFunction:
     """Tests for module-level expand_query convenience function."""
 
-    @pytest.mark.asyncio
     async def test_expand_query_function(self, real_synonym_map_path):
         """Verify module-level function works."""
         if not real_synonym_map_path.exists():

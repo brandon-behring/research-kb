@@ -1,24 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "research-kb-cli"
 version = "1.0.0"
 description = "CLI for querying the research knowledge base"
 requires-python = ">=3.11"
+license = "MIT"
 dependencies = [
     "typer>=0.9.0",
+    "research-kb-storage",
+    "research-kb-pdf",
+    "research-kb-contracts",
+    "s2-client",
 ]
 
 [project.scripts]
 research-kb = "research_kb_cli.main:main"
 
-license = "MIT"
-
 [project.urls]
 Homepage = "https://github.com/brandonmbehring-dev/research-kb"
 Repository = "https://github.com/brandonmbehring-dev/research-kb"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/research_kb_cli"]

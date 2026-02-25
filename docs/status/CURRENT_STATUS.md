@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-21 15:21:38
+**Auto-generated**: 2026-02-24 20:10:32
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,12 +9,12 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 500 |
-| chunks | 210,107 |
+| sources | 485 |
+| chunks | 225,779 |
 | concepts | 307,622 |
 | concept_relationships | 741,959 |
 | chunk_concepts | 1,181,777 |
-| citations | 15,869 |
+| citations | 15,166 |
 | methods | 15,505 |
 | assumptions | 9,468 |
 
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 210,107 | 210,107 | 100.0% |
+| Chunks | 225,779 | 225,779 | 100.0% |
 | Concepts | 283,714 | 307,622 | 92.2% |
 
 ---
@@ -42,8 +42,8 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 263 |
-| paper | 215 |
+| textbook | 259 |
+| paper | 204 |
 | code_repo | 22 |
 
 ---
@@ -53,16 +53,16 @@
 | Domain | Sources |
 |--------|--------:|
 | causal_inference | 89 |
-| rag_llm | 82 |
-| time_series | 50 |
-| deep_learning | 38 |
+| rag_llm | 74 |
+| time_series | 49 |
 | software_engineering | 37 |
+| deep_learning | 35 |
 | econometrics | 35 |
 | mathematics | 25 |
 | interview_prep | 23 |
 | finance | 23 |
-| machine_learning | 22 |
-| statistics | 19 |
+| machine_learning | 20 |
+| statistics | 18 |
 | ml_engineering | 14 |
 | data_science | 12 |
 | portfolio_management | 11 |
@@ -112,7 +112,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 500 sources, 210,107 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 485 sources, 225,779 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 307,622 concepts, 741,959 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |

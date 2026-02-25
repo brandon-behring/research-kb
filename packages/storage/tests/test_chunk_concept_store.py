@@ -10,7 +10,6 @@ from research_kb_storage import ChunkConceptStore, ChunkStore, ConceptStore
 pytestmark = pytest.mark.unit
 
 
-@pytest.mark.asyncio
 async def test_create_chunk_concept_link(test_db, test_source):
     """Test creating a link between chunk and concept."""
     # Create chunk
@@ -44,7 +43,6 @@ async def test_create_chunk_concept_link(test_db, test_source):
     assert link.created_at is not None
 
 
-@pytest.mark.asyncio
 async def test_create_link_duplicate_fails(test_db, test_source):
     """Test that creating duplicate links fails."""
     # Create chunk and concept
@@ -73,7 +71,6 @@ async def test_create_link_duplicate_fails(test_db, test_source):
         )
 
 
-@pytest.mark.asyncio
 async def test_create_link_missing_chunk_fails(test_db):
     """Test that creating link with non-existent chunk fails."""
     # Create concept only
@@ -92,7 +89,6 @@ async def test_create_link_missing_chunk_fails(test_db):
         )
 
 
-@pytest.mark.asyncio
 async def test_create_link_missing_concept_fails(test_db, test_source):
     """Test that creating link with non-existent concept fails."""
     # Create chunk only
@@ -111,7 +107,6 @@ async def test_create_link_missing_concept_fails(test_db, test_source):
         )
 
 
-@pytest.mark.asyncio
 async def test_list_concepts_for_chunk(test_db, test_source):
     """Test listing all concepts linked to a chunk."""
     # Create chunk
@@ -159,7 +154,6 @@ async def test_list_concepts_for_chunk(test_db, test_source):
     assert links[1].relevance_score == pytest.approx(0.7, rel=1e-5)
 
 
-@pytest.mark.asyncio
 async def test_list_chunks_for_concept(test_db, test_source):
     """Test listing all chunks that mention a concept."""
     # Create concept
@@ -207,7 +201,6 @@ async def test_list_chunks_for_concept(test_db, test_source):
     assert links[1].relevance_score == pytest.approx(0.8, rel=1e-5)
 
 
-@pytest.mark.asyncio
 async def test_delete_chunk_concept_link(test_db, test_source):
     """Test deleting a specific chunk-concept link."""
     # Create chunk and concept
@@ -241,7 +234,6 @@ async def test_delete_chunk_concept_link(test_db, test_source):
     assert len(links) == 0
 
 
-@pytest.mark.asyncio
 async def test_delete_all_for_chunk(test_db, test_source):
     """Test deleting all concept links for a chunk."""
     # Create chunk
@@ -274,7 +266,6 @@ async def test_delete_all_for_chunk(test_db, test_source):
     assert len(links) == 0
 
 
-@pytest.mark.asyncio
 async def test_count_for_concept(test_db, test_source):
     """Test counting chunks that mention a concept."""
     # Create concept
@@ -306,7 +297,6 @@ async def test_count_for_concept(test_db, test_source):
     assert count == 4
 
 
-@pytest.mark.asyncio
 async def test_batch_create_links(test_db, test_source):
     """Test batch creating chunk-concept links."""
     # Create chunk
@@ -353,14 +343,12 @@ async def test_batch_create_links(test_db, test_source):
     assert created[2].mention_type == "example"
 
 
-@pytest.mark.asyncio
 async def test_batch_create_empty_list(test_db):
     """Test batch create with empty list returns empty list."""
     created = await ChunkConceptStore.batch_create([])
     assert created == []
 
 
-@pytest.mark.asyncio
 async def test_get_concept_ids_for_chunks(test_db, test_source):
     """Test getting concept IDs for multiple chunks (batch operation)."""
     # Create chunks
@@ -422,14 +410,12 @@ async def test_get_concept_ids_for_chunks(test_db, test_source):
     assert concept1.id in result[chunk2.id]
 
 
-@pytest.mark.asyncio
 async def test_get_concept_ids_for_chunks_empty_list(test_db):
     """Test getting concept IDs for empty chunk list."""
     result = await ChunkConceptStore.get_concept_ids_for_chunks([])
     assert result == {}
 
 
-@pytest.mark.asyncio
 async def test_get_concept_info_for_chunks(test_db, test_source):
     """Test getting concept info with mention_type and relevance_score."""
     # Create chunks
@@ -509,7 +495,6 @@ async def test_get_concept_info_for_chunks(test_db, test_source):
     assert chunk2_info[0][2] is None  # No relevance score
 
 
-@pytest.mark.asyncio
 async def test_get_concept_info_for_chunks_empty_list(test_db):
     """Test getting concept info for empty chunk list."""
     result = await ChunkConceptStore.get_concept_info_for_chunks([])

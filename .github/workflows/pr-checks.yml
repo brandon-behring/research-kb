@@ -36,14 +36,15 @@ jobs:
           pip install -e packages/contracts
           pip install -e packages/common
           pip install -e packages/storage
-          pip install -e packages/pdf-tools
-          pip install -e packages/extraction
-          pip install -e packages/cli
-          pip install -e packages/client
-          pip install -e packages/daemon
-          pip install -e packages/api
-          pip install -e packages/mcp-server
           pip install -e packages/s2-client
+          pip install -e packages/extraction
+          pip install -e packages/pdf-tools
+          pip install -e packages/client
+          pip install -e packages/dashboard
+          pip install -e packages/api
+          pip install -e packages/daemon
+          pip install -e packages/mcp-server
+          pip install -e packages/cli
           pip install pytest pytest-asyncio pytest-cov
           pip install black ruff mypy
 
@@ -53,8 +54,9 @@ jobs:
           black --check packages/ scripts/ tests/
           echo "=== Ruff (linting) ==="
           ruff check packages/ scripts/ tests/
-          echo "=== Mypy (type checking) ==="
-          mypy packages/ --config-file mypy.ini
+
+      - name: Type check (baseline)
+        run: python scripts/mypy_baseline_check.py
 
       - name: Unit tests (no external services)
         env:
@@ -84,3 +86,10 @@ jobs:
             -v --tb=short \
             --cov=packages --cov-report=term-missing --cov-report=xml:coverage-integration.xml --cov-append \
             --cov-fail-under=40
+
+      - name: Doc freshness gate
+        run: |
+          echo "=== Documentation Audit (fast checks) ==="
+          python scripts/audit_docs.py --ci
+          echo "=== Auto-generated sections check ==="
+          python scripts/generate_readme_sections.py --check

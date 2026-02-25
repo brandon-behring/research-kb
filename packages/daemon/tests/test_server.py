@@ -67,7 +67,6 @@ class TestMakeError:
 class TestHandleRequest:
     """Tests for request handling."""
 
-    @pytest.mark.asyncio
     async def test_parse_error_invalid_json(self):
         """Test parse error for invalid JSON."""
         response = await handle_request(b"not json")
@@ -76,7 +75,6 @@ class TestHandleRequest:
         assert parsed["error"]["code"] == PARSE_ERROR
         assert "Parse error" in parsed["error"]["message"]
 
-    @pytest.mark.asyncio
     async def test_invalid_request_not_object(self):
         """Test invalid request for non-object."""
         response = await handle_request(b'"string"')
@@ -85,7 +83,6 @@ class TestHandleRequest:
         assert parsed["error"]["code"] == INVALID_REQUEST
         assert "object" in parsed["error"]["message"]
 
-    @pytest.mark.asyncio
     async def test_invalid_request_missing_version(self):
         """Test invalid request for missing jsonrpc version."""
         response = await handle_request(json.dumps({"method": "test", "id": 1}).encode())
@@ -94,7 +91,6 @@ class TestHandleRequest:
         assert parsed["error"]["code"] == INVALID_REQUEST
         assert "jsonrpc" in parsed["error"]["message"]
 
-    @pytest.mark.asyncio
     async def test_invalid_request_wrong_version(self):
         """Test invalid request for wrong jsonrpc version."""
         response = await handle_request(
@@ -104,7 +100,6 @@ class TestHandleRequest:
 
         assert parsed["error"]["code"] == INVALID_REQUEST
 
-    @pytest.mark.asyncio
     async def test_invalid_request_missing_method(self):
         """Test invalid request for missing method."""
         response = await handle_request(json.dumps({"jsonrpc": "2.0", "id": 1}).encode())
@@ -113,7 +108,6 @@ class TestHandleRequest:
         assert parsed["error"]["code"] == INVALID_REQUEST
         assert "method" in parsed["error"]["message"]
 
-    @pytest.mark.asyncio
     async def test_method_not_found(self):
         """Test method not found error."""
         with patch("research_kb_daemon.server.dispatch", new_callable=AsyncMock) as mock_dispatch:
@@ -127,7 +121,6 @@ class TestHandleRequest:
             assert parsed["error"]["code"] == METHOD_NOT_FOUND
             assert parsed["id"] == 1
 
-    @pytest.mark.asyncio
     async def test_invalid_params(self):
         """Test invalid params error."""
         with patch("research_kb_daemon.server.dispatch", new_callable=AsyncMock) as mock_dispatch:
@@ -140,7 +133,6 @@ class TestHandleRequest:
 
             assert parsed["error"]["code"] == INVALID_PARAMS
 
-    @pytest.mark.asyncio
     async def test_successful_request(self):
         """Test successful request handling."""
         with patch("research_kb_daemon.server.dispatch", new_callable=AsyncMock) as mock_dispatch:
@@ -156,7 +148,6 @@ class TestHandleRequest:
             assert parsed["result"]["status"] == "healthy"
             assert "error" not in parsed
 
-    @pytest.mark.asyncio
     async def test_request_with_params(self):
         """Test request with parameters."""
         with patch("research_kb_daemon.server.dispatch", new_callable=AsyncMock) as mock_dispatch:
@@ -176,7 +167,6 @@ class TestHandleRequest:
             # Verify dispatch was called with params
             mock_dispatch.assert_called_once_with("search", {"query": "test", "limit": 5})
 
-    @pytest.mark.asyncio
     async def test_internal_error(self):
         """Test internal error handling."""
         with patch("research_kb_daemon.server.dispatch", new_callable=AsyncMock) as mock_dispatch:
@@ -190,7 +180,6 @@ class TestHandleRequest:
             assert parsed["error"]["code"] == INTERNAL_ERROR
             assert "error" in parsed["error"]["message"].lower()
 
-    @pytest.mark.asyncio
     async def test_preserves_request_id(self):
         """Test request ID is preserved in response."""
         with patch("research_kb_daemon.server.dispatch", new_callable=AsyncMock) as mock_dispatch:
@@ -210,7 +199,6 @@ class TestHandleRequest:
             parsed = json.loads(response.decode())
             assert parsed["id"] == 999
 
-    @pytest.mark.asyncio
     async def test_positional_params_rejected(self):
         """Test positional params are rejected."""
         response = await handle_request(

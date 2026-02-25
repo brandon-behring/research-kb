@@ -49,7 +49,6 @@ class TestOllamaClientInit:
 class TestOllamaAvailability:
     """Tests for availability checks."""
 
-    @pytest.mark.asyncio
     async def test_is_available_success(self):
         """Test is_available returns True when server responds."""
         client = OllamaClient()
@@ -66,7 +65,6 @@ class TestOllamaAvailability:
             assert result is True
             mock_http.get.assert_called_once_with("/api/tags")
 
-    @pytest.mark.asyncio
     async def test_is_available_failure(self):
         """Test is_available returns False on error."""
         client = OllamaClient()
@@ -80,7 +78,6 @@ class TestOllamaAvailability:
 
             assert result is False
 
-    @pytest.mark.asyncio
     async def test_is_model_loaded(self):
         """Test is_model_loaded checks for model."""
         client = OllamaClient(model="llama3.1:8b")
@@ -106,7 +103,6 @@ class TestOllamaAvailability:
 class TestOllamaGenerate:
     """Tests for text generation."""
 
-    @pytest.mark.asyncio
     async def test_generate_basic(self):
         """Test basic generation."""
         client = OllamaClient()
@@ -124,7 +120,6 @@ class TestOllamaGenerate:
 
             assert result == "Hello world"
 
-    @pytest.mark.asyncio
     async def test_generate_with_system_prompt(self):
         """Test generation with system prompt."""
         client = OllamaClient()
@@ -145,7 +140,6 @@ class TestOllamaGenerate:
             payload = call_args.kwargs["json"]
             assert payload["system"] == "System prompt"
 
-    @pytest.mark.asyncio
     async def test_generate_json_mode(self):
         """Test JSON mode sets format."""
         client = OllamaClient()
@@ -169,7 +163,6 @@ class TestOllamaGenerate:
 class TestOllamaExtraction:
     """Tests for concept extraction."""
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_success(self):
         """Test successful concept extraction."""
         client = OllamaClient()
@@ -198,7 +191,6 @@ class TestOllamaExtraction:
             assert len(result.concepts) == 1
             assert result.concepts[0].name == "instrumental variables"
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_invalid_json(self):
         """Test handling of invalid JSON response raises ExtractionValidationError."""
         client = OllamaClient()
@@ -212,7 +204,6 @@ class TestOllamaExtraction:
 
             assert "Failed to parse JSON response" in str(exc_info.value)
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_empty_response(self):
         """Test handling of empty extraction."""
         client = OllamaClient()
@@ -230,7 +221,6 @@ class TestOllamaExtraction:
             assert isinstance(result, ChunkExtraction)
             assert len(result.concepts) == 0
 
-    @pytest.mark.asyncio
     async def test_extract_batch(self):
         """Test batch extraction."""
         client = OllamaClient()
@@ -255,7 +245,6 @@ class TestOllamaExtraction:
 class TestOllamaContextManager:
     """Tests for async context manager."""
 
-    @pytest.mark.asyncio
     async def test_context_manager(self):
         """Test async context manager usage."""
         async with OllamaClient() as client:
@@ -269,7 +258,6 @@ class TestOllamaContextManager:
 class TestOllamaErrors:
     """Tests for error handling."""
 
-    @pytest.mark.asyncio
     async def test_http_error_raises_ollama_error(self):
         """Test HTTP errors are wrapped in OllamaError."""
         import httpx

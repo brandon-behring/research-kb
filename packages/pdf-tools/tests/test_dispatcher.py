@@ -257,7 +257,6 @@ class TestPDFDispatcher:
         with pytest.raises(FileNotFoundError):
             dispatcher._calculate_file_hash("nonexistent.pdf")
 
-    @pytest.mark.asyncio
     async def test_ingest_pdf_missing_file(self, tmp_path):
         """Test ingest_pdf raises FileNotFoundError for missing PDF."""
         dispatcher = PDFDispatcher(dlq_path=tmp_path / "dlq.jsonl")
@@ -270,7 +269,6 @@ class TestPDFDispatcher:
                 domain_id="causal_inference",
             )
 
-    @pytest.mark.asyncio
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
     async def test_ingest_pdf_already_exists(self, mock_source_store, mock_chunk_store, tmp_path):
@@ -316,7 +314,6 @@ class TestPDFDispatcher:
         # Verify get_by_file_hash was called
         mock_source_store.get_by_file_hash.assert_called_once()
 
-    @pytest.mark.asyncio
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
     async def test_ingest_pdf_force_pymupdf(self, mock_source_store, mock_chunk_store, tmp_path):
@@ -363,7 +360,6 @@ class TestPDFDispatcher:
         assert result.source.metadata["extraction_method"] == "pymupdf"
         mock_source_store.create.assert_called_once()
 
-    @pytest.mark.asyncio
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
     async def test_ingest_pdf_grobid_fallback(self, mock_source_store, mock_chunk_store, tmp_path):
@@ -415,7 +411,6 @@ class TestPDFDispatcher:
         assert result.source.metadata["extraction_method"] == "pymupdf"
         mock_source_store.create.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_ingest_pdf_complete_failure_adds_to_dlq(self, tmp_path):
         """Test complete failure (both GROBID and PyMuPDF) adds to DLQ."""
         # Create a corrupted/empty PDF that will fail PyMuPDF extraction
@@ -444,7 +439,6 @@ class TestPDFDispatcher:
         assert entries[0].metadata["title"] == "Bad Paper"
         assert entries[0].retry_count == 0
 
-    @pytest.mark.asyncio
     @patch("research_kb_pdf.dispatcher.CitationStore")
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
@@ -506,7 +500,6 @@ class TestPDFDispatcher:
         # Entry should be removed from DLQ
         assert dispatcher.dlq.get(entry.id) is None
 
-    @pytest.mark.asyncio
     async def test_retry_from_dlq_not_found(self, tmp_path):
         """Test retry with non-existent DLQ entry."""
         dispatcher = PDFDispatcher(dlq_path=tmp_path / "dlq.jsonl")
@@ -514,7 +507,6 @@ class TestPDFDispatcher:
         result = await dispatcher.retry_from_dlq("non-existent-id")
         assert result is None
 
-    @pytest.mark.asyncio
     async def test_retry_from_dlq_failure_increments_retry_count(self, tmp_path):
         """Test failed retry increments retry_count."""
         # Create bad PDF

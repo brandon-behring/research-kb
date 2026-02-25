@@ -31,7 +31,6 @@ class TestWarmupStatus:
         assert "duration_seconds" not in status
         assert "error" not in status
 
-    @pytest.mark.asyncio
     async def test_warmup_completes_successfully(self):
         """Mock KuzuDB connection; verify completed status with duration."""
         # Mock the DataFrame returned by conn.execute().get_as_df()
@@ -96,7 +95,6 @@ class TestWarmupStatus:
         assert status["duration_seconds"] >= 0
         assert "error" not in status
 
-    @pytest.mark.asyncio
     async def test_warmup_handles_import_error(self):
         """When kuzu_store import fails, status should be failed."""
         with patch(
@@ -143,7 +141,6 @@ class TestWarmupStatus:
         assert "Import error" in status["error"]
         assert "duration_seconds" in status
 
-    @pytest.mark.asyncio
     async def test_warmup_handles_query_failure(self):
         """When KuzuDB query fails, status should be failed but event still set."""
         mock_conn = MagicMock()
@@ -171,7 +168,6 @@ class TestWarmupStatus:
 
         assert _warmup_complete.is_set()
 
-    @pytest.mark.asyncio
     async def test_warmup_seeds_kuzu_cache(self):
         """Verify _check_kuzu_ready() is called during warming."""
         mock_conn = MagicMock()
@@ -218,7 +214,6 @@ class TestWarmupStatus:
 
         mock_check.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_warmup_is_idempotent(self):
         """Calling warm_kuzu() twice should be a no-op the second time."""
         mock_conn = MagicMock()

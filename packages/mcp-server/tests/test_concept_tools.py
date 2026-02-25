@@ -86,7 +86,6 @@ class TestListConcepts:
             ),
         ]
 
-    @pytest.mark.asyncio
     async def test_list_concepts_empty_query(self, sample_concepts):
         """List concepts returns all when no query provided."""
         mcp = MockFastMCP()
@@ -100,7 +99,6 @@ class TestListConcepts:
             get_mock.assert_called_once_with(query=None, limit=50, concept_type=None)
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_list_concepts_with_search(self, sample_concepts):
         """List concepts filters by search query."""
         mcp = MockFastMCP()
@@ -119,7 +117,6 @@ class TestListConcepts:
                 concept_type=None,
             )
 
-    @pytest.mark.asyncio
     async def test_list_concepts_with_type_filter(self, sample_concepts):
         """List concepts filters by type."""
         mcp = MockFastMCP()
@@ -138,7 +135,6 @@ class TestListConcepts:
                 concept_type="METHOD",
             )
 
-    @pytest.mark.asyncio
     async def test_list_concepts_limit_clamping(self, sample_concepts):
         """List concepts clamps limit to valid range."""
         mcp = MockFastMCP()
@@ -186,7 +182,6 @@ class TestGetConcept:
             MockRelationship("ADDRESSES", uuid4()),
         ]
 
-    @pytest.mark.asyncio
     async def test_get_concept_success(self, sample_concept, sample_relationships):
         """Get concept returns formatted details."""
         mcp = MockFastMCP()
@@ -207,7 +202,6 @@ class TestGetConcept:
             rel_mock.assert_called_once()
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_get_concept_without_relationships(self, sample_concept):
         """Get concept skips relationships when not requested."""
         mcp = MockFastMCP()
@@ -226,7 +220,6 @@ class TestGetConcept:
 
             rel_mock.assert_not_called()
 
-    @pytest.mark.asyncio
     async def test_get_concept_not_found(self):
         """Get concept returns error for missing concept."""
         mcp = MockFastMCP()

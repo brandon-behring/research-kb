@@ -47,7 +47,6 @@ def make_search_result(title: str = "Test Paper", content: str = "Test content")
     return result
 
 
-@pytest.mark.asyncio
 async def test_search_basic(app_client, mock_storage, mock_embedding_client):
     """Basic search returns results."""
     mock_result = make_search_result()
@@ -66,7 +65,6 @@ async def test_search_basic(app_client, mock_storage, mock_embedding_client):
     assert "scores" in data["results"][0]
 
 
-@pytest.mark.asyncio
 async def test_search_with_options(app_client, mock_storage, mock_embedding_client):
     """Search respects all request options."""
     mock_result = make_search_result()
@@ -90,7 +88,6 @@ async def test_search_with_options(app_client, mock_storage, mock_embedding_clie
     assert data["metadata"]["result_count"] == 1
 
 
-@pytest.mark.asyncio
 async def test_search_empty_results(app_client, mock_storage, mock_embedding_client):
     """Search handles no results gracefully."""
     mock_storage["expand"].return_value = ([], None)
@@ -106,7 +103,6 @@ async def test_search_empty_results(app_client, mock_storage, mock_embedding_cli
     assert data["metadata"]["result_count"] == 0
 
 
-@pytest.mark.asyncio
 async def test_search_validation(app_client):
     """Search validates request parameters."""
     # Empty query

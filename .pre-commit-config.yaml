@@ -21,3 +21,19 @@ repos:
       - id: check-added-large-files
         args: [--maxkb=500]
         exclude: ^fixtures/demo/data/
+
+  - repo: local
+    hooks:
+      - id: doc-freshness
+        name: doc-freshness
+        entry: python scripts/audit_docs.py --pre-commit
+        language: python
+        files: '(README\.md|CLAUDE\.md|packages/.*/pyproject\.toml|packages/.*/main\.py|packages/.*/tools/.*\.py)'
+        pass_filenames: false
+
+      - id: mypy-baseline
+        name: mypy-baseline
+        entry: python scripts/mypy_baseline_check.py
+        language: system
+        files: '\.py$'
+        pass_filenames: false

@@ -108,7 +108,6 @@ class TestListSources:
             ),
         ]
 
-    @pytest.mark.asyncio
     async def test_list_sources_default(self, sample_sources):
         """List sources returns formatted results with defaults."""
         mcp = MockFastMCP()
@@ -122,7 +121,6 @@ class TestListSources:
             get_mock.assert_called_once_with(limit=50, offset=0, source_type=None)
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_list_sources_pagination(self, sample_sources):
         """List sources respects pagination parameters."""
         mcp = MockFastMCP()
@@ -138,7 +136,6 @@ class TestListSources:
 
             get_mock.assert_called_once_with(limit=20, offset=10, source_type=None)
 
-    @pytest.mark.asyncio
     async def test_list_sources_by_type(self, sample_sources):
         """List sources filters by type."""
         mcp = MockFastMCP()
@@ -153,7 +150,6 @@ class TestListSources:
 
             get_mock.assert_called_once_with(limit=50, offset=0, source_type="paper")
 
-    @pytest.mark.asyncio
     async def test_list_sources_limit_clamping(self, sample_sources):
         """List sources clamps limit to valid range."""
         mcp = MockFastMCP()
@@ -215,7 +211,6 @@ class TestGetSource:
             ),
         ]
 
-    @pytest.mark.asyncio
     async def test_get_source_success(self, sample_source):
         """Get source returns formatted details."""
         mcp = MockFastMCP()
@@ -231,7 +226,6 @@ class TestGetSource:
             get_mock.assert_called_once_with(str(sample_source.id))
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_get_source_with_chunks(self, sample_source, sample_chunks):
         """Get source includes chunks when requested."""
         mcp = MockFastMCP()
@@ -253,7 +247,6 @@ class TestGetSource:
             chunks_mock.assert_called_once_with(str(sample_source.id), limit=5)
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_get_source_not_found(self):
         """Get source returns error for missing source."""
         mcp = MockFastMCP()
@@ -269,7 +262,6 @@ class TestGetSource:
             assert "Error" in result
             assert "not found" in result
 
-    @pytest.mark.asyncio
     async def test_get_source_chunk_limit_clamping(self, sample_source, sample_chunks):
         """Get source clamps chunk limit to valid range."""
         mcp = MockFastMCP()
@@ -343,7 +335,6 @@ class TestSourceCitations:
             ),
         ]
 
-    @pytest.mark.asyncio
     async def test_get_source_citations_success(self, sample_source):
         """Get source citations returns formatted results."""
         mcp = MockFastMCP()
@@ -370,7 +361,6 @@ class TestSourceCitations:
             cite_mock.assert_called_once()
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_get_source_citations_not_found(self):
         """Get source citations returns error for missing source."""
         mcp = MockFastMCP()
@@ -386,7 +376,6 @@ class TestSourceCitations:
             assert "Error" in result
             assert "not found" in result
 
-    @pytest.mark.asyncio
     async def test_get_citing_sources_success(self, sample_source, citing_sources):
         """Get citing sources returns formatted results."""
         mcp = MockFastMCP()
@@ -406,7 +395,6 @@ class TestSourceCitations:
             cite_mock.assert_called_once()
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_get_cited_sources_success(self, sample_source, cited_sources):
         """Get cited sources returns formatted results."""
         mcp = MockFastMCP()

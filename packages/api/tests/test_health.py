@@ -8,7 +8,6 @@ from unittest.mock import patch
 pytestmark = pytest.mark.unit
 
 
-@pytest.mark.asyncio
 async def test_health_check(app_client):
     """Basic health check returns healthy status."""
     response = await app_client.get("/health")
@@ -21,7 +20,6 @@ async def test_health_check(app_client):
     assert data["embedding_model"] == "ready"
 
 
-@pytest.mark.asyncio
 async def test_health_detailed(app_client, mock_storage):
     """Detailed health check includes component status and stats."""
     with patch("research_kb_api.service.get_stats") as stats_mock:
@@ -44,7 +42,6 @@ async def test_health_detailed(app_client, mock_storage):
         assert data["stats"]["chunks"] == 5000
 
 
-@pytest.mark.asyncio
 async def test_stats_endpoint(app_client):
     """Stats endpoint returns database statistics."""
     with patch("research_kb_api.service.get_stats") as stats_mock:

@@ -487,7 +487,6 @@ class TestTrackSearchResults:
 class TestMetricsEndpoint:
     """Test metrics endpoint function."""
 
-    @pytest.mark.asyncio
     async def test_metrics_endpoint_returns_response(self):
         """Test metrics_endpoint returns a Response."""
         # Create a mock request
@@ -497,7 +496,6 @@ class TestMetricsEndpoint:
 
         assert isinstance(response, Response)
 
-    @pytest.mark.asyncio
     async def test_metrics_endpoint_content_type(self):
         """Test metrics_endpoint returns correct content type."""
         mock_request = MagicMock(spec=Request)
@@ -506,7 +504,6 @@ class TestMetricsEndpoint:
 
         assert response.media_type == CONTENT_TYPE_LATEST
 
-    @pytest.mark.asyncio
     async def test_metrics_endpoint_content_contains_metrics(self):
         """Test metrics_endpoint content includes our metrics."""
         mock_request = MagicMock(spec=Request)
@@ -524,7 +521,6 @@ class TestMetricsEndpoint:
         assert "research_kb_sources_total" in content
         assert "research_kb_search" in content
 
-    @pytest.mark.asyncio
     async def test_metrics_endpoint_prometheus_format(self):
         """Test metrics_endpoint returns valid Prometheus format."""
         mock_request = MagicMock(spec=Request)

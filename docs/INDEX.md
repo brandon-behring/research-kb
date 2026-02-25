@@ -74,7 +74,13 @@ docs/
 │
 └── archive/                    # Historical records
     ├── WEEK1_DELIVERABLES.md
-    └── WEEK_2_DELIVERABLES.md
+    ├── WEEK_2_DELIVERABLES.md
+    ├── 2025-12-16-codex-parallel-critique.md
+    ├── 2025-12-16-research-kb-critique.md
+    ├── gemini_audit_report_2026-01-08.md
+    ├── phase1_5_completion_report.md
+    ├── phase2_step9_completion_report.md
+    └── quality-reports-2025-12-16/
 ```
 
 ---

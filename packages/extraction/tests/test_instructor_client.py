@@ -87,7 +87,6 @@ class TestInstructorClientInit:
 class TestInstructorAvailability:
     """Tests for availability checks."""
 
-    @pytest.mark.asyncio
     async def test_is_available_success(self):
         """Test is_available returns True when Ollama responds."""
         with patch("instructor.from_provider") as mock_provider:
@@ -110,7 +109,6 @@ class TestInstructorAvailability:
 
                 assert result is True
 
-    @pytest.mark.asyncio
     async def test_is_available_failure(self):
         """Test is_available returns False on connection error."""
         with patch("instructor.from_provider") as mock_provider:
@@ -135,7 +133,6 @@ class TestInstructorAvailability:
 class TestInstructorExtraction:
     """Tests for concept extraction with automatic validation."""
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_success(self):
         """Test successful concept extraction."""
         with patch("instructor.from_provider") as mock_provider:
@@ -169,7 +166,6 @@ class TestInstructorExtraction:
             assert isinstance(result, ChunkExtraction)
             mock_async_client.create.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_uses_max_retries(self):
         """Test extraction uses configured max_retries."""
         with patch("instructor.from_provider") as mock_provider:
@@ -186,7 +182,6 @@ class TestInstructorExtraction:
             call_kwargs = mock_async_client.create.call_args.kwargs
             assert call_kwargs["max_retries"] == 5
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_uses_temperature(self):
         """Test extraction uses configured temperature."""
         with patch("instructor.from_provider") as mock_provider:
@@ -203,7 +198,6 @@ class TestInstructorExtraction:
             call_kwargs = mock_async_client.create.call_args.kwargs
             assert call_kwargs["temperature"] == 0.7
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_failure_returns_empty(self):
         """Test that extraction failures return empty ChunkExtraction."""
         with patch("instructor.from_provider") as mock_provider:
@@ -224,7 +218,6 @@ class TestInstructorExtraction:
             assert len(result.concepts) == 0
             assert len(result.relationships) == 0
 
-    @pytest.mark.asyncio
     async def test_extract_concepts_passes_response_model(self):
         """Test extraction passes ChunkExtraction as response_model."""
         with patch("instructor.from_provider") as mock_provider:
@@ -245,7 +238,6 @@ class TestInstructorExtraction:
 class TestInstructorContextManager:
     """Tests for async context manager."""
 
-    @pytest.mark.asyncio
     async def test_context_manager_usage(self):
         """Test async context manager works correctly."""
         with patch("instructor.from_provider") as mock_provider:
@@ -257,7 +249,6 @@ class TestInstructorContextManager:
                 assert client is not None
                 assert client.model == "llama3.1:8b"
 
-    @pytest.mark.asyncio
     async def test_close_is_noop(self):
         """Test close() completes without error."""
         with patch("instructor.from_provider") as mock_provider:

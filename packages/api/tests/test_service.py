@@ -331,7 +331,6 @@ class TestGetCachedEmbedding:
         yield
         _embedding_cache.clear()
 
-    @pytest.mark.asyncio
     async def test_cache_miss_generates_embedding(self, mock_embedding):
         """Test cache miss triggers embedding generation."""
         with patch("research_kb_api.service.get_embedding_client") as mock_get_client:
@@ -344,7 +343,6 @@ class TestGetCachedEmbedding:
             assert result == mock_embedding
             mock_client.embed_query.assert_called_once_with("test query")
 
-    @pytest.mark.asyncio
     async def test_cache_hit_returns_cached(self, mock_embedding):
         """Test cache hit returns cached embedding without regeneration."""
         # Pre-populate cache
@@ -360,7 +358,6 @@ class TestGetCachedEmbedding:
             # Should not call embed_query since it's cached
             mock_client.embed_query.assert_not_called()
 
-    @pytest.mark.asyncio
     async def test_cache_eviction_when_full(self, mock_embedding):
         """Test cache evicts old entries when over limit."""
         # Fill cache with more than 1000 entries to trigger eviction
@@ -416,7 +413,6 @@ class TestSearch:
                 "hybrid": hybrid_mock,
             }
 
-    @pytest.mark.asyncio
     async def test_basic_search(self, mock_search_deps, sample_source):
         """Test basic search returns results."""
         options = SearchOptions(query="backdoor criterion")
@@ -428,7 +424,6 @@ class TestSearch:
         assert response.results[0].source.title == sample_source.title
         assert response.execution_time_ms > 0
 
-    @pytest.mark.asyncio
     async def test_search_timing_recorded(self, mock_search_deps):
         """Test search records timing metrics."""
         options = SearchOptions(query="test")
@@ -439,7 +434,6 @@ class TestSearch:
         assert response.search_time_ms >= 0
         assert response.execution_time_ms >= response.embedding_time_ms + response.search_time_ms
 
-    @pytest.mark.asyncio
     async def test_search_uses_expansion_by_default(self, mock_search_deps):
         """Test search uses expansion when enabled."""
         options = SearchOptions(query="test", use_expand=True)
@@ -448,7 +442,6 @@ class TestSearch:
 
         mock_search_deps["expand"].assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_search_uses_rerank_without_expansion(
         self, mock_search_deps, sample_search_result
     ):
@@ -460,7 +453,6 @@ class TestSearch:
 
         mock_search_deps["rerank"].assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_search_uses_hybrid_v2_with_graph(self, mock_search_deps, sample_search_result):
         """Test search uses hybrid_v2 with graph enabled."""
         mock_search_deps["hybrid_v2"].return_value = [sample_search_result]
@@ -475,7 +467,6 @@ class TestSearch:
 
         mock_search_deps["hybrid_v2"].assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_search_uses_hybrid_without_graph(self, mock_search_deps, sample_search_result):
         """Test search uses basic hybrid without graph."""
         mock_search_deps["hybrid"].return_value = [sample_search_result]
@@ -490,7 +481,6 @@ class TestSearch:
 
         mock_search_deps["hybrid"].assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_search_falls_back_when_no_concepts(self, mock_search_deps, sample_search_result):
         """Test search falls back to non-graph when no concepts exist."""
         mock_search_deps["concept"].count = AsyncMock(return_value=0)
@@ -507,7 +497,6 @@ class TestSearch:
         # Should fall back to basic hybrid since no concepts
         mock_search_deps["hybrid"].assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_search_normalizes_weights_with_graph(self, mock_search_deps):
         """Test search normalizes weights when graph is enabled."""
         options = SearchOptions(
@@ -528,7 +517,6 @@ class TestSearch:
         total = query.fts_weight + query.vector_weight + query.graph_weight
         assert total == pytest.approx(1.0, rel=0.01)
 
-    @pytest.mark.asyncio
     async def test_search_populates_expanded_query(self, mock_search_deps, sample_search_result):
         """Test search includes expanded query when available."""
         expanded = MagicMock()
@@ -552,7 +540,6 @@ class TestSearch:
 class TestSourceOperations:
     """Test source-related service functions."""
 
-    @pytest.mark.asyncio
     async def test_get_sources(self, sample_source):
         """Test get_sources returns list of sources."""
         with patch("research_kb_api.service.SourceStore") as mock_store:
@@ -564,7 +551,6 @@ class TestSourceOperations:
             assert result[0].title == sample_source.title
             mock_store.list_all.assert_called_once_with(limit=10, offset=0, source_type=None)
 
-    @pytest.mark.asyncio
     async def test_get_sources_with_filter(self, sample_source):
         """Test get_sources with source type filter."""
         with patch("research_kb_api.service.SourceStore") as mock_store:
@@ -574,7 +560,6 @@ class TestSourceOperations:
 
             mock_store.list_all.assert_called_once_with(limit=50, offset=10, source_type="TEXTBOOK")
 
-    @pytest.mark.asyncio
     async def test_get_source_by_id(self, sample_source):
         """Test get_source_by_id returns source."""
         with patch("research_kb_api.service.SourceStore") as mock_store:
@@ -586,7 +571,6 @@ class TestSourceOperations:
             assert result is not None
             assert result.title == sample_source.title
 
-    @pytest.mark.asyncio
     async def test_get_source_by_id_not_found(self):
         """Test get_source_by_id returns None when not found."""
         with patch("research_kb_api.service.SourceStore") as mock_store:
@@ -596,7 +580,6 @@ class TestSourceOperations:
 
             assert result is None
 
-    @pytest.mark.asyncio
     async def test_get_source_chunks(self, sample_source, sample_chunk):
         """Test get_source_chunks returns chunks for a source."""
         with patch("research_kb_api.service.ChunkStore") as mock_store:
@@ -616,7 +599,6 @@ class TestSourceOperations:
 class TestConceptOperations:
     """Test concept-related service functions."""
 
-    @pytest.mark.asyncio
     async def test_get_concepts_no_query(self, sample_concept):
         """Test get_concepts without query returns all concepts."""
         with patch("research_kb_api.service.ConceptStore") as mock_store:
@@ -627,7 +609,6 @@ class TestConceptOperations:
             assert len(result) == 1
             mock_store.list_all.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_get_concepts_with_query(self, sample_concept):
         """Test get_concepts with query searches concepts."""
         with patch("research_kb_api.service.ConceptStore") as mock_store:
@@ -638,7 +619,6 @@ class TestConceptOperations:
             assert len(result) == 1
             mock_store.search.assert_called_once_with("backdoor", limit=50)
 
-    @pytest.mark.asyncio
     async def test_get_concept_by_id(self, sample_concept):
         """Test get_concept_by_id returns concept."""
         with patch("research_kb_api.service.ConceptStore") as mock_store:
@@ -649,7 +629,6 @@ class TestConceptOperations:
             assert result is not None
             assert result.name == sample_concept.name
 
-    @pytest.mark.asyncio
     async def test_get_concept_relationships(self, sample_concept):
         """Test get_concept_relationships returns relationships."""
         relationship = ConceptRelationship(
@@ -677,7 +656,6 @@ class TestConceptOperations:
 class TestGraphOperations:
     """Test graph-related service functions."""
 
-    @pytest.mark.asyncio
     async def test_get_graph_neighborhood(self, sample_concept):
         """Test get_graph_neighborhood returns neighborhood data."""
         with (
@@ -698,7 +676,6 @@ class TestGraphOperations:
             assert "nodes" in result
             assert "edges" in result
 
-    @pytest.mark.asyncio
     async def test_get_graph_neighborhood_not_found(self):
         """Test get_graph_neighborhood returns error when concept not found."""
         with patch("research_kb_api.service.ConceptStore") as concept_mock:
@@ -709,7 +686,6 @@ class TestGraphOperations:
             assert "error" in result
             assert "not found" in result["error"]
 
-    @pytest.mark.asyncio
     async def test_get_graph_path(self, sample_concept):
         """Test get_graph_path finds path between concepts."""
         concept_a = sample_concept
@@ -736,7 +712,6 @@ class TestGraphOperations:
             assert result["to"] == "instrumental variables"
             assert "path" in result
 
-    @pytest.mark.asyncio
     async def test_get_graph_path_concept_a_not_found(self, sample_concept):
         """Test get_graph_path returns error when first concept not found."""
         with patch("research_kb_api.service.ConceptStore") as concept_mock:
@@ -747,7 +722,6 @@ class TestGraphOperations:
             assert "error" in result
             assert "nonexistent" in result["error"]
 
-    @pytest.mark.asyncio
     async def test_get_graph_path_concept_b_not_found(self, sample_concept):
         """Test get_graph_path returns error when second concept not found."""
         with patch("research_kb_api.service.ConceptStore") as concept_mock:
@@ -767,7 +741,6 @@ class TestGraphOperations:
 class TestStatsAndCitations:
     """Test stats and citation service functions."""
 
-    @pytest.mark.asyncio
     async def test_get_stats(self):
         """Test get_stats returns database statistics."""
         # Create a proper async context manager mock
@@ -803,7 +776,6 @@ class TestStatsAndCitations:
             assert result["citations"] == 300
             assert result["chunk_concepts"] == 1000
 
-    @pytest.mark.asyncio
     async def test_get_citations_for_source(self, sample_source):
         """Test get_citations_for_source returns citation info."""
         citing_source = Source(

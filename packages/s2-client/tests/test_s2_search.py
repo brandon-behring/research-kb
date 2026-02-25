@@ -447,7 +447,6 @@ class TestDiscoveryResult:
 class TestTopicDiscoveryInit:
     """Tests for TopicDiscovery initialization."""
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_init_with_client(self):
         """TopicDiscovery should store client reference."""
@@ -455,7 +454,6 @@ class TestTopicDiscoveryInit:
             discovery = TopicDiscovery(client)
             assert discovery.client is client
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_init_clears_seen_ids(self):
         """TopicDiscovery should start with empty seen IDs."""
@@ -467,7 +465,6 @@ class TestTopicDiscoveryInit:
 class TestTopicDiscoveryDiscover:
     """Tests for topic discovery functionality."""
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_single_topic(self, sample_search_response):
         """Discover should search for single topic."""
@@ -486,7 +483,6 @@ class TestTopicDiscoveryDiscover:
         assert result.queries_run[0] == "causal inference"
         assert len(result.papers) == 2
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_enum_topic(self, sample_search_response):
         """Discover should work with DiscoveryTopic enum."""
@@ -503,7 +499,6 @@ class TestTopicDiscoveryDiscover:
 
         assert DiscoveryTopic.DOUBLE_ML.value in result.queries_run
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_deduplicates_papers(self, sample_search_response):
         """Discover should deduplicate papers across topics."""
@@ -523,7 +518,6 @@ class TestTopicDiscoveryDiscover:
         assert len(result.papers) == 2  # Same 2 papers from both queries
         assert result.duplicates_removed >= 2  # Second query papers were dupes
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_applies_filters(self, sample_search_response):
         """Discover should apply search filters."""
@@ -545,7 +539,6 @@ class TestTopicDiscoveryDiscover:
         assert len(result.papers) == 1
         assert result.papers[0].paper_id == "paper1"
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_tracks_totals(self, sample_search_response):
         """Discover should track total counts."""
@@ -563,7 +556,6 @@ class TestTopicDiscoveryDiscover:
         assert result.total_found == 1542  # From sample response
         assert result.total_after_filters == 2  # 2 papers in response
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_continues_on_error(self, sample_search_response):
         """Discover should continue with other topics on error."""
@@ -584,7 +576,6 @@ class TestTopicDiscoveryDiscover:
         assert len(result.papers) == 2
         assert len(result.queries_run) == 2
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_mixed_topics(self, sample_search_response):
         """Discover should handle mix of enum and string topics."""
@@ -607,7 +598,6 @@ class TestTopicDiscoveryDiscover:
 class TestTopicDiscoveryAllTopics:
     """Tests for discover_all_topics method."""
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_all_queries_all_topics(self, sample_search_response):
         """discover_all_topics should query all enum topics."""
@@ -623,7 +613,6 @@ class TestTopicDiscoveryAllTopics:
         expected_count = len(list(DiscoveryTopic))
         assert len(result.queries_run) == expected_count
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_discover_all_applies_filters(self, sample_search_response):
         """discover_all_topics should apply filters."""
@@ -646,7 +635,6 @@ class TestTopicDiscoveryAllTopics:
 class TestTopicDiscoveryResetSeen:
     """Tests for reset_seen method."""
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_reset_clears_seen_ids(self, sample_search_response):
         """reset_seen should clear the seen IDs set."""
@@ -665,7 +653,6 @@ class TestTopicDiscoveryResetSeen:
             discovery.reset_seen()
             assert len(discovery._seen_ids) == 0
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_reset_allows_rediscovery(self, sample_search_response):
         """After reset, same papers can be discovered again."""
@@ -699,7 +686,6 @@ class TestTopicDiscoveryResetSeen:
 class TestSearchIntegration:
     """Integration tests for search functionality."""
 
-    @pytest.mark.asyncio
     @respx.mock
     async def test_full_discovery_workflow(self):
         """Test complete discovery workflow."""

@@ -10,7 +10,6 @@ from research_kb_storage import RelationshipStore, ConceptStore
 pytestmark = pytest.mark.unit
 
 
-@pytest.mark.asyncio
 async def test_create_relationship(test_db):
     """Test creating a relationship between concepts."""
     # Create two concepts first
@@ -46,7 +45,6 @@ async def test_create_relationship(test_db):
     assert relationship.created_at is not None
 
 
-@pytest.mark.asyncio
 async def test_create_relationship_with_evidence(test_db):
     """Test creating a relationship with evidence chunks."""
     # Create concepts
@@ -75,7 +73,6 @@ async def test_create_relationship_with_evidence(test_db):
     assert relationship.evidence_chunk_ids == chunk_ids
 
 
-@pytest.mark.asyncio
 async def test_create_undirected_relationship(test_db):
     """Test creating an undirected relationship."""
     # Create concepts
@@ -103,7 +100,6 @@ async def test_create_undirected_relationship(test_db):
     assert relationship.is_directed is False
 
 
-@pytest.mark.asyncio
 async def test_create_duplicate_relationship_fails(test_db):
     """Test that creating duplicate relationships fails."""
     # Create concepts
@@ -136,7 +132,6 @@ async def test_create_duplicate_relationship_fails(test_db):
         )
 
 
-@pytest.mark.asyncio
 async def test_create_relationship_missing_concept_fails(test_db):
     """Test that creating relationship with non-existent concept fails."""
     # Create one concept
@@ -157,7 +152,6 @@ async def test_create_relationship_missing_concept_fails(test_db):
         )
 
 
-@pytest.mark.asyncio
 async def test_get_by_id(test_db):
     """Test retrieving relationship by ID."""
     # Create concepts and relationship
@@ -190,7 +184,6 @@ async def test_get_by_id(test_db):
     assert retrieved.relationship_type == RelationshipType.REQUIRES
 
 
-@pytest.mark.asyncio
 async def test_get_by_id_not_found(test_db):
     """Test retrieving non-existent relationship returns None."""
     fake_id = uuid4()
@@ -198,7 +191,6 @@ async def test_get_by_id_not_found(test_db):
     assert result is None
 
 
-@pytest.mark.asyncio
 async def test_get_by_concepts(test_db):
     """Test retrieving relationship by concept pair."""
     # Create concepts
@@ -232,7 +224,6 @@ async def test_get_by_concepts(test_db):
     assert retrieved.target_concept_id == concept2.id
 
 
-@pytest.mark.asyncio
 async def test_get_by_concepts_with_type(test_db):
     """Test retrieving relationship by concept pair and type."""
     # Create concepts
@@ -272,7 +263,6 @@ async def test_get_by_concepts_with_type(test_db):
     assert retrieved.relationship_type == RelationshipType.ADDRESSES
 
 
-@pytest.mark.asyncio
 async def test_list_from_concept(test_db):
     """Test listing outgoing relationships from a concept."""
     # Create concepts
@@ -318,7 +308,6 @@ async def test_list_from_concept(test_db):
     assert relationships[1].strength == pytest.approx(0.8, rel=1e-5)
 
 
-@pytest.mark.asyncio
 async def test_delete_relationship(test_db):
     """Test deleting a relationship."""
     # Create concepts and relationship
@@ -350,7 +339,6 @@ async def test_delete_relationship(test_db):
     assert result is None
 
 
-@pytest.mark.asyncio
 async def test_delete_nonexistent_relationship(test_db):
     """Test deleting non-existent relationship returns False."""
     fake_id = uuid4()
@@ -358,7 +346,6 @@ async def test_delete_nonexistent_relationship(test_db):
     assert deleted is False
 
 
-@pytest.mark.asyncio
 async def test_count_relationships(test_db):
     """Test counting total relationships."""
     # Initially zero
@@ -389,7 +376,6 @@ async def test_count_relationships(test_db):
     assert count == 1
 
 
-@pytest.mark.asyncio
 async def test_batch_create_relationships(test_db):
     """Test batch creating multiple relationships."""
     # Create concepts
@@ -435,7 +421,6 @@ async def test_batch_create_relationships(test_db):
     assert created[1].strength == pytest.approx(0.8, rel=1e-5)
 
 
-@pytest.mark.asyncio
 async def test_batch_create_empty_list(test_db):
     """Test batch create with empty list returns empty list."""
     created = await RelationshipStore.batch_create([])

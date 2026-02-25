@@ -47,7 +47,6 @@ async def pool():
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 class TestHealthTools:
     """E2E tests for health and stats tools."""
 
@@ -77,7 +76,6 @@ class TestHealthTools:
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 class TestSearchTools:
     """E2E tests for search tool."""
 
@@ -142,7 +140,6 @@ class TestSearchTools:
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 class TestSourceTools:
     """E2E tests for source tools."""
 
@@ -193,7 +190,6 @@ class TestSourceTools:
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 class TestConceptTools:
     """E2E tests for concept tools."""
 
@@ -250,7 +246,6 @@ class TestConceptTools:
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 class TestGraphTools:
     """E2E tests for graph tools."""
 
@@ -295,7 +290,6 @@ class TestGraphTools:
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 class TestCitationTools:
     """E2E tests for citation tools."""
 
@@ -313,7 +307,6 @@ class TestCitationTools:
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 class TestCrossToolIntegration:
     """Integration tests verifying tools work together."""
 

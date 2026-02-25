@@ -62,7 +62,6 @@ def make_get_pool(pool):
 class TestComputeCouplingForSource:
     """Tests for compute_coupling_for_source()."""
 
-    @pytest.mark.asyncio
     async def test_returns_empty_when_no_shared_citations(self, source_ids, mock_pool):
         """Test returns empty list when source has no shared citations."""
         pool, conn = mock_pool
@@ -74,7 +73,6 @@ class TestComputeCouplingForSource:
         assert result == []
         conn.fetch.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_returns_coupling_results(self, source_ids, mock_pool):
         """Test returns coupling results for sources with shared citations."""
         pool, conn = mock_pool
@@ -104,7 +102,6 @@ class TestComputeCouplingForSource:
         assert result[0]["coupling_strength"] == pytest.approx(0.385, rel=1e-3)
         assert result[1]["other_source_id"] == source_ids["c"]
 
-    @pytest.mark.asyncio
     async def test_respects_min_coupling_threshold(self, source_ids, mock_pool):
         """Test that min_coupling threshold is passed to query."""
         pool, conn = mock_pool
@@ -118,7 +115,6 @@ class TestComputeCouplingForSource:
         assert call_args[0][1] == source_ids["a"]  # source_id
         assert call_args[0][2] == 0.25  # min_coupling
 
-    @pytest.mark.asyncio
     async def test_handles_null_coupling_strength(self, source_ids, mock_pool):
         """Test handles NULL coupling_strength gracefully."""
         pool, conn = mock_pool
@@ -142,7 +138,6 @@ class TestComputeCouplingForSource:
 class TestComputeAllCoupling:
     """Tests for compute_all_coupling()."""
 
-    @pytest.mark.asyncio
     async def test_returns_stats_with_no_sources(self, mock_pool):
         """Test returns stats when no sources have citations."""
         pool, conn = mock_pool
@@ -156,7 +151,6 @@ class TestComputeAllCoupling:
         assert stats["pairs_computed"] == 0
         assert stats["pairs_stored"] == 0
 
-    @pytest.mark.asyncio
     async def test_truncates_existing_data(self, source_ids, mock_pool):
         """Test truncates bibliographic_coupling table before computing."""
         pool, conn = mock_pool
@@ -173,7 +167,6 @@ class TestComputeAllCoupling:
         truncate_calls = [call for call in conn.execute.call_args_list if "TRUNCATE" in str(call)]
         assert len(truncate_calls) == 1
 
-    @pytest.mark.asyncio
     async def test_computes_and_stores_coupling(self, source_ids, mock_pool):
         """Test computes coupling for all sources and stores results."""
         pool, conn = mock_pool
@@ -202,7 +195,6 @@ class TestComputeAllCoupling:
         assert stats["pairs_computed"] == 2  # Called twice
         assert stats["pairs_stored"] > 0
 
-    @pytest.mark.asyncio
     async def test_enforces_source_id_ordering(self, source_ids, mock_pool):
         """Test that source_a_id < source_b_id ordering is enforced."""
         pool, conn = mock_pool
@@ -248,7 +240,6 @@ class TestComputeAllCoupling:
 class TestGetSimilarSources:
     """Tests for get_similar_sources()."""
 
-    @pytest.mark.asyncio
     async def test_returns_similar_sources(self, source_ids, mock_pool):
         """Test returns sources similar by bibliographic coupling."""
         pool, conn = mock_pool
@@ -283,7 +274,6 @@ class TestGetSimilarSources:
         assert result[1]["source_id"] == source_ids["c"]
         assert result[1]["shared_references"] == 3
 
-    @pytest.mark.asyncio
     async def test_returns_empty_when_no_coupling(self, source_ids, mock_pool):
         """Test returns empty list when no coupling exists."""
         pool, conn = mock_pool
@@ -294,7 +284,6 @@ class TestGetSimilarSources:
 
         assert result == []
 
-    @pytest.mark.asyncio
     async def test_respects_limit_parameter(self, source_ids, mock_pool):
         """Test that limit parameter is passed to query."""
         pool, conn = mock_pool
@@ -311,7 +300,6 @@ class TestGetSimilarSources:
 class TestGetCouplingScore:
     """Tests for get_coupling_score()."""
 
-    @pytest.mark.asyncio
     async def test_returns_coupling_score(self, source_ids, mock_pool):
         """Test returns coupling score between two sources."""
         pool, conn = mock_pool
@@ -322,7 +310,6 @@ class TestGetCouplingScore:
 
         assert score == pytest.approx(0.42, rel=1e-5)
 
-    @pytest.mark.asyncio
     async def test_returns_none_when_no_coupling(self, source_ids, mock_pool):
         """Test returns None when no coupling exists."""
         pool, conn = mock_pool
@@ -333,7 +320,6 @@ class TestGetCouplingScore:
 
         assert score is None
 
-    @pytest.mark.asyncio
     async def test_enforces_source_ordering(self, mock_pool):
         """Test that source IDs are reordered for consistent lookup."""
         pool, conn = mock_pool
@@ -358,7 +344,6 @@ class TestGetCouplingScore:
 class TestGetStats:
     """Tests for get_stats()."""
 
-    @pytest.mark.asyncio
     async def test_returns_stats(self, mock_pool):
         """Test returns bibliographic coupling statistics."""
         pool, conn = mock_pool
@@ -377,7 +362,6 @@ class TestGetStats:
         assert stats["max_coupling"] == pytest.approx(0.85, rel=1e-5)
         assert stats["sources_involved"] == 42
 
-    @pytest.mark.asyncio
     async def test_handles_empty_table(self, mock_pool):
         """Test handles empty bibliographic_coupling table."""
         pool, conn = mock_pool

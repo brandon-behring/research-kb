@@ -140,7 +140,6 @@ class TestSearchToolExecution:
             total_count=1,
         )
 
-    @pytest.mark.asyncio
     async def test_search_with_default_params(self, mock_search_response):
         """Search returns formatted results with defaults."""
         mcp = MockFastMCP()
@@ -168,7 +167,6 @@ class TestSearchToolExecution:
             # Verify result format
             assert "Search Results" in result or "results" in result.lower()
 
-    @pytest.mark.asyncio
     async def test_search_with_context_building(self, mock_search_response):
         """Search respects building context type."""
         mcp = MockFastMCP()
@@ -189,7 +187,6 @@ class TestSearchToolExecution:
             call_args = search_mock.call_args[0][0]
             assert call_args.context_type.value == "building"
 
-    @pytest.mark.asyncio
     async def test_search_with_context_auditing(self, mock_search_response):
         """Search respects auditing context type."""
         mcp = MockFastMCP()
@@ -210,7 +207,6 @@ class TestSearchToolExecution:
             call_args = search_mock.call_args[0][0]
             assert call_args.context_type.value == "auditing"
 
-    @pytest.mark.asyncio
     async def test_search_disabling_features(self, mock_search_response):
         """Search respects disabled features."""
         mcp = MockFastMCP()
@@ -237,7 +233,6 @@ class TestSearchToolExecution:
             assert call_args.use_expand is False
             assert call_args.use_citations is False
 
-    @pytest.mark.asyncio
     async def test_search_limit_clamping_upper(self, mock_search_response):
         """Search clamps limit to maximum 50."""
         mcp = MockFastMCP()
@@ -258,7 +253,6 @@ class TestSearchToolExecution:
             call_args = search_mock.call_args[0][0]
             assert call_args.limit == 50  # clamped
 
-    @pytest.mark.asyncio
     async def test_search_limit_clamping_lower(self, mock_search_response):
         """Search clamps limit to minimum 1."""
         mcp = MockFastMCP()
@@ -279,7 +273,6 @@ class TestSearchToolExecution:
             call_args = search_mock.call_args[0][0]
             assert call_args.limit == 1  # clamped
 
-    @pytest.mark.asyncio
     async def test_search_citation_weight_clamping(self, mock_search_response):
         """Search clamps citation weight to 0-1 range."""
         mcp = MockFastMCP()
@@ -300,7 +293,6 @@ class TestSearchToolExecution:
             call_args = search_mock.call_args[0][0]
             assert call_args.citation_weight == 1.0  # clamped
 
-    @pytest.mark.asyncio
     async def test_search_empty_results(self):
         """Search handles empty results gracefully."""
         mcp = MockFastMCP()
@@ -371,7 +363,6 @@ class TestSearchHyDE:
             assert call_args.hyde_config.enabled is True
             assert call_args.hyde_config.backend == "ollama"
 
-    @pytest.mark.asyncio
     async def test_search_hyde_fallback(self):
         """Search still works when HyDE returns None (Ollama unavailable)."""
         mcp = MockFastMCP()
@@ -413,7 +404,6 @@ class TestFastSearchTool:
         assert "vector" in doc.lower()
         assert "fast" in doc.lower() or "200ms" in doc.lower()
 
-    @pytest.mark.asyncio
     async def test_fast_search_uses_fast_mode(self):
         """Fast search sets fast_mode=True on SearchOptions."""
         mcp = MockFastMCP()
@@ -435,7 +425,6 @@ class TestFastSearchTool:
             assert call_args.use_expand is False
             assert call_args.use_citations is False
 
-    @pytest.mark.asyncio
     async def test_fast_search_limit_clamp(self):
         """Fast search clamps limit to 1-20 range."""
         mcp = MockFastMCP()
@@ -458,7 +447,6 @@ class TestFastSearchTool:
             call_args = search_mock.call_args[0][0]
             assert call_args.limit == 1
 
-    @pytest.mark.asyncio
     async def test_fast_search_default_limit(self):
         """Fast search defaults to limit=5."""
         mcp = MockFastMCP()
@@ -476,7 +464,6 @@ class TestFastSearchTool:
             call_args = search_mock.call_args[0][0]
             assert call_args.limit == 5
 
-    @pytest.mark.asyncio
     async def test_fast_search_with_domain(self):
         """Fast search passes domain filter."""
         mcp = MockFastMCP()

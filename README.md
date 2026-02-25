@@ -15,7 +15,7 @@ Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge
 - **20-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
 - **Knowledge graph** -- 307K concepts and 742K relationships extracted from research literature, served by KuzuDB
 - **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
-- **Multi-domain** -- causal inference, time series, RAG/LLM, and extensible to new domains
+- **Multi-domain** -- 19 corpus domains, 14 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
 - **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
 
@@ -66,7 +66,7 @@ python scripts/setup_demo.py               # Download + ingest 25 open-access pa
 **Option C -- Bring your own PDFs:**
 
 ```bash
-research-kb ingest <your-pdfs-directory>
+python scripts/ingest_corpus.py            # Ingest PDFs from configured corpus directory
 ```
 
 ### 4. Search
@@ -78,7 +78,7 @@ research-kb query "instrumental variables"
 ### 5. Start the MCP server (optional)
 
 ```bash
-research-kb-mcp serve
+research-kb-mcp
 ```
 
 Then add to your Claude Code MCP config to access all 20 tools from conversation.
@@ -116,7 +116,7 @@ The weight profile adapts to the search intent:
 | `auditing` | 50% | 50% | -- | -- | Precise lookup -- keyword accuracy matters |
 | `balanced` | 30% | 70% | -- | -- | Default -- good general performance |
 
-Graph (15%) and citation (15%) signals are opt-in via `use_graph` and `use_citations` flags. When enabled, FTS and vector weights are reduced proportionally.
+Graph (15%) and citation (15%) signals are **enabled by default** in CLI and MCP interfaces. Disable with `--no-graph` / `--no-citations`. When active, FTS and vector weights are reduced proportionally.
 
 ## Architecture
 
@@ -142,6 +142,7 @@ Graph (15%) and citation (15%) signals are opt-in via `use_graph` and `use_citat
 └───────────────────────────────────────────────────┘
 ```
 
+<!-- AUTO-GEN:packages:START -->
 ### Packages
 
 | Package | Purpose | Key Technology |
@@ -153,17 +154,18 @@ Graph (15%) and citation (15%) signals are opt-in via `use_graph` and `use_citat
 | `extraction` | Concept extraction from text | Ollama LLM |
 | `cli` | Command-line interface | Typer |
 | `api` | REST endpoints + health checks | FastAPI |
-| `daemon` | Background service (embedding, sync) | asyncio |
+| `daemon` | Low-latency query service (JSON-RPC 2.0) | asyncio, Unix socket |
 | `mcp-server` | MCP tool server for Claude Code | MCP SDK |
 | `dashboard` | Visual search + graph explorer | Streamlit |
 | `s2-client` | Semantic Scholar API client | httpx, rate limiting |
-| `client` | Python client library | httpx |
+| `client` | DaemonClient SDK (JSON-RPC 2.0) | Unix socket |
+<!-- AUTO-GEN:packages:END -->
 
 ### Key Design Decisions
 
 | Decision | Rationale | Alternative Rejected |
 |----------|-----------|---------------------|
-| BGE-large-en-v1.5 (1024d) | Single model ensures embedding consistency across 178K chunks | Multi-model (marginal quality gain, consistency cost) |
+| BGE-large-en-v1.5 (1024d) | Single model ensures embedding consistency across 226K chunks | Multi-model (marginal quality gain, consistency cost) |
 | KuzuDB embedded graph | Solved O(N*M) recursive CTE bottleneck: 85s -> 2.1s | PostgreSQL-only graph (too slow at scale) |
 | Weighted sum over RRF | Validated 5-1 superiority on golden dataset | Reciprocal Rank Fusion (loses magnitude signal) |
 | asyncpg connection pooling | Handles concurrent MCP + API + CLI requests | Synchronous psycopg2 (blocks on I/O) |
@@ -196,12 +198,13 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 | Dimension | Count |
 |-----------|-------|
-| Sources (papers, textbooks) | 452 |
-| Text chunks (100% embedded) | 178K |
+| Sources (papers, textbooks) | 485 |
+| Text chunks (100% embedded) | 226K |
 | Concepts (9 types) | 307K |
 | Relationships | 742K |
 | Citations | 15,869 |
 
+<!-- AUTO-GEN:mcp-tools:START -->
 ## MCP Server
 
 20 tools organized by function, designed for conversational use in Claude Code:
@@ -209,19 +212,20 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 | Category | Tools | Description |
 |----------|-------|-------------|
 | **Search** | `research_kb_search`, `research_kb_fast_search` | Hybrid search with domain filtering and context profiles |
-| **Sources** | `list_sources`, `get_source`, `get_source_citations`, `get_citing_sources`, `get_cited_sources` | Browse corpus and citation links |
-| **Concepts** | `list_concepts`, `get_concept`, `chunk_concepts`, `find_similar_concepts` | Search and inspect knowledge graph nodes |
-| **Graph** | `graph_neighborhood`, `graph_path`, `cross_domain_concepts` | Traverse concept relationships |
-| **Citations** | `citation_network`, `biblio_coupling` | Upstream/downstream influence, bibliographic coupling |
-| **Health** | `health`, `stats`, `list_domains` | System status and corpus metrics |
-| **Advanced** | `audit_assumptions` | Method assumption extraction with docstring generation |
+| **Sources** | `research_kb_list_sources`, `research_kb_get_source`, `research_kb_get_source_citations`, `research_kb_get_citing_sources`, `research_kb_get_cited_sources` | Browse corpus and citation links |
+| **Concepts** | `research_kb_list_concepts`, `research_kb_get_concept`, `research_kb_chunk_concepts`, `research_kb_find_similar_concepts` | Search and inspect knowledge graph nodes |
+| **Graph** | `research_kb_graph_neighborhood`, `research_kb_graph_path`, `research_kb_cross_domain_concepts` | Traverse concept relationships |
+| **Citations** | `research_kb_citation_network`, `research_kb_biblio_coupling` | Upstream/downstream influence, bibliographic coupling |
+| **Health** | `research_kb_health`, `research_kb_stats`, `research_kb_list_domains` | System status and corpus metrics |
+| **Advanced** | `research_kb_audit_assumptions` | Method assumption extraction (uses Anthropic backend) |
+<!-- AUTO-GEN:mcp-tools:END -->
 
 ## Testing
 
-- **~2,040 test functions** across 90+ test files
-- **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (10 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
-- **Golden evaluation dataset**: 177 queries across 14 domains with known-relevant chunks
-- **Retrieval eval**: 55 test cases with per-domain reporting (`--per-domain` flag)
+- **~2,100+ test functions** across 90+ test files
+- **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (15 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
+- **Golden evaluation dataset**: 177 queries across 14 domains with known-relevant chunks (benchmark)
+- **Retrieval eval**: 55 YAML test cases with per-domain reporting (`--per-domain` flag)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
 ```bash
@@ -236,6 +240,7 @@ pytest packages/mcp-server/tests/ -v
 pytest -m "unit"
 ```
 
+<!-- AUTO-GEN:cli-commands:START -->
 ## CLI Reference
 
 Full command reference with examples: [`docs/CLI.md`](docs/CLI.md)
@@ -243,28 +248,66 @@ Full command reference with examples: [`docs/CLI.md`](docs/CLI.md)
 Quick reference:
 
 ```bash
-research-kb query "instrumental variables"        # Hybrid search
+# Search and retrieval
+research-kb query "instrumental variables"        # Hybrid search (all 4 signals)
+research-kb query "IV" --no-graph                 # Disable graph signal
+research-kb query "IV" --no-citations             # Disable citation authority
+
+# Source management
 research-kb sources                               # List sources
 research-kb stats                                 # Database statistics
+research-kb extraction-status                     # Extraction pipeline stats
+
+# Knowledge graph
 research-kb concepts "IV"                         # Concept search
 research-kb graph "double machine learning"       # Graph exploration
 research-kb path "IV" "unconfoundedness"          # Shortest path
-research-kb audit-assumptions "IV"                # Assumption auditing
-research-kb discover search "causal inference"    # S2 discovery
+
+# Citation network
+research-kb citations <source>                    # List citations from a source
+research-kb cited-by <source>                     # Find sources citing this one
+research-kb cites <source>                        # Find sources this one cites
+research-kb citation-stats                        # Corpus citation statistics
+research-kb biblio-similar <source>               # Find similar sources (shared refs)
+
+# Assumption auditing (North Star feature)
+research-kb audit-assumptions "IV"                # Get required assumptions
+
+# Semantic Scholar discovery
+research-kb discover search "causal inference"    # Search S2 for papers
+research-kb discover topics                       # Browse by topic
+research-kb discover author "Chernozhukov"        # Find by author
 research-kb enrich citations                      # Enrich with S2 metadata
+research-kb enrich status                         # Show enrichment status
+research-kb enrich job-status                     # Check enrichment job status
 ```
+<!-- AUTO-GEN:cli-commands:END -->
 
 ## Multi-Domain Support
 
-research-kb ships with 5 registered domains:
+research-kb supports 19 corpus domains with 14 extraction prompt configurations:
 
-| Domain | Description |
-|--------|-------------|
-| `causal_inference` | Causal inference, structural models, treatment effects |
-| `time_series` | Time series analysis, forecasting, temporal methods |
-| `rag_llm` | Retrieval-augmented generation, language models |
-| `healthcare` | Healthcare ML, risk adjustment, clinical outcomes |
-| `software_engineering` | Design patterns, testing, architecture, DevOps |
+| Domain | Sources | Description |
+|--------|---------|-------------|
+| `causal_inference` | 89 | Causal inference, structural models, treatment effects |
+| `rag_llm` | 74 | Retrieval-augmented generation, language models |
+| `time_series` | 49 | Time series analysis, forecasting, temporal methods |
+| `software_engineering` | 37 | Design patterns, testing, architecture, DevOps |
+| `deep_learning` | 35 | Neural networks, transformers, optimization |
+| `econometrics` | 35 | Econometric theory and estimation |
+| `mathematics` | 25 | Pure and applied mathematics |
+| `interview_prep` | 23 | Technical interview preparation |
+| `finance` | 23 | Quantitative finance and risk |
+| `machine_learning` | 20 | General ML algorithms and theory |
+| `statistics` | 18 | Statistical theory and methods |
+| `ml_engineering` | 14 | ML systems, MLOps, production ML |
+| `data_science` | 12 | Data analysis and visualization |
+| `portfolio_management` | 11 | Portfolio theory and optimization |
+| `functional_programming` | 7 | FP concepts and languages |
+| `algorithms` | 6 | Algorithm design and analysis |
+| `forecasting` | 4 | Forecasting methods and evaluation |
+| `fitness` | 2 | Exercise science and training |
+| `economics` | 1 | Economic theory |
 
 All search, concept extraction, and graph operations support domain filtering via the `--domain` flag.
 
@@ -276,7 +319,7 @@ Quick version:
 
 1. Create a SQL migration to register the domain
 2. (Optional) Configure domain-specific prompts in `domain_prompts.py`
-3. Ingest PDFs: `research-kb ingest --domain <name> <pdf-dir>`
+3. Ingest PDFs: `python scripts/ingest_corpus.py --domain <name>`
 4. Extract concepts: `python scripts/extract_concepts.py --domain <name>`
 5. Sync to KuzuDB: `python scripts/sync_kuzu.py`
 
@@ -298,14 +341,14 @@ docker-compose up -d
 # Embedding server
 python -m research_kb_pdf.embed_server
 
-# MCP daemon
-research-kb-mcp serve
+# MCP server
+research-kb-mcp
 
 # API server
-uvicorn research_kb_api.app:app --port 8000
+uvicorn research_kb_api.main:app --port 8000
 
 # Dashboard
-streamlit run packages/dashboard/app.py
+streamlit run packages/dashboard/src/research_kb_dashboard/app.py
 ```
 
 ## Documentation

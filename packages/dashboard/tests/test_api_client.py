@@ -49,7 +49,6 @@ class TestClientLifecycle:
         client = ResearchKBClient(timeout=60.0)
         assert client.timeout == 60.0
 
-    @pytest.mark.asyncio
     async def test_get_client_creates_singleton(self):
         """_get_client creates and reuses httpx client."""
         client = ResearchKBClient()
@@ -69,7 +68,6 @@ class TestClientLifecycle:
             assert not mock_client_class.called
             assert result2 == mock_instance
 
-    @pytest.mark.asyncio
     async def test_close_client(self):
         """close() properly closes the HTTP client."""
         client = ResearchKBClient()
@@ -81,7 +79,6 @@ class TestClientLifecycle:
         mock_http.aclose.assert_called_once()
         assert client._client is None
 
-    @pytest.mark.asyncio
     async def test_close_when_not_initialized(self):
         """close() handles uninitialized client gracefully."""
         client = ResearchKBClient()
@@ -94,7 +91,6 @@ class TestClientLifecycle:
 class TestGetStats:
     """Tests for get_stats endpoint."""
 
-    @pytest.mark.asyncio
     async def test_get_stats_success(self):
         """get_stats returns parsed JSON response."""
         client = ResearchKBClient()
@@ -118,7 +114,6 @@ class TestGetStats:
         assert result["sources"] == 294
         assert result["chunks"] == 142962
 
-    @pytest.mark.asyncio
     async def test_get_stats_connection_error(self):
         """get_stats raises on connection errors."""
         client = ResearchKBClient()
@@ -134,7 +129,6 @@ class TestGetStats:
 class TestHealthCheck:
     """Tests for health_check endpoint."""
 
-    @pytest.mark.asyncio
     async def test_health_check_success(self):
         """health_check returns health status."""
         client = ResearchKBClient()
@@ -160,7 +154,6 @@ class TestHealthCheck:
 class TestSearch:
     """Tests for search endpoint."""
 
-    @pytest.mark.asyncio
     async def test_search_with_defaults(self):
         """search sends correct default parameters."""
         client = ResearchKBClient()
@@ -188,7 +181,6 @@ class TestSearch:
         assert payload["use_graph"] is True
         assert payload["use_rerank"] is True
 
-    @pytest.mark.asyncio
     async def test_search_with_all_params(self):
         """search sends all custom parameters."""
         client = ResearchKBClient()
@@ -222,7 +214,6 @@ class TestSearch:
         assert payload["use_rerank"] is False
         assert payload["use_expand"] is False
 
-    @pytest.mark.asyncio
     async def test_search_empty_results(self):
         """search handles empty results gracefully."""
         client = ResearchKBClient()
@@ -248,7 +239,6 @@ class TestSearch:
 class TestSources:
     """Tests for source-related endpoints."""
 
-    @pytest.mark.asyncio
     async def test_list_sources_default(self):
         """list_sources uses default parameters."""
         client = ResearchKBClient()
@@ -274,7 +264,6 @@ class TestSources:
         assert params["offset"] == 0
         assert "source_type" not in params
 
-    @pytest.mark.asyncio
     async def test_list_sources_with_filter(self):
         """list_sources includes source_type filter."""
         client = ResearchKBClient()
@@ -294,7 +283,6 @@ class TestSources:
         assert params["offset"] == 10
         assert params["source_type"] == "PAPER"
 
-    @pytest.mark.asyncio
     async def test_get_source(self):
         """get_source fetches source by ID."""
         client = ResearchKBClient()
@@ -317,7 +305,6 @@ class TestSources:
         mock_http.get.assert_called_once_with(f"/sources/{source_id}")
         assert result["id"] == source_id
 
-    @pytest.mark.asyncio
     async def test_get_source_citations(self):
         """get_source_citations fetches citation data."""
         client = ResearchKBClient()
@@ -343,7 +330,6 @@ class TestSources:
 class TestConcepts:
     """Tests for concept-related endpoints."""
 
-    @pytest.mark.asyncio
     async def test_list_concepts_default(self):
         """list_concepts uses default parameters."""
         client = ResearchKBClient()
@@ -366,7 +352,6 @@ class TestConcepts:
         assert "query" not in params
         assert "concept_type" not in params
 
-    @pytest.mark.asyncio
     async def test_list_concepts_with_search(self):
         """list_concepts includes search query."""
         client = ResearchKBClient()
@@ -390,7 +375,6 @@ class TestConcepts:
 class TestGraph:
     """Tests for graph-related endpoints."""
 
-    @pytest.mark.asyncio
     async def test_get_graph_neighborhood(self):
         """get_graph_neighborhood fetches concept neighborhood."""
         client = ResearchKBClient()
@@ -414,7 +398,6 @@ class TestGraph:
         assert call_args[1]["params"]["hops"] == 2
         assert call_args[1]["params"]["limit"] == 50
 
-    @pytest.mark.asyncio
     async def test_get_graph_path(self):
         """get_graph_path fetches shortest path between concepts."""
         client = ResearchKBClient()
@@ -441,7 +424,6 @@ class TestGraph:
 class TestConvenienceFunction:
     """Tests for get_api_client convenience function."""
 
-    @pytest.mark.asyncio
     async def test_get_api_client(self):
         """get_api_client returns new client instance."""
         client = await get_api_client()

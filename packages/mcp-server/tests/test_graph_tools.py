@@ -95,7 +95,6 @@ class TestGraphNeighborhood:
             ],
         }
 
-    @pytest.mark.asyncio
     async def test_neighborhood_default_hops(self, sample_neighborhood):
         """Neighborhood uses default hop count."""
         mcp = MockFastMCP()
@@ -115,7 +114,6 @@ class TestGraphNeighborhood:
             )
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_neighborhood_custom_hops(self, sample_neighborhood):
         """Neighborhood respects custom hop count."""
         mcp = MockFastMCP()
@@ -136,7 +134,6 @@ class TestGraphNeighborhood:
                 limit=20,
             )
 
-    @pytest.mark.asyncio
     async def test_neighborhood_hops_clamping(self, sample_neighborhood):
         """Neighborhood clamps hops to valid range."""
         mcp = MockFastMCP()
@@ -159,7 +156,6 @@ class TestGraphNeighborhood:
             )
             assert get_mock.call_args[1]["hops"] == 1  # clamped to min
 
-    @pytest.mark.asyncio
     async def test_neighborhood_limit_clamping(self, sample_neighborhood):
         """Neighborhood clamps limit to valid range."""
         mcp = MockFastMCP()
@@ -174,7 +170,6 @@ class TestGraphNeighborhood:
             )
             assert get_mock.call_args[1]["limit"] == 100
 
-    @pytest.mark.asyncio
     async def test_neighborhood_not_found(self):
         """Neighborhood handles concept not found."""
         mcp = MockFastMCP()
@@ -219,7 +214,6 @@ class TestGraphPath:
             "length": 2,
         }
 
-    @pytest.mark.asyncio
     async def test_path_found(self, sample_path):
         """Path returns formatted result when path exists."""
         mcp = MockFastMCP()
@@ -239,7 +233,6 @@ class TestGraphPath:
             assert call_kwargs["concept_b"] == "Instrumental Variables"
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_path_no_connection(self):
         """Path handles no connection between concepts."""
         mcp = MockFastMCP()
@@ -255,7 +248,6 @@ class TestGraphPath:
 
             assert isinstance(result, str)
 
-    @pytest.mark.asyncio
     async def test_path_same_concept(self):
         """Path handles same concept for both endpoints."""
         mcp = MockFastMCP()
