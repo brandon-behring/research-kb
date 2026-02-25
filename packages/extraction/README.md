@@ -144,12 +144,12 @@ async with AnthropicClient(model="opus") as client:
 
 ## Graph Storage
 
-All graph queries are handled by PostgreSQL using recursive CTEs. This provides:
-- ACID transactions with chunk/concept data
-- No additional infrastructure needed
-- Efficient 2-3 hop queries for typical use cases
+Graph queries use a two-tier architecture:
 
-See `docs/ROADMAP.md` Phase 5 for future Neo4j considerations when scale requires advanced graph analytics.
+1. **KuzuDB (primary)**: Embedded graph engine for traversals and scoring (~150ms batch). Data at `~/.research_kb/kuzu/research_kb.kuzu`.
+2. **PostgreSQL (fallback)**: Recursive CTEs with 2-second timeout when KuzuDB unavailable.
+
+See `packages/storage/src/research_kb_storage/kuzu_store.py` for KuzuDB implementation.
 
 ## Testing
 

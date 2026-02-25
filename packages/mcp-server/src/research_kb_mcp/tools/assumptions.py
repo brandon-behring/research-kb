@@ -47,7 +47,7 @@ def register_assumption_tools(mcp: FastMCP) -> None:
         Data Sources:
         1. **Knowledge Graph**: First queries METHOD → REQUIRES/USES → ASSUMPTION
         2. **Cache**: Checks for previously extracted assumptions
-        3. **LLM Fallback**: If <3 assumptions found, uses Ollama to extract more
+        3. **LLM Fallback**: If <3 assumptions found, uses Anthropic (Claude Haiku) to extract more
            (results are cached for future queries)
 
         Args:
@@ -55,7 +55,7 @@ def register_assumption_tools(mcp: FastMCP) -> None:
                         Examples: "DML", "double machine learning", "IV",
                                   "instrumental variables", "DiD"
             include_docstring: Include code docstring snippet (default True)
-            use_llm_fallback: Use Ollama LLM to extract assumptions if graph
+            use_llm_fallback: Use Anthropic LLM to extract assumptions if graph
                              returns fewer than 3 results (default True)
 
         Returns:

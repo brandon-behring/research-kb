@@ -99,7 +99,9 @@ class MethodAssumptions:
     method_aliases: list[str] = field(default_factory=list)
     definition: Optional[str] = None
     assumptions: list[AssumptionDetail] = field(default_factory=list)
-    source: str = "graph"  # graph, cache, ollama
+    source: str = (
+        "graph"  # graph, cache, empty, not_found, ollama, anthropic, graph+ollama, graph+anthropic
+    )
     code_docstring_snippet: Optional[str] = None
 
     def to_dict(self) -> dict:

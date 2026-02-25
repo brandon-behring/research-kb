@@ -169,6 +169,7 @@ async def search_corpus(db_pool):
         year=2009,
         file_hash=f"sha256:pearl_{uuid4().hex[:8]}",
         metadata={"domain": "causal_inference"},
+        domain_id="causal_inference",
     )
 
     src_angrist = await SourceStore.create(
@@ -178,6 +179,7 @@ async def search_corpus(db_pool):
         year=2008,
         file_hash=f"sha256:angrist_{uuid4().hex[:8]}",
         metadata={"domain": "causal_inference"},
+        domain_id="causal_inference",
     )
 
     src_chernozhukov = await SourceStore.create(
@@ -187,6 +189,7 @@ async def search_corpus(db_pool):
         year=2018,
         file_hash=f"sha256:chernoz_{uuid4().hex[:8]}",
         metadata={"domain": "causal_inference"},
+        domain_id="causal_inference",
     )
 
     src_rag_textbook = await SourceStore.create(
@@ -266,6 +269,7 @@ async def search_corpus(db_pool):
         location="Chapter 7, p. 247",
         embedding=IV_VECTOR,
         metadata={"chunk_type": "definition"},
+        domain_id="causal_inference",
     )
 
     chunks["iv_assumptions"] = await ChunkStore.create(
@@ -280,6 +284,7 @@ async def search_corpus(db_pool):
         location="Chapter 4, p. 113",
         embedding=_blend_embeddings(IV_VECTOR, DML_VECTOR, alpha=0.85),
         metadata={"chunk_type": "theorem"},
+        domain_id="causal_inference",
     )
 
     chunks["iv_example"] = await ChunkStore.create(
@@ -293,6 +298,7 @@ async def search_corpus(db_pool):
         location="Chapter 4, p. 130",
         embedding=_blend_embeddings(IV_VECTOR, UNRELATED_VECTOR, alpha=0.6),
         metadata={"chunk_type": "example"},
+        domain_id="causal_inference",
     )
 
     # --- DML cluster ---
@@ -308,6 +314,7 @@ async def search_corpus(db_pool):
         location="Section 1, p. 1",
         embedding=DML_VECTOR,
         metadata={"chunk_type": "overview"},
+        domain_id="causal_inference",
     )
 
     chunks["dml_assumptions"] = await ChunkStore.create(
@@ -322,6 +329,7 @@ async def search_corpus(db_pool):
         location="Section 2, p. 5",
         embedding=_blend_embeddings(DML_VECTOR, IV_VECTOR, alpha=0.8),
         metadata={"chunk_type": "theorem"},
+        domain_id="causal_inference",
     )
 
     # --- RAG cluster ---
@@ -381,6 +389,7 @@ async def search_corpus(db_pool):
         location="Appendix A, p. 380",
         embedding=UNRELATED_VECTOR,
         metadata={"chunk_type": "historical"},
+        domain_id="causal_inference",
     )
 
     # ------------------------------------------------------------------
