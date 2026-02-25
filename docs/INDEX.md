@@ -20,6 +20,8 @@
 | Understand integration surfaces | [Integration Guide](INTEGRATION.md) |
 | Run the CLI | [CLAUDE.md](../CLAUDE.md#cli-usage) |
 | Set up locally | [Local Development](guides/LOCAL_DEVELOPMENT.md) |
+| See domain coverage gaps | [Domain Coverage](DOMAIN_COVERAGE.md) |
+| Find a script's usage | [Script Utilities](scripts/UTILITIES.md) |
 | Update status docs | `python scripts/generate_status.py` |
 
 ---
@@ -70,6 +72,11 @@ docs/
 │   ├── rrf_validation.md          # Weighted sum vs. RRF empirical comparison
 │   ├── search_quality_analysis.md # Search quality and scoring analysis
 │   └── phase3_research_notes.md
+│
+├── scripts/                    # Script documentation
+│   └── UTILITIES.md               # Categorized script index with usage examples
+│
+├── DOMAIN_COVERAGE.md          # Domain gap analysis vs interview prep
 │
 ├── guides/                     # How-to guides
 │   └── LOCAL_DEVELOPMENT.md
