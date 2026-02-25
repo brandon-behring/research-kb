@@ -11,7 +11,6 @@ from uuid import uuid4
 
 import httpx
 
-
 # Import the module under test
 import sys
 from pathlib import Path

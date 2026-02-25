@@ -15,7 +15,6 @@ from research_kb_storage import (
     close_connection_pool,
 )
 
-
 # Test database name - NEVER use production database for tests
 TEST_DATABASE_NAME = os.environ.get("TEST_DATABASE_NAME", "research_kb_test")
 PRODUCTION_DATABASE_NAME = "research_kb"

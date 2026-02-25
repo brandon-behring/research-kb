@@ -18,7 +18,6 @@ import sys
 
 import asyncpg
 
-
 DB_HOST = "localhost"
 DB_PORT = 5432
 DB_NAME = "research_kb"

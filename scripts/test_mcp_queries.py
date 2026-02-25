@@ -4,7 +4,6 @@ import json
 import socket
 import time
 
-
 SOCKET_PATH = "/tmp/research_kb_daemon_$USER.sock"
 
 QUERIES = [

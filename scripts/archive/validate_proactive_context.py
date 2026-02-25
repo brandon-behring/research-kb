@@ -37,7 +37,6 @@ sys.path.insert(0, str(LEVER_PATH))
 
 from services.proactive_context.research_kb_bridge import ResearchKBBridge
 
-
 # ── Test corpus: 50 prompts across 5 domains ──────────────────────────────────
 
 TEST_PROMPTS = {

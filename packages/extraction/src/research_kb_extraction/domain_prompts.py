@@ -15,7 +15,6 @@ Each domain specifies:
 
 from typing import Any
 
-
 # Registry of domain-specific configurations
 DOMAIN_PROMPTS: dict[str, dict[str, Any]] = {
     "healthcare": {

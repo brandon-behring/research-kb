@@ -13,7 +13,6 @@ from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
-
 # Global tracer provider (initialized once)
 _tracer_provider: TracerProvider | None = None
 
