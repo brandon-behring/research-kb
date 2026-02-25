@@ -1,7 +1,7 @@
 """Tests for domain-specific prompt configurations.
 
 Validates:
-- All 19 domains registered with required keys
+- All 20 domains registered with required keys
 - get_domain_prompt_section() returns non-empty guidance
 - get_domain_abbreviations() returns lowercase keys, non-empty values
 - get_domain_config() returns full configuration
@@ -10,6 +10,7 @@ Validates:
 - Unknown domain fallback behavior (defaults to causal_inference)
 - New domains (Phase H) have appropriate key terms in guidance
 - Phase N domains (sql, recommender_systems, adtech, algorithms, forecasting)
+- Phase O domain: portfolio_management
 """
 
 import pytest
@@ -26,7 +27,7 @@ from research_kb_extraction.domain_prompts import (
 pytestmark = pytest.mark.unit
 
 
-# All 19 expected domain IDs
+# All 20 expected domain IDs
 EXPECTED_DOMAINS = {
     "healthcare",
     "causal_inference",
@@ -47,6 +48,7 @@ EXPECTED_DOMAINS = {
     "adtech",
     "algorithms",
     "forecasting",
+    "portfolio_management",
 }
 
 # Required keys in every domain config
@@ -62,8 +64,8 @@ REQUIRED_KEYS = {
 class TestDomainRegistry:
     """Test the DOMAIN_PROMPTS registry structure."""
 
-    def test_all_nineteen_domains_present(self):
-        """All 19 expected domains exist in the registry."""
+    def test_all_twenty_domains_present(self):
+        """All 20 expected domains exist in the registry."""
         assert set(DOMAIN_PROMPTS.keys()) == EXPECTED_DOMAINS
 
     @pytest.mark.parametrize("domain_id", EXPECTED_DOMAINS)
@@ -199,8 +201,8 @@ class TestGetDomainConfig:
 class TestListDomains:
     """Test list_domains()."""
 
-    def test_returns_all_nineteen_domains(self):
-        """Returns all 19 domain IDs."""
+    def test_returns_all_twenty_domains(self):
+        """Returns all 20 domain IDs."""
         domains = list_domains()
         assert set(domains) == EXPECTED_DOMAINS
 
@@ -477,3 +479,56 @@ class TestPhaseNDomainKeyTerms:
         # Dict can't have dups, but check all keys are lowercase
         for key in abbrevs:
             assert key == key.lower(), f"Key '{key}' not lowercase in {domain_id}"
+
+
+class TestPortfolioManagement:
+    """Validate Phase O portfolio_management domain config."""
+
+    def test_portfolio_management_mentions_key_terms(self):
+        """Portfolio management guidance mentions MPT, CAPM, and factor models."""
+        guidance = get_domain_prompt_section("portfolio_management")
+        assert "CAPM" in guidance
+        assert "mean-variance" in guidance.lower()
+        assert "factor" in guidance.lower()
+
+    def test_portfolio_management_mentions_risk(self):
+        """Portfolio management guidance covers risk management concepts."""
+        guidance = get_domain_prompt_section("portfolio_management")
+        assert "risk" in guidance.lower()
+        assert "Sharpe ratio" in guidance or "sharpe" in guidance.lower()
+
+    def test_portfolio_management_mentions_black_litterman(self):
+        """Portfolio management guidance mentions Black-Litterman model."""
+        guidance = get_domain_prompt_section("portfolio_management")
+        assert "Black-Litterman" in guidance
+
+    def test_portfolio_management_known_abbreviations(self):
+        """Portfolio management has expected abbreviations."""
+        abbrevs = get_domain_abbreviations("portfolio_management")
+        assert abbrevs["mpt"] == "modern portfolio theory"
+        assert abbrevs["capm"] == "capital asset pricing model"
+        assert abbrevs["apt"] == "arbitrage pricing theory"
+        assert abbrevs["saa"] == "strategic asset allocation"
+        assert abbrevs["gips"] == "global investment performance standards"
+
+    def test_portfolio_management_factor_abbreviations(self):
+        """Portfolio management has Fama-French factor abbreviations."""
+        abbrevs = get_domain_abbreviations("portfolio_management")
+        assert abbrevs["hml"] == "high minus low"
+        assert abbrevs["smb"] == "small minus big"
+        assert abbrevs["ff3"] == "fama-french three-factor"
+
+    def test_portfolio_management_has_at_least_6_examples(self):
+        """Portfolio management has at least 6 relationship examples."""
+        examples = DOMAIN_PROMPTS["portfolio_management"]["examples"]
+        assert len(examples) >= 6, f"Only {len(examples)} examples"
+
+    def test_portfolio_management_has_at_least_20_abbreviations(self):
+        """Portfolio management has at least 20 abbreviations."""
+        abbrevs = DOMAIN_PROMPTS["portfolio_management"]["abbreviations"]
+        assert len(abbrevs) >= 20, f"Only {len(abbrevs)} abbreviations"
+
+    def test_portfolio_management_name(self):
+        """Portfolio management config has correct name."""
+        config = get_domain_config("portfolio_management")
+        assert config["name"] == "Portfolio Management"

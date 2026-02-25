@@ -1151,6 +1151,68 @@ Broader concepts (use when more appropriate):
             "rng": "random number generator",
         },
     },
+    "portfolio_management": {
+        "name": "Portfolio Management",
+        "description": "Portfolio construction, asset allocation, factor models, risk management, and investment performance evaluation",
+        "concept_type_guidance": """Portfolio management:
+1. method: Portfolio methods (e.g., mean-variance optimization, Black-Litterman, risk parity, factor investing, liability-driven investing, Monte Carlo simulation, rebalancing)
+2. assumption: Model assumptions (e.g., normally distributed returns, efficient markets, rational investors, constant correlations, stationarity of factor premia)
+3. problem: Portfolio challenges (e.g., estimation error, curse of dimensionality, regime changes, transaction costs, illiquidity, benchmark misfit)
+4. definition: Formal terms (e.g., efficient frontier, Sharpe ratio, information ratio, tracking error, alpha, beta, drawdown, IPS)
+5. theorem: Formal results (e.g., CAPM, APT, two-fund separation, mutual fund theorem, mean-variance spanning)
+
+Broader concepts (use when more appropriate):
+6. concept: General ideas (e.g., diversification, risk budgeting, strategic vs tactical allocation, factor exposure, style drift)
+7. technique: Applied procedures (e.g., corner portfolio method, shrinkage estimation, robust optimization, scenario analysis, stress testing)
+8. model: Model architectures (e.g., CAPM, Fama-French three-factor, Carhart four-factor, Barra risk model, Black-Litterman)
+9. principle: Investment principles (e.g., diversification, risk-return tradeoff, time diversification, rebalancing discipline, GIPS compliance)""",
+        "examples": [
+            "CAPM REQUIRES efficient market hypothesis and mean-variance preferences",
+            "Risk parity ALTERNATIVE_TO mean-variance optimization for balanced risk allocation",
+            "Fama-French three-factor model EXTENDS CAPM with size and value factors",
+            "Black-Litterman COMBINES market equilibrium with investor views",
+            "APT GENERALIZES CAPM to multiple systematic risk factors",
+            "Liability-driven investing ADDRESSES pension fund matching obligations",
+            "Tracking error MEASURES deviation of portfolio returns from benchmark",
+        ],
+        "abbreviations": {
+            "mpt": "modern portfolio theory",
+            "capm": "capital asset pricing model",
+            "apt": "arbitrage pricing theory",
+            "var": "value at risk",
+            "cvar": "conditional value at risk",
+            "es": "expected shortfall",
+            "mvo": "mean-variance optimization",
+            "ldi": "liability-driven investing",
+            "ips": "investment policy statement",
+            "saa": "strategic asset allocation",
+            "taa": "tactical asset allocation",
+            "gips": "global investment performance standards",
+            "sml": "security market line",
+            "cml": "capital market line",
+            "hml": "high minus low",
+            "smb": "small minus big",
+            "umd": "up minus down",
+            "etf": "exchange-traded fund",
+            "nav": "net asset value",
+            "aum": "assets under management",
+            "ir": "information ratio",
+            "te": "tracking error",
+            "mdd": "maximum drawdown",
+            "ewma": "exponentially weighted moving average",
+            "bl": "black-litterman",
+            "dcc": "dynamic conditional correlation",
+            "pca": "principal component analysis",
+            "ff3": "fama-french three-factor",
+            "ff5": "fama-french five-factor",
+            "rmw": "robust minus weak",
+            "cma": "conservative minus aggressive",
+            "wml": "winners minus losers",
+            "roe": "return on equity",
+            "pe": "price to earnings",
+            "pb": "price to book",
+        },
+    },
     "forecasting": {
         "name": "Forecasting",
         "description": "Time-series forecasting methods, evaluation, uncertainty quantification, and production systems",

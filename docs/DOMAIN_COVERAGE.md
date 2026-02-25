@@ -2,7 +2,7 @@
 
 > Cross-references research-kb corpus domains against interview preparation volumes and identifies strategic gaps.
 >
-> Last updated: 2026-02-25 (Phase N: Domain Gap Expansion)
+> Last updated: 2026-02-25 (Phase O: Eval & Quality Hardening)
 
 ---
 
@@ -27,6 +27,7 @@ Maps interview preparation topic areas to research-kb domains, with source count
 | MLOps / ML Engineering | `ml_engineering` | 3 | Partial | ML systems, production ML |
 | Fitness | `fitness` | 2 | Partial | Strength training |
 | Forecasting | `forecasting` | 1 | **Thin** | Overlaps time_series but distinct methods |
+| Portfolio Management | `portfolio_management` | 11 | Moderate | MPT, CAPM, factor models, risk management (Phase O prompt config) |
 | Economics | `economics` | 1 | **Thin** | Quantitative economics |
 | Finance / Credit Risk | `finance` | 1 | **Thin** | Quantitative finance |
 | SQL | `sql` | 0 | **Registered, empty** | Domain + prompt config ready; no local PDFs yet |
