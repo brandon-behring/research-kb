@@ -67,6 +67,8 @@ docs/
 │
 ├── design/                     # Architecture research
 │   ├── latency_analysis.md        # Graph signal latency (pre/post KuzuDB)
+│   ├── rrf_validation.md          # Weighted sum vs. RRF empirical comparison
+│   ├── search_quality_analysis.md # Search quality and scoring analysis
 │   └── phase3_research_notes.md
 │
 ├── guides/                     # How-to guides

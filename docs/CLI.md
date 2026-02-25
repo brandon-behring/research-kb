@@ -123,6 +123,56 @@ research-kb cites <source>
 research-kb citation-stats
 ```
 
+## Assumption Auditing
+
+The **North Star feature** — audit the statistical assumptions required by any method in the knowledge base.
+
+### Basic Usage
+
+```bash
+research-kb audit-assumptions "instrumental variables"
+```
+
+Returns a structured list of assumptions (e.g., exclusion restriction, relevance, monotonicity) with descriptions, testability indicators, and references to corpus sources.
+
+### Options
+
+```bash
+# Graph-only (no LLM fallback, instant from cache)
+research-kb audit-assumptions "IV" --no-ollama
+
+# JSON output for programmatic consumption
+research-kb audit-assumptions "double machine learning" --format json
+
+# Combine both
+research-kb audit-assumptions "propensity score matching" --no-ollama --format json
+```
+
+### How It Works
+
+1. Searches the `method_assumption_cache` for pre-computed assumptions (10 top methods cached)
+2. Falls back to knowledge graph traversal (concept → REQUIRES → assumption edges)
+3. Optionally queries LLM (Anthropic backend) for methods not yet in the cache
+4. Returns assumptions ranked by importance with testability metadata
+
+### Example Output
+
+```
+Method: Instrumental Variables (IV)
+
+Assumptions:
+  1. Exclusion Restriction — instrument affects outcome only through treatment
+     Testability: Not directly testable (domain knowledge required)
+
+  2. Relevance (First Stage) — instrument is correlated with treatment
+     Testability: Testable (F-statistic > 10 rule of thumb)
+
+  3. Independence — instrument is independent of confounders
+     Testability: Partially testable (balance checks)
+
+Sources: Angrist & Pischke (2009), Imbens & Rubin (2015)
+```
+
 ## Semantic Scholar Discovery
 
 ```bash

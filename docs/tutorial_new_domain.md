@@ -1,6 +1,6 @@
 # Adding Your Own Domain
 
-This tutorial walks through adding a new knowledge domain to research-kb. By default, research-kb ships with `causal_inference`, `time_series`, `rag_llm`, `healthcare`, and `software_engineering` domains. You can add any research domain following this guide.
+This tutorial walks through adding a new knowledge domain to research-kb. By default, research-kb ships with 19 domains including `causal_inference`, `time_series`, `rag_llm`, `software_engineering`, `econometrics`, `deep_learning`, and more (see full list with `research-kb stats`). You can add any research domain following this guide.
 
 ## Prerequisites
 

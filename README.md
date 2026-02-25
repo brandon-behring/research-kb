@@ -272,6 +272,8 @@ research-kb biblio-similar <source>               # Find similar sources (shared
 
 # Assumption auditing (North Star feature)
 research-kb audit-assumptions "IV"                # Get required assumptions
+research-kb audit-assumptions "IV" --no-ollama    # Graph-only (no LLM fallback)
+research-kb audit-assumptions "DML" --format json # JSON output
 
 # Semantic Scholar discovery
 research-kb discover search "causal inference"    # Search S2 for papers

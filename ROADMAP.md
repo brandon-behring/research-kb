@@ -59,17 +59,17 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - Scripts archive for one-off utilities
 - CI marker integration (unit, integration, requires_*)
 
-## Phase I: CI Hardening & Coverage ✅ COMPLETE
-
-- pytest-cov in PR checks with XML reports
-- Doc freshness gate in weekly integration workflow
-- ROADMAP and INDEX documentation refresh
-
 ## Phase H: Multi-Domain Extraction ✅ COMPLETE
 
 - 9 new domain prompt configs (14 total: econometrics, software_engineering, deep_learning, mathematics, machine_learning, finance, statistics, ml_engineering, data_science)
 - 162 domain prompt tests
 - Domain-specific concept type guidance for higher extraction quality
+
+## Phase I: CI Hardening & Coverage ✅ COMPLETE
+
+- pytest-cov in PR checks with XML reports
+- Doc freshness gate in weekly integration workflow
+- ROADMAP and INDEX documentation refresh
 
 ## Phase J: Retrieval Quality Eval Expansion ✅ COMPLETE
 
@@ -96,12 +96,12 @@ A semantic search system for research literature with graph-boosted retrieval. C
 
 **Current Status**: All phases H-K and M complete.
 
-**Key Metrics** (as of 2026-02-20):
-- Sources: 477 (across 19 domains)
-- Chunks: ~210,000 (100% with embeddings)
+**Key Metrics** (as of 2026-02-24):
+- Sources: 485 (across 19 domains)
+- Chunks: ~226,000 (100% with embeddings)
 - Concepts: 307,000 (742,000 relationships)
 - KuzuDB: ~110MB graph engine
-- Tests: ~2,070+ functions (unit + integration + quality)
+- Tests: ~2,166 functions (unit + integration + quality)
 - Domains: 19 tagged (causal_inference, rag_llm, time_series, econometrics, software_engineering, deep_learning, mathematics, interview_prep, finance, machine_learning, statistics, ml_engineering, data_science, portfolio_management, functional_programming, algorithms, forecasting, fitness, economics)
 - Method cache: 10/10 top methods, 55 cached assumptions, 87.5% readiness
 
