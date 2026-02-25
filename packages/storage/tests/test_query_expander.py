@@ -514,3 +514,74 @@ class TestExpandedQuery:
         assert eq.fts_query == ""
         assert eq.expansion_sources == {}
         assert eq.expansion_count == 0
+
+
+# =============================================================================
+# HyDE Anthropic Backend Tests
+# =============================================================================
+
+
+class TestHydeAnthropic:
+    """Tests for _generate_hyde_anthropic with mocked anthropic module."""
+
+    async def test_hyde_anthropic_success(self):
+        """Mock anthropic module via sys.modules, verify returns stripped text."""
+        from research_kb_storage.query_expander import _generate_hyde_anthropic
+
+        mock_message = MagicMock()
+        mock_message.content = [MagicMock(text="  A hypothetical document about IV.  ")]
+
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_message
+
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
+            result = await _generate_hyde_anthropic(
+                prompt="Write about instrumental variables",
+                model="claude-3-5-haiku-20241022",
+            )
+
+        assert result == "A hypothetical document about IV."
+        mock_client.messages.create.assert_called_once()
+
+    async def test_hyde_anthropic_no_api_key(self):
+        """No ANTHROPIC_API_KEY returns None gracefully."""
+        from research_kb_storage.query_expander import _generate_hyde_anthropic
+
+        import os
+
+        original = os.environ.pop("ANTHROPIC_API_KEY", None)
+        try:
+            result = await _generate_hyde_anthropic(
+                prompt="Write about IV",
+                model="claude-3-5-haiku-20241022",
+            )
+            assert result is None
+        finally:
+            if original is not None:
+                os.environ["ANTHROPIC_API_KEY"] = original
+
+    async def test_hyde_anthropic_api_error(self):
+        """Mock raises exception, returns None gracefully."""
+        from research_kb_storage.query_expander import _generate_hyde_anthropic
+
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value.messages.create.side_effect = RuntimeError(
+            "API rate limit"
+        )
+
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-123"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
+            result = await _generate_hyde_anthropic(
+                prompt="Write about IV",
+                model="claude-3-5-haiku-20241022",
+            )
+
+        assert result is None

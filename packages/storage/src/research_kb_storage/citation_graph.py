@@ -61,7 +61,7 @@ async def match_citation_to_source(citation: Citation) -> Optional[UUID]:
                 citation.doi,
             )
             if row:
-                return UUID(row["id"])
+                return UUID(str(row["id"]))
 
         # Priority 2: arXiv ID exact match
         if citation.arxiv_id:
@@ -74,7 +74,7 @@ async def match_citation_to_source(citation: Citation) -> Optional[UUID]:
                 citation.arxiv_id,
             )
             if row:
-                return UUID(row["id"])
+                return UUID(str(row["id"]))
 
         # Priority 3: Fuzzy match on title + year + first author
         if citation.title:
@@ -103,7 +103,7 @@ async def match_citation_to_source(citation: Citation) -> Optional[UUID]:
                     source_title=row["title"],
                     similarity=row["title_sim"],
                 )
-                return UUID(row["id"])
+                return UUID(str(row["id"]))
 
     return None
 
@@ -130,7 +130,7 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 citation.doi,
             )
             if row:
-                return UUID(row["id"])
+                return UUID(str(row["id"]))
 
         # Priority 2: arXiv ID exact match
         if citation.arxiv_id:
@@ -139,7 +139,7 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 citation.arxiv_id,
             )
             if row:
-                return UUID(row["id"])
+                return UUID(str(row["id"]))
 
         # Priority 3: Exact title + year match
         if citation.title:
@@ -156,7 +156,7 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 citation.year,
             )
             if row:
-                return UUID(row["id"])
+                return UUID(str(row["id"]))
 
             # Try partial match (title contains)
             row = await conn.fetchrow(
@@ -169,7 +169,7 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 normalized_title,
             )
             if row:
-                return UUID(row["id"])
+                return UUID(str(row["id"]))
 
     return None
 

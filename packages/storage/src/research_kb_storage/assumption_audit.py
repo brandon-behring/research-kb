@@ -599,7 +599,6 @@ class MethodAssumptionAuditor:
                 return []
 
             import anthropic
-            from anthropic.types import TextBlock
 
             client = anthropic.Anthropic(api_key=api_key)
 
@@ -612,8 +611,8 @@ class MethodAssumptionAuditor:
             )
 
             block = message.content[0]
-            if not isinstance(block, TextBlock):
-                raise ValueError(f"Expected TextBlock, got {type(block).__name__}")
+            if not hasattr(block, "text"):
+                raise ValueError(f"Expected text block, got {type(block).__name__}")
             response_text = block.text
 
             # Strip markdown code fences if present (Haiku often wraps JSON)

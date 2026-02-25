@@ -233,6 +233,23 @@ class TestCitationMatcher:
         # Should be None because this title doesn't exist in corpus
         assert matched is None
 
+    async def test_match_returns_stdlib_uuid(self, citation_test_sources):
+        """Regression: match must return stdlib uuid.UUID, not asyncpg UUID (Python 3.13)."""
+        from uuid import UUID as StdlibUUID
+
+        citation = await CitationStore.create(
+            source_id=citation_test_sources["paper1"].id,
+            raw_string="Angrist (1995). IV.",
+            title="Instrumental Variables Regression",
+            authors=["Angrist"],
+            year=1995,
+        )
+
+        matched = await match_citation_to_source(citation)
+
+        assert matched is not None
+        assert type(matched) is StdlibUUID
+
 
 class TestCitingSourcesQueries:
     """Test get_citing_sources and get_cited_sources queries."""

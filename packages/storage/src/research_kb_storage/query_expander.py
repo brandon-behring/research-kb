@@ -660,7 +660,6 @@ async def _generate_hyde_anthropic(prompt: str, model: str) -> Optional[str]:
     try:
         import os
         import anthropic
-        from anthropic.types import TextBlock
 
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -677,8 +676,8 @@ async def _generate_hyde_anthropic(prompt: str, model: str) -> Optional[str]:
         )
 
         block = message.content[0]
-        if not isinstance(block, TextBlock):
-            raise ValueError(f"Expected TextBlock, got {type(block).__name__}")
+        if not hasattr(block, "text"):
+            raise ValueError(f"Expected text block, got {type(block).__name__}")
         response = block.text
 
         logger.debug(
