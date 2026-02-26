@@ -91,6 +91,19 @@ jobs:
             -m "scripts and not requires_embedding and not requires_ollama" \
             -v --tb=short
 
+      - name: E2E tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: research_kb_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          TEST_DATABASE_NAME: research_kb_test
+        run: |
+          pytest packages/ tests/ \
+            -m "e2e and not requires_embedding and not requires_ollama and not requires_reranker" \
+            -v --tb=short
+
       - name: Doc freshness check
         env:
           POSTGRES_HOST: localhost
