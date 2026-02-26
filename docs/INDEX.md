@@ -45,6 +45,9 @@
 | J. Eval Expansion | ✅ Complete | 55 retrieval test cases, 29 assumption methods, per-domain eval | [→](../ROADMAP.md) |
 | K. Doc Consolidation | ✅ Complete | CLAUDE.md, README, MEMORY.md refresh, zero audit warnings | [→](../ROADMAP.md) |
 | M. Code Quality Hardening | ✅ Complete | Coverage gate, MCP HyDE+fast_search, daemon timeout, dashboard tests | [→](../ROADMAP.md) |
+| P. Audit Remediation | ✅ Complete | Integration fixtures, doc drift, CI schedule alignment | [→](../ROADMAP.md) |
+| Q. Type Safety | ✅ Complete | PEP 561 (12/12), mypy 74→18 baseline, strictness for 4 packages | [→](../ROADMAP.md) |
+| R. CI Quality Gates | ✅ Complete | Coverage config, threshold 40%→60%, e2e in CI, black 26.1.0 | [→](../ROADMAP.md) |
 
 ---
 
