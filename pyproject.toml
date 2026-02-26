@@ -64,6 +64,25 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "scripts/*.py" = ["F401", "F541"]  # Scripts may have conditional imports / f-string formatting
 
+[tool.coverage.run]
+source = ["packages"]
+omit = [
+    "*/tests/*",
+    "*/conftest.py",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@overload",
+]
+show_missing = true
+precision = 1
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]
