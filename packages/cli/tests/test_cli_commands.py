@@ -431,3 +431,426 @@ class TestErrorHandling:
         result = cli_runner.invoke(app, ["search", "query"])  # Missing query text
 
         assert result.exit_code != 0
+
+
+# ============================================================================
+# Tier 4: Citations Commands (citations sub-app)
+# ============================================================================
+
+
+class TestCitationsListCommand:
+    """Tests for the citations list command."""
+
+    def test_citations_list_with_results(self, cli_runner):
+        """Test listing citations for a known source."""
+        from research_kb_contracts import Source, SourceType
+        from datetime import datetime
+
+        mock_source = Source(
+            id="00000000-0000-0000-0000-000000000001",
+            title="Pearl Causality 2009",
+            authors=["Judea Pearl"],
+            year=2009,
+            source_type=SourceType.TEXTBOOK,
+            domain_id="causal_inference",
+            file_hash="hash_pearl",
+            metadata={},
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+        mock_citations = [
+            {
+                "id": "00000000-0000-0000-0000-000000000010",
+                "title": "Causal Inference in Statistics",
+                "authors": ["Pearl", "Glymour"],
+                "year": 2016,
+                "venue": "Cambridge Press",
+                "doi": "10.1017/example",
+                "arxiv_id": None,
+                "raw_string": None,
+            },
+        ]
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (mock_source, mock_citations)
+
+            result = cli_runner.invoke(app, ["citations", "list", "Pearl 2009"])
+
+            assert result.exit_code == 0
+            assert "Citations in: Pearl Causality 2009" in result.stdout
+            assert "Found 1 citations" in result.stdout
+            assert "Causal Inference in Statistics" in result.stdout
+
+    def test_citations_list_source_not_found(self, cli_runner):
+        """Test list when source doesn't match."""
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (None, [])
+
+            result = cli_runner.invoke(app, ["citations", "list", "NonexistentSource"])
+
+            assert result.exit_code == 0
+            assert "No source found" in result.stdout
+
+    def test_citations_list_no_citations(self, cli_runner):
+        """Test list when source exists but has no citations."""
+        from research_kb_contracts import Source, SourceType
+        from datetime import datetime
+
+        mock_source = Source(
+            id="00000000-0000-0000-0000-000000000001",
+            title="Empty Source",
+            authors=["Author"],
+            year=2024,
+            source_type=SourceType.PAPER,
+            domain_id="causal_inference",
+            file_hash="hash_empty",
+            metadata={},
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (mock_source, [])
+
+            result = cli_runner.invoke(app, ["citations", "list", "Empty Source"])
+
+            assert result.exit_code == 0
+            assert "No citations extracted" in result.stdout
+
+    def test_citations_list_error_handling(self, cli_runner):
+        """Test error handling in citations list."""
+        with patch(
+            "research_kb_cli.commands.citations.asyncio.run",
+            side_effect=ConnectionError("DB down"),
+        ):
+            result = cli_runner.invoke(app, ["citations", "list", "test"])
+
+            assert result.exit_code == 1
+            assert "Error" in result.output or "Error" in result.stdout
+
+
+class TestCitationsCitedByCommand:
+    """Tests for the citations cited-by command."""
+
+    def test_cited_by_found(self, cli_runner):
+        """Test finding sources that cite a given source."""
+        from research_kb_contracts import Source, SourceType
+        from datetime import datetime
+
+        mock_source = Source(
+            id="00000000-0000-0000-0000-000000000001",
+            title="Pearl Causality 2009",
+            authors=["Judea Pearl"],
+            year=2009,
+            source_type=SourceType.TEXTBOOK,
+            domain_id="causal_inference",
+            file_hash="hash_pearl",
+            metadata={},
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+        mock_citing = [
+            Source(
+                id="00000000-0000-0000-0000-000000000002",
+                title="DML Paper 2018",
+                authors=["Chernozhukov"],
+                year=2018,
+                source_type=SourceType.PAPER,
+                domain_id="causal_inference",
+                file_hash="hash_dml",
+                metadata={},
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+            ),
+        ]
+        mock_stats = {
+            "authority_score": 0.0234,
+            "cited_by_papers": 5,
+            "cited_by_textbooks": 2,
+        }
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (mock_source, mock_citing, mock_stats)
+
+            result = cli_runner.invoke(app, ["citations", "cited-by", "Pearl 2009"])
+
+            assert result.exit_code == 0
+            assert "Who cites: Pearl Causality 2009" in result.stdout
+            assert "Citation Authority Score:" in result.stdout
+            assert "Citing sources" in result.stdout
+
+    def test_cited_by_no_citations(self, cli_runner):
+        """Test when no corpus sources cite this work."""
+        from research_kb_contracts import Source, SourceType
+        from datetime import datetime
+
+        mock_source = Source(
+            id="00000000-0000-0000-0000-000000000001",
+            title="Obscure Paper",
+            authors=["Unknown"],
+            year=2024,
+            source_type=SourceType.PAPER,
+            domain_id="causal_inference",
+            file_hash="hash_obscure",
+            metadata={},
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (
+                mock_source,
+                [],
+                {"authority_score": 0.0, "cited_by_papers": 0, "cited_by_textbooks": 0},
+            )
+
+            result = cli_runner.invoke(app, ["citations", "cited-by", "Obscure Paper"])
+
+            assert result.exit_code == 0
+            assert "No corpus sources cite this work" in result.stdout
+
+    def test_cited_by_source_not_found(self, cli_runner):
+        """Test cited-by when source doesn't exist."""
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (None, [], {})
+
+            result = cli_runner.invoke(app, ["citations", "cited-by", "Nonexistent"])
+
+            assert result.exit_code == 0
+            assert "No source found" in result.stdout
+
+
+class TestCitationsCitesCommand:
+    """Tests for the citations cites command."""
+
+    def test_cites_found(self, cli_runner):
+        """Test finding what a source cites."""
+        from research_kb_contracts import Source, SourceType
+        from datetime import datetime
+
+        mock_source = Source(
+            id="00000000-0000-0000-0000-000000000001",
+            title="DML Paper 2018",
+            authors=["Chernozhukov"],
+            year=2018,
+            source_type=SourceType.PAPER,
+            domain_id="causal_inference",
+            file_hash="hash_dml",
+            metadata={},
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+        mock_cited = [
+            Source(
+                id="00000000-0000-0000-0000-000000000002",
+                title="Pearl Causality 2009",
+                authors=["Pearl"],
+                year=2009,
+                source_type=SourceType.TEXTBOOK,
+                domain_id="causal_inference",
+                file_hash="hash_pearl",
+                metadata={},
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+            ),
+        ]
+        mock_stats = {
+            "cites_papers": 10,
+            "cites_textbooks": 3,
+        }
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (mock_source, mock_cited, mock_stats)
+
+            result = cli_runner.invoke(app, ["citations", "cites", "DML"])
+
+            assert result.exit_code == 0
+            assert "What does it cite: DML Paper 2018" in result.stdout
+            assert "Cited corpus sources" in result.stdout
+
+    def test_cites_no_references(self, cli_runner):
+        """Test when source cites nothing in corpus."""
+        from research_kb_contracts import Source, SourceType
+        from datetime import datetime
+
+        mock_source = Source(
+            id="00000000-0000-0000-0000-000000000001",
+            title="Standalone Paper",
+            authors=["Author"],
+            year=2024,
+            source_type=SourceType.PAPER,
+            domain_id="causal_inference",
+            file_hash="hash_standalone",
+            metadata={},
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (
+                mock_source,
+                [],
+                {"cites_papers": 0, "cites_textbooks": 0},
+            )
+
+            result = cli_runner.invoke(app, ["citations", "cites", "Standalone"])
+
+            assert result.exit_code == 0
+            assert "No corpus sources found" in result.stdout
+
+    def test_cites_source_not_found(self, cli_runner):
+        """Test cites when source doesn't exist."""
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (None, [], {})
+
+            result = cli_runner.invoke(app, ["citations", "cites", "Nonexistent"])
+
+            assert result.exit_code == 0
+            assert "No source found" in result.stdout
+
+
+class TestCitationsStatsCommand:
+    """Tests for the citations stats command."""
+
+    def test_stats_with_data(self, cli_runner):
+        """Test corpus-wide citation stats display."""
+        mock_summary = {
+            "total_citations": 15166,
+            "total_edges": 1234,
+            "internal_edges": 800,
+            "external_edges": 434,
+            "paper_to_paper": 500,
+            "paper_to_textbook": 100,
+            "textbook_to_paper": 150,
+            "textbook_to_textbook": 50,
+        }
+        mock_most_cited = [
+            {
+                "title": "Pearl Causality",
+                "source_type": "textbook",
+                "cited_by_count": 42,
+                "citation_authority": 0.0234,
+            },
+        ]
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (mock_summary, mock_most_cited)
+
+            result = cli_runner.invoke(app, ["citations", "stats"])
+
+            assert result.exit_code == 0
+            assert "Citation Graph Statistics" in result.stdout
+            assert "15,166" in result.stdout
+            assert "Most cited sources" in result.stdout
+            assert "Pearl Causality" in result.stdout
+
+    def test_stats_empty_corpus(self, cli_runner):
+        """Test stats with no citation data."""
+        mock_summary = {
+            "total_citations": 0,
+            "total_edges": 0,
+            "internal_edges": 0,
+            "external_edges": 0,
+            "paper_to_paper": 0,
+            "paper_to_textbook": 0,
+            "textbook_to_paper": 0,
+            "textbook_to_textbook": 0,
+        }
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (mock_summary, [])
+
+            result = cli_runner.invoke(app, ["citations", "stats"])
+
+            assert result.exit_code == 0
+            assert "No citation graph data" in result.stdout
+
+    def test_stats_error_handling(self, cli_runner):
+        """Test error handling in stats command."""
+        with patch(
+            "research_kb_cli.commands.citations.asyncio.run",
+            side_effect=ConnectionError("DB unavailable"),
+        ):
+            result = cli_runner.invoke(app, ["citations", "stats"])
+
+            assert result.exit_code == 1
+            assert "Error" in result.output or "Error" in result.stdout
+
+
+class TestCitationsSimilarCommand:
+    """Tests for the citations similar command."""
+
+    def test_similar_found(self, cli_runner):
+        """Test finding similar sources via bibliographic coupling."""
+        from research_kb_contracts import Source, SourceType
+        from datetime import datetime
+
+        mock_source = Source(
+            id="00000000-0000-0000-0000-000000000001",
+            title="DML Paper 2018",
+            authors=["Chernozhukov"],
+            year=2018,
+            source_type=SourceType.PAPER,
+            domain_id="causal_inference",
+            file_hash="hash_dml",
+            metadata={},
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+        mock_similar = [
+            {
+                "title": "Causal Forest Paper",
+                "source_type": "paper",
+                "authors": ["Wager", "Athey"],
+                "year": 2018,
+                "coupling_strength": 0.45,
+                "shared_references": 12,
+            },
+        ]
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (mock_source, mock_similar)
+
+            result = cli_runner.invoke(app, ["citations", "similar", "DML"])
+
+            assert result.exit_code == 0
+            assert "Bibliographic Coupling" in result.stdout
+            assert "Causal Forest Paper" in result.stdout
+            assert "Coupling:" in result.stdout
+
+    def test_similar_none_found(self, cli_runner):
+        """Test when no similar sources found."""
+        from research_kb_contracts import Source, SourceType
+        from datetime import datetime
+
+        mock_source = Source(
+            id="00000000-0000-0000-0000-000000000001",
+            title="Isolated Paper",
+            authors=["Author"],
+            year=2024,
+            source_type=SourceType.PAPER,
+            domain_id="causal_inference",
+            file_hash="hash_iso",
+            metadata={},
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (mock_source, [])
+
+            result = cli_runner.invoke(app, ["citations", "similar", "Isolated"])
+
+            assert result.exit_code == 0
+            assert "No similar sources found" in result.stdout
+
+    def test_similar_source_not_found(self, cli_runner):
+        """Test similar when source doesn't exist."""
+        with patch("research_kb_cli.commands.citations.asyncio.run") as mock_run:
+            mock_run.return_value = (None, [])
+
+            result = cli_runner.invoke(app, ["citations", "similar", "Nonexistent"])
+
+            assert result.exit_code == 1
+            # Error written to stderr (err=True), check combined output
+            assert "No source found" in result.output or "No source found" in result.stdout
