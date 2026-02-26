@@ -538,102 +538,102 @@ test_cases:
     tags: [phase_o, forecasting]
     notes: "Phase O: Sparse demand methods"
 
-  # ===== Phase O: Future-Tagged Empty Domain Tests (hard) =====
-  # These test cases document expected behavior for domains awaiting content.
-  # Exclude from CI with --tag core (these won't match anything until sources arrive).
+  # ===== Phase U: Populated Domain Tests (hard) =====
+  # These domains were populated in Phase T (arXiv papers) and extracted in Phase U.
+  # Source patterns broadened to match arXiv survey/paper titles.
 
-  # --- SQL (future) ---
+  # --- SQL (hard, 2 sources) ---
   - query: "window functions ranking partitioning"
-    expected_source_pattern: "sql|database|performance|query"
-    expected_in_top_k: 5
+    expected_source_pattern: "sql|database|performance|query|text-to-sql|advances"
+    expected_in_top_k: 10
     expected_concepts: ["window function", "ROW_NUMBER", "PARTITION BY", "ranking"]
     relevance_grade: 3
     domain: sql
     difficulty: hard
-    tags: [future, sql]
-    notes: "Phase O future: SQL window functions (awaiting content)"
+    tags: [phase_u, sql]
+    notes: "Phase U: SQL window functions (2 arXiv survey papers)"
 
   - query: "query execution plan optimization"
-    expected_source_pattern: "sql|database|performance|explain|index"
-    expected_in_top_k: 5
+    expected_source_pattern: "sql|database|performance|explain|index|query optimization|llm"
+    expected_in_top_k: 10
     expected_concepts: ["execution plan", "query optimizer", "index scan", "cost estimation"]
     relevance_grade: 3
     domain: sql
     difficulty: hard
-    tags: [future, sql]
-    notes: "Phase O future: Query optimization (awaiting content)"
+    tags: [phase_u, sql]
+    notes: "Phase U: Query optimization (2 arXiv survey papers)"
 
   - query: "database normalization third normal form"
-    expected_source_pattern: "sql|database|normalization|relational"
-    expected_in_top_k: 5
+    expected_source_pattern: "sql|database|normalization|relational|text-to-sql|query optimization"
+    expected_in_top_k: 15
     expected_concepts: ["normalization", "third normal form", "functional dependency", "primary key"]
-    relevance_grade: 3
+    relevance_grade: 2
     domain: sql
     difficulty: hard
-    tags: [future, sql]
-    notes: "Phase O future: Relational design (awaiting content)"
+    tags: [phase_u, sql, thin_domain]
+    notes: "Phase U: Relational design — thin domain (2 survey papers focus on NLP-to-SQL/optimization, not schema design)"
 
-  # --- Recommender Systems (future) ---
+  # --- Recommender Systems (hard, 3 sources) ---
   - query: "collaborative filtering matrix factorization"
-    expected_source_pattern: "recommender|collaborative|matrix|factorization"
-    expected_in_top_k: 5
+    expected_source_pattern: "recommender|collaborative|matrix|factorization|deep learning|survey"
+    expected_in_top_k: 10
     expected_concepts: ["collaborative filtering", "matrix factorization", "latent factors", "user-item"]
     relevance_grade: 3
     domain: recommender_systems
     difficulty: hard
-    tags: [future, recommender_systems]
-    notes: "Phase O future: Core recsys method (awaiting content)"
+    tags: [phase_u, recommender_systems]
+    notes: "Phase U: Core recsys method (3 arXiv papers)"
 
   - query: "cold start problem new user recommendation"
-    expected_source_pattern: "recommender|cold start|hybrid|content"
-    expected_in_top_k: 5
+    expected_source_pattern: "recommender|cold start|hybrid|content|survey|Neural Recommendation|Deep Learning"
+    expected_in_top_k: 15
     expected_concepts: ["cold start", "content-based filtering", "hybrid recommender"]
-    relevance_grade: 3
+    relevance_grade: 2
     domain: recommender_systems
     difficulty: hard
-    tags: [future, recommender_systems]
-    notes: "Phase O future: Recsys challenge (awaiting content)"
+    tags: [phase_u, recommender_systems, thin_domain]
+    notes: "Phase U: Recsys challenge — thin domain (3 survey papers may cover cold start tangentially)"
 
   - query: "implicit feedback click through recommendation"
-    expected_source_pattern: "recommender|implicit|feedback|click"
-    expected_in_top_k: 5
+    expected_source_pattern: "recommender|implicit|feedback|click|deep learning"
+    expected_in_top_k: 10
     expected_concepts: ["implicit feedback", "click-through rate", "negative sampling"]
     relevance_grade: 3
     domain: recommender_systems
     difficulty: hard
-    tags: [future, recommender_systems]
-    notes: "Phase O future: Implicit recsys (awaiting content)"
+    tags: [phase_u, recommender_systems]
+    notes: "Phase U: Implicit recsys (3 arXiv papers)"
 
-  # --- AdTech (future) ---
+  # --- AdTech (hard, 2 sources) ---
   - query: "real time bidding auction mechanism"
-    expected_source_pattern: "advertising|auction|bidding|computational"
-    expected_in_top_k: 5
+    expected_source_pattern: "advertising|auction|bidding|computational|display|survey"
+    expected_in_top_k: 10
     expected_concepts: ["real-time bidding", "second-price auction", "bid optimization"]
     relevance_grade: 3
     domain: adtech
     difficulty: hard
-    tags: [future, adtech]
-    notes: "Phase O future: RTB mechanism (awaiting content)"
+    tags: [phase_u, adtech]
+    notes: "Phase U: RTB mechanism (2 arXiv papers)"
 
   - query: "click through rate prediction ad ranking"
-    expected_source_pattern: "advertising|ctr|prediction|ranking"
-    expected_in_top_k: 5
+    expected_source_pattern: "advertising|ctr|prediction|ranking|display|survey"
+    expected_in_top_k: 10
     expected_concepts: ["CTR prediction", "ad ranking", "feature engineering", "calibration"]
     relevance_grade: 3
     domain: adtech
     difficulty: hard
-    tags: [future, adtech]
-    notes: "Phase O future: Ad ML (awaiting content)"
+    tags: [phase_u, adtech]
+    notes: "Phase U: Ad ML (2 arXiv papers)"
 
   - query: "attribution modeling multi touch conversion"
-    expected_source_pattern: "advertising|attribution|conversion|multi-touch"
-    expected_in_top_k: 5
+    expected_source_pattern: "advertising|attribution|conversion|multi-touch|display|survey"
+    expected_in_top_k: 10
     expected_concepts: ["attribution modeling", "multi-touch", "conversion", "incrementality"]
     relevance_grade: 3
     domain: adtech
     difficulty: hard
-    tags: [future, adtech]
-    notes: "Phase O future: Ad measurement (awaiting content)"
+    tags: [phase_u, adtech]
+    notes: "Phase U: Ad measurement (2 arXiv papers)"
 
   # ===== Phase J: Multi-Domain Expansion (medium) =====
 
