@@ -6,7 +6,7 @@ import os
 
 from research_kb_extraction.models import ChunkExtraction
 
-pytestmark = pytest.mark.unit
+pytestmark = [pytest.mark.unit, pytest.mark.requires_anthropic]
 
 
 class TestAnthropicClientInit:

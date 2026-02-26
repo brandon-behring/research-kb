@@ -161,14 +161,11 @@ async def get_db_stats() -> dict:
                 row["relationship_type"]: row["count"] for row in rel_types
             }
 
-            # Domain breakdown
-            domain_rows = await conn.fetch(
-                """SELECT COALESCE(s.metadata->>'domain', 'untagged') AS domain,
-                          COUNT(*) AS source_count
+            # Domain breakdown (canonical: domain_id column, not metadata JSON)
+            domain_rows = await conn.fetch("""SELECT s.domain_id AS domain, COUNT(*) AS source_count
                    FROM sources s
-                   GROUP BY COALESCE(s.metadata->>'domain', 'untagged')
-                   ORDER BY source_count DESC"""
-            )
+                   GROUP BY s.domain_id
+                   ORDER BY source_count DESC""")
             stats["domains"] = {row["domain"]: row["source_count"] for row in domain_rows}
 
             # Date ranges

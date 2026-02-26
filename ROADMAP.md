@@ -113,19 +113,56 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - TEST_COVERAGE_AUDIT.md refreshed (2,182 test functions across 91 test files)
 - Primary textbook acquisition wishlist for empty/thin domains
 
+## Phases P-R: Infrastructure Hardening ✅ COMPLETE
+
+- **Phase P**: Audit Remediation — integration fixtures, doc drift fixes, CI schedule alignment
+- **Phase Q**: Type Safety — PEP 561 (12/12 packages), mypy baseline 74→18 errors, 3 MCP bugs fixed
+- **Phase R**: CI Quality Gates — coverage config, threshold 40%→60%, e2e in CI, black 26.1.0
+
+## Phase S: Coverage Hardening ✅ COMPLETE
+
+- 85 new unit tests (search, graph_queries, citation_graph, assumption_audit)
+- Coverage gate raised: 60% → 66%
+
+## Phase T: Domain Acquisition ✅ COMPLETE
+
+- 3 knowledge graph books ingested (1,849 chunks)
+- 27 CFA sources retagged to `finance`
+- 7 arXiv papers for sql/recommender_systems/adtech
+- Zero empty domains
+
+## Phase U: Concept Extraction ✅ COMPLETE
+
+- Haiku 4.5 extraction for sql/recommender_systems/adtech/rag_llm
+- KuzuDB sync: 311K concepts, 744K relationships
+- 9 eval cases activated
+
+## Phase V-W: Doc Trust + CLI Robustness ✅ COMPLETE
+
+- **Phase V**: README 19→22 domains, domain table sync, TEST_COVERAGE refresh
+- **Phase W**: CLI Citations sub-app (16 tests), QueryExpander underscore normalization, coverage gate 66→67%
+
+## Phase X: Data Accuracy + Robustness Hardening ✅ COMPLETE
+
+- Fixed 209 source `domain_id` mismatches (metadata was correct, domain_id column lagged)
+- Fixed `generate_status.py` to use canonical `domain_id` column instead of `metadata->>'domain'`
+- Full doc sync: DOMAIN_COVERAGE.md, README.md, ROADMAP.md with accurate corpus metrics
+- Test markers: `requires_anthropic`, `requires_instructor` for extraction tests
+- Expanded `audit_docs.py` Check 11 for full README-vs-DB reconciliation
+
 ---
 
-**Current Status**: All phases H-K, M, N, and O complete.
+**Current Status**: All phases through X complete.
 
-**Key Metrics** (as of 2026-02-25):
-- Sources: 485 (across 22 domains, 3 empty)
-- Chunks: ~226,000 (100% with embeddings)
-- Concepts: 307,000 (742,000 relationships)
+**Key Metrics** (as of 2026-02-26):
+- Sources: 495 (across 22 domains, zero empty)
+- Chunks: 228,420 (100% with embeddings)
+- Concepts: 312,433 (744,225 relationships)
 - KuzuDB: ~110MB graph engine
-- Tests: ~2,182 test functions across 91 test files
-- Domains: 23 registered — 20 with prompt configs (causal_inference 299, time_series 47, mathematics 27, interview_prep 22, rag_llm 17, software_engineering 15, portfolio_management 11, statistics 10, machine_learning 10, algorithms 9, deep_learning 9, functional_programming 8, data_science 4, ml_engineering 3, fitness 2, economics 1, finance 1, forecasting 1) + 3 empty (sql, recommender_systems, adtech)
-- Retrieval eval: 82 test cases covering all populated domains + 9 future-tagged for empty domains
-- CI threshold: 0.85 (catches 8%+ regressions)
+- Tests: ~2,530 test functions across 104 test files
+- Domains: 22 with sources, 20 with prompt configs (causal_inference 89, rag_llm 76, time_series 48, econometrics 35, deep_learning 35, software_engineering 30, mathematics 28, interview_prep 23, finance 23, statistics 18, ml_engineering 17, machine_learning 14, algorithms 12, data_science 12, portfolio_management 11, functional_programming 8, forecasting 5, recommender_systems 3, adtech 2, fitness 2, economics 2, sql 2)
+- Retrieval eval: 83 test cases across 22 domains, 9 Phase U activated
+- CI threshold: 0.85 (catches 8%+ regressions), coverage gate 67%
 - Method cache: 10/10 top methods, 55 cached assumptions, 87.5% readiness
 
 **Architecture**: 12 packages (contracts → common → storage → cli/daemon/api/dashboard/mcp-server/client/pdf-tools/extraction/s2-client)

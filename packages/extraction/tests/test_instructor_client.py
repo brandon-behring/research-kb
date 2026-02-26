@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from research_kb_extraction.models import ChunkExtraction
 
-pytestmark = pytest.mark.unit
+pytestmark = [pytest.mark.unit, pytest.mark.requires_instructor]
 
 
 class TestInstructorClientInit:

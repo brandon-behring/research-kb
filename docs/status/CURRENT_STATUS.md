@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-26 02:30:59
+**Auto-generated**: 2026-02-26 10:15:54
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -11,9 +11,9 @@
 |-------|------:|
 | sources | 495 |
 | chunks | 228,420 |
-| concepts | 311,260 |
-| concept_relationships | 744,045 |
-| chunk_concepts | 1,186,949 |
+| concepts | 312,433 |
+| concept_relationships | 744,225 |
+| chunk_concepts | 1,188,715 |
 | citations | 15,166 |
 | methods | 15,505 |
 | assumptions | 9,468 |
@@ -34,7 +34,7 @@
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
 | Chunks | 228,420 | 228,420 | 100.0% |
-| Concepts | 283,714 | 311,260 | 91.2% |
+| Concepts | 283,714 | 312,433 | 90.8% |
 
 ---
 
@@ -55,12 +55,12 @@
 | causal_inference | 89 |
 | rag_llm | 76 |
 | time_series | 48 |
-| deep_learning | 35 |
 | econometrics | 35 |
+| deep_learning | 35 |
 | software_engineering | 30 |
 | mathematics | 28 |
-| finance | 23 |
 | interview_prep | 23 |
+| finance | 23 |
 | statistics | 18 |
 | ml_engineering | 17 |
 | machine_learning | 14 |
@@ -71,9 +71,9 @@
 | forecasting | 5 |
 | recommender_systems | 3 |
 | adtech | 2 |
-| sql | 2 |
 | fitness | 2 |
 | economics | 2 |
+| sql | 2 |
 
 ---
 
@@ -81,14 +81,14 @@
 
 | Type | Count |
 |------|------:|
-| concept | 85,705 |
-| technique | 74,535 |
-| definition | 56,709 |
-| model | 25,128 |
-| method | 20,561 |
-| problem | 19,387 |
-| principle | 12,582 |
-| assumption | 10,935 |
+| concept | 86,085 |
+| technique | 74,926 |
+| definition | 56,739 |
+| model | 25,226 |
+| method | 20,575 |
+| problem | 19,562 |
+| principle | 12,660 |
+| assumption | 10,942 |
 | theorem | 5,718 |
 
 ---
@@ -97,14 +97,14 @@
 
 | Type | Count |
 |------|------:|
-| USES | 349,392 |
-| ADDRESSES | 113,183 |
-| SPECIALIZES | 89,616 |
-| REQUIRES | 63,330 |
+| USES | 349,459 |
+| ADDRESSES | 113,245 |
+| SPECIALIZES | 89,636 |
+| REQUIRES | 63,340 |
 | RELATED_TO | 51,547 |
-| ALTERNATIVE_TO | 40,721 |
-| EXTENDS | 27,631 |
-| GENERALIZES | 8,625 |
+| ALTERNATIVE_TO | 40,732 |
+| EXTENDS | 27,638 |
+| GENERALIZES | 8,628 |
 
 ---
 
@@ -116,7 +116,7 @@ Based on database population and feature detection:
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
 | Phase 1.5: PDF Ingestion | ✅ Complete | 495 sources, 228,420 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 311,260 concepts, 744,045 relationships |
+| Phase 2: Knowledge Graph | ✅ Complete | 312,433 concepts, 744,225 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
 

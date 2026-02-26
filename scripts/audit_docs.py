@@ -579,8 +579,34 @@ def check_readme_packages() -> tuple[bool, list[str]]:
         return False, issues
 
 
+def _parse_readme_domain_table() -> dict[str, int]:
+    """Parse the Multi-Domain Support table from README.md.
+
+    Returns dict mapping domain name to source count.
+    """
+    readme = REPO_ROOT / "README.md"
+    if not readme.exists():
+        return {}
+
+    content = readme.read_text()
+    domains = {}
+    # Match rows like: | `causal_inference` | 89 | Description |
+    for match in re.finditer(r"\|\s*`(\w+)`\s*\|\s*(\d+)\s*\|", content):
+        domain_name = match.group(1)
+        count = int(match.group(2))
+        domains[domain_name] = count
+    return domains
+
+
 def check_corpus_numbers() -> tuple[bool, list[str]]:
-    """Check 11: Verify corpus numbers in README against DB (when DB available)."""
+    """Check 11: Verify corpus numbers in README against DB (when DB available).
+
+    Sub-checks:
+    - 11a: Corpus scale table (sources, chunks, concepts, relationships)
+    - 11b: Domain table row count matches DB distinct domains
+    - 11c: Per-domain source counts within tolerance
+    - 11d: Missing domains (DB domain absent from README table)
+    """
     header("Check 11: Corpus Numbers (DB check)")
 
     # This check requires a running database — skip in pre-commit/CI-fast mode
@@ -615,32 +641,92 @@ def check_corpus_numbers() -> tuple[bool, list[str]]:
             async with pool.acquire() as conn:
                 source_count = await conn.fetchval("SELECT COUNT(*) FROM sources")
                 chunk_count = await conn.fetchval("SELECT COUNT(*) FROM chunks")
+                concept_count = await conn.fetchval("SELECT COUNT(*) FROM concepts")
+                rel_count = await conn.fetchval("SELECT COUNT(*) FROM concept_relationships")
+
+                # Per-domain counts from DB
+                domain_rows = await conn.fetch(
+                    "SELECT domain_id, COUNT(*) as cnt FROM sources "
+                    "GROUP BY domain_id ORDER BY cnt DESC"
+                )
+                db_domains = {row["domain_id"]: row["cnt"] for row in domain_rows}
 
             readme = REPO_ROOT / "README.md"
-            if readme.exists():
-                content = readme.read_text()
+            if not readme.exists():
+                issues.append("README.md not found")
+                return False, issues
 
-                # Check source count
-                source_match = re.search(r"Sources.*?\|\s*(\d[\d,]*)\s*\|", content)
-                if source_match:
-                    readme_sources = int(source_match.group(1).replace(",", ""))
-                    if abs(readme_sources - source_count) > 10:
-                        issues.append(
-                            f"README says {readme_sources} sources, DB has {source_count}"
-                        )
+            content = readme.read_text()
 
-                # Check chunk count (approximate, README uses "226K" format)
-                chunk_match = re.search(r"Text chunks.*?\|\s*(\d+)K\s*\|", content)
-                if chunk_match:
-                    readme_chunks_k = int(chunk_match.group(1))
-                    actual_chunks_k = chunk_count // 1000
-                    if abs(readme_chunks_k - actual_chunks_k) > 10:
-                        issues.append(
-                            f"README says {readme_chunks_k}K chunks, DB has {actual_chunks_k}K"
-                        )
+            # --- 11a: Corpus scale table ---
+            source_match = re.search(r"Sources.*?\|\s*(\d[\d,]*)\s*\|", content)
+            if source_match:
+                readme_sources = int(source_match.group(1).replace(",", ""))
+                if abs(readme_sources - source_count) > 10:
+                    issues.append(f"README says {readme_sources} sources, DB has {source_count}")
+
+            chunk_match = re.search(r"Text chunks.*?\|\s*(\d+)K\s*\|", content)
+            if chunk_match:
+                readme_chunks_k = int(chunk_match.group(1))
+                actual_chunks_k = chunk_count // 1000
+                if abs(readme_chunks_k - actual_chunks_k) > 10:
+                    issues.append(
+                        f"README says {readme_chunks_k}K chunks, DB has {actual_chunks_k}K"
+                    )
+
+            concept_match = re.search(r"Concepts.*?\|\s*(\d+)K\s*\|", content)
+            if concept_match:
+                readme_concepts_k = int(concept_match.group(1))
+                actual_concepts_k = concept_count // 1000
+                # Error if >10% drift
+                if abs(readme_concepts_k - actual_concepts_k) > actual_concepts_k * 0.10:
+                    issues.append(
+                        f"README says {readme_concepts_k}K concepts, DB has {actual_concepts_k}K "
+                        f"(>{10}% drift)"
+                    )
+
+            rel_match = re.search(r"Relationships\s*\|\s*(\d+)K\s*\|", content)
+            if rel_match:
+                readme_rels_k = int(rel_match.group(1))
+                actual_rels_k = rel_count // 1000
+                if abs(readme_rels_k - actual_rels_k) > actual_rels_k * 0.10:
+                    issues.append(
+                        f"README says {readme_rels_k}K relationships, DB has {actual_rels_k}K "
+                        f"(>{10}% drift)"
+                    )
+
+            # --- 11b: Domain table row count ---
+            readme_domains = _parse_readme_domain_table()
+            if readme_domains:
+                if len(readme_domains) != len(db_domains):
+                    issues.append(
+                        f"README domain table has {len(readme_domains)} rows, "
+                        f"DB has {len(db_domains)} distinct domains"
+                    )
+
+                # --- 11c: Per-domain source counts (warning if >20% drift) ---
+                for domain, db_count in db_domains.items():
+                    if domain in readme_domains:
+                        readme_count = readme_domains[domain]
+                        if db_count > 0 and abs(readme_count - db_count) / db_count > 0.20:
+                            issues.append(
+                                f"Domain '{domain}': README says {readme_count}, "
+                                f"DB has {db_count} (>20% drift)"
+                            )
+
+                # --- 11d: Missing domains ---
+                missing = set(db_domains.keys()) - set(readme_domains.keys())
+                for domain in sorted(missing):
+                    issues.append(
+                        f"Domain '{domain}' in DB ({db_domains[domain]} sources) "
+                        f"but missing from README domain table"
+                    )
 
             if not issues:
-                success(f"Corpus numbers match: {source_count} sources, {chunk_count} chunks")
+                success(
+                    f"Corpus numbers match: {source_count} sources, "
+                    f"{len(db_domains)} domains, {concept_count:,} concepts"
+                )
                 return True, []
             else:
                 for issue in issues:

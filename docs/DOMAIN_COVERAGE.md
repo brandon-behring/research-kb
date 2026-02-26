@@ -2,7 +2,7 @@
 
 > Cross-references research-kb corpus domains against interview preparation volumes and identifies strategic gaps.
 >
-> Last updated: 2026-02-26 (Phase V: Documentation Trust Alignment)
+> Last updated: 2026-02-26 (Phase X: Domain Identity Fix)
 
 ---
 
@@ -12,29 +12,30 @@ Maps interview preparation topic areas to research-kb domains, with source count
 
 | Interview Topic | KB Domain | Sources | Coverage | Notes |
 |----------------|-----------|---------|----------|-------|
-| Causal Inference | `causal_inference` | 299 | Excellent | Core strength. Pearl, Angrist/Pischke, Imbens/Rubin + papers |
-| Time Series | `time_series` | 47 | Excellent | Hamilton, Hyndman, Box-Jenkins + domain papers |
-| Mathematics | `mathematics` | 27 | Good | Linear algebra, calculus, physics, optimization |
-| Interview Prep | `interview_prep` | 22 | Good | Multi-domain interview preparation |
+| Causal Inference | `causal_inference` | 89 | Good | Pearl, Imbens/Rubin, DML + papers (econometrics split out) |
 | GenAI / LLM | `rag_llm` | 76 | Excellent | RAG pipelines, prompt engineering, evaluation, KG |
-| Software Engineering | `software_engineering` | 15 | Good | Design patterns, testing, architecture, DevOps |
-| Statistics | `statistics` | 10 | Moderate | Theory and methods (Wasserman, Efron, Bayesian) |
-| ML Foundations | `machine_learning` | 10 | Moderate | Core algorithms and theory |
-| Deep Learning | `deep_learning` | 9 | Moderate | Neural nets, transformers, optimization |
-| Python / Algorithms | `algorithms` | 9 | Moderate | Roughgarden 1-3, Grokking, Wengrow, Kochenderfer |
+| Time Series | `time_series` | 48 | Excellent | Hamilton, Hyndman, Box-Jenkins + domain papers |
+| Econometrics | `econometrics` | 35 | Good | Angrist/Pischke, Wooldridge, panel data, IV methods |
+| Deep Learning | `deep_learning` | 35 | Good | Neural nets, transformers, optimization |
+| Software Engineering | `software_engineering` | 30 | Good | Design patterns, testing, architecture, DevOps |
+| Mathematics | `mathematics` | 28 | Good | Linear algebra, calculus, physics, optimization |
+| Interview Prep | `interview_prep` | 23 | Good | Multi-domain interview preparation |
+| Finance / Credit Risk | `finance` | 23 | Good | Quantitative finance, CFA, risk management |
+| Statistics | `statistics` | 18 | Good | Theory and methods (Wasserman, Efron, Bayesian) |
+| MLOps / ML Engineering | `ml_engineering` | 17 | Good | ML systems, production ML |
+| ML Foundations | `machine_learning` | 14 | Moderate | Core algorithms and theory |
+| Python / Algorithms | `algorithms` | 12 | Moderate | Roughgarden 1-3, Grokking, Wengrow, Kochenderfer |
+| Product Analytics | `data_science` | 12 | Moderate | Data analysis, A/B testing overlap |
+| Portfolio Management | `portfolio_management` | 11 | Moderate | MPT, CAPM, factor models, risk management |
 | Functional Programming | `functional_programming` | 8 | Moderate | Haskell, Scala, FP patterns |
-| Product Analytics | `data_science` | 4 | Partial | Data analysis, A/B testing overlap |
-| MLOps / ML Engineering | `ml_engineering` | 3 | Partial | ML systems, production ML |
-| Fitness | `fitness` | 2 | Partial | Strength training |
-| Forecasting | `forecasting` | 1 | **Thin** | Overlaps time_series but distinct methods |
-| Portfolio Management | `portfolio_management` | 11 | Moderate | MPT, CAPM, factor models, risk management (Phase O prompt config) |
-| Economics | `economics` | 1 | **Thin** | Quantitative economics |
-| Finance / Credit Risk | `finance` | 23 | Good | Quantitative finance, CFA, risk management (Phase T retag) |
-| SQL | `sql` | 2 | Partial | SQL databases, query optimization (Phase T arXiv) |
+| Forecasting | `forecasting` | 5 | Partial | Overlaps time_series but distinct methods |
 | Recommender Systems | `recommender_systems` | 3 | Partial | Collaborative filtering, recsys (Phase T arXiv) |
+| SQL | `sql` | 2 | Partial | SQL databases, query optimization (Phase T arXiv) |
 | Ads / AdTech | `adtech` | 2 | Partial | Advertising technology, auction mechanisms (Phase T arXiv) |
+| Fitness | `fitness` | 2 | Partial | Strength training |
+| Economics | `economics` | 2 | Partial | Quantitative economics |
 
-**Note**: Source counts changed significantly in Phase N due to sidecar audit + DB retagging. Many books previously defaulting to `causal_inference` are now correctly assigned to `mathematics`, `algorithms`, `functional_programming`, `software_engineering`, etc.
+**Note**: Source counts updated in Phase X after fixing `sources.domain_id` to match canonical metadata domains (209 sources retagged). Key changes: `causal_inference` 272 -> 89 (econometrics, rag_llm, deep_learning, etc. split out), `finance` 28 -> 23 (portfolio_management split out).
 
 ---
 
@@ -65,11 +66,12 @@ Maps interview preparation topic areas to research-kb domains, with source count
 
 | Domain | Sources | Target | Strategy |
 |--------|---------|--------|----------|
-| `forecasting` | 1 | 5+ | More forecasting-specific textbooks |
-| `economics` | 1 | 3+ | Macroeconomics, microeconomics textbooks |
+| `economics` | 2 | 5+ | Macroeconomics, microeconomics textbooks |
 | `sql` | 2 | 5+ | Acquire SQL textbooks (window functions, query optimization, database internals) |
-| `recommender_systems` | 3 | 5+ | Acquire recsys textbooks (Aggarwal, Ricci) or papers |
 | `adtech` | 2 | 5+ | Acquire adtech/auction theory sources; overlap with causal_inference for incrementality |
+| `fitness` | 2 | 5+ | Exercise science, nutrition, programming textbooks |
+| `recommender_systems` | 3 | 5+ | Acquire recsys textbooks (Aggarwal, Ricci) or papers |
+| `forecasting` | 5 | 5+ | At threshold; consider demand forecasting, energy forecasting sources |
 
 ---
 

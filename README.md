@@ -12,7 +12,7 @@ Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge
 
 - **4-signal hybrid search** -- BM25 + vector + knowledge graph + citation authority, with context-aware weight profiles
 - **20-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
-- **Knowledge graph** -- 307K concepts and 742K relationships extracted from research literature, served by KuzuDB
+- **Knowledge graph** -- 312K concepts and 744K relationships extracted from research literature, served by KuzuDB
 - **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
 - **Multi-domain** -- 22 corpus domains, 20 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
@@ -199,8 +199,8 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 |-----------|-------|
 | Sources (papers, textbooks) | 495 |
 | Text chunks (100% embedded) | 228K |
-| Concepts (9 types) | 307K |
-| Relationships | 742K |
+| Concepts (9 types) | 312K |
+| Relationships | 744K |
 | Citations | 15,166 |
 
 <!-- AUTO-GEN:mcp-tools:START -->

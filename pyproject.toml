@@ -30,6 +30,8 @@ markers = [
     "requires_grobid: Tests requiring GROBID server",
     "requires_embedding: Tests requiring embedding server",
     "requires_reranker: Tests requiring cross-encoder reranker model",
+    "requires_anthropic: Tests requiring Anthropic API client (anthropic package)",
+    "requires_instructor: Tests requiring Instructor client (instructor package)",
 ]
 
 [dependency-groups]
