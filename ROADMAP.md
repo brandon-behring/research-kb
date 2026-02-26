@@ -150,20 +150,28 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - Test markers: `requires_anthropic`, `requires_instructor` for extraction tests
 - Expanded `audit_docs.py` Check 11 for full README-vs-DB reconciliation
 
+## Phase Y: Test Fortification + Mypy + Coverage Gate ✅ COMPLETE
+
+- Dashboard tests: 4 untested pages → full coverage (concepts, statistics, assumptions, queue; +65 tests)
+- Client tests: 17 → 49 tests (models, connection, parsing, convenience functions)
+- Mypy baseline: 18 → 0 errors (installed types-requests, targeted type: ignore annotations)
+- Coverage gate: 67% → 70%
+
 ---
 
-**Current Status**: All phases through X complete.
+**Current Status**: All phases through Y complete.
 
 **Key Metrics** (as of 2026-02-26):
 - Sources: 495 (across 22 domains, zero empty)
 - Chunks: 228,420 (100% with embeddings)
 - Concepts: 312,433 (744,225 relationships)
 - KuzuDB: ~110MB graph engine
-- Tests: ~2,530 test functions across 104 test files
+- Tests: ~2,630 test functions across 108 test files
 - Domains: 22 with sources, 20 with prompt configs (causal_inference 89, rag_llm 76, time_series 48, econometrics 35, deep_learning 35, software_engineering 30, mathematics 28, interview_prep 23, finance 23, statistics 18, ml_engineering 17, machine_learning 14, algorithms 12, data_science 12, portfolio_management 11, functional_programming 8, forecasting 5, recommender_systems 3, adtech 2, fitness 2, economics 2, sql 2)
 - Retrieval eval: 83 test cases across 22 domains, 9 Phase U activated
-- CI threshold: 0.85 (catches 8%+ regressions), coverage gate 67%
+- CI threshold: 0.85 (catches 8%+ regressions), coverage gate 70%
 - Method cache: 10/10 top methods, 55 cached assumptions, 87.5% readiness
+- Mypy: 0 baseline errors (zero-baseline achieved)
 
 **Architecture**: 12 packages (contracts → common → storage → cli/daemon/api/dashboard/mcp-server/client/pdf-tools/extraction/s2-client)
 
@@ -187,6 +195,9 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - **Kubernetes deployment**: Helm chart for production deployment
 - **Streaming search**: Server-sent events for real-time result streaming
 - **Multi-user**: Authentication and per-user corpora
+
+### Type Safety
+- **Mypy zero-baseline**: Refactor Anthropic client message construction with TypedDicts, wrap AutoTokenizer return type, add proper embed_client protocol. Target: 0 baseline errors without `type: ignore` annotations
 
 ### Knowledge Graph
 - **Temporal reasoning**: Track how assumptions/methods evolve across publications

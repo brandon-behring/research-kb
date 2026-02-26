@@ -233,7 +233,7 @@ class LlamaCppClient(LLMClient):
         try:
             if json_mode:
                 # Use create_chat_completion with response_format for JSON
-                output = self._llm.create_chat_completion(
+                output = self._llm.create_chat_completion(  # type: ignore[attr-defined]  # _llm typed as Optional, guarded by __init__
                     messages=messages,
                     max_tokens=self.max_tokens,
                     temperature=self.temperature,
@@ -243,7 +243,7 @@ class LlamaCppClient(LLMClient):
                     },
                 )
             else:
-                output = self._llm.create_chat_completion(
+                output = self._llm.create_chat_completion(  # type: ignore[attr-defined]  # _llm typed as Optional, guarded by __init__
                     messages=messages,
                     max_tokens=self.max_tokens,
                     temperature=self.temperature,

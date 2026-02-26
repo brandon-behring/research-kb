@@ -285,8 +285,8 @@ class Deduplicator:
                 text1 = f"{concept1.name}: {concept1.definition or ''}"
                 text2 = f"{concept2.name}: {concept2.definition or ''}"
 
-                emb1 = self.embed_client.embed(text1)
-                emb2 = self.embed_client.embed(text2)
+                emb1 = self.embed_client.embed(text1)  # type: ignore[attr-defined]  # embed_client typed as object, actual type has .embed()
+                emb2 = self.embed_client.embed(text2)  # type: ignore[attr-defined]
 
                 # Cosine similarity
                 return self._cosine_similarity(emb1, emb2)

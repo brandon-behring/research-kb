@@ -184,7 +184,7 @@ class BatchClient:
         loop = asyncio.get_event_loop()
         batch = await loop.run_in_executor(
             None,
-            lambda: self._client.messages.batches.create(requests=requests),
+            lambda: self._client.messages.batches.create(requests=requests),  # type: ignore[arg-type]  # Anthropic SDK batch Request type
         )
 
         logger.info(

@@ -60,7 +60,7 @@ def configure_logging(
         )
 
     structlog.configure(
-        processors=processors,
+        processors=processors,  # type: ignore[arg-type]  # structlog processor types are complex unions
         wrapper_class=structlog.stdlib.BoundLogger,
         context_class=dict,
         logger_factory=structlog.stdlib.LoggerFactory(),
@@ -81,4 +81,4 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
         >>> logger = get_logger(__name__)
         >>> logger.info("chunk_created", chunk_id="xyz789", content_length=1024)
     """
-    return structlog.get_logger(name)
+    return structlog.get_logger(name)  # type: ignore[no-any-return]  # structlog.get_logger returns Any

@@ -202,7 +202,7 @@ class AnthropicClient(LLMClient):
             AnthropicError: If API call fails
         """
         try:
-            message = self._client.messages.create(
+            message = self._client.messages.create(  # type: ignore[call-overload]  # Anthropic SDK overload generics
                 model=self.model_id,
                 max_tokens=self.max_tokens,
                 temperature=self.temperature,

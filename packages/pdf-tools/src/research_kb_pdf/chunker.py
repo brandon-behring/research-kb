@@ -52,16 +52,16 @@ BGE_MODEL = "BAAI/bge-large-en-v1.5"
 BGE_REVISION = "d4aa6901d3a41ba39fb536a557fa166f842b0e09"
 
 
-def get_tokenizer() -> AutoTokenizer:
+def get_tokenizer() -> AutoTokenizer:  # type: ignore[return-value]  # from_pretrained returns Backend, not AutoTokenizer
     """Lazy-load tokenizer to avoid startup cost (thread-safe)."""
     global _tokenizer
     if _tokenizer is not None:
-        return _tokenizer
+        return _tokenizer  # type: ignore[return-value]
     with _tokenizer_lock:
         # Double-check after acquiring lock
         if _tokenizer is None:
             _tokenizer = AutoTokenizer.from_pretrained(BGE_MODEL, revision=BGE_REVISION)
-        return _tokenizer
+        return _tokenizer  # type: ignore[return-value]
 
 
 @dataclass
@@ -93,7 +93,7 @@ def count_tokens(text: str) -> int:
         2
     """
     tokenizer = get_tokenizer()
-    return len(tokenizer.encode(text, add_special_tokens=False))
+    return len(tokenizer.encode(text, add_special_tokens=False))  # type: ignore[attr-defined]  # AutoTokenizer stubs missing .encode()
 
 
 def chunk_document(
