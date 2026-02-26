@@ -221,7 +221,7 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 ## Testing
 
-- **~2,100+ test functions** across 90+ test files
+- **~2,400+ test functions** across 100+ test files
 - **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (15 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
 - **Golden evaluation dataset**: 177 queries across 14 domains with known-relevant chunks (benchmark)
 - **Retrieval eval**: 55 YAML test cases with per-domain reporting (`--per-domain` flag)
