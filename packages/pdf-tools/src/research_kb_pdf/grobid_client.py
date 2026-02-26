@@ -442,8 +442,11 @@ def _extract_citations(root, ns: dict, contexts: Optional[dict[str, str]] = None
                     venue=venue,
                     doi=doi,
                     arxiv_id=arxiv_id,
-                    raw_string=raw_string or title,
+                    raw_string=raw_string or title or "",
                     context=context,
+                    bibtex=None,
+                    extraction_method="grobid",
+                    confidence_score=None,
                 )
             )
 

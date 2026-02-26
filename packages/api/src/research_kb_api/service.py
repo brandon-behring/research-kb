@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from research_kb_common import get_logger
-from research_kb_contracts import Source, Concept, ConceptRelationship, ConceptType
+from research_kb_contracts import Source, SourceType, Concept, ConceptRelationship, ConceptType
 from research_kb_pdf import EmbeddingClient
 from research_kb_storage import (
     HydeConfig,
@@ -382,7 +382,8 @@ async def get_sources(
     source_type: Optional[str] = None,
 ) -> list[Source]:
     """Get sources with optional filtering."""
-    return await SourceStore.list_all(limit=limit, offset=offset, source_type=source_type)
+    st = SourceType(source_type.lower()) if source_type else None
+    return await SourceStore.list_all(limit=limit, offset=offset, source_type=st)
 
 
 async def count_sources(source_type: Optional[str] = None) -> int:
@@ -582,6 +583,10 @@ async def get_citations_for_source(source_id: str) -> dict:
 
     return {
         "source_id": source_id,
-        "citing_sources": [{"id": str(s.id), "title": s.title, "year": s.year} for s in citing],
-        "cited_sources": [{"id": str(s.id), "title": s.title, "year": s.year} for s in cited],
+        "citing_sources": [
+            {"id": str(s["id"]), "title": s["title"], "year": s.get("year")} for s in citing
+        ],
+        "cited_sources": [
+            {"id": str(s["id"]), "title": s["title"], "year": s.get("year")} for s in cited
+        ],
     }

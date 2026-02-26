@@ -126,7 +126,7 @@ def citation_to_bibtex(citation: Citation) -> str:
         lines.append(f"  author = {{{escape_bibtex(' and '.join(formatted_authors))}}},")
 
     # Title
-    lines.append(f"  title = {{{escape_bibtex(citation.title)}}},")
+    lines.append(f"  title = {{{escape_bibtex(citation.title or '')}}},")
 
     # Year
     if citation.year:

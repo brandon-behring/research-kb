@@ -190,7 +190,7 @@ def _compute_ranks_by_signal(results: list) -> dict[str, dict[str, int]]:
             if scores.get(signal) is not None
         ]
         # Sort by score descending (higher = better)
-        scored.sort(key=lambda x: x[1], reverse=True)
+        scored.sort(key=lambda x: (x[1] or 0.0), reverse=True)
         # Assign ranks
         for rank, (chunk_id, _) in enumerate(scored, start=1):
             rankings[chunk_id][signal] = rank
@@ -625,6 +625,7 @@ async def search_with_rerank(
         # Return top results without reranking
         return candidates[:rerank_top_k]
 
+    assert query.text is not None, "Reranking requires a text query"
     try:
         reranked = client.rerank_search_results(
             query=query.text,
@@ -1085,6 +1086,9 @@ async def _row_to_search_result(
         source=source,
         fts_score=fts_score,
         vector_score=vector_similarity,  # Now returns similarity, not distance
+        graph_score=None,
+        citation_score=None,
+        rerank_score=None,
         combined_score=combined_score,
         rank=rank,
     )

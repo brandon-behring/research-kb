@@ -303,7 +303,7 @@ def format_concept_detail(
                 if hasattr(rel.relationship_type, "value")
                 else rel.relationship_type
             )
-            lines.append(f"- {rel_type} → `{rel.target_id}`")
+            lines.append(f"- {rel_type} → `{rel.target_concept_id}`")
 
         if len(relationships) > 20:
             lines.append(f"*... and {len(relationships) - 20} more relationships*")

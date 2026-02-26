@@ -192,7 +192,9 @@ class PDFDispatcher:
             existing = await SourceStore.get_by_file_hash(file_hash)
             if existing:
                 # Return existing with chunk count
-                chunk_count = await ChunkStore.count_by_source(existing.id) if ChunkStore else 0
+                chunk_count = (
+                    await ChunkStore.count_by_source(existing.id) if ChunkStore is not None else 0
+                )
                 logger.info(
                     "source_already_exists",
                     source_id=str(existing.id),

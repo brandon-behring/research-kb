@@ -181,9 +181,8 @@ def register_graph_tools(mcp: FastMCP) -> None:
             # If concept_name provided, find concept first, then get matches
             if concept_name:
                 # Search for concept by name
-                concepts = await ConceptStore.search_by_name(
-                    name=concept_name,
-                    domain_id=source_domain,
+                concepts = await ConceptStore.search(
+                    query=concept_name,
                     limit=1,
                 )
 
@@ -214,12 +213,19 @@ def register_graph_tools(mcp: FastMCP) -> None:
 
                 # If no existing links, try live discovery
                 if source_concept.embedding is not None:
-                    similar = await ConceptStore.find_similar(
+                    # Fetch extra results and filter by domain post-hoc
+                    similar_raw = await ConceptStore.find_similar(
                         embedding=source_concept.embedding,
-                        limit=limit,
+                        limit=limit * 3,
                         threshold=similarity_threshold,
-                        domain_id=target_domain,
                     )
+                    # Filter to target domain if specified
+                    similar = [
+                        (c, s)
+                        for c, s in similar_raw
+                        if not target_domain
+                        or (hasattr(c, "domain_id") and c.domain_id == target_domain)
+                    ][:limit]
 
                     if similar:
                         lines = [f"## Similar Concepts in {target_domain}"]

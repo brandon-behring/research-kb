@@ -196,7 +196,7 @@ async def build_citation_graph() -> dict:
         - errors: int
     """
     pool = await get_connection_pool()
-    stats = {
+    stats: dict[str, Any] = {
         "total_processed": 0,
         "matched": 0,
         "unmatched": 0,
@@ -239,6 +239,10 @@ async def build_citation_graph() -> dict:
                     doi=cit_row["doi"],
                     arxiv_id=cit_row["arxiv_id"],
                     raw_string=cit_row["raw_string"],
+                    context=None,
+                    bibtex=None,
+                    extraction_method=None,
+                    confidence_score=None,
                 )
 
                 # Try to match to corpus source

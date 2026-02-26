@@ -561,7 +561,9 @@ class TestSourceOperations:
 
             await get_sources(limit=50, offset=10, source_type="TEXTBOOK")
 
-            mock_store.list_all.assert_called_once_with(limit=50, offset=10, source_type="TEXTBOOK")
+            mock_store.list_all.assert_called_once_with(
+                limit=50, offset=10, source_type=SourceType.TEXTBOOK
+            )
 
     async def test_get_source_by_id(self, sample_source):
         """Test get_source_by_id returns source."""
@@ -782,34 +784,33 @@ class TestStatsAndCitations:
 
     async def test_get_citations_for_source(self, sample_source):
         """Test get_citations_for_source returns citation info."""
-        citing_source = Source(
-            id=uuid4(),
-            title="Citing Paper",
-            source_type=SourceType.PAPER,
-            domain_id="causal_inference",
-            year=2020,
-            file_hash="cite1",
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        )
-        cited_source = Source(
-            id=uuid4(),
-            title="Cited Paper",
-            source_type=SourceType.PAPER,
-            domain_id="causal_inference",
-            year=2010,
-            file_hash="cite2",
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        )
+        # Mock returns match actual function return type (list[dict])
+        citing_dict = {
+            "id": uuid4(),
+            "title": "Citing Paper",
+            "source_type": "paper",
+            "authors": [],
+            "year": 2020,
+            "citation_authority": 0.5,
+            "citation_count": 1,
+        }
+        cited_dict = {
+            "id": uuid4(),
+            "title": "Cited Paper",
+            "source_type": "paper",
+            "authors": [],
+            "year": 2010,
+            "citation_authority": 0.3,
+            "citation_count": 1,
+        }
 
         with (
             patch("research_kb_api.service.get_citing_sources") as citing_mock,
             patch("research_kb_api.service.get_cited_sources") as cited_mock,
         ):
 
-            citing_mock.return_value = [citing_source]
-            cited_mock.return_value = [cited_source]
+            citing_mock.return_value = [citing_dict]
+            cited_mock.return_value = [cited_dict]
 
             result = await get_citations_for_source(str(sample_source.id))
 

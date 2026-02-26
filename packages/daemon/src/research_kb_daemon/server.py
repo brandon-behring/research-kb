@@ -69,7 +69,7 @@ def make_response(
     Returns:
         Encoded JSON-RPC response
     """
-    response = {"jsonrpc": "2.0", "id": request_id}
+    response: dict[str, Any] = {"jsonrpc": "2.0", "id": request_id}
 
     if error is not None:
         response["error"] = error
@@ -173,6 +173,7 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
     addr = writer.get_extra_info("peername")
 
     # Try to acquire semaphore (with timeout to prevent deadlock)
+    assert _connection_semaphore is not None, "Server not initialized"
     try:
         await asyncio.wait_for(_connection_semaphore.acquire(), timeout=1.0)
     except asyncio.TimeoutError:
@@ -278,7 +279,7 @@ async def run_server(socket_path: str, skip_warm: bool = False) -> None:
     # Handle shutdown signals
     shutdown_event = asyncio.Event()
 
-    def signal_handler():
+    def signal_handler() -> None:
         logger.info("shutdown_signal_received")
         shutdown_event.set()
 

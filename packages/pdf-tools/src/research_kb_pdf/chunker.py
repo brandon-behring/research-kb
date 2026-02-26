@@ -7,7 +7,7 @@ Respects paragraph boundaries and tracks page numbers.
 import re
 import threading
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from transformers import AutoTokenizer
 
@@ -74,12 +74,9 @@ class TextChunk:
     token_count: int
     char_count: int
     chunk_index: int  # 0-indexed position in document
-    metadata: dict = None  # Extensible metadata (section, heading_level, etc.)
-
-    def __post_init__(self):
-        """Initialize metadata dict if not provided."""
-        if self.metadata is None:
-            self.metadata = {}
+    metadata: dict = field(
+        default_factory=dict
+    )  # Extensible metadata (section, heading_level, etc.)
 
 
 def count_tokens(text: str) -> int:

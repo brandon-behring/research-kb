@@ -233,7 +233,10 @@ class MethodStore:
 
         if not updates:
             # No updates requested, return current record
-            return await MethodStore.get_by_id(method_id)
+            method = await MethodStore.get_by_id(method_id)
+            if method is None:
+                raise StorageError(f"Method not found: {method_id}")
+            return method
 
         query = f"""
             UPDATE methods

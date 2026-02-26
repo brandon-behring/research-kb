@@ -205,7 +205,7 @@ class RelationshipDetail(BaseModel):
     source_name: str
     target_id: str
     target_name: str
-    relationship_type: RelationshipType
+    relationship_type: Optional[RelationshipType] = None
     confidence: Optional[float] = None
 
 

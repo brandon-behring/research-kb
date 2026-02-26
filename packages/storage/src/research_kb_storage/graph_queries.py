@@ -18,7 +18,7 @@ See CLAUDE.md "KuzuDB Graph Engine" section for architecture.
 import asyncio
 import json
 import time
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from pgvector.asyncpg import register_vector
@@ -272,7 +272,7 @@ async def _find_path_via_kuzu(
             # Build result path - relationships come from KuzuDB data
             # Note: We don't have full ConceptRelationship objects from KuzuDB,
             # so we create minimal relationship info or fetch from PostgreSQL
-            result = []
+            result: list[tuple[Concept, Optional[ConceptRelationship]]] = []
             for i, node in enumerate(kuzu_path):
                 cid = UUID(node["concept_id"])
                 concept = concepts.get(cid)
@@ -573,7 +573,7 @@ async def _get_neighborhood_via_kuzu(
     concept_id: UUID,
     hops: int,
     relationship_type: Optional[RelationshipType],
-) -> Optional[dict[str, list]]:
+) -> Optional[dict[str, Any]]:
     """Internal: Use KuzuDB for neighborhood discovery, fetch full objects from PostgreSQL.
 
     Returns:
@@ -624,7 +624,7 @@ async def _get_neighborhood_via_kuzu(
                 WHERE source_concept_id = ANY($1)
                   AND target_concept_id = ANY($1)
             """
-            rel_params = [all_ids]
+            rel_params: list[Any] = [all_ids]
 
             if relationship_type:
                 rel_query += " AND relationship_type = $2"
@@ -648,7 +648,7 @@ async def get_neighborhood(
     concept_id: UUID,
     hops: int = 1,
     relationship_type: Optional[RelationshipType] = None,
-) -> dict[str, list]:
+) -> dict[str, Any]:
     """Get N-hop neighborhood of a concept.
 
     Uses KuzuDB for fast neighbor discovery when available,
@@ -743,7 +743,7 @@ async def get_neighborhood(
                 WHERE source_concept_id = ANY($1)
                   AND target_concept_id = ANY($1)
             """
-            rel_params = [all_ids]
+            rel_params: list[Any] = [all_ids]
 
             if relationship_type:
                 rel_query += " AND relationship_type = $2"

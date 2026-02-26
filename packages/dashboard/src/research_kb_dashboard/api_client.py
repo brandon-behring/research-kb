@@ -40,7 +40,8 @@ class ResearchKBClient:
                       or http://localhost:8000
             timeout: Request timeout in seconds
         """
-        self.base_url = base_url or os.getenv("RESEARCH_KB_API_URL", "http://localhost:8000")
+        _default_url = os.getenv("RESEARCH_KB_API_URL") or "http://localhost:8000"
+        self.base_url: str = base_url or _default_url
         self.timeout = timeout
         self._client: Optional[httpx.AsyncClient] = None
 

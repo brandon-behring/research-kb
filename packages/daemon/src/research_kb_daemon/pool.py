@@ -9,7 +9,7 @@ import asyncio
 import json
 import os
 import socket
-from typing import Optional
+from typing import Any, Optional
 
 from research_kb_common import get_logger
 from research_kb_storage import (
@@ -42,7 +42,7 @@ async def init_pool(config: Optional[DatabaseConfig] = None) -> None:
     logger.info("db_pool_initialized")
 
 
-async def get_pool():
+async def get_pool() -> Any:
     """Get the database connection pool.
 
     Raises:
@@ -85,7 +85,7 @@ class EmbedClient:
         self._consecutive_failures = 0
         self._circuit_open_until: Optional[float] = None
 
-    def _sync_request(self, data: dict, timeout: float) -> dict:
+    def _sync_request(self, data: dict, timeout: float) -> dict[str, Any]:
         """Send synchronous request to embed server.
 
         Args:
@@ -121,7 +121,8 @@ class EmbedClient:
             sock.close()
 
             response_bytes = b"".join(chunks)
-            return json.loads(response_bytes.decode("utf-8"))
+            result: dict[str, Any] = json.loads(response_bytes.decode("utf-8"))
+            return result
 
         except socket.timeout:
             raise TimeoutError(f"Embed server timeout after {timeout}s")
@@ -207,14 +208,15 @@ class EmbedClient:
                     raise ValueError(f"Embedding failed: {response['error']}")
 
                 embedding = response.get("embedding")
-                if not embedding or len(embedding) != 1024:
+                if not embedding or not isinstance(embedding, list) or len(embedding) != 1024:
                     self._record_failure()
                     raise ValueError(
                         f"Invalid embedding dimension: {len(embedding) if embedding else 0}"
                     )
 
                 self._record_success()
-                return embedding
+                result: list[float] = embedding
+                return result
 
             except (TimeoutError, asyncio.TimeoutError) as e:
                 self._record_failure()
@@ -223,7 +225,7 @@ class EmbedClient:
                 self._record_failure()
                 raise ConnectionError(f"Embed server connection failed: {e}")
 
-    async def health_check(self) -> dict:
+    async def health_check(self) -> dict[str, Any]:
         """Check embedding server health.
 
         Returns:
@@ -287,7 +289,7 @@ class RerankClientWrapper:
         self.socket_path = socket_path
         self._lock = asyncio.Lock()
 
-    def _sync_ping(self) -> dict:
+    def _sync_ping(self) -> dict[str, Any]:
         """Synchronous ping to rerank server.
 
         Returns:
@@ -315,12 +317,13 @@ class RerankClientWrapper:
                 chunks.append(chunk)
 
             sock.close()
-            return json.loads(b"".join(chunks).decode("utf-8"))
+            result: dict[str, Any] = json.loads(b"".join(chunks).decode("utf-8"))
+            return result
 
         except socket.error as e:
             raise ConnectionError(f"Cannot connect to rerank server: {e}")
 
-    async def health_check(self) -> dict:
+    async def health_check(self) -> dict[str, Any]:
         """Check reranking server health.
 
         Returns:

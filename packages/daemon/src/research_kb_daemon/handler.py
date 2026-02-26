@@ -14,7 +14,7 @@ from typing import Any, Optional
 from uuid import UUID
 
 from research_kb_common import get_logger
-from research_kb_contracts import SearchResult
+from research_kb_contracts import Concept, SearchResult
 from research_kb_storage import (
     SearchQuery,
     is_kuzu_ready,
@@ -35,7 +35,7 @@ from research_kb_daemon.pool import get_embed_client, get_pool, get_rerank_clien
 logger = get_logger(__name__)
 
 
-async def _resolve_concept(name_or_id: str):
+async def _resolve_concept(name_or_id: str) -> Optional[Concept]:
     """Resolve a concept by name, canonical name, or UUID.
 
     Tries multiple strategies:
@@ -414,7 +414,7 @@ async def handle_graph_path(params: dict[str, Any]) -> dict[str, Any]:
     # Format path for JSON response
     path_items = []
     for concept, relationship in path:
-        item = {
+        item: dict[str, Any] = {
             "concept_id": str(concept.id),
             "concept_name": concept.name,
             "concept_type": (concept.concept_type.value if concept.concept_type else None),

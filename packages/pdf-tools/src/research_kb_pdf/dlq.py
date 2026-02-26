@@ -8,7 +8,7 @@ Provides:
 
 import json
 import traceback as tb
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -41,12 +41,7 @@ class DLQEntry:
     traceback: str
     timestamp: str  # ISO 8601 format
     retry_count: int = 0
-    metadata: dict = None
-
-    def __post_init__(self):
-        """Initialize metadata dict if not provided."""
-        if self.metadata is None:
-            self.metadata = {}
+    metadata: dict = field(default_factory=dict)
 
 
 class DeadLetterQueue:

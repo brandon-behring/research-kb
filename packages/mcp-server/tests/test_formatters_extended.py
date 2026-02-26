@@ -81,7 +81,7 @@ class MockConceptRelationship:
 
     def __init__(self, **kwargs):
         self.source_id = kwargs.get("source_id", uuid4())
-        self.target_id = kwargs.get("target_id", uuid4())
+        self.target_concept_id = kwargs.get("target_id", uuid4())
         self.relationship_type = kwargs.get("relationship_type", "USES")
 
 

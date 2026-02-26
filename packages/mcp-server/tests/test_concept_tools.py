@@ -178,7 +178,7 @@ class TestGetConcept:
         class MockRelationship:
             def __init__(self, rel_type, target_id):
                 self.relationship_type = rel_type
-                self.target_id = target_id
+                self.target_concept_id = target_id
 
         return [
             MockRelationship("USES", uuid4()),

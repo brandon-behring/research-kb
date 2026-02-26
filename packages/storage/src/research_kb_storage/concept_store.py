@@ -234,7 +234,10 @@ class ConceptStore:
 
                 if not updates:
                     # Nothing to update, just return current
-                    return await ConceptStore.get_by_id(concept_id)
+                    concept = await ConceptStore.get_by_id(concept_id)
+                    if concept is None:
+                        raise StorageError(f"Concept not found: {concept_id}")
+                    return concept
 
                 sql = f"""
                     UPDATE concepts
