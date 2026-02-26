@@ -1,48 +1,52 @@
 # Test Coverage Audit Report
 
-**Date:** 2026-02-25 (Phase O refresh)
-**Previous:** 2026-02-06
+**Date:** 2026-02-26 (Phase W refresh)
+**Previous:** 2026-02-25 (Phase O)
 **Original:** 2025-12-02
 
 ## Executive Summary
 
 - **Total Packages:** 12
 - **Packages with Tests:** 12
-- **Total Test Functions:** ~2,182
-- **Growth since last audit:** +752 test functions (52% increase)
+- **Total Test Functions:** ~2,530
+- **Growth since last audit:** +348 test functions (16% increase from Phase O)
 - **Previous Test Gaps:** All 13 flagged modules from Dec 2025 resolved
-- **CI**: pytest-cov in PR checks (`--cov-fail-under=40`), doc freshness gate in weekly integration
+- **CI**: pytest-cov in PR checks (`--cov-fail-under=66`), doc freshness gate in weekly integration
 
-## Package Test Counts (as of 2026-02-25)
+## Package Test Counts (as of 2026-02-26)
 
 | Package | Test Files | Functions | Status |
 |---------|-----------|----------:|--------|
-| storage | 18 | 432 | Full coverage |
+| storage | 22 | 593 | Full coverage (+85 Phase S unit tests, +3 synonym normalization) |
+| extraction | 13 | 513 | Full coverage (249 domain prompts + anthropic/instructor) |
 | s2-client | 9 | 316 | Full coverage |
-| extraction | 13 | 322 | Full coverage (249 domain prompts) |
+| pdf-tools | 11 | 260 | Good coverage (+contract tests, Unicode regression) |
 | api | 9 | 221 | Full coverage (expanded from 1 in Feb) |
-| pdf-tools | 11 | 215 | Good coverage (+3 Unicode regression) |
-| common | 5 | 95 | Good coverage |
 | mcp-server | 11 | 156 | Full coverage (expanded from 14 in Feb) |
+| common | 5 | 95 | Good coverage |
+| cli | 5 | 89 | Full coverage (+16 citations sub-app tests) |
+| daemon | 3 | 80 | Covered (test_metrics, test_pool) |
 | dashboard | 5 | 79 | Good coverage (AppTest suite) |
-| cli | 5 | 77 | Full coverage |
-| daemon | 3 | 31 | Covered |
 | contracts | 1 | 21 | Full coverage |
 | client | 1 | 17 | Covered |
-| **Total** | **91** | **~2,182** | |
+| **Total** | **95+** | **~2,530** | |
 
-## Notable Changes Since Last Audit (2026-02-06)
+## Notable Changes Since Last Audit (2026-02-25)
 
-### Dramatic Expansions
-- **api**: 1 → 221 tests (9 test files: schemas, metrics, service, main, etc.)
-- **mcp-server**: 14 → 156 tests (11 test files: formatters, extended formatters, etc.)
-- **extraction**: 264 → 322 tests (domain prompts grew from 63 → 249 with Phase H/N/O)
-- **dashboard**: New — 79 tests (5 test files, AppTest suite added in Phase M)
-- **pdf-tools**: 198 → 215 tests (Unicode normalization regression tests added in Phase O)
+### Phase S: Coverage Hardening (85 new unit tests)
+- **storage**: 432 → 593 tests (Phase S: search, graph_queries, citation_graph, assumption_audit)
+- **daemon**: 31 → 80 tests (test_metrics, test_pool expanded)
+- **pdf-tools**: 215 → 260 tests (contract tests, Unicode regression)
+- **extraction**: 322 → 513 tests (anthropic/instructor backend tests)
 
-### Phase O Additions
-- `test_domain_prompts.py`: 249 tests (20 domains including portfolio_management)
-- `test_chunker.py`: +3 Unicode normalization regression tests (NFKC for NBSP/SHY/ligatures)
+### Phase W: CLI Citations + Synonym Normalization
+- **cli**: 77 → 89 tests (+16 citations sub-app tests covering all 5 commands)
+- **storage query_expander**: +3 synonym underscore/slash normalization tests
+
+### Earlier Phases (O and before)
+- **api**: 1 → 221 tests (9 test files)
+- **mcp-server**: 14 → 156 tests (11 test files)
+- **dashboard**: New — 79 tests (AppTest suite)
 
 ## Dec 2025 Gap Status (All Resolved)
 

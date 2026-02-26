@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-26 02:30:45
+**Auto-generated**: 2026-02-26 02:30:54
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -11,9 +11,9 @@
 |-------|------:|
 | sources | 495 |
 | chunks | 228,420 |
-| concepts | 311,250 |
-| concept_relationships | 744,044 |
-| chunk_concepts | 1,186,939 |
+| concepts | 311,260 |
+| concept_relationships | 744,045 |
+| chunk_concepts | 1,186,949 |
 | citations | 15,166 |
 | methods | 15,505 |
 | assumptions | 9,468 |
@@ -34,7 +34,7 @@
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
 | Chunks | 228,420 | 228,420 | 100.0% |
-| Concepts | 283,714 | 311,250 | 91.2% |
+| Concepts | 283,714 | 311,260 | 91.2% |
 
 ---
 
@@ -81,8 +81,8 @@
 
 | Type | Count |
 |------|------:|
-| concept | 85,699 |
-| technique | 74,531 |
+| concept | 85,705 |
+| technique | 74,535 |
 | definition | 56,709 |
 | model | 25,128 |
 | method | 20,561 |
@@ -100,7 +100,7 @@
 | USES | 349,392 |
 | ADDRESSES | 113,183 |
 | SPECIALIZES | 89,616 |
-| REQUIRES | 63,329 |
+| REQUIRES | 63,330 |
 | RELATED_TO | 51,547 |
 | ALTERNATIVE_TO | 40,721 |
 | EXTENDS | 27,631 |
@@ -116,7 +116,7 @@ Based on database population and feature detection:
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
 | Phase 1.5: PDF Ingestion | ✅ Complete | 495 sources, 228,420 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 311,250 concepts, 744,044 relationships |
+| Phase 2: Knowledge Graph | ✅ Complete | 311,260 concepts, 744,045 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
 

@@ -14,7 +14,7 @@ Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge
 - **20-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
 - **Knowledge graph** -- 307K concepts and 742K relationships extracted from research literature, served by KuzuDB
 - **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
-- **Multi-domain** -- 19 corpus domains, 20 extraction prompt configs, extensible to new domains
+- **Multi-domain** -- 22 corpus domains, 20 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
 - **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
 
@@ -197,8 +197,8 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 | Dimension | Count |
 |-----------|-------|
-| Sources (papers, textbooks) | 485 |
-| Text chunks (100% embedded) | 226K |
+| Sources (papers, textbooks) | 495 |
+| Text chunks (100% embedded) | 228K |
 | Concepts (9 types) | 307K |
 | Relationships | 742K |
 | Citations | 15,166 |
@@ -221,10 +221,10 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 ## Testing
 
-- **~2,400+ test functions** across 100+ test files
+- **~2,500+ test functions** across 104+ test files
 - **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (15 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
-- **Golden evaluation dataset**: 177 queries across 14 domains with known-relevant chunks (benchmark)
-- **Retrieval eval**: 55 YAML test cases with per-domain reporting (`--per-domain` flag)
+- **Golden evaluation dataset**: 177 queries across 22 domains with known-relevant chunks (benchmark)
+- **Retrieval eval**: 83 YAML test cases with per-domain reporting (`--per-domain` flag)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
 ```bash
@@ -286,27 +286,30 @@ research-kb enrich job-status                            # Check enrichment job 
 
 ## Multi-Domain Support
 
-research-kb supports 19 corpus domains with 20 extraction prompt configurations:
+research-kb supports 22 corpus domains with 20 extraction prompt configurations:
 
 | Domain | Sources | Description |
 |--------|---------|-------------|
 | `causal_inference` | 89 | Causal inference, structural models, treatment effects |
-| `rag_llm` | 73 | Retrieval-augmented generation, language models |
+| `rag_llm` | 76 | Retrieval-augmented generation, language models |
 | `time_series` | 48 | Time series analysis, forecasting, temporal methods |
-| `software_engineering` | 30 | Design patterns, testing, architecture, DevOps |
 | `deep_learning` | 35 | Neural networks, transformers, optimization |
 | `econometrics` | 35 | Econometric theory and estimation |
+| `software_engineering` | 30 | Design patterns, testing, architecture, DevOps |
 | `mathematics` | 28 | Pure and applied mathematics |
-| `interview_prep` | 23 | Technical interview preparation |
 | `finance` | 23 | Quantitative finance and risk |
-| `machine_learning` | 14 | General ML algorithms and theory |
+| `interview_prep` | 23 | Technical interview preparation |
 | `statistics` | 18 | Statistical theory and methods |
 | `ml_engineering` | 17 | ML systems, MLOps, production ML |
+| `machine_learning` | 14 | General ML algorithms and theory |
+| `algorithms` | 12 | Algorithm design and analysis |
 | `data_science` | 12 | Data analysis and visualization |
 | `portfolio_management` | 11 | Portfolio theory and optimization |
 | `functional_programming` | 8 | FP concepts and languages |
-| `algorithms` | 12 | Algorithm design and analysis |
 | `forecasting` | 5 | Forecasting methods and evaluation |
+| `recommender_systems` | 3 | Recommender systems, collaborative filtering |
+| `sql` | 2 | SQL, databases, query optimization |
+| `adtech` | 2 | Advertising technology, auction mechanisms |
 | `fitness` | 2 | Exercise science and training |
 | `economics` | 2 | Economic theory |
 

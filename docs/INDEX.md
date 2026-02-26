@@ -50,6 +50,9 @@
 | R. CI Quality Gates | ✅ Complete | Coverage config, threshold 40%→60%, e2e in CI, black 26.1.0 | [→](../ROADMAP.md) |
 | S. Coverage Hardening | ✅ Complete | 85 new unit tests, coverage gate 60%→66%, 4 core modules covered | [→](../ROADMAP.md) |
 | T. Domain Acquisition | ✅ Complete | 3 KG books ingested, CFA retag, 7 papers for 3 empty domains | [→](../ROADMAP.md) |
+| U. Concept Extraction | ✅ Complete | Concepts for sql/recommender_systems/adtech/rag_llm, 9 eval cases activated | [→](../ROADMAP.md) |
+| V. Doc Trust Alignment | ✅ Complete | README 19→22 domains, domain table sync, TEST_COVERAGE refresh | [→](../ROADMAP.md) |
+| W. CLI Citations + Synonym Fix | ✅ Complete | 16 CLI tests, synonym normalization, coverage gate raise | [→](../ROADMAP.md) |
 
 ---
 

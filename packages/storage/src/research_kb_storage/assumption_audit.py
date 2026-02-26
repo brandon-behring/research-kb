@@ -100,7 +100,9 @@ class MethodAssumptions:
     definition: Optional[str] = None
     assumptions: list[AssumptionDetail] = field(default_factory=list)
     source: str = (
-        "graph"  # graph, cache, empty, not_found, ollama, anthropic, graph+ollama, graph+anthropic
+        "graph"  # graph, cache, empty, not_found, anthropic, ollama, graph+anthropic, graph+ollama
+        # Primary LLM path: Anthropic (MCP hard-codes llm_backend="anthropic")
+        # CLI/dev fallback: Ollama (via --no-ollama flag to disable)
     )
     code_docstring_snippet: Optional[str] = None
 

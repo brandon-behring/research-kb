@@ -2,7 +2,7 @@
 
 > Cross-references research-kb corpus domains against interview preparation volumes and identifies strategic gaps.
 >
-> Last updated: 2026-02-25 (Phase O: Eval & Quality Hardening)
+> Last updated: 2026-02-26 (Phase V: Documentation Trust Alignment)
 
 ---
 
@@ -16,7 +16,7 @@ Maps interview preparation topic areas to research-kb domains, with source count
 | Time Series | `time_series` | 47 | Excellent | Hamilton, Hyndman, Box-Jenkins + domain papers |
 | Mathematics | `mathematics` | 27 | Good | Linear algebra, calculus, physics, optimization |
 | Interview Prep | `interview_prep` | 22 | Good | Multi-domain interview preparation |
-| GenAI / LLM | `rag_llm` | 17 | Good | RAG pipelines, prompt engineering, evaluation |
+| GenAI / LLM | `rag_llm` | 76 | Excellent | RAG pipelines, prompt engineering, evaluation, KG |
 | Software Engineering | `software_engineering` | 15 | Good | Design patterns, testing, architecture, DevOps |
 | Statistics | `statistics` | 10 | Moderate | Theory and methods (Wasserman, Efron, Bayesian) |
 | ML Foundations | `machine_learning` | 10 | Moderate | Core algorithms and theory |
@@ -29,10 +29,10 @@ Maps interview preparation topic areas to research-kb domains, with source count
 | Forecasting | `forecasting` | 1 | **Thin** | Overlaps time_series but distinct methods |
 | Portfolio Management | `portfolio_management` | 11 | Moderate | MPT, CAPM, factor models, risk management (Phase O prompt config) |
 | Economics | `economics` | 1 | **Thin** | Quantitative economics |
-| Finance / Credit Risk | `finance` | 1 | **Thin** | Quantitative finance |
-| SQL | `sql` | 0 | **Registered, empty** | Domain + prompt config ready; no local PDFs yet |
-| Recommender Systems | `recommender_systems` | 0 | **Registered, empty** | Domain + prompt config ready; no local PDFs yet |
-| Ads / AdTech | `adtech` | 0 | **Registered, empty** | Domain + prompt config ready; no local PDFs yet |
+| Finance / Credit Risk | `finance` | 23 | Good | Quantitative finance, CFA, risk management (Phase T retag) |
+| SQL | `sql` | 2 | Partial | SQL databases, query optimization (Phase T arXiv) |
+| Recommender Systems | `recommender_systems` | 3 | Partial | Collaborative filtering, recsys (Phase T arXiv) |
+| Ads / AdTech | `adtech` | 2 | Partial | Advertising technology, auction mechanisms (Phase T arXiv) |
 
 **Note**: Source counts changed significantly in Phase N due to sidecar audit + DB retagging. Many books previously defaulting to `causal_inference` are now correctly assigned to `mathematics`, `algorithms`, `functional_programming`, `software_engineering`, etc.
 
@@ -61,21 +61,15 @@ Maps interview preparation topic areas to research-kb domains, with source count
 
 ## Remaining Gaps
 
-### Empty Domains (registered, need sources)
-
-| Domain | Priority | Source Strategy |
-|--------|----------|-----------------|
-| `sql` | High | Acquire SQL textbooks (window functions, query optimization, database internals) |
-| `recommender_systems` | Medium | Acquire recsys textbooks (Aggarwal, Ricci) or papers |
-| `adtech` | Low | Acquire adtech/auction theory sources; overlap with causal_inference for incrementality |
-
 ### Thin Domains (need expansion)
 
 | Domain | Sources | Target | Strategy |
 |--------|---------|--------|----------|
 | `forecasting` | 1 | 5+ | More forecasting-specific textbooks |
 | `economics` | 1 | 3+ | Macroeconomics, microeconomics textbooks |
-| `finance` | 1 | 5+ | Re-check Manning finance titles; some may have been absorbed elsewhere |
+| `sql` | 2 | 5+ | Acquire SQL textbooks (window functions, query optimization, database internals) |
+| `recommender_systems` | 3 | 5+ | Acquire recsys textbooks (Aggarwal, Ricci) or papers |
+| `adtech` | 2 | 5+ | Acquire adtech/auction theory sources; overlap with causal_inference for incrementality |
 
 ---
 
