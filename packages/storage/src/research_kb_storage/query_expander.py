@@ -142,7 +142,9 @@ class QueryExpander:
         """Expand query using synonym map.
 
         Performs case-insensitive matching against synonym map keys.
-        Returns synonyms for all matching terms in query.
+        Normalizes underscores/slashes to spaces for cross-format matching
+        (e.g., "A/B testing" matches ``ab_testing`` key, "statistical significance"
+        matches ``statistical_significance`` key).
 
         Args:
             query: User query text
@@ -157,13 +159,30 @@ class QueryExpander:
         query_lower = query.lower()
         query_words = set(query_lower.split())
 
+        # Build normalized lookup: "ab_testing" → "ab testing", etc.
+        # This lets natural-language queries match underscore-keyed synonyms.
+        # Normalization: underscores → spaces, strip non-alphanumeric, collapse spaces.
+        # Handles "A/B testing" → "ab testing" matching "ab_testing" → "ab testing".
+        normalized_map: dict[str, str] = {}  # normalized_key → original_key
+        for key in self.synonym_map:
+            norm = self._normalize_for_matching(key)
+            normalized_map[norm] = key
+
+        # Also normalize query for matching
+        query_normalized = self._normalize_for_matching(query_lower)
+
         expansions = []
         matched_keys = set()
 
         # Check full query against synonyms (for multi-word matches)
+        # Try both original and normalized forms
         if query_lower in self.synonym_map:
             expansions.extend(self.synonym_map[query_lower])
             matched_keys.add(query_lower)
+        elif query_normalized in normalized_map:
+            orig_key = normalized_map[query_normalized]
+            expansions.extend(self.synonym_map[orig_key])
+            matched_keys.add(orig_key)
 
         # Check individual words
         for word in query_words:
@@ -174,11 +193,20 @@ class QueryExpander:
                 matched_keys.add(word)
 
         # Also check if query contains any synonym map keys (partial match)
+        # Check both original keys and normalized keys against normalized query
         for key, synonyms in self.synonym_map.items():
             if key in query_lower and key not in matched_keys:
                 for synonym in synonyms:
                     if synonym.lower() not in query_lower:
                         expansions.append(synonym)
+                matched_keys.add(key)
+            elif key not in matched_keys:
+                norm_key = key.replace("_", " ").replace("/", " ")
+                if norm_key in query_normalized and norm_key != key:
+                    for synonym in synonyms:
+                        if synonym.lower() not in query_lower:
+                            expansions.append(synonym)
+                    matched_keys.add(key)
 
         # Deduplicate while preserving order
         seen = set()
@@ -370,6 +398,21 @@ Example: ["term1", "term2", "term3"]
                     parts.append(f"{word_clean}:{expansion_weight}")
 
         return " | ".join(parts) if parts else ""
+
+    @staticmethod
+    def _normalize_for_matching(text: str) -> str:
+        """Normalize text for cross-format synonym matching.
+
+        Replaces underscores with spaces, strips non-alphanumeric chars
+        (except spaces), and collapses whitespace. This maps both
+        ``ab_testing`` and ``A/B testing`` to ``ab testing``.
+        """
+        import re
+
+        text = text.replace("_", " ")
+        text = re.sub(r"[^a-z0-9\s]", "", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text
 
     def _escape_fts(self, term: str) -> str:
         """Escape term for PostgreSQL FTS.

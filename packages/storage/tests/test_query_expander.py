@@ -135,6 +135,77 @@ class TestSynonymExpansion:
         # Should not include "instrumental variables" since "instrumental" is in query
         # (implementation detail - depends on exact logic)
 
+    def test_synonym_expansion_underscore_normalization(self):
+        """Verify natural language queries match underscore-keyed synonyms.
+
+        The synonym map uses underscore keys (ab_testing, statistical_significance)
+        but users type spaces. Normalization bridges this gap.
+        """
+        # Given: Synonym map with underscore keys (matching real fixture)
+        expander = QueryExpander(
+            synonym_map={
+                "ab_testing": [
+                    "a/b testing",
+                    "a-b testing",
+                    "randomized controlled trial",
+                    "split testing",
+                ],
+                "statistical_significance": [
+                    "statistical significance",
+                    "significance testing",
+                    "hypothesis testing",
+                    "null hypothesis",
+                ],
+                "feature_flag": [
+                    "feature toggle",
+                    "feature switch",
+                    "experimentation platform",
+                ],
+            }
+        )
+
+        # When: Query uses natural language (spaces, not underscores)
+        ab_expansions = expander.expand_with_synonyms("A/B testing")
+        stat_expansions = expander.expand_with_synonyms("statistical significance")
+
+        # Then: Synonyms are found despite format difference
+        assert any(
+            "randomized" in e for e in ab_expansions
+        ), f"Expected 'randomized controlled trial' in expansions, got: {ab_expansions}"
+        assert any(
+            "hypothesis" in e for e in stat_expansions
+        ), f"Expected 'hypothesis testing' in expansions, got: {stat_expansions}"
+
+    def test_synonym_expansion_underscore_keys_still_work(self):
+        """Verify underscore-format queries still match underscore keys."""
+        expander = QueryExpander(
+            synonym_map={
+                "ab_testing": ["randomized controlled trial", "split testing"],
+            }
+        )
+
+        # When: Query uses exact underscore format
+        expansions = expander.expand_with_synonyms("ab_testing")
+
+        # Then: Still matches
+        assert "randomized controlled trial" in expansions
+
+    def test_synonym_expansion_partial_underscore_match(self):
+        """Verify multi-word underscore key matches inside longer query."""
+        expander = QueryExpander(
+            synonym_map={
+                "sample_size": ["power analysis", "statistical power", "mde"],
+            }
+        )
+
+        # When: Query contains the term in natural language
+        expansions = expander.expand_with_synonyms("how to calculate sample size")
+
+        # Then: Synonyms found via normalized partial match
+        assert any(
+            "power" in e for e in expansions
+        ), f"Expected 'power analysis' in expansions, got: {expansions}"
+
     def test_from_yaml_loads_real_file(self, real_synonym_map_path):
         """Verify QueryExpander.from_yaml loads real synonym file."""
         # Given: Path to actual synonym map
