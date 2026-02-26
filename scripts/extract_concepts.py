@@ -379,7 +379,7 @@ class ExtractionPipeline:
             limit: Maximum number of chunks to return.
             resume: If True, only return chunks without concept links.
             source_domain: Filter to chunks from sources with this domain
-                           (sources.metadata->>'domain').
+                           (sources.domain_id).
         """
         batch_limit = limit or 10000
 
@@ -393,12 +393,13 @@ class ExtractionPipeline:
                         """
                         SELECT c.id, c.source_id, c.content, c.content_hash,
                                c.location, c.page_start, c.page_end,
-                               c.embedding, c.metadata, c.created_at
+                               c.embedding, c.metadata, c.created_at,
+                               c.domain_id
                         FROM chunks c
                         JOIN sources s ON c.source_id = s.id
                         LEFT JOIN chunk_concepts cc ON c.id = cc.chunk_id
                         WHERE cc.chunk_id IS NULL
-                          AND s.metadata->>'domain' = $2
+                          AND s.domain_id = $2
                         ORDER BY c.created_at
                         LIMIT $1
                         """,
@@ -411,7 +412,8 @@ class ExtractionPipeline:
                         """
                         SELECT c.id, c.source_id, c.content, c.content_hash,
                                c.location, c.page_start, c.page_end,
-                               c.embedding, c.metadata, c.created_at
+                               c.embedding, c.metadata, c.created_at,
+                               c.domain_id
                         FROM chunks c
                         LEFT JOIN chunk_concepts cc ON c.id = cc.chunk_id
                         WHERE cc.chunk_id IS NULL
@@ -428,6 +430,7 @@ class ExtractionPipeline:
                     Chunk(
                         id=row["id"],
                         source_id=row["source_id"],
+                        domain_id=row["domain_id"],
                         content=row["content"],
                         content_hash=row["content_hash"],
                         location=row["location"],
@@ -464,10 +467,11 @@ class ExtractionPipeline:
                     """
                     SELECT c.id, c.source_id, c.content, c.content_hash,
                            c.location, c.page_start, c.page_end,
-                           c.embedding, c.metadata, c.created_at
+                           c.embedding, c.metadata, c.created_at,
+                           c.domain_id
                     FROM chunks c
                     JOIN sources s ON c.source_id = s.id
-                    WHERE s.metadata->>'domain' = $2
+                    WHERE s.domain_id = $2
                     ORDER BY c.created_at
                     LIMIT $1
                     """,
@@ -480,6 +484,7 @@ class ExtractionPipeline:
                     Chunk(
                         id=row["id"],
                         source_id=row["source_id"],
+                        domain_id=row["domain_id"],
                         content=row["content"],
                         content_hash=row["content_hash"],
                         location=row["location"],
