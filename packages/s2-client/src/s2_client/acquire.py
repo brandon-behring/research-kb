@@ -414,16 +414,14 @@ async def load_existing_identifiers() -> tuple[set[str], set[str], set[str], set
 
         async with pool.acquire() as conn:
             # Query for identifiers
-            rows = await conn.fetch(
-                """
+            rows = await conn.fetch("""
                 SELECT
                     file_hash,
                     metadata->>'s2_paper_id' as s2_id,
                     metadata->>'doi' as doi,
                     metadata->>'arxiv_id' as arxiv_id
                 FROM sources
-            """
-            )
+            """)
 
         s2_ids = {r["s2_id"] for r in rows if r["s2_id"]}
         dois = {r["doi"] for r in rows if r["doi"]}

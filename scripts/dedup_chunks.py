@@ -30,16 +30,14 @@ async def find_duplicate_groups(conn: asyncpg.Connection) -> list[dict]:
 
     Returns list of dicts with keys: source_id, content_hash, chunk_ids, keep_id, victim_ids.
     """
-    rows = await conn.fetch(
-        """
+    rows = await conn.fetch("""
         SELECT source_id, content_hash,
                array_agg(id ORDER BY page_start NULLS LAST, created_at ASC) as chunk_ids
         FROM chunks
         GROUP BY source_id, content_hash
         HAVING COUNT(*) > 1
         ORDER BY COUNT(*) DESC
-    """
-    )
+    """)
 
     groups = []
     for row in rows:
@@ -167,14 +165,12 @@ async def dedup_chunks(apply: bool = False, verbose: bool = False) -> dict:
 
 async def verify(conn: asyncpg.Connection) -> bool:
     """Verify no duplicates remain."""
-    count = await conn.fetchval(
-        """
+    count = await conn.fetchval("""
         SELECT COUNT(*) FROM (
             SELECT source_id, content_hash FROM chunks
             GROUP BY source_id, content_hash HAVING COUNT(*) > 1
         ) d
-    """
-    )
+    """)
     return count == 0
 
 

@@ -479,34 +479,28 @@ def enrichment_status():
                 "SELECT COUNT(*) FROM citations WHERE metadata->>'s2_enriched_at' IS NOT NULL"
             )
 
-            by_method = await conn.fetch(
-                """
+            by_method = await conn.fetch("""
                 SELECT metadata->>'s2_match_method' as method, COUNT(*) as count
                 FROM citations
                 WHERE metadata->>'s2_match_method' IS NOT NULL
                 GROUP BY method
                 ORDER BY count DESC
-                """
-            )
+                """)
 
-            by_status = await conn.fetch(
-                """
+            by_status = await conn.fetch("""
                 SELECT metadata->>'s2_match_status' as status, COUNT(*) as count
                 FROM citations
                 WHERE metadata->>'s2_match_status' IS NOT NULL
                 GROUP BY status
                 ORDER BY count DESC
-                """
-            )
+                """)
 
             # Staleness (>30 days since enrichment)
-            stale = await conn.fetchval(
-                """
+            stale = await conn.fetchval("""
                 SELECT COUNT(*) FROM citations
                 WHERE metadata->>'s2_enriched_at' IS NOT NULL
                 AND (metadata->>'s2_enriched_at')::timestamp < NOW() - INTERVAL '30 days'
-                """
-            )
+                """)
 
         return {
             "total": total,

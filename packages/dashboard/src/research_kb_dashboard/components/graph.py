@@ -40,8 +40,7 @@ def create_network(
     )
 
     # Configure physics for better layout
-    net.set_options(
-        """
+    net.set_options("""
     {
         "physics": {
             "enabled": true,
@@ -80,8 +79,7 @@ def create_network(
             }
         }
     }
-    """
-    )
+    """)
 
     return net
 

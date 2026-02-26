@@ -63,13 +63,11 @@ async def fetch_concepts_from_postgres() -> list[dict]:
     pool = await get_connection_pool()
 
     async with pool.acquire() as conn:
-        rows = await conn.fetch(
-            """
+        rows = await conn.fetch("""
             SELECT id, name, canonical_name, concept_type
             FROM concepts
             ORDER BY id
-            """
-        )
+            """)
 
         return [
             {
@@ -91,13 +89,11 @@ async def fetch_relationships_from_postgres() -> list[dict]:
     pool = await get_connection_pool()
 
     async with pool.acquire() as conn:
-        rows = await conn.fetch(
-            """
+        rows = await conn.fetch("""
             SELECT source_concept_id, target_concept_id, relationship_type, strength
             FROM concept_relationships
             ORDER BY id
-            """
-        )
+            """)
 
         return [
             {

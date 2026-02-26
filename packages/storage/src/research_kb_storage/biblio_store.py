@@ -138,13 +138,11 @@ class BiblioStore:
 
         async with pool.acquire() as conn:
             # Get all sources with internal citations
-            sources = await conn.fetch(
-                """
+            sources = await conn.fetch("""
                 SELECT DISTINCT citing_source_id
                 FROM source_citations
                 WHERE cited_source_id IS NOT NULL
-            """
-            )
+            """)
             stats["total_sources"] = len(sources)
 
             logger.info(
@@ -329,16 +327,14 @@ class BiblioStore:
         pool = await get_connection_pool()
 
         async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                """
+            row = await conn.fetchrow("""
                 SELECT
                     COUNT(*) AS total_pairs,
                     AVG(coupling_strength) AS avg_coupling,
                     MAX(coupling_strength) AS max_coupling,
                     COUNT(DISTINCT source_a_id) + COUNT(DISTINCT source_b_id) AS sources_involved
                 FROM bibliographic_coupling
-            """
-            )
+            """)
 
             return {
                 "total_pairs": row["total_pairs"],

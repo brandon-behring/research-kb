@@ -278,15 +278,13 @@ async def main():
     # Verify final state
     if args.execute:
         print("\nVerifying final orphan count...")
-        remaining = await conn.fetchval(
-            """
+        remaining = await conn.fetchval("""
             SELECT COUNT(*) FROM concepts c
             WHERE NOT EXISTS (
                 SELECT 1 FROM concept_relationships cr
                 WHERE cr.source_concept_id = c.id OR cr.target_concept_id = c.id
             )
-        """
-        )
+        """)
         print(f"Remaining orphans: {remaining:,}")
 
     await conn.close()

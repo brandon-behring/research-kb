@@ -29,15 +29,13 @@ logger = get_logger(__name__)
 
 async def get_orphan_sources(pool):
     """Get sources that have 0 chunks."""
-    return await pool.fetch(
-        """
+    return await pool.fetch("""
         SELECT s.id, s.title, s.file_path
         FROM sources s
         WHERE NOT EXISTS (SELECT 1 FROM chunks c WHERE c.source_id = s.id)
           AND s.file_path IS NOT NULL
         ORDER BY s.title
-    """
-    )
+    """)
 
 
 async def repair_source(source_id: str, file_path: str, title: str, pool):

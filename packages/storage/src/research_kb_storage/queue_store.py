@@ -391,33 +391,27 @@ class QueueStore:
         try:
             async with pool.acquire() as conn:
                 # Get counts by status
-                status_rows = await conn.fetch(
-                    """
+                status_rows = await conn.fetch("""
                     SELECT status, COUNT(*) as count
                     FROM ingestion_queue
                     GROUP BY status
-                    """
-                )
+                    """)
 
                 # Get counts by domain
-                domain_rows = await conn.fetch(
-                    """
+                domain_rows = await conn.fetch("""
                     SELECT domain_id, COUNT(*) as count
                     FROM ingestion_queue
                     GROUP BY domain_id
-                    """
-                )
+                    """)
 
                 # Get retry stats
-                retry_row = await conn.fetchrow(
-                    """
+                retry_row = await conn.fetchrow("""
                     SELECT
                         COUNT(*) FILTER (WHERE retry_count > 0) as with_retries,
                         MAX(retry_count) as max_retries,
                         AVG(retry_count) FILTER (WHERE retry_count > 0) as avg_retries
                     FROM ingestion_queue
-                    """
-                )
+                    """)
 
                 return {
                     "by_status": {r["status"]: r["count"] for r in status_rows},

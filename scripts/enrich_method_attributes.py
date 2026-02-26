@@ -69,8 +69,7 @@ async def get_concepts_to_enrich(conn) -> tuple[list[dict], list[dict]]:
     """Fetch method and assumption concepts that need enrichment."""
 
     # Get methods not yet in methods table
-    methods = await conn.fetch(
-        """
+    methods = await conn.fetch("""
         SELECT c.id::text, c.canonical_name, c.definition,
                (SELECT cc.chunk_id::text
                 FROM chunk_concepts cc
@@ -83,12 +82,10 @@ async def get_concepts_to_enrich(conn) -> tuple[list[dict], list[dict]]:
             SELECT 1 FROM methods m WHERE m.concept_id = c.id
         )
         ORDER BY c.canonical_name
-    """
-    )
+    """)
 
     # Get assumptions not yet in assumptions table
-    assumptions = await conn.fetch(
-        """
+    assumptions = await conn.fetch("""
         SELECT c.id::text, c.canonical_name, c.definition,
                (SELECT cc.chunk_id::text
                 FROM chunk_concepts cc
@@ -101,8 +98,7 @@ async def get_concepts_to_enrich(conn) -> tuple[list[dict], list[dict]]:
             SELECT 1 FROM assumptions a WHERE a.concept_id = c.id
         )
         ORDER BY c.canonical_name
-    """
-    )
+    """)
 
     return [dict(r) for r in methods], [dict(r) for r in assumptions]
 

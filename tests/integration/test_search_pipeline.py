@@ -24,7 +24,6 @@ from research_kb_storage.assumption_audit import MethodAssumptionAuditor
 
 from .conftest import IV_VECTOR, DML_VECTOR, RAG_VECTOR, _blend_embeddings
 
-
 pytestmark = pytest.mark.integration
 
 

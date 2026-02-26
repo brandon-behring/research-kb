@@ -35,8 +35,7 @@ async def get_orphan_statistics(conn: asyncpg.Connection) -> dict:
     stats["total_relationships"] = await conn.fetchval("SELECT COUNT(*) FROM concept_relationships")
 
     # Orphan counts by type
-    orphans_by_type = await conn.fetch(
-        """
+    orphans_by_type = await conn.fetch("""
         SELECT concept_type, COUNT(*) as count
         FROM concepts c
         WHERE NOT EXISTS (
@@ -45,57 +44,48 @@ async def get_orphan_statistics(conn: asyncpg.Connection) -> dict:
         )
         GROUP BY concept_type
         ORDER BY count DESC
-    """
-    )
+    """)
     stats["orphans_by_type"] = {row["concept_type"]: row["count"] for row in orphans_by_type}
     stats["total_orphans"] = sum(stats["orphans_by_type"].values())
 
     # Salvageable vs dead
-    stats["salvageable"] = await conn.fetchval(
-        """
+    stats["salvageable"] = await conn.fetchval("""
         SELECT COUNT(*) FROM concepts c
         WHERE NOT EXISTS (
             SELECT 1 FROM concept_relationships cr
             WHERE cr.source_concept_id = c.id OR cr.target_concept_id = c.id
         )
         AND EXISTS (SELECT 1 FROM chunk_concepts cc WHERE cc.concept_id = c.id)
-    """
-    )
+    """)
 
-    stats["dead"] = await conn.fetchval(
-        """
+    stats["dead"] = await conn.fetchval("""
         SELECT COUNT(*) FROM concepts c
         WHERE NOT EXISTS (
             SELECT 1 FROM concept_relationships cr
             WHERE cr.source_concept_id = c.id OR cr.target_concept_id = c.id
         )
         AND NOT EXISTS (SELECT 1 FROM chunk_concepts cc WHERE cc.concept_id = c.id)
-    """
-    )
+    """)
 
     # Low confidence orphans (candidates for deletion)
-    stats["low_confidence_orphans"] = await conn.fetchval(
-        """
+    stats["low_confidence_orphans"] = await conn.fetchval("""
         SELECT COUNT(*) FROM concepts c
         WHERE NOT EXISTS (
             SELECT 1 FROM concept_relationships cr
             WHERE cr.source_concept_id = c.id OR cr.target_concept_id = c.id
         )
         AND c.confidence_score < 0.5
-    """
-    )
+    """)
 
     # Orphans with embeddings (needed for semantic re-linking)
-    stats["orphans_with_embeddings"] = await conn.fetchval(
-        """
+    stats["orphans_with_embeddings"] = await conn.fetchval("""
         SELECT COUNT(*) FROM concepts c
         WHERE NOT EXISTS (
             SELECT 1 FROM concept_relationships cr
             WHERE cr.source_concept_id = c.id OR cr.target_concept_id = c.id
         )
         AND c.embedding IS NOT NULL
-    """
-    )
+    """)
 
     return stats
 
@@ -129,8 +119,7 @@ async def get_orphan_samples(conn: asyncpg.Connection, limit: int = 20) -> list[
 async def export_orphans_csv(conn: asyncpg.Connection, output_path: Path) -> int:
     """Export all orphans to CSV for manual review."""
 
-    rows = await conn.fetch(
-        """
+    rows = await conn.fetch("""
         SELECT
             c.id::text as concept_id,
             c.canonical_name,
@@ -150,8 +139,7 @@ async def export_orphans_csv(conn: asyncpg.Connection, output_path: Path) -> int
             WHERE cr.source_concept_id = c.id OR cr.target_concept_id = c.id
         )
         ORDER BY c.concept_type, c.confidence_score DESC
-    """
-    )
+    """)
 
     with open(output_path, "w", newline="") as f:
         writer = csv.DictWriter(

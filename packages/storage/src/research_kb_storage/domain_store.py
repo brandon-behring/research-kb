@@ -47,13 +47,11 @@ class DomainStore:
                     "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
                 )
 
-                rows = await conn.fetch(
-                    """
+                rows = await conn.fetch("""
                     SELECT * FROM domains
                     WHERE status = 'active'
                     ORDER BY name
-                    """
-                )
+                    """)
 
                 return [_row_to_domain(row) for row in rows]
 
@@ -319,8 +317,7 @@ class DomainStore:
 
         try:
             async with pool.acquire() as conn:
-                rows = await conn.fetch(
-                    """
+                rows = await conn.fetch("""
                     SELECT
                         d.id as domain_id,
                         d.name,
@@ -342,8 +339,7 @@ class DomainStore:
                     ) co ON d.id = co.domain_id
                     WHERE d.status = 'active'
                     ORDER BY d.name
-                    """
-                )
+                    """)
 
                 return [
                     {

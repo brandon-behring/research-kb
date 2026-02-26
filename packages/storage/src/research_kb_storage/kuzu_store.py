@@ -123,27 +123,23 @@ def _ensure_schema(conn: kuzu.Connection) -> None:
             logger.info("creating_kuzu_schema")
 
             # Node table for concepts
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE NODE TABLE Concept(
                     id STRING PRIMARY KEY,
                     name STRING,
                     canonical_name STRING,
                     concept_type STRING
                 )
-            """
-            )
+            """)
 
             # Edge table for relationships
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE REL TABLE RELATES(
                     FROM Concept TO Concept,
                     relationship_type STRING,
                     strength DOUBLE DEFAULT 1.0
                 )
-            """
-            )
+            """)
 
             logger.info("kuzu_schema_created")
         else:

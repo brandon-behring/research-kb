@@ -213,14 +213,12 @@ async def build_citation_graph() -> dict:
         )
 
         # Get all citations with their source info
-        citations = await conn.fetch(
-            """
+        citations = await conn.fetch("""
             SELECT c.*, s.source_type AS citing_source_type
             FROM citations c
             JOIN sources s ON c.source_id = s.id
             ORDER BY c.created_at
-            """
-        )
+            """)
 
         logger.info("building_citation_graph", total_citations=len(citations))
 
@@ -354,13 +352,11 @@ async def compute_pagerank_authority(
         logger.info("computing_pagerank", sources=n, iterations=iterations)
 
         # Get citation graph edges
-        edges = await conn.fetch(
-            """
+        edges = await conn.fetch("""
             SELECT citing_source_id, cited_source_id
             FROM source_citations
             WHERE cited_source_id IS NOT NULL
-            """
-        )
+            """)
 
         # Build adjacency lists
         incoming: dict[UUID, list[UUID]] = {sid: [] for sid in source_ids}  # Who cites me
@@ -467,9 +463,7 @@ async def get_citing_sources(
             GROUP BY s.id
             ORDER BY COUNT(sc.id) DESC, s.citation_authority DESC
             LIMIT ${}
-        """.format(
-            len(params) + 1
-        )
+        """.format(len(params) + 1)
 
         params.append(limit)
 
@@ -531,9 +525,7 @@ async def get_cited_sources(
         query += """
             ORDER BY s.citation_authority DESC
             LIMIT ${}
-        """.format(
-            len(params) + 1
-        )
+        """.format(len(params) + 1)
 
         params.append(limit)
 
@@ -666,9 +658,7 @@ async def get_most_cited_sources(
             HAVING COUNT(sc.id) > 0
             ORDER BY COUNT(sc.id) DESC, s.citation_authority DESC
             LIMIT ${}
-        """.format(
-            len(params) + 1
-        )
+        """.format(len(params) + 1)
 
         params.append(limit)
 

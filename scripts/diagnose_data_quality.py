@@ -34,36 +34,30 @@ async def diagnose_chunk_duplicates(conn: asyncpg.Connection) -> dict:
     print("=" * 70)
 
     # Count duplicate groups
-    group_count = await conn.fetchval(
-        """
+    group_count = await conn.fetchval("""
         SELECT COUNT(*) FROM (
             SELECT source_id, content_hash FROM chunks
             GROUP BY source_id, content_hash HAVING COUNT(*) > 1
         ) d
-    """
-    )
+    """)
     print(f"\nDuplicate groups: {group_count}")
 
     # Count deletable rows
-    deletable = await conn.fetchval(
-        """
+    deletable = await conn.fetchval("""
         SELECT COALESCE(SUM(cnt - 1), 0) FROM (
             SELECT source_id, content_hash, COUNT(*) as cnt FROM chunks
             GROUP BY source_id, content_hash HAVING COUNT(*) > 1
         ) d
-    """
-    )
+    """)
     print(f"Deletable rows (keeping 1 per group): {deletable}")
 
     # Top offenders
-    top = await conn.fetch(
-        """
+    top = await conn.fetch("""
         SELECT s.title, c.content_hash, COUNT(*) as n
         FROM chunks c JOIN sources s ON c.source_id = s.id
         GROUP BY s.title, c.content_hash HAVING COUNT(*) > 1
         ORDER BY n DESC LIMIT 15
-    """
-    )
+    """)
 
     if top:
         print(f"\nTop {len(top)} offenders:")
@@ -96,16 +90,14 @@ async def diagnose_source_near_dupes(conn: asyncpg.Connection) -> dict:
             print("  Falling back to exact-match check only.")
 
     if has_trgm:
-        pairs = await conn.fetch(
-            """
+        pairs = await conn.fetch("""
             SELECT a.id as id_a, b.id as id_b,
                    a.title as title_a, b.title as title_b,
                    similarity(lower(a.title), lower(b.title)) as sim
             FROM sources a JOIN sources b ON a.id < b.id
             WHERE similarity(lower(a.title), lower(b.title)) > 0.7
             ORDER BY sim DESC LIMIT 20
-        """
-        )
+        """)
 
         if pairs:
             print(f"\n{len(pairs)} near-duplicate pairs found:")
@@ -121,14 +113,12 @@ async def diagnose_source_near_dupes(conn: asyncpg.Connection) -> dict:
     else:
         # Fallback: check for exact normalized title matches
         print("\nFallback: checking for exact title duplicates (case-insensitive)...")
-        dupes = await conn.fetch(
-            """
+        dupes = await conn.fetch("""
             SELECT lower(title) as ltitle, COUNT(*) as cnt, array_agg(id) as ids
             FROM sources
             GROUP BY lower(title) HAVING COUNT(*) > 1
             ORDER BY cnt DESC LIMIT 20
-        """
-        )
+        """)
         if dupes:
             for row in dupes:
                 print(f"  [{row['cnt']}x] {row['ltitle'][:80]}")
@@ -203,15 +193,13 @@ async def diagnose_time_series_golden(conn: asyncpg.Connection) -> dict:
 
     # Also check the source itself
     print("\ntime_series sources in DB:")
-    ts_sources = await conn.fetch(
-        """
+    ts_sources = await conn.fetch("""
         SELECT id, title, metadata->>'domain' as domain
         FROM sources
         WHERE title ILIKE '%time series%'
            OR metadata->>'domain' = 'time_series'
         ORDER BY title
-    """
-    )
+    """)
     for s in ts_sources:
         print(f"  [{s['domain'] or 'NULL'}] {s['title'][:70]}")
 

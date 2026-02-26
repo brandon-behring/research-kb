@@ -405,14 +405,12 @@ class MethodAssumptionAuditor:
         try:
             async with pool.acquire() as conn:
                 # Check if table exists
-                table_exists = await conn.fetchval(
-                    """
+                table_exists = await conn.fetchval("""
                     SELECT EXISTS (
                         SELECT FROM information_schema.tables
                         WHERE table_name = 'method_assumption_cache'
                     )
-                    """
-                )
+                    """)
 
                 if not table_exists:
                     logger.debug("method_assumption_cache_not_found")
@@ -699,14 +697,12 @@ class MethodAssumptionAuditor:
         try:
             async with pool.acquire() as conn:
                 # Check if table exists
-                table_exists = await conn.fetchval(
-                    """
+                table_exists = await conn.fetchval("""
                     SELECT EXISTS (
                         SELECT FROM information_schema.tables
                         WHERE table_name = 'method_assumption_cache'
                     )
-                    """
-                )
+                    """)
 
                 if not table_exists:
                     logger.warning("method_assumption_cache_table_not_found")

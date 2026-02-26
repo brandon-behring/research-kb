@@ -734,8 +734,7 @@ class TestCacheAssumptions:
 
         # Create the cache table for this test
         async with pool.acquire() as conn:
-            await conn.execute(
-                """
+            await conn.execute("""
                 CREATE TABLE IF NOT EXISTS method_assumption_cache (
                     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                     method_concept_id UUID NOT NULL REFERENCES concepts(id) ON DELETE CASCADE,
@@ -753,8 +752,7 @@ class TestCacheAssumptions:
                     updated_at TIMESTAMPTZ DEFAULT NOW(),
                     UNIQUE(method_concept_id, assumption_name)
                 )
-            """
-            )
+            """)
 
         try:
             assumptions = [

@@ -434,17 +434,14 @@ class CrossDomainStore:
 
                 total = await conn.fetchval("SELECT COUNT(*) FROM cross_domain_links")
 
-                type_counts = await conn.fetch(
-                    """
+                type_counts = await conn.fetch("""
                     SELECT link_type, COUNT(*) as count
                     FROM cross_domain_links
                     GROUP BY link_type
                     ORDER BY count DESC
-                    """
-                )
+                    """)
 
-                domain_counts = await conn.fetch(
-                    """
+                domain_counts = await conn.fetch("""
                     SELECT
                         metadata->>'source_domain' as source_domain,
                         metadata->>'target_domain' as target_domain,
@@ -453,8 +450,7 @@ class CrossDomainStore:
                     WHERE metadata->>'source_domain' IS NOT NULL
                     GROUP BY metadata->>'source_domain', metadata->>'target_domain'
                     ORDER BY count DESC
-                    """
-                )
+                    """)
 
                 return {
                     "total_links": total or 0,

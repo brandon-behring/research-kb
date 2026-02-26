@@ -71,12 +71,10 @@ def stats():
             source_count = await conn.fetchval("SELECT COUNT(*) FROM sources")
             chunk_count = await conn.fetchval("SELECT COUNT(*) FROM chunks")
 
-            by_type = await conn.fetch(
-                """
+            by_type = await conn.fetch("""
                 SELECT source_type, COUNT(*) as count
                 FROM sources GROUP BY source_type
-            """
-            )
+            """)
 
         return source_count, chunk_count, by_type
 
@@ -119,40 +117,33 @@ def extraction_status():
         async with pool.acquire() as conn:
             concept_count = await conn.fetchval("SELECT COUNT(*) FROM concepts")
 
-            concepts_by_type = await conn.fetch(
-                """
+            concepts_by_type = await conn.fetch("""
                 SELECT concept_type, COUNT(*) as count
                 FROM concepts
                 GROUP BY concept_type
                 ORDER BY count DESC
-            """
-            )
+            """)
 
             relationship_count = await conn.fetchval("SELECT COUNT(*) FROM concept_relationships")
 
-            relationships_by_type = await conn.fetch(
-                """
+            relationships_by_type = await conn.fetch("""
                 SELECT relationship_type, COUNT(*) as count
                 FROM concept_relationships
                 GROUP BY relationship_type
                 ORDER BY count DESC
-            """
-            )
+            """)
 
             validated_count = await conn.fetchval(
                 "SELECT COUNT(*) FROM concepts WHERE validated = TRUE"
             )
 
-            avg_confidence = await conn.fetchval(
-                """
+            avg_confidence = await conn.fetchval("""
                 SELECT AVG(confidence_score)
                 FROM concepts
                 WHERE confidence_score IS NOT NULL
-            """
-            )
+            """)
 
-            confidence_dist = await conn.fetch(
-                """
+            confidence_dist = await conn.fetch("""
                 SELECT
                     CASE
                         WHEN confidence_score >= 0.9 THEN 'High (>=0.9)'
@@ -165,15 +156,12 @@ def extraction_status():
                 WHERE confidence_score IS NOT NULL
                 GROUP BY confidence_range
                 ORDER BY MIN(confidence_score) DESC
-            """
-            )
+            """)
 
-            chunks_with_concepts = await conn.fetchval(
-                """
+            chunks_with_concepts = await conn.fetchval("""
                 SELECT COUNT(DISTINCT chunk_id)
                 FROM chunk_concepts
-            """
-            )
+            """)
 
             total_chunks = await conn.fetchval("SELECT COUNT(*) FROM chunks")
 

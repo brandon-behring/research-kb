@@ -191,14 +191,12 @@ async def test_connection_pool_transaction(test_db):
     async with pool.acquire() as conn:
         async with conn.transaction():
             # Create a temporary table in transaction
-            await conn.execute(
-                """
+            await conn.execute("""
                 CREATE TEMP TABLE test_transaction (
                     id SERIAL PRIMARY KEY,
                     value TEXT
                 )
-            """
-            )
+            """)
 
             await conn.execute("INSERT INTO test_transaction (value) VALUES ($1)", "test")
 
@@ -213,14 +211,12 @@ async def test_connection_pool_rollback(test_db):
 
     # Create temp table outside transaction
     async with pool.acquire() as conn:
-        await conn.execute(
-            """
+        await conn.execute("""
             CREATE TEMP TABLE test_rollback (
                 id SERIAL PRIMARY KEY,
                 value TEXT
             )
-        """
-        )
+        """)
 
         # Try transaction that will roll back
         try:

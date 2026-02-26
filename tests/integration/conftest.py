@@ -25,7 +25,6 @@ from research_kb_storage import (
     get_connection_pool,
 )
 
-
 # Test database name - NEVER use production database for tests
 TEST_DATABASE_NAME = os.environ.get("TEST_DATABASE_NAME", "research_kb_test")
 PRODUCTION_DATABASE_NAME = "research_kb"
@@ -143,8 +142,7 @@ async def search_corpus(db_pool):
     # Use ON CONFLICT so this is idempotent (domains may already exist
     # from migrations in the local test DB).
     async with db_pool.acquire() as conn:
-        await conn.execute(
-            """
+        await conn.execute("""
             INSERT INTO domains (id, name, description, concept_types, relationship_types)
             VALUES
                 ('causal_inference', 'Causal Inference',
@@ -156,8 +154,7 @@ async def search_corpus(db_pool):
                  ARRAY['method','technique','model','concept','problem','definition','assumption','theorem','principle'],
                  ARRAY['REQUIRES','USES','ADDRESSES','GENERALIZES','SPECIALIZES','ALTERNATIVE_TO','EXTENDS','RELATED_TO'])
             ON CONFLICT (id) DO NOTHING
-        """
-        )
+        """)
 
     # ------------------------------------------------------------------
     # 1. Sources
