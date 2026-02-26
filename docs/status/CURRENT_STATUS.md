@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-02-25 23:17:42
+**Auto-generated**: 2026-02-25 23:54:43
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,8 +9,8 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 485 |
-| chunks | 225,779 |
+| sources | 495 |
+| chunks | 228,420 |
 | concepts | 307,622 |
 | concept_relationships | 741,959 |
 | chunk_concepts | 1,181,777 |
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 225,779 | 225,779 | 100.0% |
+| Chunks | 228,420 | 228,420 | 100.0% |
 | Concepts | 283,714 | 307,622 | 92.2% |
 
 ---
@@ -42,8 +42,8 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 259 |
-| paper | 204 |
+| textbook | 262 |
+| paper | 211 |
 | code_repo | 22 |
 
 ---
@@ -53,7 +53,7 @@
 | Domain | Sources |
 |--------|--------:|
 | causal_inference | 89 |
-| rag_llm | 73 |
+| rag_llm | 76 |
 | time_series | 48 |
 | deep_learning | 35 |
 | econometrics | 35 |
@@ -64,11 +64,14 @@
 | statistics | 18 |
 | ml_engineering | 17 |
 | machine_learning | 14 |
-| data_science | 12 |
 | algorithms | 12 |
+| data_science | 12 |
 | portfolio_management | 11 |
 | functional_programming | 8 |
 | forecasting | 5 |
+| recommender_systems | 3 |
+| adtech | 2 |
+| sql | 2 |
 | fitness | 2 |
 | economics | 2 |
 
@@ -112,7 +115,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 485 sources, 225,779 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 495 sources, 228,420 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 307,622 concepts, 741,959 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |

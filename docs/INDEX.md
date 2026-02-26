@@ -6,7 +6,7 @@
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
 - **KuzuDB**: ✅ Operational (307K concepts, 742K relationships, <300ms graph queries)
 - **MCP Server**: 20 tools available
-- **Domains**: 19 tagged (causal_inference, rag_llm, time_series, econometrics, software_engineering, deep_learning, mathematics, and 12 more)
+- **Domains**: 22 tagged (causal_inference, rag_llm, time_series, finance, mathematics, software_engineering, deep_learning, sql, recommender_systems, adtech, and 12 more)
 - **ProactiveContext**: Integrated via `fast_search` (~200ms latency)
 
 ---
@@ -48,6 +48,8 @@
 | P. Audit Remediation | ✅ Complete | Integration fixtures, doc drift, CI schedule alignment | [→](../ROADMAP.md) |
 | Q. Type Safety | ✅ Complete | PEP 561 (12/12), mypy 74→18 baseline, strictness for 4 packages | [→](../ROADMAP.md) |
 | R. CI Quality Gates | ✅ Complete | Coverage config, threshold 40%→60%, e2e in CI, black 26.1.0 | [→](../ROADMAP.md) |
+| S. Coverage Hardening | ✅ Complete | 85 new unit tests, coverage gate 60%→66%, 4 core modules covered | [→](../ROADMAP.md) |
+| T. Domain Acquisition | ✅ Complete | 3 KG books ingested, CFA retag, 7 papers for 3 empty domains | [→](../ROADMAP.md) |
 
 ---
 
