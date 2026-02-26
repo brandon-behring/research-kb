@@ -81,7 +81,7 @@ class GrobidClient:
         """
         try:
             response = requests.get(f"{self.grobid_url}/api/isalive", timeout=5)
-            return response.status_code == 200
+            return bool(response.status_code == 200)
         except requests.RequestException:
             return False
 

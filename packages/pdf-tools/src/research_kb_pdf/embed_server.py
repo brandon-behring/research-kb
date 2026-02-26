@@ -98,7 +98,8 @@ class EmbeddingServer:
             1024
         """
         embedding = self.model.encode([text], convert_to_numpy=True)[0]
-        return embedding.tolist()
+        result: list[float] = embedding.tolist()
+        return result
 
     def embed_query(self, text: str) -> list[float]:
         """Embed a query string with BGE query instruction prefix.
@@ -121,7 +122,8 @@ class EmbeddingServer:
         """
         prefixed_text = f"{QUERY_INSTRUCTION}{text}"
         embedding = self.model.encode([prefixed_text], convert_to_numpy=True)[0]
-        return embedding.tolist()
+        result: list[float] = embedding.tolist()
+        return result
 
     def embed_batch(self, texts: list[str], batch_size: int = MAX_BATCH_SIZE) -> list[list[float]]:
         """Embed multiple texts in batches (for documents/passages).
@@ -149,7 +151,8 @@ class EmbeddingServer:
             return all_embeddings
         else:
             embeddings = self.model.encode(texts, convert_to_numpy=True)
-            return embeddings.tolist()
+            result: list[list[float]] = embeddings.tolist()
+            return result
 
     def embed_query_batch(
         self, texts: list[str], batch_size: int = MAX_BATCH_SIZE

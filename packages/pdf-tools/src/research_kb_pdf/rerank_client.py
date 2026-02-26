@@ -82,7 +82,7 @@ class RerankClient:
                 response_data += chunk
 
             client.close()
-            response = json.loads(response_data.decode("utf-8"))
+            response: dict = json.loads(response_data.decode("utf-8"))
 
             if "error" in response:
                 raise ValueError(f"Rerank server error: {response['error']}")
@@ -151,7 +151,8 @@ class RerankClient:
                 "documents": documents,
             }
         )
-        return response["scores"]
+        scores: list[float] = response["scores"]
+        return scores
 
     def rerank(
         self,

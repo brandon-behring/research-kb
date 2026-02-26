@@ -76,7 +76,7 @@ class EmbeddingClient:
                     break
                 response_data += chunk
 
-            response = json.loads(response_data.decode("utf-8"))
+            response: dict = json.loads(response_data.decode("utf-8"))
 
             if "error" in response:
                 raise ValueError(f"Embedding server error: {response['error']}")
@@ -116,7 +116,8 @@ class EmbeddingClient:
             >>> status['status']
             'ok'
         """
-        return self._send_request({"action": "ping"})
+        result: dict = self._send_request({"action": "ping"})
+        return result
 
     def embed(self, text: str) -> list[float]:
         """Embed a single text string (for documents/passages).
@@ -134,7 +135,8 @@ class EmbeddingClient:
             1024
         """
         response = self._send_request({"action": "embed", "text": text})
-        return response["embedding"]
+        embedding: list[float] = response["embedding"]
+        return embedding
 
     def embed_query(self, text: str) -> list[float]:
         """Embed a query string with BGE instruction prefix.
@@ -156,7 +158,8 @@ class EmbeddingClient:
             1024
         """
         response = self._send_request({"action": "embed_query", "text": text})
-        return response["embedding"]
+        embedding: list[float] = response["embedding"]
+        return embedding
 
     def embed_batch(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
         """Embed multiple texts in a batch (for documents/passages).
@@ -183,7 +186,8 @@ class EmbeddingClient:
             response = self._send_request(
                 {"action": "embed_batch", "texts": texts, "batch_size": batch_size}
             )
-            return response["embeddings"]
+            embeddings: list[list[float]] = response["embeddings"]
+            return embeddings
 
         # Client-side batching: send batch_size texts per socket request
         all_embeddings: list[list[float]] = []
@@ -214,7 +218,8 @@ class EmbeddingClient:
         response = self._send_request(
             {"action": "embed_query_batch", "texts": texts, "batch_size": batch_size}
         )
-        return response["embeddings"]
+        embeddings: list[list[float]] = response["embeddings"]
+        return embeddings
 
     def embed_chunks(self, chunks: list[TextChunk]) -> list[list[float]]:
         """Embed text chunks from chunker.
