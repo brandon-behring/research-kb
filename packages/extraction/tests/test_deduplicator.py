@@ -18,9 +18,10 @@ class TestCanonicalName:
 
         assert dedup.to_canonical_name("IV") == "instrumental variables"
         assert dedup.to_canonical_name("iv") == "instrumental variables"
-        assert dedup.to_canonical_name("DiD") == "difference-in-differences"
-        assert dedup.to_canonical_name("DID") == "difference-in-differences"
-        assert dedup.to_canonical_name("2SLS") == "two-stage least squares"
+        # Hyphens in abbreviation expansions normalize to spaces
+        assert dedup.to_canonical_name("DiD") == "difference in differences"
+        assert dedup.to_canonical_name("DID") == "difference in differences"
+        assert dedup.to_canonical_name("2SLS") == "two stage least squares"
         assert dedup.to_canonical_name("ATE") == "average treatment effect"
         assert dedup.to_canonical_name("LATE") == "local average treatment effect"
         assert dedup.to_canonical_name("DML") == "double machine learning"
@@ -40,14 +41,14 @@ class TestCanonicalName:
         assert result == "instrumental variables"
 
         result = dedup.to_canonical_name("two-stage least squares (2SLS)")
-        assert result == "two-stage least squares"
+        assert result == "two stage least squares"
 
     def test_special_character_removal(self):
         """Test special character handling."""
         dedup = Deduplicator(domain_id="causal_inference")
 
-        # Hyphens preserved
-        assert "difference-in-differences" in dedup.to_canonical_name("difference-in-differences")
+        # Hyphens now normalize to spaces
+        assert dedup.to_canonical_name("difference-in-differences") == "difference in differences"
 
         # Other special chars removed
         result = dedup.to_canonical_name("concept: name!")
@@ -60,6 +61,71 @@ class TestCanonicalName:
 
         assert dedup.to_canonical_name("propensity score matching") == "propensity score matching"
         assert dedup.to_canonical_name("Causal Forest") == "causal forest"
+
+    def test_hyphen_normalization(self):
+        """Test hyphens normalize to spaces (Phase AF-2 prevention)."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        assert dedup.to_canonical_name("cross-validation") == "cross validation"
+        assert dedup.to_canonical_name("cross validation") == "cross validation"
+        assert dedup.to_canonical_name("k-fold cross-validation") == "k fold cross validation"
+        assert dedup.to_canonical_name("out-of-sample") == "out of sample"
+
+    def test_article_stripping(self):
+        """Test leading articles are stripped (Phase AF-2 prevention)."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        assert dedup.to_canonical_name("the central limit theorem") == "central limit theorem"
+        assert dedup.to_canonical_name("The Central Limit Theorem") == "central limit theorem"
+        assert dedup.to_canonical_name("a priori assumption") == "priori assumption"
+        assert dedup.to_canonical_name("an estimator") == "estimator"
+
+    def test_article_not_stripped_mid_word(self):
+        """Test articles only stripped at word boundary, not mid-word."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        # "the" inside a word should not be stripped
+        assert dedup.to_canonical_name("theorem") == "theorem"
+        assert dedup.to_canonical_name("analysis") == "analysis"
+        assert dedup.to_canonical_name("another method") == "another method"
+
+    def test_hyphen_and_article_combined(self):
+        """Test combined hyphen normalization + article stripping."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        assert dedup.to_canonical_name("the difference-in-differences") == "difference in differences"
+        assert dedup.to_canonical_name("a well-known method") == "well known method"
+
+    def test_hyphen_space_equivalence(self):
+        """Test that hyphenated and space forms produce identical canonical names."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        pairs = [
+            ("cross-validation", "cross validation"),
+            ("difference-in-differences", "difference in differences"),
+            ("out-of-sample", "out of sample"),
+            ("pre-treatment", "pre treatment"),
+            ("double-robust", "double robust"),
+        ]
+        for hyphenated, spaced in pairs:
+            assert dedup.to_canonical_name(hyphenated) == dedup.to_canonical_name(spaced), (
+                f"Mismatch: {hyphenated!r} vs {spaced!r}"
+            )
+
+    def test_article_equivalence(self):
+        """Test that article-prefixed and bare forms produce identical canonical names."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        pairs = [
+            ("the central limit theorem", "central limit theorem"),
+            ("the law of large numbers", "law of large numbers"),
+            ("a causal effect", "causal effect"),
+            ("an instrumental variable", "instrumental variable"),
+        ]
+        for with_article, bare in pairs:
+            assert dedup.to_canonical_name(with_article) == dedup.to_canonical_name(bare), (
+                f"Mismatch: {with_article!r} vs {bare!r}"
+            )
 
 
 class TestKnownConceptManagement:
@@ -94,6 +160,26 @@ class TestKnownConceptManagement:
         dedup = Deduplicator(domain_id="causal_inference")
 
         assert dedup.find_existing_concept("unknown concept") is None
+
+    def test_register_with_hyphen_finds_via_space(self):
+        """Test that registering with hyphens allows lookup via space form."""
+        dedup = Deduplicator(domain_id="causal_inference")
+        concept_id = uuid4()
+
+        dedup.register_known_concept("cross-validation", concept_id)
+
+        assert dedup.find_existing_concept("cross validation") == concept_id
+        assert dedup.find_existing_concept("cross-validation") == concept_id
+
+    def test_register_with_article_finds_without(self):
+        """Test that registering with article allows lookup without it."""
+        dedup = Deduplicator(domain_id="causal_inference")
+        concept_id = uuid4()
+
+        dedup.register_known_concept("the central limit theorem", concept_id)
+
+        assert dedup.find_existing_concept("central limit theorem") == concept_id
+        assert dedup.find_existing_concept("the central limit theorem") == concept_id
 
 
 class TestDeduplication:
@@ -160,6 +246,36 @@ class TestDeduplication:
 
         assert results == []
 
+    async def test_deduplicate_hyphen_space_variants(self):
+        """Test that hyphen and space variants deduplicate to same concept."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        concepts = [
+            ExtractedConcept(name="cross-validation", concept_type="method"),
+            ExtractedConcept(name="cross validation", concept_type="method"),
+        ]
+
+        results = await dedup.deduplicate_batch(concepts)
+
+        assert len(results) == 2
+        new_count = sum(1 for r in results if r.is_new)
+        assert new_count == 1  # Second is a duplicate
+
+    async def test_deduplicate_article_variants(self):
+        """Test that article-prefixed and bare forms deduplicate."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        concepts = [
+            ExtractedConcept(name="central limit theorem", concept_type="theorem"),
+            ExtractedConcept(name="the central limit theorem", concept_type="theorem"),
+        ]
+
+        results = await dedup.deduplicate_batch(concepts)
+
+        assert len(results) == 2
+        new_count = sum(1 for r in results if r.is_new)
+        assert new_count == 1  # Second is a duplicate
+
 
 class TestSimilarity:
     """Tests for similarity computation."""
@@ -197,6 +313,16 @@ class TestSimilarity:
 
         similarity = await dedup.compute_similarity(c1, c2)
         assert similarity < 0.5
+
+    async def test_hyphen_space_similarity(self):
+        """Test that hyphen and space variants are identical."""
+        dedup = Deduplicator(domain_id="causal_inference")
+
+        c1 = ExtractedConcept(name="cross-validation", concept_type="method")
+        c2 = ExtractedConcept(name="cross validation", concept_type="method")
+
+        similarity = await dedup.compute_similarity(c1, c2)
+        assert similarity == 1.0
 
 
 class TestAliases:

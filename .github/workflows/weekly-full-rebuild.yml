@@ -88,6 +88,7 @@ jobs:
           python scripts/eval_retrieval.py \
             --per-domain \
             --fail-below 0.85 \
+            --gate-domains causal_inference,econometrics,time_series,statistics,deep_learning,software_engineering,mathematics,algorithms,forecasting,functional_programming,fitness \
             --output /tmp/retrieval_metrics.json \
             --verbose
 

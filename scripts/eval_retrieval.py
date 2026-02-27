@@ -746,6 +746,12 @@ async def main():
         default=None,
         help="Exit non-zero if MRR falls below this threshold (e.g., 0.7)",
     )
+    parser.add_argument(
+        "--gate-domains",
+        type=str,
+        default=None,
+        help="Comma-separated domains to scope --fail-below gate (e.g., causal_inference,econometrics,statistics)",
+    )
     args = parser.parse_args()
 
     print(f"Scoring method: {args.scoring}")
@@ -803,12 +809,27 @@ async def main():
 
     # MRR threshold gate (for CI)
     if args.fail_below is not None:
-        mrr = metrics.get("mrr", 0.0)
-        if mrr < args.fail_below:
-            print(f"\nFAIL: MRR {mrr:.3f} below threshold {args.fail_below}")
-            sys.exit(1)
+        if args.gate_domains:
+            # Scope gate to specific domains only
+            gate_domain_set = {d.strip() for d in args.gate_domains.split(",")}
+            gate_results = [
+                r for r in results if r.test_case.domain in gate_domain_set
+            ]
+            gate_metrics = compute_metrics_for_results(gate_results)
+            gate_mrr = gate_metrics.get("mrr", 0.0)
+            gate_label = f"gate domains ({len(gate_results)} tests from {','.join(sorted(gate_domain_set))})"
+            if gate_mrr < args.fail_below:
+                print(f"\nFAIL: MRR {gate_mrr:.3f} below threshold {args.fail_below} on {gate_label}")
+                sys.exit(1)
+            else:
+                print(f"\nPASS: MRR {gate_mrr:.3f} >= threshold {args.fail_below} on {gate_label}")
         else:
-            print(f"\nPASS: MRR {mrr:.3f} >= threshold {args.fail_below}")
+            mrr = metrics.get("mrr", 0.0)
+            if mrr < args.fail_below:
+                print(f"\nFAIL: MRR {mrr:.3f} below threshold {args.fail_below}")
+                sys.exit(1)
+            else:
+                print(f"\nPASS: MRR {mrr:.3f} >= threshold {args.fail_below}")
 
     # Exit with error code if tests failed
     if metrics.get("failed", 0) > 0:

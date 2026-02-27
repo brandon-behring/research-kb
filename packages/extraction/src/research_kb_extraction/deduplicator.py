@@ -119,7 +119,11 @@ class Deduplicator:
         1. Lowercase and strip
         2. Expand known abbreviations (domain-specific)
         3. Normalize whitespace
-        4. Remove special characters
+        4. Remove parenthetical content
+        5. Remove special characters except hyphens
+        6. Normalize hyphens to spaces
+        7. Strip leading articles (the, a, an)
+        8. Final whitespace normalization
 
         Args:
             name: Raw concept name
@@ -143,6 +147,12 @@ class Deduplicator:
         # Remove special characters except hyphens
         canonical = re.sub(r"[^\w\s-]", "", canonical)
 
+        # Normalize hyphens to spaces (prevents hyphen/space variants)
+        canonical = canonical.replace("-", " ")
+
+        # Strip leading articles
+        canonical = re.sub(r"^(the|a|an) ", "", canonical)
+
         # Final whitespace normalization
         canonical = re.sub(r"\s+", " ", canonical).strip()
 
@@ -155,7 +165,7 @@ class Deduplicator:
             canonical_name: Canonical name of the concept
             concept_id: Database ID of the concept
         """
-        self._known_concepts[canonical_name.lower()] = concept_id
+        self._known_concepts[self.to_canonical_name(canonical_name)] = concept_id
 
     def load_known_concepts(self, concepts: dict[str, UUID]) -> None:
         """Load multiple known concepts.
@@ -164,7 +174,7 @@ class Deduplicator:
             concepts: Dict mapping canonical_name -> UUID
         """
         for name, id in concepts.items():
-            self._known_concepts[name.lower()] = id
+            self._known_concepts[self.to_canonical_name(name)] = id
 
     def find_existing_concept(self, name: str) -> Optional[UUID]:
         """Check if a concept already exists by canonical name.

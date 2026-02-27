@@ -1,7 +1,7 @@
 # Strategic Assessment: Research-KB Value Delivery
 
-**Date**: 2026-02-26
-**Context**: Post-Phase AC (29 phases completed)
+**Date**: 2026-02-27
+**Context**: Post-Phase AF (33 phases completed, all 5 tiers done)
 
 ---
 
@@ -44,7 +44,7 @@ Features from original plans, Gemini audit, or ROADMAP "Future Work":
 
 ### 1.4 Evidence the platform serves itself, not users
 
-- interview_prep domain has 10-30% Hit@10 -- the *worst* domain, and the stated reason the KB was built
+- interview_prep domain *had* 10-30% Hit@10 -- fixed in Phase AE (now 100% Hit@10, MRR 0.636)
 - The only real consumer (research-agent) is blocked by brittle markdown parsing
 - 92.9% Hit@K is tracked religiously. "Did this help me understand DML better?" appears nowhere
 
@@ -62,17 +62,17 @@ Features from original plans, Gemini audit, or ROADMAP "Future Work":
 
 **Scoped assumption audit**: Add `scope` and `domain` parameters to `audit_assumptions`. **DONE (Phase AB).**
 
-### Tier 3: Fix the weakest domain
+### Tier 3: Fix the weakest domain ✅ DONE (Phase AE)
 
-interview_prep at 10-30% Hit@10. Diagnose: corpus size, eval targets, synonym expansions, domain prompts.
+interview_prep fixed: 7 synonym groups, 15 eval test cases, 100% Hit@10, MRR 0.636.
 
-### Tier 4: Codex audit fixes
+### Tier 4: Codex audit fixes ✅ DONE (Phase AD)
 
-6 items from `codex-systematic-audit.md` -- all documentation/test fixes.
+CI cadence labels, stale golden_dataset refs, MRR threshold correction, README tool count.
 
-### Tier 5: Concept deduplication
+### Tier 5: Concept deduplication ✅ DONE (Phase AF)
 
-312K concepts with significant duplication degrades graph quality.
+310K concepts (from 312K). 2,370 singular/plural pairs merged, zero eval regression.
 
 ---
 
@@ -101,4 +101,9 @@ Until that works, the platform is not serving its purpose.
 | Z | 2026-02-26 | JSON MCP output (Tier 1) |
 | AB | 2026-02-26 | Scoped assumption audit (Tier 2) |
 | AC | 2026-02-26 | explain_connection synthesis (Tier 2 crown jewel) |
-| *Next* | TBD | Fix interview_prep (Tier 3) |
+| AD | 2026-02-27 | Codex audit cleanup (Tier 4) |
+| AE | 2026-02-27 | Interview prep fix — 100% Hit@10, MRR 0.636 (Tier 3) |
+| AF | 2026-02-27 | Concept deduplication — 312K→310K, zero eval regression (Tier 5) |
+| AG | 2026-02-27 | Documentation trust alignment — 11 stale claims fixed |
+
+All 5 tiers complete. Next: semantic chunking, learned weight optimization, or remaining codex domains.

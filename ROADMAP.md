@@ -30,7 +30,7 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - Streamlit + PyVis dashboard
 - Citation network visualization
 - Concept graph explorer with N-hop neighborhoods
-- MCP server for Claude Code integration (20 tools)
+- MCP server for Claude Code integration (21 tools)
 
 ## Phase D: Observability ✅ COMPLETE
 
@@ -157,19 +157,56 @@ A semantic search system for research literature with graph-boosted retrieval. C
 - Mypy baseline: 18 → 0 errors (installed types-requests, targeted type: ignore annotations)
 - Coverage gate: 67% → 70%
 
+## Phase Z: JSON MCP Output ✅ COMPLETE
+
+- `output_format` parameter on 7 MCP tools (search, sources, concepts, graph, citations, assumptions, health)
+- 7 JSON formatters in `formatters.py`
+- STRATEGIC_ASSESSMENT.md documenting infrastructure drift and value delivery roadmap
+
+## Phase AB: Scoped Assumption Audit ✅ COMPLETE
+
+- `domain` + `scope` parameters on `audit_assumptions`
+- Domain-scoped LLM prompts for contextual assumption analysis
+
+## Phase AC: Explain Connection ✅ COMPLETE
+
+- `explain_connection()` synthesis: graph path + evidence hydration + Anthropic LLM
+- MCP tool #21, CLI `graph explain` command
+- 44 new tests
+
+## Phase AD: Codex Audit Cleanup ✅ COMPLETE
+
+- CI cadence labels, stale golden_dataset references removed, MRR threshold corrected, README 20→21 tools
+
+## Phase AE: Interview Prep Fix ✅ COMPLETE
+
+- 7 synonym groups in QueryExpander, 15 eval test cases
+- 100% Hit@10, MRR 0.636, 98 total eval cases
+
+## Phase AF: Concept Deduplication ✅ COMPLETE
+
+- 2,370 singular/plural pairs merged
+- 310K concepts (from 312K), zero eval regression
+
+## Phase AG: Documentation Trust Alignment ✅ COMPLETE
+
+- Fixed 11 stale claims across 6 docs
+- Added `--gate-domains` flag to eval_retrieval.py
+- Segmented retrieval metrics (core domains vs full corpus)
+
 ---
 
-**Current Status**: All phases through Y complete.
+**Current Status**: All phases through AG complete.
 
-**Key Metrics** (as of 2026-02-26):
+**Key Metrics** (as of 2026-02-27):
 - Sources: 495 (across 22 domains, zero empty)
 - Chunks: 228,420 (100% with embeddings)
-- Concepts: 312,433 (744,225 relationships)
+- Concepts: 310,063 (743,984 relationships)
 - KuzuDB: ~110MB graph engine
-- Tests: ~2,630 test functions across 108 test files
+- Tests: ~2,711 test functions across 111 test files
 - Domains: 22 with sources, 20 with prompt configs (causal_inference 89, rag_llm 76, time_series 48, econometrics 35, deep_learning 35, software_engineering 30, mathematics 28, interview_prep 23, finance 23, statistics 18, ml_engineering 17, machine_learning 14, algorithms 12, data_science 12, portfolio_management 11, functional_programming 8, forecasting 5, recommender_systems 3, adtech 2, fitness 2, economics 2, sql 2)
-- Retrieval eval: 83 test cases across 22 domains, 9 Phase U activated
-- CI threshold: 0.85 (catches 8%+ regressions), coverage gate 70%
+- Retrieval eval: 98 test cases across 20 domains, MRR 0.729, Hit@K 91.8%
+- CI threshold: 0.85 on core domains (--gate-domains), coverage gate 70%
 - Method cache: 10/10 top methods, 55 cached assumptions, 87.5% readiness
 - Mypy: 0 baseline errors (zero-baseline achieved)
 
