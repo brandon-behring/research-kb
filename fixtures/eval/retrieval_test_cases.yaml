@@ -896,6 +896,171 @@ test_cases:
     tags: [phase_j, mathematics]
     notes: "Phase J: Optimization fundamentals"
 
+  # ===== Phase AE: Interview Prep Domain (medium/hard) =====
+  # 23 sources, 10,265 chunks. Q&A flashcard format covering experimentation,
+  # system design, algorithms, SQL, ML, behavioral, and more.
+
+  # --- DS System Design (vol15, 837 chunks) ---
+  - query: "data science system design interview loop"
+    expected_source_pattern: "interview prep.*system design|interview prep.*ds"
+    expected_in_top_k: 10
+    expected_concepts: ["system design", "feature engineering", "model serving", "feedback loop"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, system_design]
+    notes: "Phase AE: DS system design interview structure"
+
+  # --- Experimentation (vol1, 1191 chunks) ---
+  - query: "CUPED CUPAC variance reduction experiment"
+    expected_source_pattern: "interview prep.*experimentation|interview prep.*vol1"
+    expected_in_top_k: 10
+    expected_concepts: ["CUPED", "CUPAC", "variance reduction", "covariate adjustment"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, experimentation]
+    notes: "Phase AE: Advanced experimentation technique"
+
+  - query: "switchback experiment interference network effects"
+    expected_source_pattern: "interview prep.*experimentation|interview prep.*vol1"
+    expected_in_top_k: 10
+    expected_concepts: ["switchback", "interference", "network effects", "SUTVA violation"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, experimentation]
+    notes: "Phase AE: Marketplace experimentation challenge"
+
+  # --- Python & Algorithms (vol3, 314 chunks) ---
+  - query: "heapq Python priority queue implementation"
+    expected_source_pattern: "interview prep.*python|interview prep.*algorithm"
+    expected_in_top_k: 10
+    expected_concepts: ["heap", "priority queue", "heapq", "min-heap"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, algorithms]
+    notes: "Phase AE: Python data structure for coding interviews"
+
+  - query: "lru_cache memoization decorator Python"
+    expected_source_pattern: "interview prep.*python|interview prep.*algorithm"
+    expected_in_top_k: 10
+    expected_concepts: ["memoization", "caching", "decorator", "dynamic programming"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, algorithms]
+    notes: "Phase AE: Python caching for recursive solutions"
+
+  # --- SQL Mastery (vol4, 275 chunks) ---
+  - query: "SQL window functions ROW_NUMBER PARTITION BY"
+    expected_source_pattern: "interview prep.*sql|interview prep.*vol4"
+    expected_in_top_k: 10
+    expected_concepts: ["window function", "ROW_NUMBER", "PARTITION BY", "ranking"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, sql]
+    notes: "Phase AE: SQL interview essential topic"
+
+  - query: "SELF JOIN hierarchical data SQL"
+    expected_source_pattern: "interview prep.*sql|interview prep.*vol4"
+    expected_in_top_k: 10
+    expected_concepts: ["self-join", "hierarchical data", "recursive query"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, sql]
+    notes: "Phase AE: SQL join pattern for interviews"
+
+  # --- ML Foundations (vol5, 550 chunks + Huyen, 526 chunks) ---
+  - query: "bias variance tradeoff underfitting overfitting ML interview"
+    expected_source_pattern: "interview prep.*ml|machine learning interviews|interview prep.*vol5"
+    expected_in_top_k: 10
+    expected_concepts: ["bias-variance tradeoff", "overfitting", "underfitting", "generalization"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, ml]
+    notes: "Phase AE: Core ML interview concept"
+
+  - query: "feature engineering selection importance"
+    expected_source_pattern: "interview prep.*ml|machine learning interviews|interview prep.*vol5"
+    expected_in_top_k: 10
+    expected_concepts: ["feature engineering", "feature selection", "feature importance"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, ml]
+    notes: "Phase AE: Applied ML interview topic"
+
+  # --- Behavioral (26 chunks) ---
+  - query: "STAR method behavioral interview leadership"
+    expected_source_pattern: "interview prep|machine learning interviews"
+    expected_in_top_k: 10
+    expected_concepts: ["STAR method", "behavioral interview", "leadership"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: hard
+    tags: [phase_ae, interview_prep, behavioral]
+    notes: "Phase AE: Behavioral interview framework (broad match — behavioral source small at 26 chunks)"
+
+  # --- Product Analytics (vol9, 281 chunks) ---
+  - query: "product analytics metric framework north star"
+    expected_source_pattern: "interview prep.*product|interview prep.*vol9"
+    expected_in_top_k: 10
+    expected_concepts: ["product analytics", "metric", "north star", "funnel"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, product]
+    notes: "Phase AE: Product sense interview topic"
+
+  # --- MLOps (vol8, 312 chunks) ---
+  - query: "model deployment serving infrastructure MLOps"
+    expected_source_pattern: "interview prep.*mlops|interview prep.*vol8"
+    expected_in_top_k: 10
+    expected_concepts: ["model serving", "deployment", "MLOps", "inference"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, mlops]
+    notes: "Phase AE: MLOps interview topic"
+
+  # --- GenAI & LLM (vol6, 294 chunks) ---
+  - query: "prompt engineering LLM interview techniques"
+    expected_source_pattern: "interview prep|llm|generative|language model"
+    expected_in_top_k: 10
+    expected_concepts: ["prompt engineering", "LLM", "few-shot", "chain-of-thought"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, genai]
+    notes: "Phase AE: GenAI interview — broad match (rag_llm sources also relevant)"
+
+  # --- Pricing (vol7, 257 chunks) ---
+  - query: "pricing elasticity optimization revenue"
+    expected_source_pattern: "interview prep.*pricing|interview prep.*vol7"
+    expected_in_top_k: 10
+    expected_concepts: ["pricing", "elasticity", "revenue optimization", "demand curve"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: medium
+    tags: [phase_ae, interview_prep, pricing]
+    notes: "Phase AE: Pricing interview topic"
+
+  # --- Company-Specific (vol_interview_amazon_*, vol_meta_*) ---
+  - query: "Amazon leadership principles interview preparation"
+    expected_source_pattern: "interview prep.*amazon|interview prep.*company"
+    expected_in_top_k: 10
+    expected_concepts: ["leadership principles", "Amazon", "behavioral interview"]
+    relevance_grade: 3
+    domain: interview_prep
+    difficulty: hard
+    tags: [phase_ae, interview_prep, company_specific]
+    notes: "Phase AE: Company-specific interview prep"
+
 # Metrics targets (Master Plan Lines 1382-1383)
 metrics:
   precision_at_5:

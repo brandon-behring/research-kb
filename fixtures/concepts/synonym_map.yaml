@@ -372,7 +372,61 @@ pretrend:
   - pre-treatment trend
 
 # =============================================================================
-# INTERVIEW PREP / EXPERIMENTATION
+# INTERVIEW PREP
+# =============================================================================
+
+# --- Behavioral & Soft Skills ---
+star_method:
+  - STAR method
+  - behavioral interview
+  - situation task action result
+  - behavioral question
+  - leadership principles
+
+# --- System Design ---
+system_design:
+  - system design interview
+  - DS system design
+  - data science system design
+  - ML system design
+  - distributed systems design
+  - architecture interview
+
+# --- Product & Metrics ---
+product_analytics:
+  - product analytics
+  - product sense
+  - product metrics
+  - metric design
+  - north star metric
+  - funnel analysis
+  - product interview
+
+# --- Pricing ---
+pricing_optimization:
+  - pricing strategy
+  - price elasticity
+  - dynamic pricing
+  - revenue optimization
+
+# --- Variance Reduction in Experiments ---
+cuped:
+  - CUPED
+  - CUPAC
+  - variance reduction
+  - controlled experiment using pre-experiment data
+  - pre-experiment covariates
+
+# --- Interview-Specific ML ---
+ml_interview:
+  - ML interview
+  - machine learning interview
+  - ML case study
+  - applied ML interview
+  - data scientist interview
+
+# =============================================================================
+# EXPERIMENTATION
 # =============================================================================
 
 ab_testing:
