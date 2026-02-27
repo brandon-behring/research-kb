@@ -1,0 +1,3 @@
+# False positives: ANSI color codes in test assertions for BibTeX citation keys
+60611597b06734fb83b45eeb0a069ed11a02cea9:packages/pdf-tools/tests/test_bibtex_generator.py:generic-api-key:64
+60611597b06734fb83b45eeb0a069ed11a02cea9:packages/pdf-tools/tests/test_bibtex_generator.py:generic-api-key:71

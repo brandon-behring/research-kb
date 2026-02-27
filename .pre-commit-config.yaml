@@ -22,6 +22,11 @@ repos:
         args: [--maxkb=500]
         exclude: ^fixtures/demo/data/|^uv\.lock$
 
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.2
+    hooks:
+      - id: gitleaks
+
   - repo: local
     hooks:
       - id: doc-freshness
