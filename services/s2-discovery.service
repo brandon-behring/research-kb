@@ -1,6 +1,6 @@
 [Unit]
 Description=S2 Auto-Discovery - Weekly paper discovery via Semantic Scholar
-Documentation=https://github.com/brandonmbehring-dev/research-kb
+Documentation=https://github.com/brandon-behring/research-kb
 After=network-online.target postgresql.service
 Wants=network-online.target
 

@@ -6,7 +6,7 @@ If you discover a security vulnerability in this project, please report it respo
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Instead, use [GitHub's private vulnerability reporting](https://github.com/brandonmbehring-dev/research-kb/security/advisories/new) to submit your report. This ensures the issue is handled privately until a fix is available.
+Instead, use [GitHub's private vulnerability reporting](https://github.com/brandon-behring/research-kb/security/advisories/new) to submit your report. This ensures the issue is handled privately until a fix is available.
 
 ### What to include
 

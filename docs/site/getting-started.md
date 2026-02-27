@@ -16,7 +16,7 @@ title: Getting Started
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/brandonmbehring-dev/research-kb.git
+git clone https://github.com/brandon-behring/research-kb.git
 cd research-kb
 ```
 
@@ -107,4 +107,4 @@ python scripts/setup_demo.py
 
 ## Troubleshooting
 
-See [TROUBLESHOOTING.md](https://github.com/brandonmbehring-dev/research-kb/blob/main/TROUBLESHOOTING.md) for common issues and solutions.
+See [TROUBLESHOOTING.md](https://github.com/brandon-behring/research-kb/blob/main/TROUBLESHOOTING.md) for common issues and solutions.

@@ -22,8 +22,8 @@ search = ["research-kb-pdf"]
 extraction = ["research-kb-extraction"]
 
 [project.urls]
-Homepage = "https://github.com/brandonmbehring-dev/research-kb"
-Repository = "https://github.com/brandonmbehring-dev/research-kb"
+Homepage = "https://github.com/brandon-behring/research-kb"
+Repository = "https://github.com/brandon-behring/research-kb"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/research_kb_storage"]

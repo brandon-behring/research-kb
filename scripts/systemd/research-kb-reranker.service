@@ -1,6 +1,6 @@
 [Unit]
 Description=Research-KB Cross-Encoder Reranker
-Documentation=https://github.com/brandonmbehring-dev/research-kb
+Documentation=https://github.com/brandon-behring/research-kb
 After=network.target
 
 [Service]

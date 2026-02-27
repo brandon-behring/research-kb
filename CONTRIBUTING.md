@@ -14,7 +14,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 ```bash
 # Clone and set up
-git clone https://github.com/brandonmbehring-dev/research-kb.git
+git clone https://github.com/brandon-behring/research-kb.git
 cd research-kb
 
 # Option A: uv (recommended — single command, workspace-aware)
@@ -126,7 +126,7 @@ research-kb supports multiple knowledge domains. To add a new one:
 
 ## Reporting Issues
 
-Please use [GitHub Issues](https://github.com/brandonmbehring-dev/research-kb/issues) with:
+Please use [GitHub Issues](https://github.com/brandon-behring/research-kb/issues) with:
 
 - Clear description of the problem
 - Steps to reproduce

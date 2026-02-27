@@ -16,7 +16,7 @@
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/brandonmbehring-dev/research-kb.git
+git clone https://github.com/brandon-behring/research-kb.git
 cd research-kb
 ```
 

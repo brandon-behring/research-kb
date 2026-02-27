@@ -59,5 +59,5 @@ research-kb search query "instrumental variables"
 
 ## Links
 
-- [GitHub Repository](https://github.com/brandonmbehring-dev/research-kb)
-- [Contributing Guide](https://github.com/brandonmbehring-dev/research-kb/blob/main/CONTRIBUTING.md)
+- [GitHub Repository](https://github.com/brandon-behring/research-kb)
+- [Contributing Guide](https://github.com/brandon-behring/research-kb/blob/main/CONTRIBUTING.md)

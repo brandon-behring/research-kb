@@ -22,8 +22,8 @@ dependencies = [
 research-kb-daemon = "research_kb_daemon.server:main"
 
 [project.urls]
-Homepage = "https://github.com/brandonmbehring-dev/research-kb"
-Repository = "https://github.com/brandonmbehring-dev/research-kb"
+Homepage = "https://github.com/brandon-behring/research-kb"
+Repository = "https://github.com/brandon-behring/research-kb"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/research_kb_daemon"]

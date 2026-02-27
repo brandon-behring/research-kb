@@ -4,8 +4,8 @@
 
 - **Phase**: Core phases ✅ Complete | Phase 4.3 (ProactiveContext Integration) ✅ Complete
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
-- **KuzuDB**: ✅ Operational (307K concepts, 742K relationships, <300ms graph queries)
-- **MCP Server**: 20 tools available
+- **KuzuDB**: ✅ Operational (310K concepts, 744K relationships, <300ms graph queries)
+- **MCP Server**: 21 tools available
 - **Domains**: 22 tagged (causal_inference, rag_llm, time_series, finance, mathematics, software_engineering, deep_learning, sql, recommender_systems, adtech, and 12 more)
 - **ProactiveContext**: Integrated via `fast_search` (~200ms latency)
 
@@ -53,6 +53,14 @@
 | U. Concept Extraction | ✅ Complete | Concepts for sql/recommender_systems/adtech/rag_llm, 9 eval cases activated | [→](../ROADMAP.md) |
 | V. Doc Trust Alignment | ✅ Complete | README 19→22 domains, domain table sync, TEST_COVERAGE refresh | [→](../ROADMAP.md) |
 | W. CLI Citations + Synonym Fix | ✅ Complete | 16 CLI tests, synonym normalization, coverage gate raise | [→](../ROADMAP.md) |
+| X. Data Accuracy | ✅ Complete | 209 domain_id fixes, generate_status.py canonical domain_id | [→](../ROADMAP.md) |
+| Y. Test Fortification | ✅ Complete | Dashboard +65 tests, client +32, mypy 0, coverage 70% | [→](../ROADMAP.md) |
+| Z. JSON MCP Output | ✅ Complete | output_format on 7 tools, JSON formatters, STRATEGIC_ASSESSMENT | [→](../ROADMAP.md) |
+| AB. Scoped Assumption Audit | ✅ Complete | domain + scope params on audit_assumptions | [→](../ROADMAP.md) |
+| AC. Explain Connection | ✅ Complete | Synthesis: graph path + evidence + LLM, MCP tool #21 | [→](../ROADMAP.md) |
+| AD. Codex Audit Cleanup | ✅ Complete | CI cadence labels, stale refs, MRR threshold, README tools | [→](../ROADMAP.md) |
+| AE. Interview Prep Fix | ✅ Complete | 7 synonym groups, 15 eval cases, 100% Hit@10, MRR 0.636 | [→](../ROADMAP.md) |
+| AF. Concept Deduplication | ✅ Complete | 2,370 pairs merged, 310K concepts, zero eval regression | [→](../ROADMAP.md) |
 
 ---
 
@@ -112,4 +120,4 @@ Run `python scripts/generate_status.py` to refresh metrics.
 
 ## External References
 
-- **GitHub Repository**: https://github.com/brandonmbehring-dev/research-kb
+- **GitHub Repository**: https://github.com/brandon-behring/research-kb

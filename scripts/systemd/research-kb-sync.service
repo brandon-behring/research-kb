@@ -1,6 +1,6 @@
 [Unit]
 Description=Research-KB KuzuDB Sync
-Documentation=https://github.com/brandonmbehring-dev/research-kb
+Documentation=https://github.com/brandon-behring/research-kb
 After=postgresql.service research-kb-daemon.service
 
 [Service]

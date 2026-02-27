@@ -32,7 +32,7 @@ The `weekly-full-rebuild.yml` workflow validates the entire data path:
 
 ### GitHub UI
 
-1. Go to https://github.com/brandonmbehring-dev/research-kb
+1. Go to https://github.com/brandon-behring/research-kb
 2. Click **Actions** tab
 3. Select the workflow in the left sidebar
 4. Click **Run workflow** > select `main` > click **Run workflow**
@@ -55,7 +55,7 @@ gh run watch $(gh run list --workflow=weekly-full-rebuild.yml --limit 1 --json d
 ## Quality Gates
 
 **Full Rebuild must pass:**
-- MRR >= 0.85 on retrieval test cases (83 YAML test cases across 19 domains)
+- MRR >= 0.85 on core domains via `--gate-domains` (98 YAML test cases across 20 domains)
 - All unit tests pass
 - Embedding generation completes without error
 
@@ -69,7 +69,7 @@ gh run watch $(gh run list --workflow=weekly-full-rebuild.yml --limit 1 --json d
 
 The retrieval eval uses YAML test cases as the canonical benchmark:
 
-- **File**: `fixtures/eval/retrieval_test_cases.yaml` (83 test cases, 19 domains)
+- **File**: `fixtures/eval/retrieval_test_cases.yaml` (98 test cases, 20 domains)
 - **Script**: `scripts/eval_retrieval.py`
 - **CI threshold**: `--fail-below 0.85`
 - **Per-domain reporting**: `--per-domain` flag
@@ -115,9 +115,9 @@ The JSON file contains hit_rate, MRR, NDCG, and per-domain breakdowns.
 - `.github/workflows/weekly-full-rebuild.yml` -- Full pipeline workflow
 - `.github/workflows/integration-test.yml` -- DB-only integration tests
 - `.github/workflows/pr-checks.yml` -- PR gate checks
-- `fixtures/eval/retrieval_test_cases.yaml` -- 83 retrieval test cases (active benchmark)
+- `fixtures/eval/retrieval_test_cases.yaml` -- 98 retrieval test cases (active benchmark)
 - `scripts/eval_retrieval.py` -- Retrieval evaluation script
 
 ---
 
-**Last Updated**: 2026-02-26
+**Last Updated**: 2026-02-27

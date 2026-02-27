@@ -20,8 +20,8 @@ dependencies = [
 research-kb = "research_kb_cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/brandonmbehring-dev/research-kb"
-Repository = "https://github.com/brandonmbehring-dev/research-kb"
+Homepage = "https://github.com/brandon-behring/research-kb"
+Repository = "https://github.com/brandon-behring/research-kb"
 
 [tool.uv.sources]
 research-kb-storage = { workspace = true }

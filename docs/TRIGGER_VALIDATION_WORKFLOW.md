@@ -6,14 +6,14 @@ Instructions for manually running the two scheduled CI workflows.
 
 ## Prerequisites
 
-- Write access to `github.com/brandonmbehring-dev/research-kb`
+- Write access to `github.com/brandon-behring/research-kb`
 - GitHub CLI installed (optional, for command-line triggering)
 
 ---
 
 ## Method 1: GitHub Web UI
 
-1. Navigate to https://github.com/brandonmbehring-dev/research-kb
+1. Navigate to https://github.com/brandon-behring/research-kb
 2. Click the **Actions** tab
 3. In the left sidebar, select the workflow:
    - **"Weekly Full Rebuild & Validation"** -- full data pipeline
@@ -56,7 +56,7 @@ gh run download <run-id>
 curl -X POST \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer $GITHUB_TOKEN" \
-  https://api.github.com/repos/brandonmbehring-dev/research-kb/actions/workflows/weekly-full-rebuild.yml/dispatches \
+  https://api.github.com/repos/brandon-behring/research-kb/actions/workflows/weekly-full-rebuild.yml/dispatches \
   -d '{"ref":"main"}'
 ```
 
