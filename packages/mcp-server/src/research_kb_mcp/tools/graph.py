@@ -5,7 +5,7 @@ Exposes knowledge graph exploration functionality.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 
 from fastmcp import FastMCP
@@ -16,9 +16,12 @@ from research_kb_api.service import (
 )
 from research_kb_mcp.formatters import (
     format_graph_neighborhood,
+    format_graph_neighborhood_json,
     format_graph_path,
+    format_connection_explanation,
+    format_connection_explanation_json,
 )
-from research_kb_storage import CrossDomainStore, ConceptStore
+from research_kb_storage import CrossDomainStore, ConceptStore, explain_connection
 from research_kb_common import get_logger
 
 logger = get_logger(__name__)
@@ -32,6 +35,7 @@ def register_graph_tools(mcp: FastMCP) -> None:
         concept_name: str,
         hops: int = 2,
         limit: int = 50,
+        output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Explore the neighborhood of a concept in the knowledge graph.
 
@@ -42,9 +46,10 @@ def register_graph_tools(mcp: FastMCP) -> None:
             concept_name: Name of the concept to explore (fuzzy matched)
             hops: Number of relationship hops (1-3, default 2)
             limit: Maximum connected concepts to return (1-100, default 50)
+            output_format: Response format - "markdown" (default) or "json"
 
         Returns:
-            Markdown-formatted neighborhood with:
+            Markdown-formatted or JSON neighborhood with:
             - Center concept details
             - Connected concepts (names and types)
             - Relationship type distribution
@@ -62,6 +67,8 @@ def register_graph_tools(mcp: FastMCP) -> None:
             hops=hops,
             limit=limit,
         )
+        if output_format == "json":
+            return format_graph_neighborhood_json(neighborhood)
         return format_graph_neighborhood(neighborhood)
 
     @mcp.tool()
@@ -287,3 +294,61 @@ def register_graph_tools(mcp: FastMCP) -> None:
         except Exception as e:
             logger.error("cross_domain_tool_failed", error=str(e))
             return f"**Error:** Failed to find cross-domain concepts: {e}"
+
+    @mcp.tool()
+    async def research_kb_explain_connection(
+        concept_a: str,
+        concept_b: str,
+        style: Literal["educational", "research", "implementation"] = "educational",
+        max_evidence_per_step: int = 2,
+        use_llm: bool = True,
+        output_format: Literal["markdown", "json"] = "markdown",
+    ) -> str:
+        """Explain how two concepts connect through the knowledge graph with evidence.
+
+        Finds the shortest path between two concepts, hydrates each step with
+        evidence from the corpus, and optionally generates an LLM synthesis
+        explaining the connection with source citations.
+
+        This is a higher-level tool than graph_path - it adds evidence chunks
+        and natural language synthesis. Use graph_path for quick structural
+        queries; use this for deep understanding.
+
+        Args:
+            concept_a: Name of the first concept (fuzzy matched)
+            concept_b: Name of the second concept (fuzzy matched)
+            style: Synthesis style:
+                - "educational": For learning (defines terms, builds intuition)
+                - "research": For methodologists (assumptions, identification)
+                - "implementation": For practitioners (code, parameters, pitfalls)
+            max_evidence_per_step: Evidence chunks per path step (1-3, default 2)
+            use_llm: Generate LLM synthesis (default True; False = graph_only)
+            output_format: Response format - "markdown" (default) or "json"
+
+        Returns:
+            Explanation with path steps, evidence chunks, and synthesis.
+            Markdown includes headers and inline citations.
+            JSON includes full structured data for programmatic use.
+
+        Example:
+            explain_connection("double machine learning", "cross-fitting")
+            → Path: DML → (requires) → cross-fitting
+            → Evidence from Chernozhukov et al. (2018)
+            → Synthesis explaining DML's dependence on cross-fitting
+        """
+        max_evidence_per_step = max(1, min(3, max_evidence_per_step))
+
+        try:
+            result = await explain_connection(
+                concept_a=concept_a,
+                concept_b=concept_b,
+                style=style,
+                max_evidence_per_step=max_evidence_per_step,
+                use_llm=use_llm,
+            )
+            if output_format == "json":
+                return format_connection_explanation_json(result)
+            return format_connection_explanation(result)
+        except Exception as e:
+            logger.error("explain_connection_tool_failed", error=str(e))
+            return f"**Error:** Failed to explain connection: {e}"

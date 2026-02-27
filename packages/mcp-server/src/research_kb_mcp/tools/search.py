@@ -10,7 +10,7 @@ from typing import Literal
 from fastmcp import FastMCP
 
 from research_kb_api.service import search, SearchOptions, ContextType
-from research_kb_mcp.formatters import format_search_results
+from research_kb_mcp.formatters import format_search_results, format_search_results_json
 from research_kb_storage import HydeConfig
 
 
@@ -29,6 +29,7 @@ def register_search_tools(mcp: FastMCP) -> None:
         use_citations: bool = True,
         citation_weight: float = 0.15,
         use_hyde: bool = False,
+        output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Search the research knowledge base across multiple domains.
 
@@ -57,9 +58,11 @@ def register_search_tools(mcp: FastMCP) -> None:
             use_hyde: Enable HyDE query expansion (default False).
                 Generates a hypothetical document to improve embedding quality
                 for terse queries. Requires Ollama running locally.
+            output_format: Response format - "markdown" (default) or "json".
+                JSON returns structured data for programmatic consumers.
 
         Returns:
-            Markdown-formatted search results with:
+            Markdown-formatted or JSON search results with:
             - Source title, authors, year
             - Page numbers and section headers
             - Relevant text excerpt
@@ -95,6 +98,8 @@ def register_search_tools(mcp: FastMCP) -> None:
         )
 
         response = await search(options)
+        if output_format == "json":
+            return format_search_results_json(response)
         return format_search_results(response)
 
     @mcp.tool()
@@ -102,6 +107,7 @@ def register_search_tools(mcp: FastMCP) -> None:
         query: str,
         limit: int = 5,
         domain: str | None = None,
+        output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Fast vector-only search (~200ms). Skips FTS, graph, citation, reranking.
 
@@ -112,9 +118,10 @@ def register_search_tools(mcp: FastMCP) -> None:
             query: Search query (natural language or keywords)
             limit: Maximum number of results (1-20, default 5)
             domain: Knowledge domain to filter by (optional)
+            output_format: Response format - "markdown" (default) or "json"
 
         Returns:
-            Markdown-formatted search results with vector similarity scores.
+            Markdown-formatted or JSON search results with vector similarity scores.
         """
         limit = max(1, min(20, limit))
 
@@ -130,4 +137,6 @@ def register_search_tools(mcp: FastMCP) -> None:
         )
 
         response = await search(options)
+        if output_format == "json":
+            return format_search_results_json(response)
         return format_search_results(response)

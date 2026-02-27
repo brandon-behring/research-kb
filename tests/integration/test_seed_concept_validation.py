@@ -121,7 +121,7 @@ def test_abbreviation_map_covers_seed_aliases():
     loader = SeedConceptLoader(SEED_FILE)
     concepts = loader.load()
 
-    dedup = Deduplicator()
+    dedup = Deduplicator(domain_id="causal_inference")
 
     missing_abbrevs = []
     for concept in concepts:
@@ -163,6 +163,7 @@ def test_exact_match_strategy():
             canonical_name="instrumental variables",
             aliases=["IV"],
             concept_type=ConceptType.METHOD,
+            domain_id="causal_inference",
             confidence_score=0.9,
             validated=False,
             metadata={},
@@ -198,6 +199,7 @@ def test_fuzzy_match_strategy():
             canonical_name="did estimator",  # Different canonical (won't match exactly)
             aliases=["DiD", "DD"],  # But has matching alias
             concept_type=ConceptType.METHOD,
+            domain_id="causal_inference",
             confidence_score=0.85,
             validated=False,
             metadata={},
@@ -256,6 +258,7 @@ def test_recall_calculation():
         canonical_name="instrumental variables",
         aliases=[],
         concept_type=ConceptType.METHOD,
+        domain_id="causal_inference",
         confidence_score=0.9,
         validated=False,
         metadata={},
@@ -299,6 +302,7 @@ def test_precision_calculation():
             canonical_name="instrumental variables",
             aliases=[],
             concept_type=ConceptType.METHOD,
+            domain_id="causal_inference",
             confidence_score=0.9,
             validated=False,
             metadata={},
@@ -310,6 +314,7 @@ def test_precision_calculation():
             canonical_name="unconfoundedness",
             aliases=[],
             concept_type=ConceptType.ASSUMPTION,
+            domain_id="causal_inference",
             confidence_score=0.85,
             validated=False,
             metadata={},
@@ -321,6 +326,7 @@ def test_precision_calculation():
             canonical_name="spurious concept",
             aliases=[],
             concept_type=ConceptType.METHOD,
+            domain_id="causal_inference",
             confidence_score=0.75,
             validated=False,
             metadata={},

@@ -12,7 +12,7 @@ assignees: ''
 Which workflow is affected?
 
 - [ ] `pr-checks.yml` (PR gate)
-- [ ] `integration-test.yml` (weekly DB tests)
+- [ ] `integration-test.yml` (manual DB tests)
 - [ ] `weekly-full-rebuild.yml` (full pipeline)
 
 ## Description
@@ -34,7 +34,7 @@ Which workflow is affected?
 
 - [ ] Checked workflow logs for the specific error
 - [ ] Verified the issue is not a transient failure (re-ran once)
-- [ ] Checked that `fixtures/eval/golden_dataset.json` is up to date
+- [ ] Checked that `fixtures/eval/retrieval_test_cases.yaml` is up to date
 - [ ] Checked that `packages/storage/schema.sql` + migrations are valid
 
 ## Environment

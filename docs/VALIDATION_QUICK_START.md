@@ -14,7 +14,7 @@ After opening a PR, the `pr-checks` workflow runs automatically. Check the **Che
 - Integration test results
 - Coverage report (XML artifact)
 
-### Full Rebuild (weekly or on-demand)
+### Full Rebuild (manual trigger)
 
 The `weekly-full-rebuild` workflow validates the complete pipeline. After a run:
 
@@ -23,7 +23,7 @@ The `weekly-full-rebuild` workflow validates the complete pipeline. After a run:
 3. Download the `retrieval-metrics` artifact for MRR, hit rate, and per-domain scores
 
 **Key metrics to check:**
-- **MRR** (Mean Reciprocal Rank): >= 0.5 required
+- **MRR** (Mean Reciprocal Rank): >= 0.85 required
 - **Hit Rate@K**: percentage of queries that find expected results
 - **Per-domain scores**: identify weak domains
 
@@ -36,7 +36,7 @@ The `weekly-full-rebuild` workflow validates the complete pipeline. After a run:
 | Schema apply | Migration syntax error | Check `packages/storage/migrations/` |
 | Load demo data | Missing fixture files | Regenerate with `export_demo_data.py` |
 | Embedding timeout | Model not cached yet | Re-run (cache persists across runs) |
-| MRR below threshold | Golden dataset entries lack matching chunks | Update `fixtures/eval/golden_dataset.json` |
+| MRR below threshold | Test cases lack matching chunks | Update `fixtures/eval/retrieval_test_cases.yaml` |
 | Unit tests fail | Code regression | Run `pytest -m unit` locally |
 
 ---
@@ -65,7 +65,7 @@ python -m research_kb_pdf.embed_server &
 python scripts/embed_missing.py --batch 100
 
 # 4. Evaluate retrieval
-python scripts/eval_retrieval.py --dataset fixtures/eval/golden_dataset.json --per-domain --verbose
+python scripts/eval_retrieval.py --per-domain --verbose
 
 # 5. Run tests
 pytest -m "unit and not requires_embedding and not requires_ollama and not requires_reranker" -q

@@ -250,6 +250,161 @@ class TestGenerateDocstringSnippet:
         assert crit_idx >= 0
 
 
+class TestDomainScopeParams:
+    """Test domain and scope parameter propagation through audit_assumptions."""
+
+    @patch.object(MethodAssumptionAuditor, "find_method")
+    @patch.object(MethodAssumptionAuditor, "get_assumptions_from_graph")
+    @patch.object(MethodAssumptionAuditor, "get_cached_assumptions")
+    async def test_domain_param_passed_to_graph_query(self, mock_cached, mock_graph, mock_find):
+        """Verify domain reaches get_assumptions_from_graph when specified."""
+        method = _make_concept("RDD", definition="Regression discontinuity design")
+        mock_find.return_value = method
+        mock_graph.return_value = [
+            _make_assumption("continuity", "critical"),
+            _make_assumption("no_manipulation", "critical"),
+            _make_assumption("local_randomization", "standard"),
+        ]
+        mock_cached.return_value = []
+
+        result = await MethodAssumptionAuditor.audit_assumptions(
+            "RDD",
+            use_llm_fallback=False,
+            domain="time_series",
+        )
+
+        mock_graph.assert_called_once_with(
+            method.id,
+            filter_by_domain=True,
+            domain="time_series",
+        )
+        assert result.domain == "time_series"
+        assert result.scope == "general"
+
+    @patch.object(MethodAssumptionAuditor, "find_method")
+    @patch.object(MethodAssumptionAuditor, "get_assumptions_from_graph")
+    @patch.object(MethodAssumptionAuditor, "get_cached_assumptions")
+    @patch.object(MethodAssumptionAuditor, "extract_assumptions_with_anthropic")
+    @patch.object(MethodAssumptionAuditor, "cache_assumptions")
+    async def test_scope_applied_uses_domain_prompt(
+        self, mock_cache, mock_anthropic, mock_cached, mock_graph, mock_find
+    ):
+        """When scope='applied' and domain is set, LLM receives domain+scope."""
+        method = _make_concept("RDD", definition="Regression discontinuity design")
+        mock_find.return_value = method
+        mock_graph.return_value = [_make_assumption("continuity")]  # triggers fallback
+        mock_cached.return_value = []
+        mock_anthropic.return_value = [
+            _make_assumption("stationarity"),
+            _make_assumption("no_structural_breaks"),
+        ]
+        mock_cache.return_value = 2
+
+        result = await MethodAssumptionAuditor.audit_assumptions(
+            "RDD",
+            llm_backend="anthropic",
+            domain="time_series",
+            scope="applied",
+        )
+
+        # Verify domain and scope were passed to extraction
+        mock_anthropic.assert_called_once()
+        call_kwargs = mock_anthropic.call_args
+        assert call_kwargs.kwargs.get("domain") == "time_series"
+        assert call_kwargs.kwargs.get("scope") == "applied"
+        assert result.scope == "applied"
+        assert result.domain == "time_series"
+
+    @patch.object(MethodAssumptionAuditor, "find_method")
+    @patch.object(MethodAssumptionAuditor, "get_assumptions_from_graph")
+    @patch.object(MethodAssumptionAuditor, "get_cached_assumptions")
+    @patch.object(MethodAssumptionAuditor, "extract_assumptions_with_anthropic")
+    @patch.object(MethodAssumptionAuditor, "cache_assumptions")
+    async def test_scope_general_uses_default_prompt(
+        self, mock_cache, mock_anthropic, mock_cached, mock_graph, mock_find
+    ):
+        """When scope='general' (default), domain/scope not passed as applied."""
+        method = _make_concept("DML", definition="Double machine learning")
+        mock_find.return_value = method
+        mock_graph.return_value = [_make_assumption("overlap")]
+        mock_cached.return_value = []
+        mock_anthropic.return_value = [
+            _make_assumption("unconfoundedness"),
+            _make_assumption("regularity"),
+        ]
+        mock_cache.return_value = 2
+
+        result = await MethodAssumptionAuditor.audit_assumptions(
+            "DML",
+            llm_backend="anthropic",
+            domain="causal_inference",
+            scope="general",
+        )
+
+        call_kwargs = mock_anthropic.call_args
+        assert call_kwargs.kwargs.get("domain") == "causal_inference"
+        assert call_kwargs.kwargs.get("scope") == "general"
+        assert result.scope == "general"
+
+    @patch.object(MethodAssumptionAuditor, "find_method")
+    @patch.object(MethodAssumptionAuditor, "get_assumptions_from_graph")
+    @patch.object(MethodAssumptionAuditor, "get_cached_assumptions")
+    async def test_domain_none_preserves_existing_behavior(
+        self, mock_cached, mock_graph, mock_find
+    ):
+        """When domain=None (default), graph uses method's own domain_id."""
+        method = _make_concept("IV")
+        mock_find.return_value = method
+        mock_graph.return_value = [
+            _make_assumption("exogeneity", "critical"),
+            _make_assumption("relevance", "critical"),
+            _make_assumption("exclusion", "critical"),
+        ]
+        mock_cached.return_value = []
+
+        result = await MethodAssumptionAuditor.audit_assumptions(
+            "IV",
+            use_llm_fallback=False,
+        )
+
+        mock_graph.assert_called_once_with(
+            method.id,
+            filter_by_domain=True,
+            domain=None,
+        )
+        assert result.domain is None
+        assert result.scope == "general"
+
+
+# ---------------------------------------------------------------------------
+# MethodAssumptions.to_dict() with domain/scope
+# ---------------------------------------------------------------------------
+
+
+class TestMethodAssumptionsToDict:
+    """Test that domain and scope appear in to_dict() output."""
+
+    def test_to_dict_includes_domain_and_scope(self):
+        from research_kb_storage.assumption_audit import MethodAssumptions
+
+        result = MethodAssumptions(
+            method="RDD",
+            domain="time_series",
+            scope="applied",
+        )
+        d = result.to_dict()
+        assert d["domain"] == "time_series"
+        assert d["scope"] == "applied"
+
+    def test_to_dict_default_domain_scope(self):
+        from research_kb_storage.assumption_audit import MethodAssumptions
+
+        result = MethodAssumptions(method="DML")
+        d = result.to_dict()
+        assert d["domain"] is None
+        assert d["scope"] == "general"
+
+
 # ---------------------------------------------------------------------------
 # extract_assumptions_with_anthropic edge cases
 # ---------------------------------------------------------------------------

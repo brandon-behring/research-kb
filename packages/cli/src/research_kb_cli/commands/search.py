@@ -212,12 +212,25 @@ def audit_assumptions(
         "--filter-domain/--no-filter-domain",
         help="Filter assumptions to same domain as method (prevents cross-domain contamination)",
     ),
+    domain: Optional[str] = typer.Option(
+        None,
+        "--domain",
+        help="Domain context for scoped audit (e.g., 'time_series', 'econometrics')",
+    ),
+    scope: str = typer.Option(
+        "general",
+        "--scope",
+        help="Audit scope: 'general' (default) or 'applied' (domain-contextual)",
+    ),
 ):
     """Get required assumptions for a statistical/ML method.
 
     Queries the knowledge graph for METHOD -> REQUIRES/USES -> ASSUMPTION
     relationships. If fewer than 3 assumptions are found, optionally
     uses Ollama LLM to extract additional assumptions.
+
+    Use --domain and --scope for domain-scoped audits. "applied" scope uses
+    a domain-contextual LLM prompt that surfaces domain-specific assumptions.
 
     Examples:
 
@@ -226,6 +239,8 @@ def audit_assumptions(
         research-kb search audit-assumptions "DML" --format json
 
         research-kb search audit-assumptions "IV" --no-ollama
+
+        research-kb search audit-assumptions "RDD" --domain time_series --scope applied
     """
     from research_kb_storage import DatabaseConfig, MethodAssumptionAuditor, get_connection_pool
 
@@ -236,6 +251,8 @@ def audit_assumptions(
             method_name,
             use_ollama_fallback=use_ollama,
             filter_by_domain=filter_domain,
+            domain=domain,
+            scope=scope,
         )
 
     try:

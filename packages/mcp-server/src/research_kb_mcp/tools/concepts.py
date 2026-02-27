@@ -5,7 +5,7 @@ Exposes concept listing, detail, and chunk-concept link functionality.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 
 from fastmcp import FastMCP
@@ -19,6 +19,7 @@ from research_kb_storage import ChunkConceptStore, ChunkStore, ConceptStore
 from research_kb_mcp.formatters import (
     format_concept_list,
     format_concept_detail,
+    format_concept_detail_json,
     format_chunk_concepts,
 )
 from research_kb_common import get_logger
@@ -72,6 +73,7 @@ def register_concept_tools(mcp: FastMCP) -> None:
     async def research_kb_get_concept(
         concept_id: str,
         include_relationships: bool = True,
+        output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Get detailed information about a specific concept.
 
@@ -81,9 +83,10 @@ def register_concept_tools(mcp: FastMCP) -> None:
         Args:
             concept_id: UUID of the concept (from search or list)
             include_relationships: Include relationships (default True)
+            output_format: Response format - "markdown" (default) or "json"
 
         Returns:
-            Markdown-formatted concept details with:
+            Markdown-formatted or JSON concept details with:
             - Name and type
             - Description (if available)
             - Relationships (REQUIRES, USES, ADDRESSES, etc.)
@@ -105,6 +108,8 @@ def register_concept_tools(mcp: FastMCP) -> None:
         if include_relationships:
             relationships = await get_concept_relationships(concept_id)
 
+        if output_format == "json":
+            return format_concept_detail_json(concept, relationships)
         return format_concept_detail(concept, relationships)
 
     @mcp.tool()

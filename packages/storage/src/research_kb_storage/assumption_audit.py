@@ -67,6 +67,45 @@ Focus on assumptions that are:
 
 Return ONLY valid JSON, no additional text."""
 
+# Domain-scoped prompt for applied assumption extraction
+ASSUMPTION_EXTRACTION_PROMPT_APPLIED = """You are an expert in {domain_label} and statistical methods.
+
+Given a method name and its application domain, extract the key assumptions required for this method
+to be valid IN THIS SPECIFIC DOMAIN CONTEXT.
+
+METHOD: {method_name}
+DEFINITION: {definition}
+APPLICATION DOMAIN: {domain_label}
+
+Focus on:
+- Domain-specific assumptions that may not appear in a general treatment
+- Assumptions whose verification approaches differ in this domain
+- Practical concerns specific to {domain_label} data/settings
+
+For each assumption, provide:
+1. name: The assumption name (e.g., "unconfoundedness", "parallel trends")
+2. formal_statement: Mathematical notation if applicable (e.g., "Y(t) ⊥ T | X")
+3. plain_english: Simple explanation (e.g., "No unmeasured confounders")
+4. importance: "critical" (identification fails if violated), "standard" (recommended), or "technical" (mathematical regularity)
+5. violation_consequence: What goes wrong if violated
+6. verification_approaches: How to check this assumption (list of strings)
+
+OUTPUT FORMAT (JSON):
+{{
+  "assumptions": [
+    {{
+      "name": "assumption name",
+      "formal_statement": "mathematical notation or null",
+      "plain_english": "simple explanation",
+      "importance": "critical|standard|technical",
+      "violation_consequence": "what goes wrong",
+      "verification_approaches": ["approach 1", "approach 2"]
+    }}
+  ]
+}}
+
+Return ONLY valid JSON, no additional text."""
+
 
 @dataclass
 class AssumptionDetail:
@@ -105,6 +144,8 @@ class MethodAssumptions:
         # CLI/dev fallback: Ollama (via --no-ollama flag to disable)
     )
     code_docstring_snippet: Optional[str] = None
+    domain: Optional[str] = None  # Domain used for scoping (e.g., "time_series")
+    scope: str = "general"  # Audit scope: "general" or "applied"
 
     def to_dict(self) -> dict:
         """Convert to dict for JSON serialization."""
@@ -130,6 +171,8 @@ class MethodAssumptions:
             ],
             "source": self.source,
             "code_docstring_snippet": self.code_docstring_snippet,
+            "domain": self.domain,
+            "scope": self.scope,
         }
 
 
@@ -282,6 +325,7 @@ class MethodAssumptionAuditor:
     async def get_assumptions_from_graph(
         method_id: UUID,
         filter_by_domain: bool = True,
+        domain: Optional[str] = None,
     ) -> list[AssumptionDetail]:
         """Query knowledge graph for method assumptions.
 
@@ -293,6 +337,10 @@ class MethodAssumptionAuditor:
             filter_by_domain: If True, only return assumptions from the same domain
                             as the method (prevents cross-domain contamination).
                             Default True to avoid physics concepts in causal methods.
+            domain: Explicit domain override for filtering. When specified and
+                   filter_by_domain=True, filters to this domain instead of
+                   the method's own domain_id. Enables scoped audits
+                   (e.g., "RDD in time_series" vs "RDD in econometrics").
 
         Returns:
             List of AssumptionDetail objects from graph
@@ -304,30 +352,59 @@ class MethodAssumptionAuditor:
                 # Build query with optional domain filtering
                 # This prevents cross-domain contamination (e.g., physics in DML)
                 if filter_by_domain:
-                    query = """
-                    SELECT
-                        c.id AS assumption_id,
-                        c.name AS assumption_name,
-                        c.canonical_name,
-                        c.definition,
-                        cr.relationship_type,
-                        cr.strength,
-                        cr.confidence_score,
-                        cr.evidence_chunk_ids
-                    FROM concept_relationships cr
-                    JOIN concepts c ON c.id = cr.target_concept_id
-                    JOIN concepts method ON method.id = cr.source_concept_id
-                    WHERE cr.source_concept_id = $1
-                      AND cr.relationship_type IN ('REQUIRES', 'USES')
-                      AND c.concept_type = 'assumption'
-                      AND (c.domain_id IS NULL OR method.domain_id IS NULL OR c.domain_id = method.domain_id)
-                    ORDER BY
-                        CASE cr.relationship_type
-                            WHEN 'REQUIRES' THEN 1
-                            WHEN 'USES' THEN 2
-                        END,
-                        cr.strength DESC
-                    """
+                    if domain is not None:
+                        # Caller-specified domain: filter assumptions to this domain
+                        query = """
+                        SELECT
+                            c.id AS assumption_id,
+                            c.name AS assumption_name,
+                            c.canonical_name,
+                            c.definition,
+                            cr.relationship_type,
+                            cr.strength,
+                            cr.confidence_score,
+                            cr.evidence_chunk_ids
+                        FROM concept_relationships cr
+                        JOIN concepts c ON c.id = cr.target_concept_id
+                        WHERE cr.source_concept_id = $1
+                          AND cr.relationship_type IN ('REQUIRES', 'USES')
+                          AND c.concept_type = 'assumption'
+                          AND (c.domain_id IS NULL OR c.domain_id = $2)
+                        ORDER BY
+                            CASE cr.relationship_type
+                                WHEN 'REQUIRES' THEN 1
+                                WHEN 'USES' THEN 2
+                            END,
+                            cr.strength DESC
+                        """
+                        rows = await conn.fetch(query, method_id, domain)
+                    else:
+                        # Default: filter to method's own domain
+                        query = """
+                        SELECT
+                            c.id AS assumption_id,
+                            c.name AS assumption_name,
+                            c.canonical_name,
+                            c.definition,
+                            cr.relationship_type,
+                            cr.strength,
+                            cr.confidence_score,
+                            cr.evidence_chunk_ids
+                        FROM concept_relationships cr
+                        JOIN concepts c ON c.id = cr.target_concept_id
+                        JOIN concepts method ON method.id = cr.source_concept_id
+                        WHERE cr.source_concept_id = $1
+                          AND cr.relationship_type IN ('REQUIRES', 'USES')
+                          AND c.concept_type = 'assumption'
+                          AND (c.domain_id IS NULL OR method.domain_id IS NULL OR c.domain_id = method.domain_id)
+                        ORDER BY
+                            CASE cr.relationship_type
+                                WHEN 'REQUIRES' THEN 1
+                                WHEN 'USES' THEN 2
+                            END,
+                            cr.strength DESC
+                        """
+                        rows = await conn.fetch(query, method_id)
                 else:
                     query = """
                     SELECT
@@ -351,7 +428,7 @@ class MethodAssumptionAuditor:
                         END,
                         cr.strength DESC
                     """
-                rows = await conn.fetch(query, method_id)
+                    rows = await conn.fetch(query, method_id)
 
                 assumptions = []
                 for row in rows:
@@ -475,6 +552,8 @@ class MethodAssumptionAuditor:
         definition: Optional[str] = None,
         model: str = "llama3.1:8b",
         base_url: str = "http://localhost:11434",
+        domain: Optional[str] = None,
+        scope: str = "general",
     ) -> list[AssumptionDetail]:
         """Extract assumptions using Ollama LLM.
 
@@ -486,16 +565,25 @@ class MethodAssumptionAuditor:
             definition: Optional definition to provide context
             model: Ollama model name
             base_url: Ollama server URL
+            domain: Domain context for scoped extraction (e.g., "time_series")
+            scope: "general" (default prompt) or "applied" (domain-contextual prompt)
 
         Returns:
             List of AssumptionDetail objects from LLM
         """
         import httpx
 
-        prompt = ASSUMPTION_EXTRACTION_PROMPT.format(
-            method_name=method_name,
-            definition=definition or "Not provided",
-        )
+        if scope == "applied" and domain:
+            prompt = ASSUMPTION_EXTRACTION_PROMPT_APPLIED.format(
+                method_name=method_name,
+                definition=definition or "Not provided",
+                domain_label=domain.replace("_", " "),
+            )
+        else:
+            prompt = ASSUMPTION_EXTRACTION_PROMPT.format(
+                method_name=method_name,
+                definition=definition or "Not provided",
+            )
 
         try:
             async with httpx.AsyncClient(
@@ -573,6 +661,8 @@ class MethodAssumptionAuditor:
         method_name: str,
         definition: Optional[str] = None,
         model: str = "claude-haiku-4-5-20251001",
+        domain: Optional[str] = None,
+        scope: str = "general",
     ) -> list[AssumptionDetail]:
         """Extract assumptions using Anthropic API (Haiku).
 
@@ -583,14 +673,23 @@ class MethodAssumptionAuditor:
             method_name: Name of the method
             definition: Optional definition to provide context
             model: Anthropic model name (default: Haiku 4.5)
+            domain: Domain context for scoped extraction (e.g., "time_series")
+            scope: "general" (default prompt) or "applied" (domain-contextual prompt)
 
         Returns:
             List of AssumptionDetail objects from LLM
         """
-        prompt = ASSUMPTION_EXTRACTION_PROMPT.format(
-            method_name=method_name,
-            definition=definition or "Not provided",
-        )
+        if scope == "applied" and domain:
+            prompt = ASSUMPTION_EXTRACTION_PROMPT_APPLIED.format(
+                method_name=method_name,
+                definition=definition or "Not provided",
+                domain_label=domain.replace("_", " "),
+            )
+        else:
+            prompt = ASSUMPTION_EXTRACTION_PROMPT.format(
+                method_name=method_name,
+                definition=definition or "Not provided",
+            )
 
         try:
             import os
@@ -609,7 +708,11 @@ class MethodAssumptionAuditor:
                 max_tokens=4096,
                 temperature=0.1,
                 messages=[{"role": "user", "content": prompt}],
-                system="You are an expert in causal inference and econometrics. Return ONLY valid JSON.",
+                system=(
+                    f"You are an expert in {domain.replace('_', ' ')} and statistical methods. Return ONLY valid JSON."
+                    if scope == "applied" and domain
+                    else "You are an expert in causal inference and econometrics. Return ONLY valid JSON."
+                ),
             )
 
             block = message.content[0]
@@ -776,6 +879,8 @@ class MethodAssumptionAuditor:
         use_llm_fallback: bool = True,
         llm_backend: str = "ollama",
         filter_by_domain: bool = True,
+        domain: Optional[str] = None,
+        scope: str = "general",
     ) -> MethodAssumptions:
         """Main entry point: Get assumptions for a method.
 
@@ -796,6 +901,12 @@ class MethodAssumptionAuditor:
             filter_by_domain: If True (default), only return assumptions from the
                             same domain as the method. This prevents cross-domain
                             contamination (e.g., physics concepts in causal methods).
+            domain: Explicit domain for scoped audit (e.g., "time_series").
+                   When set, graph queries filter to this domain instead of the
+                   method's own domain_id. LLM prompts include domain context
+                   when scope="applied".
+            scope: Audit scope — "general" (default) uses standard prompt,
+                  "applied" uses domain-contextual prompt for LLM extraction.
 
         Returns:
             MethodAssumptions with full audit data
@@ -819,6 +930,7 @@ class MethodAssumptionAuditor:
         graph_assumptions = await MethodAssumptionAuditor.get_assumptions_from_graph(
             method.id,
             filter_by_domain=filter_by_domain,
+            domain=domain,
         )
 
         # Step 3: Try to enrich with cached details
@@ -880,12 +992,16 @@ class MethodAssumptionAuditor:
                 llm_assumptions = await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
                     method_name=method.canonical_name or method.name,
                     definition=method.definition,
+                    domain=domain,
+                    scope=scope,
                 )
                 extraction_method_str = "anthropic:claude-haiku-4-5-20251001"
             else:
                 llm_assumptions = await MethodAssumptionAuditor.extract_assumptions_with_ollama(
                     method_name=method.canonical_name or method.name,
                     definition=method.definition,
+                    domain=domain,
+                    scope=scope,
                 )
                 extraction_method_str = "ollama:llama3.1:8b"
 
@@ -920,6 +1036,8 @@ class MethodAssumptionAuditor:
             assumptions=final_assumptions,
             source=source,
             code_docstring_snippet=docstring,
+            domain=domain,
+            scope=scope,
         )
 
         logger.info(

@@ -135,6 +135,9 @@ research-kb sources extraction-status                        # Extraction pipeli
 research-kb graph concepts "IV"                              # Concept search
 research-kb graph neighborhood "DML" --hops 2                # Graph exploration
 research-kb graph path "IV" "unconfoundedness"               # Shortest path between concepts
+research-kb graph explain "DML" "cross-fitting"              # Explain connection with evidence + synthesis
+research-kb graph explain "IV" "endogeneity" --style research  # Research-style explanation
+research-kb graph explain "DML" "overlap" --no-llm           # Graph + evidence only, no LLM
 
 # Citation network
 research-kb citations list <source>                          # List citations from a source
@@ -147,6 +150,7 @@ research-kb citations similar <source>                       # Find similar sour
 research-kb search audit-assumptions "double machine learning"  # Get required assumptions
 research-kb search audit-assumptions "IV" --no-ollama           # Graph only, no LLM fallback
 research-kb search audit-assumptions "DML" --format json        # JSON output
+research-kb search audit-assumptions "RDD" --domain time_series --scope applied  # Domain-scoped audit
 
 # Semantic Scholar discovery (s2-client)
 research-kb discover search "double machine learning"  # Search S2 for papers
@@ -295,8 +299,8 @@ Single model: BGE-large-en-v1.5 (1024 dimensions). All vector columns are `vecto
 ## CI/CD Tiers
 
 1. **PR Checks** (<10 min): Unit + integration tests with mocked services, pytest-cov coverage reports (XML), doc freshness gate
-2. **Weekly Integration** (15 min, manual trigger): Search pipeline + quality tests + script tests + doc freshness gate (`audit_docs.py`, `generate_status.py --check`)
-3. **Full Rebuild** (45 min, manual trigger): Demo data load, embedding generation, retrieval eval against golden dataset with per-domain metrics (`weekly-full-rebuild.yml`)
+2. **Manual Integration** (15 min, `workflow_dispatch`): Search pipeline + quality tests + script tests + doc freshness gate (`audit_docs.py`, `generate_status.py --check`)
+3. **Full Rebuild** (45 min, `workflow_dispatch`): Demo data load, embedding generation, retrieval eval against YAML test cases with per-domain metrics (`weekly-full-rebuild.yml`)
 
 ## Data Protection
 
@@ -403,7 +407,7 @@ The daemon pre-warms KuzuDB on startup to avoid 60s cold-start latency.
 
 The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 
-**Available Tools (20 total):**
+**Available Tools (21 total):**
 | Tool | Description |
 |------|-------------|
 | `research_kb_search` | Hybrid search (FTS + vector + graph + citation), optional HyDE via `use_hyde` |
@@ -423,7 +427,8 @@ The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 | `research_kb_graph_neighborhood` | Explore concept neighborhood |
 | `research_kb_graph_path` | Find path between concepts (KuzuDB-accelerated) |
 | `research_kb_list_domains` | List available knowledge domains |
-| `research_kb_audit_assumptions` | Get required assumptions for a method (North Star; uses Anthropic backend) |
+| `research_kb_audit_assumptions` | Structured assumption audit with gap reporting; supports `domain` and `scope` params for domain-scoped audits (North Star; Anthropic backend) |
+| `research_kb_explain_connection` | Explain how two concepts connect: graph path + evidence hydration + LLM synthesis with source citations; supports `style` (educational/research/implementation), `use_llm`, and `output_format` |
 | `research_kb_stats` | Database statistics |
 | `research_kb_health` | Health check (includes KuzuDB status) |
 

@@ -1,16 +1,16 @@
 # CI Pipeline Quick Reference
 
-Overview of the two CI workflows and how to use them.
+Overview of the CI workflows and how to use them.
 
 ---
 
 ## Workflows
 
-| Workflow | File | Schedule | Duration | Purpose |
-|----------|------|----------|----------|---------|
-| **PR Checks** | `pr-checks.yml` | Every PR | ~8 min | Unit + integration tests, pytest-cov |
-| **Integration Test** | `integration-test.yml` | Manual (workflow_dispatch) | ~15 min | DB-only tests against empty database |
-| **Full Rebuild** | `weekly-full-rebuild.yml` | Manual (workflow_dispatch) | ~45 min | Load demo data, embed, validate retrieval quality |
+| Workflow | File | Trigger | Duration | Purpose |
+|----------|------|---------|----------|---------|
+| **PR Checks** | `pr-checks.yml` | Every PR | ~8 min | Unit + integration tests, pytest-cov (70% gate) |
+| **Integration Test** | `integration-test.yml` | Manual (`workflow_dispatch`) | ~15 min | DB-only tests against empty database |
+| **Full Rebuild** | `weekly-full-rebuild.yml` | Manual (`workflow_dispatch`) | ~45 min | Load demo data, embed, validate retrieval quality |
 
 ---
 
@@ -23,7 +23,7 @@ The `weekly-full-rebuild.yml` workflow validates the entire data path:
 3. **Load demo corpus** -- `load_demo_data.py` (9 papers, ~1300 chunks, concepts, citations)
 4. **Start embedding server** -- BGE-large-en-v1.5 (cached in GitHub Actions)
 5. **Generate embeddings** -- `embed_missing.py --batch 100`
-6. **Validate retrieval** -- `eval_retrieval.py --dataset golden_dataset.json --fail-below 0.5`
+6. **Validate retrieval** -- `eval_retrieval.py --per-domain --fail-below 0.85`
 7. **Run unit tests** -- Full unit suite (excluding service-dependent tests)
 
 ---
@@ -55,13 +55,34 @@ gh run watch $(gh run list --workflow=weekly-full-rebuild.yml --limit 1 --json d
 ## Quality Gates
 
 **Full Rebuild must pass:**
-- MRR >= 0.5 on golden dataset (92 queries across 8+ domains)
+- MRR >= 0.85 on retrieval test cases (83 YAML test cases across 19 domains)
 - All unit tests pass
 - Embedding generation completes without error
 
 **PR Checks must pass:**
 - Unit + integration tests
-- Coverage report generated
+- Coverage >= 70% (pytest-cov `--cov-fail-under=70`)
+
+---
+
+## Retrieval Evaluation
+
+The retrieval eval uses YAML test cases as the canonical benchmark:
+
+- **File**: `fixtures/eval/retrieval_test_cases.yaml` (83 test cases, 19 domains)
+- **Script**: `scripts/eval_retrieval.py`
+- **CI threshold**: `--fail-below 0.85`
+- **Per-domain reporting**: `--per-domain` flag
+
+```bash
+# Run locally
+python scripts/eval_retrieval.py --per-domain --verbose
+
+# With failure threshold
+python scripts/eval_retrieval.py --fail-below 0.85 --output /tmp/metrics.json
+```
+
+> **Historical note**: A deprecated 177-query JSON dataset (`golden_dataset.deprecated.json`) exists in `fixtures/eval/` for reference. The active benchmark is the YAML file above.
 
 ---
 
@@ -85,7 +106,7 @@ The JSON file contains hit_rate, MRR, NDCG, and per-domain breakdowns.
 | "Run workflow" button disabled | Need write access to repository |
 | Schema apply fails | Check `schema.sql` syntax, verify pgvector image |
 | Embedding server timeout | Model cache may be cold; re-run workflow |
-| MRR below threshold | Check golden_dataset.json for entries without matching chunks |
+| MRR below 0.85 | Check `retrieval_test_cases.yaml` for entries without matching demo chunks |
 
 ---
 
@@ -94,9 +115,9 @@ The JSON file contains hit_rate, MRR, NDCG, and per-domain breakdowns.
 - `.github/workflows/weekly-full-rebuild.yml` -- Full pipeline workflow
 - `.github/workflows/integration-test.yml` -- DB-only integration tests
 - `.github/workflows/pr-checks.yml` -- PR gate checks
-- `fixtures/eval/golden_dataset.json` -- 92 retrieval test queries
+- `fixtures/eval/retrieval_test_cases.yaml` -- 83 retrieval test cases (active benchmark)
 - `scripts/eval_retrieval.py` -- Retrieval evaluation script
 
 ---
 
-**Last Updated**: 2026-02-20
+**Last Updated**: 2026-02-26

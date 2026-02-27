@@ -4,6 +4,7 @@ Commands:
     concepts       Search for concepts in the knowledge graph
     neighborhood   Visualize concept neighborhood (N-hop traversal)
     path           Find shortest path between two concepts
+    explain        Explain connection between two concepts with evidence and synthesis
 """
 
 import asyncio
@@ -18,6 +19,7 @@ from research_kb_storage import (
     find_shortest_path,
     get_connection_pool,
     get_neighborhood,
+    explain_connection,
 )
 
 app = typer.Typer(help="Explore the knowledge graph")
@@ -342,6 +344,71 @@ def path(
             typer.echo()
             prompt = generate_synthesis_prompt(found_path, style=style)
             typer.echo(prompt)
+
+    except Exception as e:
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(1)
+
+
+@app.command()
+def explain(
+    concept_a: str = typer.Argument(..., help="First concept name"),
+    concept_b: str = typer.Argument(..., help="Second concept name"),
+    style: str = typer.Option(
+        "educational",
+        "--style",
+        "-s",
+        help="Synthesis style: educational, research, or implementation",
+    ),
+    max_evidence: int = typer.Option(
+        2, "--max-evidence", "-e", help="Max evidence chunks per step (1-3)"
+    ),
+    no_llm: bool = typer.Option(
+        False, "--no-llm", help="Skip LLM synthesis (graph + evidence only)"
+    ),
+    output_format: str = typer.Option(
+        "markdown", "--format", "-f", help="Output format: markdown or json"
+    ),
+):
+    """Explain how two concepts are connected with evidence and synthesis.
+
+    Finds the shortest path, attaches evidence from the corpus, and
+    optionally generates an LLM synthesis with source citations.
+
+    Examples:
+
+        research-kb graph explain "double machine learning" "cross-fitting"
+
+        research-kb graph explain "IV" "endogeneity" --style research
+
+        research-kb graph explain "DML" "overlap" --no-llm
+
+        research-kb graph explain "RDD" "LATE" --format json
+    """
+    from research_kb_mcp.formatters import (
+        format_connection_explanation,
+        format_connection_explanation_json,
+    )
+
+    async def run_explain():
+        config = DatabaseConfig()
+        await get_connection_pool(config)
+
+        return await explain_connection(
+            concept_a=concept_a,
+            concept_b=concept_b,
+            style=style,
+            max_evidence_per_step=max(1, min(3, max_evidence)),
+            use_llm=not no_llm,
+        )
+
+    try:
+        result = asyncio.run(run_explain())
+
+        if output_format == "json":
+            typer.echo(format_connection_explanation_json(result))
+        else:
+            typer.echo(format_connection_explanation(result))
 
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)

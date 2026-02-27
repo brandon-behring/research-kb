@@ -6,12 +6,12 @@
 
 Graph-boosted semantic search for research literature.
 
-Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 20-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
+Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 21-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
 
 ## Features
 
 - **4-signal hybrid search** -- BM25 + vector + knowledge graph + citation authority, with context-aware weight profiles
-- **20-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, and assumption auditing
+- **21-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, assumption auditing, and concept synthesis
 - **Knowledge graph** -- 312K concepts and 744K relationships extracted from research literature, served by KuzuDB
 - **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
 - **Multi-domain** -- 22 corpus domains, 20 extraction prompt configs, extensible to new domains
@@ -80,7 +80,7 @@ research-kb search query "instrumental variables"
 research-kb-mcp
 ```
 
-Then add to your Claude Code MCP config to access all 20 tools from conversation.
+Then add to your Claude Code MCP config to access all 21 tools from conversation.
 
 ## How It Works
 
@@ -174,13 +174,15 @@ Graph (15%) and citation (15%) signals are **enabled by default** in CLI and MCP
 
 ### Retrieval Quality
 
-Evaluated on a golden dataset of 177 queries across 14 domains with known-relevant chunks:
+Evaluated on 83 YAML test cases across 19 domains with known-relevant chunks (`fixtures/eval/retrieval_test_cases.yaml`):
 
 | Metric | Score |
 |--------|-------|
 | Hit Rate@K | 92.9% |
 | MRR | 0.849 |
 | NDCG@5 | 0.823 |
+
+> CI gate: MRR >= 0.85 (`--fail-below 0.85` in `weekly-full-rebuild.yml`). A deprecated 177-query JSON benchmark exists in `fixtures/eval/` for historical reference.
 
 ### Latency
 
@@ -206,7 +208,7 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 <!-- AUTO-GEN:mcp-tools:START -->
 ## MCP Server
 
-20 tools organized by function, designed for conversational use in Claude Code:
+21 tools organized by function, designed for conversational use in Claude Code:
 
 | Category | Tools | Description |
 |----------|-------|-------------|
@@ -216,15 +218,14 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 | **Graph** | `research_kb_graph_neighborhood`, `research_kb_graph_path`, `research_kb_cross_domain_concepts` | Traverse concept relationships |
 | **Citations** | `research_kb_citation_network`, `research_kb_biblio_coupling` | Upstream/downstream influence, bibliographic coupling |
 | **Health** | `research_kb_health`, `research_kb_stats`, `research_kb_list_domains` | System status and corpus metrics |
-| **Advanced** | `research_kb_audit_assumptions` | Method assumption extraction (uses Anthropic backend) |
+| **Advanced** | `research_kb_audit_assumptions`, `research_kb_explain_connection` | Assumption audit with gap reporting; concept connection synthesis (graph + evidence + LLM) |
 <!-- AUTO-GEN:mcp-tools:END -->
 
 ## Testing
 
-- **~2,500+ test functions** across 104+ test files
-- **Tiered CI/CD**: PR checks (<10 min, with pytest-cov) -> Weekly integration (15 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
-- **Golden evaluation dataset**: 177 queries across 22 domains with known-relevant chunks (benchmark)
-- **Retrieval eval**: 83 YAML test cases with per-domain reporting (`--per-domain` flag)
+- **~2,700+ test functions** across 111 test files
+- **Tiered CI/CD**: PR checks (<10 min, pytest-cov 70% gate) -> Manual integration (15 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
+- **Retrieval eval**: 83 YAML test cases across 19 domains with per-domain reporting (`--per-domain` flag, MRR >= 0.85 CI gate)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
 ```bash
@@ -261,6 +262,7 @@ research-kb sources extraction-status                    # Extraction pipeline s
 research-kb graph concepts "IV"                          # Concept search
 research-kb graph neighborhood "double machine learning" # Graph exploration
 research-kb graph path "IV" "unconfoundedness"           # Shortest path
+research-kb graph explain "DML" "cross-fitting"          # Explain connection with evidence + synthesis
 
 # Citation network
 research-kb citations list <source>                      # List citations from a source
@@ -270,9 +272,11 @@ research-kb citations stats                              # Corpus citation stati
 research-kb citations similar <source>                   # Find similar sources (shared refs)
 
 # Assumption auditing (North Star feature)
-research-kb search audit-assumptions "IV"                # Get required assumptions
-research-kb search audit-assumptions "IV" --no-ollama    # Graph-only (no LLM fallback)
-research-kb search audit-assumptions "DML" --format json # JSON output
+research-kb search audit-assumptions "IV"                              # Get required assumptions
+research-kb search audit-assumptions "IV" --no-ollama                  # Graph-only (no LLM fallback)
+research-kb search audit-assumptions "DML" --format json               # JSON output
+research-kb search audit-assumptions "RDD" --domain time_series        # Domain-scoped audit
+research-kb search audit-assumptions "RDD" --domain time_series --scope applied  # Domain-contextual LLM prompt
 
 # Semantic Scholar discovery
 research-kb discover search "causal inference"           # Search S2 for papers
@@ -376,7 +380,7 @@ Part of the **Rigorous AI Engineering** ecosystem:
 | [ir-eval](https://github.com/brandonmbehring-dev/ir-eval) | Statistical retrieval evaluation with drift detection |
 | [temporalcv](https://github.com/brandonmbehring-dev/temporalcv) | Temporal cross-validation with leakage detection |
 
-research-kb's 177-query golden evaluation dataset is used by ir-eval for retrieval quality benchmarking and regression detection.
+research-kb's retrieval evaluation dataset is used by ir-eval for retrieval quality benchmarking and regression detection.
 
 ## Contributing
 

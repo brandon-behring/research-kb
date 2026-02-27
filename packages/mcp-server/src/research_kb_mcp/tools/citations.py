@@ -5,6 +5,7 @@ Exposes citation network and bibliographic coupling functionality.
 
 from __future__ import annotations
 
+from typing import Literal
 from uuid import UUID
 
 from fastmcp import FastMCP
@@ -13,7 +14,9 @@ from research_kb_api.service import get_source_by_id
 from research_kb_storage import BiblioStore, get_citing_sources, get_cited_sources
 from research_kb_mcp.formatters import (
     format_citation_network,
+    format_citation_network_json,
     format_biblio_similar,
+    format_biblio_similar_json,
 )
 
 
@@ -24,6 +27,7 @@ def register_citation_tools(mcp: FastMCP) -> None:
     async def research_kb_citation_network(
         source_id: str,
         limit: int = 20,
+        output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Get bidirectional citation network for a source.
 
@@ -34,9 +38,10 @@ def register_citation_tools(mcp: FastMCP) -> None:
         Args:
             source_id: UUID of the source
             limit: Maximum sources per direction (1-50, default 20)
+            output_format: Response format - "markdown" (default) or "json"
 
         Returns:
-            Markdown-formatted citation network with:
+            Markdown-formatted or JSON citation network with:
             - Papers citing this source (who built on this work)
             - Papers cited by this source (foundations)
             - Source IDs for follow-up queries
@@ -56,6 +61,8 @@ def register_citation_tools(mcp: FastMCP) -> None:
         citing = citing[:limit]
         cited = cited[:limit]
 
+        if output_format == "json":
+            return format_citation_network_json(citing, cited, source)
         return format_citation_network(citing, cited, source)
 
     @mcp.tool()
@@ -63,6 +70,7 @@ def register_citation_tools(mcp: FastMCP) -> None:
         source_id: str,
         limit: int = 10,
         min_coupling: float = 0.1,
+        output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Find sources similar by bibliographic coupling.
 
@@ -77,9 +85,10 @@ def register_citation_tools(mcp: FastMCP) -> None:
             source_id: UUID of the source to find similar sources for
             limit: Maximum similar sources to return (1-50, default 10)
             min_coupling: Minimum coupling strength threshold (0.0-1.0, default 0.1)
+            output_format: Response format - "markdown" (default) or "json"
 
         Returns:
-            Markdown-formatted list of similar sources with:
+            Markdown-formatted or JSON list of similar sources with:
             - Title, authors, year
             - Coupling strength (percentage)
             - Number of shared references
@@ -107,4 +116,6 @@ def register_citation_tools(mcp: FastMCP) -> None:
         # Filter by min_coupling
         similar = [s for s in similar if s["coupling_strength"] >= min_coupling]
 
+        if output_format == "json":
+            return format_biblio_similar_json(similar, source)
         return format_biblio_similar(similar, source)

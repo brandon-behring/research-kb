@@ -102,6 +102,12 @@ from research_kb_storage.assumption_audit import (
     MethodAssumptions,
     MethodAssumptionAuditor,
 )
+from research_kb_storage.synthesis import (
+    ConnectionExplanation,
+    EvidenceChunk,
+    PathStep,
+    explain_connection,
+)
 
 __version__ = "1.0.0"
 
@@ -179,4 +185,9 @@ __all__ = [
     "AssumptionDetail",
     "MethodAssumptions",
     "MethodAssumptionAuditor",
+    # Connection Synthesis (Phase AC)
+    "ConnectionExplanation",
+    "EvidenceChunk",
+    "PathStep",
+    "explain_connection",
 ]

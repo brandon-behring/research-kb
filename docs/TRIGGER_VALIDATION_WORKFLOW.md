@@ -17,7 +17,7 @@ Instructions for manually running the two scheduled CI workflows.
 2. Click the **Actions** tab
 3. In the left sidebar, select the workflow:
    - **"Weekly Full Rebuild & Validation"** -- full data pipeline
-   - **"Weekly Integration Tests"** -- DB-only tests
+   - **"Integration Tests"** -- DB-only tests (manual trigger)
 4. Click **"Run workflow"** (top right)
 5. Select branch: `main`
 6. Click the green **"Run workflow"** button
@@ -83,7 +83,7 @@ End-to-end data pipeline validation:
 | Load demo corpus | Insert 9 papers, ~1300 chunks, concepts, citations | ~1 min |
 | Start embed server | BGE-large-en-v1.5 (cached ~400MB model) | ~1 min |
 | Generate embeddings | Embed all chunks (`--batch 100`) | ~10-20 min |
-| Validate retrieval | Golden dataset eval, MRR >= 0.5 gate | ~2 min |
+| Validate retrieval | YAML eval, MRR >= 0.85 gate | ~2 min |
 | Unit tests | Full unit suite (excluding service-dependent) | ~5 min |
 
 ---
