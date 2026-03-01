@@ -433,14 +433,16 @@ The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 | `research_kb_health` | Health check (includes KuzuDB status) |
 
 **Installation in Claude Code:**
-```json
-// In ~/.config/claude-code/config.json
-{
-  "mcpServers": {
-    "research-kb": {
-      "command": "research-kb-mcp",
-      "args": []
-    }
-  }
-}
+```bash
+# Recommended: user-global scope (available to all ~/Claude/* projects)
+claude mcp add -s user research-kb \
+  -- /path/to/research-kb/.venv/bin/research-kb-mcp
 ```
+
+This writes to `~/.claude.json` top-level `mcpServers`.
+
+**Config hierarchy** (highest priority first):
+1. `.mcp.json` (project scope) — overrides everything; avoid unless you need project-specific overrides
+2. `~/.claude.json` `mcpServers` (user scope) — **recommended for research-kb**
+
+**Note:** Do NOT put MCP configs in `~/.claude/settings.local.json` — Claude Code does not read MCP servers from there.

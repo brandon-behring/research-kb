@@ -1,10 +1,15 @@
-{
-  "mcpServers": {
-    "research-kb": {
-      "command": "./venv/bin/python",
-      "args": ["-m", "research_kb_mcp.server"],
-      "cwd": ".",
-      "description": "Search research literature with hybrid FTS+vector+graph retrieval"
-    }
-  }
-}
+# MCP Server Installation for research-kb
+#
+# Recommended: Use claude mcp add (writes to ~/.claude.json, user-global scope)
+#
+#   claude mcp add -s user research-kb \
+#     -- /home/brandon_behring/Claude/research-kb/.venv/bin/research-kb-mcp
+#
+# This makes research-kb tools available to ALL ~/Claude/* projects.
+#
+# Config hierarchy (highest priority first):
+#   1. .mcp.json (project scope) — overrides everything
+#   2. ~/.claude.json mcpServers (user scope) — recommended for research-kb
+#
+# Do NOT use ~/.claude/settings.local.json for MCP servers.
+# Do NOT create .mcp.json unless you need project-specific overrides.
