@@ -22,8 +22,11 @@ from research_kb_pdf.pymupdf_extractor import (
 
 from research_kb_pdf.chunker import (
     TextChunk,
+    Section,
     chunk_document,
     chunk_with_sections,
+    chunk_by_structure,
+    split_into_sections,
     count_tokens,
 )
 
@@ -81,8 +84,11 @@ __all__ = [
     "extract_with_headings",
     # Chunking
     "TextChunk",
+    "Section",
     "chunk_document",
     "chunk_with_sections",
+    "chunk_by_structure",
+    "split_into_sections",
     "count_tokens",
     # Embedding
     "EmbeddingClient",

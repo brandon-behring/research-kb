@@ -37,7 +37,7 @@ from research_kb_common import (
     get_logger,
 )
 from research_kb_contracts import SourceType
-from research_kb_pdf import EmbeddingClient, chunk_with_sections, extract_with_headings
+from research_kb_pdf import EmbeddingClient, chunk_by_structure, extract_with_headings
 from research_kb_storage import (
     ChunkStore,
     DatabaseConfig,
@@ -171,7 +171,7 @@ async def ingest_textbook(
 
     if not quiet:
         logger.info("chunking_document", path=pdf_path)
-    chunks = chunk_with_sections(doc, headings, target_tokens=300)
+    chunks = chunk_by_structure(doc, headings, target_tokens=300)
     metadata["total_chunks"] = len(chunks)
 
     if not quiet:

@@ -27,7 +27,7 @@ from research_kb_common import get_logger
 from research_kb_contracts import SourceType
 from research_kb_pdf import (
     EmbeddingClient,
-    chunk_with_sections,
+    chunk_by_structure,
     extract_with_headings,
 )
 from research_kb_storage import (
@@ -1635,7 +1635,7 @@ async def ingest_pdf(
 
     # 2. Chunk with section tracking
     logger.info("chunking_document", path=str(pdf_path))
-    chunks = chunk_with_sections(doc, headings)
+    chunks = chunk_by_structure(doc, headings)
 
     logger.info("chunking_complete", path=str(pdf_path), chunks=len(chunks))
 

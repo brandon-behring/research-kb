@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 from research_kb_common import get_logger
 from research_kb_pdf import (
     EmbeddingClient,
-    chunk_with_sections,
+    chunk_by_structure,
     extract_with_headings,
 )
 from research_kb_storage import ChunkStore, DatabaseConfig, get_connection_pool
@@ -54,7 +54,7 @@ async def repair_source(source_id: str, file_path: str, title: str, pool):
         return 0
 
     # Chunk the document
-    chunks = chunk_with_sections(doc, headings, target_tokens=300)
+    chunks = chunk_by_structure(doc, headings, target_tokens=300)
 
     if not chunks:
         logger.warning("no_chunks_created", file_path=file_path)

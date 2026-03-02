@@ -108,6 +108,12 @@ from research_kb_storage.synthesis import (
     PathStep,
     explain_connection,
 )
+from research_kb_storage.literature_review import (
+    LiteratureReview,
+    ReviewSection,
+    ReviewEvidence,
+    generate_literature_review,
+)
 
 __version__ = "1.0.0"
 
@@ -190,4 +196,9 @@ __all__ = [
     "EvidenceChunk",
     "PathStep",
     "explain_connection",
+    # Literature Review (Phase AI)
+    "LiteratureReview",
+    "ReviewSection",
+    "ReviewEvidence",
+    "generate_literature_review",
 ]

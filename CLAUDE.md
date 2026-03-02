@@ -152,6 +152,11 @@ research-kb search audit-assumptions "IV" --no-ollama           # Graph only, no
 research-kb search audit-assumptions "DML" --format json        # JSON output
 research-kb search audit-assumptions "RDD" --domain time_series --scope applied  # Domain-scoped audit
 
+# Literature review
+research-kb review generate "double machine learning"                     # Educational review
+research-kb review generate "instrumental variables" --style research     # Research-style
+research-kb review generate "causal forests" --no-llm --format json       # Graph+search only, JSON output
+
 # Semantic Scholar discovery (s2-client)
 research-kb discover search "double machine learning"  # Search S2 for papers
 research-kb discover topics                            # Browse by topic
@@ -407,7 +412,7 @@ The daemon pre-warms KuzuDB on startup to avoid 60s cold-start latency.
 
 The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 
-**Available Tools (21 total):**
+**Available Tools (22 total):**
 | Tool | Description |
 |------|-------------|
 | `research_kb_search` | Hybrid search (FTS + vector + graph + citation), optional HyDE via `use_hyde` |
@@ -429,6 +434,7 @@ The `mcp-server` package exposes research-kb to Claude Code via MCP protocol.
 | `research_kb_list_domains` | List available knowledge domains |
 | `research_kb_audit_assumptions` | Structured assumption audit with gap reporting; supports `domain` and `scope` params for domain-scoped audits (North Star; Anthropic backend) |
 | `research_kb_explain_connection` | Explain how two concepts connect: graph path + evidence hydration + LLM synthesis with source citations; supports `style` (educational/research/implementation), `use_llm`, and `output_format` |
+| `research_kb_literature_review` | Generate structured literature review: graph exploration + evidence search + LLM synthesis; supports `style`, `use_llm`, `max_concepts`, `max_evidence_per_section`, `output_format` |
 | `research_kb_stats` | Database statistics |
 | `research_kb_health` | Health check (includes KuzuDB status) |
 

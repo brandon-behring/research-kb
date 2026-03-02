@@ -6,17 +6,22 @@ from unittest.mock import MagicMock
 
 from research_kb_pdf import (
     extract_pdf,
+    extract_with_headings,
     chunk_document,
     count_tokens,
     get_full_text,
 )
 from research_kb_pdf.chunker import (
     chunk_with_sections,
+    chunk_by_structure,
+    split_into_sections,
+    Section,
     split_paragraphs,
     get_overlap_paragraphs,
     split_sentences,
     MAX_EMBEDDING_TOKENS,
 )
+from research_kb_pdf.pymupdf_extractor import Heading
 
 pytestmark = pytest.mark.unit
 
@@ -436,6 +441,392 @@ class TestUnicodeNormalizationInSectionTracking:
 
         sections_found = [c.metadata.get("section") for c in chunks if c.metadata.get("section")]
         assert len(sections_found) > 0, "No sections assigned — mixed Unicode broke section lookup"
+
+
+class TestSplitIntoSections:
+    """Test split_into_sections() with page-based heading lookup."""
+
+    def _make_document(self, pages_text: list[str]):
+        """Create a minimal mock ExtractedDocument."""
+        doc = MagicMock()
+        doc.file_path = "test_sections.pdf"
+        doc.total_pages = len(pages_text)
+        pages = []
+        for i, text in enumerate(pages_text):
+            page = MagicMock()
+            page.page_num = i + 1
+            page.text = text
+            pages.append(page)
+        doc.pages = pages
+        return doc
+
+    def _make_heading(self, text: str, page_num: int, level: int = 1, char_offset: int = 0):
+        """Create a Heading with the required attributes."""
+        return Heading(
+            text=text,
+            level=level,
+            page_num=page_num,
+            font_size=14.0,
+            char_offset=char_offset,
+        )
+
+    def test_headings_on_known_pages(self):
+        """Headings on known pages produce correct section boundaries."""
+        page1 = "Introduction\nThis is the intro text about the topic."
+        page2 = "Methods\nWe used statistical techniques for analysis."
+        page3 = "Results\nThe results showed significant improvements."
+        doc = self._make_document([page1, page2, page3])
+
+        headings = [
+            self._make_heading("Introduction", page_num=1),
+            self._make_heading("Methods", page_num=2),
+            self._make_heading("Results", page_num=3),
+        ]
+
+        sections = split_into_sections(doc, headings)
+
+        # Should have 3 sections (one per heading)
+        assert len(sections) == 3
+        assert sections[0].heading == "Introduction"
+        assert sections[1].heading == "Methods"
+        assert sections[2].heading == "Results"
+
+        # Each section should have correct level
+        assert all(s.level == 1 for s in sections)
+
+        # Content should not contain the heading text from the next section
+        assert "Methods" not in sections[0].content
+        assert "Results" not in sections[1].content
+
+    def test_no_headings_returns_single_preamble(self):
+        """No headings → single preamble section with full document text."""
+        page1 = "Some text on page one."
+        page2 = "More text on page two."
+        doc = self._make_document([page1, page2])
+
+        sections = split_into_sections(doc, [])
+
+        assert len(sections) == 1
+        assert sections[0].heading == ""
+        assert sections[0].level == 0
+        assert "page one" in sections[0].content
+        assert "page two" in sections[0].content
+        assert sections[0].start_page == 1
+        assert sections[0].end_page == 2
+
+    def test_preamble_before_first_heading(self):
+        """Text before the first heading becomes a preamble section."""
+        page1 = "This is preamble text.\n\nChapter 1\nChapter content here."
+        doc = self._make_document([page1])
+
+        headings = [self._make_heading("Chapter 1", page_num=1)]
+
+        sections = split_into_sections(doc, headings)
+
+        # Should have preamble + Chapter 1
+        assert len(sections) == 2
+        assert sections[0].heading == ""
+        assert sections[0].level == 0
+        assert "preamble" in sections[0].content.lower()
+        assert sections[1].heading == "Chapter 1"
+
+    def test_heading_not_found_on_page_skipped(self):
+        """Heading text not found on its expected page → heading skipped gracefully."""
+        page1 = "Only text here, no heading match."
+        doc = self._make_document([page1])
+
+        headings = [self._make_heading("Nonexistent Heading", page_num=1)]
+
+        sections = split_into_sections(doc, headings)
+
+        # Should fall back to single preamble since heading couldn't be located
+        assert len(sections) == 1
+        assert sections[0].heading == ""
+        assert sections[0].level == 0
+
+    def test_consecutive_headings_empty_content(self):
+        """Consecutive headings with no content between them produce empty-content sections."""
+        page1 = "Part A\nPart B\nActual content after Part B."
+        doc = self._make_document([page1])
+
+        headings = [
+            self._make_heading("Part A", page_num=1),
+            self._make_heading("Part B", page_num=1, char_offset=10),
+        ]
+
+        sections = split_into_sections(doc, headings)
+
+        # Part A should have minimal or empty content
+        # Part B should have the actual content
+        assert any(s.heading == "Part B" for s in sections)
+        part_b = [s for s in sections if s.heading == "Part B"][0]
+        assert "Actual content" in part_b.content
+
+    def test_multi_page_section(self):
+        """A section spanning multiple pages collects all page text."""
+        page1 = "Chapter 1\nContent on page 1."
+        page2 = "Continued content on page 2."
+        page3 = "Chapter 2\nNew chapter starts here."
+        doc = self._make_document([page1, page2, page3])
+
+        headings = [
+            self._make_heading("Chapter 1", page_num=1),
+            self._make_heading("Chapter 2", page_num=3),
+        ]
+
+        sections = split_into_sections(doc, headings)
+
+        ch1 = [s for s in sections if s.heading == "Chapter 1"][0]
+        assert "page 1" in ch1.content
+        assert "page 2" in ch1.content
+        assert "New chapter" not in ch1.content
+
+
+class TestChunkByStructure:
+    """Test chunk_by_structure() — the core structural chunking function."""
+
+    def _make_document(self, pages_text: list[str]):
+        """Create a minimal mock ExtractedDocument."""
+        doc = MagicMock()
+        doc.file_path = "test_structure.pdf"
+        doc.total_pages = len(pages_text)
+        pages = []
+        for i, text in enumerate(pages_text):
+            page = MagicMock()
+            page.page_num = i + 1
+            page.text = text
+            pages.append(page)
+        doc.pages = pages
+        return doc
+
+    def _make_heading(self, text: str, page_num: int, level: int = 1, char_offset: int = 0):
+        """Create a Heading with the required attributes."""
+        return Heading(
+            text=text,
+            level=level,
+            page_num=page_num,
+            font_size=14.0,
+            char_offset=char_offset,
+        )
+
+    def _generate_text(self, word_count: int) -> str:
+        """Generate filler text with approximately word_count words."""
+        sentence = "The method uses statistical analysis for estimation. "
+        repeats = max(1, word_count // 8)
+        return (sentence * repeats).strip()
+
+    def test_chunks_never_cross_heading_boundaries(self):
+        """Critical invariant: no chunk straddles two sections."""
+        # Create two sections with enough content to produce multiple chunks each
+        section1_text = self._generate_text(800)  # ~800 words → several chunks
+        section2_text = self._generate_text(800)
+        page1 = f"Section A\n{section1_text}"
+        page2 = f"Section B\n{section2_text}"
+        doc = self._make_document([page1, page2])
+
+        headings = [
+            self._make_heading("Section A", page_num=1),
+            self._make_heading("Section B", page_num=2),
+        ]
+
+        chunks = chunk_by_structure(doc, headings, target_tokens=100, max_variance=30)
+
+        # Every chunk should belong to exactly one section
+        for chunk in chunks:
+            section = chunk.metadata.get("section")
+            assert section in ("Section A", "Section B", None), (
+                f"Unexpected section: {section}"
+            )
+            # Content should not contain the other section's heading
+            if section == "Section A":
+                assert "Section B" not in chunk.content
+            elif section == "Section B":
+                assert "Section A" not in chunk.content
+
+    def test_large_section_split_at_sentences(self):
+        """Sections with >512 tokens are split at sentence boundaries."""
+        # Create a very large section
+        large_text = self._generate_text(2000)
+        page1 = f"Big Section\n{large_text}"
+        doc = self._make_document([page1])
+
+        headings = [self._make_heading("Big Section", page_num=1)]
+
+        chunks = chunk_by_structure(doc, headings, target_tokens=300, max_variance=50)
+
+        # Should produce multiple chunks
+        assert len(chunks) > 1
+        # All chunks should be ≤512 tokens (hard limit)
+        for chunk in chunks:
+            assert chunk.token_count <= MAX_EMBEDDING_TOKENS, (
+                f"Chunk {chunk.chunk_index} has {chunk.token_count} tokens, exceeds {MAX_EMBEDDING_TOKENS}"
+            )
+
+    def test_small_section_emitted_as_single_chunk(self):
+        """A 120-token section becomes a single chunk — not merged or discarded."""
+        # ~120 tokens of content
+        small_text = self._generate_text(100)
+        page1 = f"Small Section\n{small_text}"
+        page2 = f"Big Section\n{self._generate_text(800)}"
+        doc = self._make_document([page1, page2])
+
+        headings = [
+            self._make_heading("Small Section", page_num=1),
+            self._make_heading("Big Section", page_num=2),
+        ]
+
+        chunks = chunk_by_structure(doc, headings, target_tokens=300, max_variance=50)
+
+        # The small section should appear as its own chunk(s)
+        small_chunks = [c for c in chunks if c.metadata.get("section") == "Small Section"]
+        assert len(small_chunks) >= 1, "Small section should produce at least one chunk"
+
+    def test_every_chunk_has_section_metadata(self):
+        """All chunks have metadata['section'], metadata['heading_level'], metadata['chunking_method']."""
+        text = self._generate_text(400)
+        page1 = f"My Section\n{text}"
+        doc = self._make_document([page1])
+
+        headings = [self._make_heading("My Section", page_num=1, level=2)]
+
+        chunks = chunk_by_structure(doc, headings, target_tokens=100, max_variance=30)
+
+        for chunk in chunks:
+            assert "section" in chunk.metadata
+            assert "heading_level" in chunk.metadata
+            assert chunk.metadata["chunking_method"] == "structure"
+
+    def test_chunk_index_sequential(self):
+        """chunk_index is sequential (0, 1, 2, ...) across all sections."""
+        text = self._generate_text(500)
+        page1 = f"Part 1\n{text}"
+        page2 = f"Part 2\n{text}"
+        doc = self._make_document([page1, page2])
+
+        headings = [
+            self._make_heading("Part 1", page_num=1),
+            self._make_heading("Part 2", page_num=2),
+        ]
+
+        chunks = chunk_by_structure(doc, headings, target_tokens=100, max_variance=30)
+
+        for i, chunk in enumerate(chunks):
+            assert chunk.chunk_index == i, (
+                f"Expected chunk_index {i}, got {chunk.chunk_index}"
+            )
+
+    def test_no_headings_falls_back_to_paragraph_chunking(self):
+        """No headings → single preamble section → paragraph-based chunking."""
+        text = self._generate_text(600)
+        doc = self._make_document([text])
+
+        chunks = chunk_by_structure(doc, [], target_tokens=100, max_variance=30)
+
+        assert len(chunks) > 0
+        # All chunks should have chunking_method = "structure"
+        for chunk in chunks:
+            assert chunk.metadata["chunking_method"] == "structure"
+            assert chunk.metadata["heading_level"] == 0
+
+    def test_all_chunks_under_512_tokens(self):
+        """Hard limit enforcement: every chunk ≤512 tokens."""
+        # Create content that would naturally produce large chunks
+        large_text = self._generate_text(3000)
+        page1 = f"Dense Section\n{large_text}"
+        doc = self._make_document([page1])
+
+        headings = [self._make_heading("Dense Section", page_num=1)]
+
+        chunks = chunk_by_structure(doc, headings, target_tokens=300, max_variance=50)
+
+        for chunk in chunks:
+            assert chunk.token_count <= MAX_EMBEDDING_TOKENS, (
+                f"Chunk {chunk.chunk_index}: {chunk.token_count} > {MAX_EMBEDDING_TOKENS}"
+            )
+
+    def test_overlap_within_section_only(self):
+        """Overlap text comes from the same section, never from an adjacent section."""
+        # Two sections with distinctive content
+        section1 = "Alpha beta gamma. " * 50  # Distinctive vocabulary
+        section2 = "Delta epsilon zeta. " * 50  # Different vocabulary
+        page1 = f"Greek A\n{section1}"
+        page2 = f"Greek B\n{section2}"
+        doc = self._make_document([page1, page2])
+
+        headings = [
+            self._make_heading("Greek A", page_num=1),
+            self._make_heading("Greek B", page_num=2),
+        ]
+
+        chunks = chunk_by_structure(doc, headings, target_tokens=50, max_variance=20, overlap_tokens=20)
+
+        # Chunks from section B should never contain section A vocabulary
+        section_b_chunks = [c for c in chunks if c.metadata.get("section") == "Greek B"]
+        for chunk in section_b_chunks:
+            assert "Alpha" not in chunk.content, "Section B chunk contains Section A content"
+            assert "gamma" not in chunk.content, "Section B chunk contains Section A content"
+
+    def test_tiny_section_merged(self):
+        """Sections under min_section_chars are merged into neighbors."""
+        tiny_text = "OK"  # 2 chars, well under default 100
+        normal_text = self._generate_text(400)
+        page1 = f"Tiny\n{tiny_text}\nNormal\n{normal_text}"
+        doc = self._make_document([page1])
+
+        headings = [
+            self._make_heading("Tiny", page_num=1, char_offset=0),
+            self._make_heading("Normal", page_num=1, char_offset=10),
+        ]
+
+        chunks = chunk_by_structure(doc, headings, target_tokens=100, max_variance=30)
+
+        # The tiny section's content should have been merged into Normal
+        # So no chunk should have section="Tiny"
+        sections_used = {c.metadata.get("section") for c in chunks}
+        assert "Tiny" not in sections_used, "Tiny section should have been merged"
+
+
+class TestChunkByStructureRealPDF:
+    """Integration test using fixtures/test_simple.pdf."""
+
+    def test_structural_invariant_on_real_pdf(self):
+        """Run both old and new chunker on test_simple.pdf and verify invariant."""
+        if not TEST_PDF.exists():
+            pytest.skip(f"Test PDF not found: {TEST_PDF}")
+
+        doc, headings = extract_with_headings(TEST_PDF)
+
+        old_chunks = chunk_with_sections(doc, headings)
+        new_chunks = chunk_by_structure(doc, headings)
+
+        # Both should produce chunks
+        assert len(old_chunks) > 0
+        assert len(new_chunks) > 0
+
+        # Chunk counts should be within 2x of each other
+        ratio = len(new_chunks) / len(old_chunks) if old_chunks else 1.0
+        assert 0.5 <= ratio <= 2.0, (
+            f"Chunk count diverged too much: old={len(old_chunks)}, new={len(new_chunks)}"
+        )
+
+        # All new chunks should have metadata populated
+        for chunk in new_chunks:
+            assert "section" in chunk.metadata
+            assert "heading_level" in chunk.metadata
+            assert chunk.metadata["chunking_method"] == "structure"
+
+        # Hard limit: all ≤512 tokens
+        for chunk in new_chunks:
+            assert chunk.token_count <= MAX_EMBEDDING_TOKENS, (
+                f"Real PDF chunk {chunk.chunk_index}: {chunk.token_count} > {MAX_EMBEDDING_TOKENS}"
+            )
+
+        print(
+            f"\n  Old chunker: {len(old_chunks)} chunks"
+            f"\n  New chunker: {len(new_chunks)} chunks"
+            f"\n  Headings: {len(headings)}"
+            f"\n  Ratio: {ratio:.2f}"
+        )
 
 
 # Helper function

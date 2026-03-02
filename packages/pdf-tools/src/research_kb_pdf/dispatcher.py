@@ -19,7 +19,7 @@ from research_kb_common import get_logger
 from research_kb_contracts import Source, SourceType
 
 from research_kb_pdf.bibtex_generator import citation_to_bibtex
-from research_kb_pdf.chunker import chunk_with_sections, TextChunk
+from research_kb_pdf.chunker import chunk_by_structure, TextChunk
 from research_kb_pdf.dlq import DeadLetterQueue
 from research_kb_pdf.embedding_client import EmbeddingClient
 from research_kb_pdf.grobid_client import GrobidClient, ExtractedPaper
@@ -268,7 +268,7 @@ class PDFDispatcher:
             )
 
             # Chunk with section tracking
-            chunks = chunk_with_sections(doc, headings)
+            chunks = chunk_by_structure(doc, headings)
             logger.info("chunking_complete", path=str(pdf_path), chunks=len(chunks))
 
             # Create Source record
