@@ -229,13 +229,37 @@ class TestTruncate:
     def test_long_text_truncated(self):
         """Long text is truncated with ellipsis."""
         result = _truncate("a" * 500, 100)
-        assert len(result) == 100
+        assert len(result) <= 100
         assert result.endswith("...")
 
     def test_exact_length_unchanged(self):
         """Text exactly at limit is unchanged."""
         text = "a" * 100
         assert _truncate(text, 100) == text
+
+    def test_sentence_boundary_truncation(self):
+        """Truncates at sentence boundary when possible."""
+        text = "First sentence here. Second sentence here. Third sentence that goes on and on."
+        result = _truncate(text, 50)
+        # Should end at a sentence boundary
+        assert result.endswith(".")
+        assert len(result) <= 50
+
+    def test_word_boundary_fallback(self):
+        """Falls back to word boundary when no sentence end in range."""
+        text = "word " * 100  # No sentence boundaries
+        result = _truncate(text, 50)
+        assert len(result) <= 50
+        # Should not cut mid-word
+        assert result.endswith("...")
+
+    def test_no_early_sentence_cut(self):
+        """Does not cut at very early sentence boundary (< 60% of limit)."""
+        # Sentence ends at char 10, limit is 100 — should not use that boundary
+        text = "Short one. " + "x" * 200
+        result = _truncate(text, 100)
+        # Should not cut at "Short one." (only 10 chars, well below 60% of 100)
+        assert len(result) > 10
 
 
 # ── Section definitions ──────────────────────────────────────────────────────
@@ -377,6 +401,32 @@ class TestSearchEvidenceForSection:
         # Should cap at 2 from same source
         assert len(evidence) <= 2
 
+    @pytest.mark.asyncio
+    @patch("research_kb_storage.search.search_hybrid")
+    @patch("research_kb_pdf.EmbeddingClient")
+    async def test_excludes_chunk_ids(self, mock_embed_cls, mock_search):
+        """Respects exclude_chunk_ids for cross-section dedup."""
+        mock_client = MagicMock()
+        mock_client.embed_query.return_value = [0.1] * 1024
+        mock_embed_cls.return_value = mock_client
+
+        r1 = _make_search_result("Source A", "Evidence A")
+        r2 = _make_search_result("Source B", "Evidence B")
+        r3 = _make_search_result("Source C", "Evidence C")
+        mock_search.return_value = [r1, r2, r3]
+
+        section_def = REVIEW_SECTIONS[0]
+
+        # Exclude r1's chunk
+        exclude = {r1.chunk.id}
+        evidence = await _search_evidence_for_section(
+            "test", section_def, [], exclude_chunk_ids=exclude
+        )
+
+        chunk_ids = {e.chunk_id for e in evidence}
+        assert r1.chunk.id not in chunk_ids
+        assert len(evidence) == 2
+
 
 # ── Full orchestration ───────────────────────────────────────────────────────
 
@@ -513,6 +563,9 @@ class TestGenerateLiteratureReview:
         assert qm["evidence_chunks"] >= 4  # 1 per section * 4 sections
         assert qm["sections_total"] == 4
         assert qm["sections_synthesized"] == 0  # No LLM
+        assert "evidence_overlap_ratio" in qm
+        assert "unique_evidence_chunks" in qm
+        assert isinstance(qm["evidence_overlap_ratio"], float)
 
     @pytest.mark.asyncio
     @patch("research_kb_storage.literature_review._search_evidence_for_section")

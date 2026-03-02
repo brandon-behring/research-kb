@@ -5,11 +5,13 @@ Commands:
 """
 
 import asyncio
+import logging
 from typing import Optional
 
 import typer
 
 from research_kb_cli._shared import OutputFormat
+from research_kb_common import configure_logging
 
 app = typer.Typer(help="Generate literature reviews from the knowledge base")
 
@@ -83,6 +85,10 @@ async def _run_review(
         generate_literature_review,
         get_connection_pool,
     )
+
+    # Ensure logs go to stderr so JSON output on stdout is clean
+    log_level = "WARNING" if output_format == OutputFormat.json else "INFO"
+    configure_logging(level=log_level)
 
     config = DatabaseConfig()
     await get_connection_pool(config)

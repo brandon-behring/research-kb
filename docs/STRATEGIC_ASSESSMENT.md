@@ -105,5 +105,7 @@ Until that works, the platform is not serving its purpose.
 | AE | 2026-02-27 | Interview prep fix — 100% Hit@10, MRR 0.636 (Tier 3) |
 | AF | 2026-02-27 | Concept deduplication — 312K→310K, zero eval regression (Tier 5) |
 | AG | 2026-02-27 | Documentation trust alignment — 11 stale claims fixed |
+| AH | 2026-03-01 | Semantic chunking — heading-aware PDF splitting |
+| AI | 2026-03-01 | Literature review + operational scripts (MCP tool #22, weight opt, rechunk) |
 
-All 5 tiers complete. Next: semantic chunking, learned weight optimization, or remaining codex domains.
+All 5 tiers complete. Semantic chunking ✅, literature review ✅, weight optimization scripts ✅. Next: live weight optimization run, rechunking corpus, or remaining codex domains.

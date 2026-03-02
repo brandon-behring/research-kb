@@ -5,7 +5,7 @@
 - **Phase**: Core phases ✅ Complete | Phase 4.3 (ProactiveContext Integration) ✅ Complete
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
 - **KuzuDB**: ✅ Operational (310K concepts, 744K relationships, <300ms graph queries)
-- **MCP Server**: 21 tools available
+- **MCP Server**: 22 tools available
 - **Domains**: 22 tagged (causal_inference, rag_llm, time_series, finance, mathematics, software_engineering, deep_learning, sql, recommender_systems, adtech, and 12 more)
 - **ProactiveContext**: Integrated via `fast_search` (~200ms latency)
 
@@ -61,6 +61,9 @@
 | AD. Codex Audit Cleanup | ✅ Complete | CI cadence labels, stale refs, MRR threshold, README tools | [→](../ROADMAP.md) |
 | AE. Interview Prep Fix | ✅ Complete | 7 synonym groups, 15 eval cases, 100% Hit@10, MRR 0.636 | [→](../ROADMAP.md) |
 | AF. Concept Deduplication | ✅ Complete | 2,370 pairs merged, 310K concepts, zero eval regression | [→](../ROADMAP.md) |
+| AG. Doc Trust Alignment | ✅ Complete | 11 stale claims fixed, --gate-domains for eval CI | [→](../ROADMAP.md) |
+| AH. Semantic Chunking | ✅ Complete | Structure-driven chunker, heading-aware PDF splitting | [→](../ROADMAP.md) |
+| AI. Literature Review | ✅ Complete | Graph+search+LLM review generation, MCP tool #22, operational scripts | [→](../ROADMAP.md) |
 
 ---
 

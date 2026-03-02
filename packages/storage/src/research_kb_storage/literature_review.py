@@ -248,9 +248,27 @@ class LiteratureReview:
 
 
 def _truncate(text: str, max_chars: int = EVIDENCE_CONTENT_MAX_CHARS) -> str:
-    """Truncate text with ellipsis."""
+    """Truncate text at the last sentence boundary within max_chars.
+
+    Prefers cutting at '. ', '? ', or '! ' boundaries. Falls back to
+    word boundary if no sentence end found in the first 60% of text.
+    """
     if len(text) <= max_chars:
         return text
+
+    # Search for last sentence boundary within limit
+    search_region = text[: max_chars - 3]
+    for sep in [". ", "? ", "! "]:
+        idx = search_region.rfind(sep)
+        # Only use if we keep at least 60% of the allowed length
+        if idx >= max_chars * 0.6:
+            return text[: idx + 1]
+
+    # Fall back to word boundary
+    space_idx = search_region.rfind(" ")
+    if space_idx >= max_chars * 0.6:
+        return text[:space_idx] + "..."
+
     return text[: max_chars - 3] + "..."
 
 
@@ -341,6 +359,7 @@ async def _search_evidence_for_section(
     section_def: dict,
     concepts: list[dict],
     max_evidence: int = MAX_EVIDENCE_PER_SECTION,
+    exclude_chunk_ids: set[UUID] | None = None,
 ) -> list[ReviewEvidence]:
     """Search for evidence chunks relevant to a review section.
 
@@ -351,9 +370,10 @@ async def _search_evidence_for_section(
         section_def: Section definition from REVIEW_SECTIONS
         concepts: Related concepts for this section
         max_evidence: Maximum evidence chunks to collect
+        exclude_chunk_ids: Chunk IDs already used in other sections (for dedup)
 
     Returns:
-        List of ReviewEvidence, deduplicated by source
+        List of ReviewEvidence, deduplicated by source and cross-section
     """
     from research_kb_pdf import EmbeddingClient
     from research_kb_storage.search import SearchQuery, search_hybrid
@@ -390,10 +410,16 @@ async def _search_evidence_for_section(
     evidence: list[ReviewEvidence] = []
     seen_sources: set[UUID] = set()
 
+    _exclude = exclude_chunk_ids or set()
+
     for r in results:
         # Limit to max_evidence, preferring diverse sources
         if len(evidence) >= max_evidence:
             break
+
+        # Skip chunks already used in other sections
+        if r.chunk.id in _exclude:
+            continue
 
         # Skip duplicate sources after first 2 per source
         source_count = sum(1 for e in evidence if e.source_id == r.source.id)
@@ -630,14 +656,17 @@ async def generate_literature_review(
         )
         sections.append(section)
 
-    # 3. Search for evidence per section
+    # 3. Search for evidence per section (with cross-section dedup)
+    used_chunk_ids: set[UUID] = set()
     for section in sections:
         section.evidence = await _search_evidence_for_section(
             topic,
             next(sd for sd in REVIEW_SECTIONS if sd["id"] == section.section_id),
             concepts,
             max_evidence=max_evidence_per_section,
+            exclude_chunk_ids=used_chunk_ids,
         )
+        used_chunk_ids.update(e.chunk_id for e in section.evidence)
         logger.debug(
             "section_evidence_gathered",
             section=section.section_id,
@@ -665,11 +694,20 @@ async def generate_literature_review(
 
     # 6. Quality metrics
     all_sources = set()
+    all_chunk_ids: list[set] = []
     all_evidence_count = 0
     for s in sections:
+        section_chunks = set()
         for e in s.evidence:
             all_sources.add(str(e.source_id))
+            section_chunks.add(str(e.chunk_id))
+        all_chunk_ids.append(section_chunks)
         all_evidence_count += len(s.evidence)
+
+    # Evidence overlap: what fraction of slots are duplicates across sections
+    total_slots = sum(len(s) for s in all_chunk_ids)
+    unique_chunks = len(set().union(*all_chunk_ids)) if all_chunk_ids else 0
+    overlap_ratio = round(1 - unique_chunks / total_slots, 3) if total_slots > 0 else 0.0
 
     all_concepts = set()
     for s in sections:
@@ -684,6 +722,8 @@ async def generate_literature_review(
         "concepts_covered": len(all_concepts),
         "sources_cited": len(all_sources),
         "evidence_chunks": all_evidence_count,
+        "unique_evidence_chunks": unique_chunks,
+        "evidence_overlap_ratio": overlap_ratio,
         "sections_total": len(sections),
         "sections_synthesized": sections_with_synthesis,
         "has_introduction": introduction is not None,
