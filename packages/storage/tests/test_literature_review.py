@@ -115,12 +115,12 @@ class TestReviewSection:
             section_id="methods",
             title="Methods",
             description="Test methods section",
-            concepts=["DML", "cross-fitting"],
+            concepts=[{"name": "DML", "type": "method"}, {"name": "cross-fitting", "type": "technique"}],
             synthesis="This section covers DML methods.",
         )
         d = section.to_dict()
         assert d["section_id"] == "methods"
-        assert d["concepts"] == ["DML", "cross-fitting"]
+        assert d["concepts"] == [{"name": "DML", "type": "method"}, {"name": "cross-fitting", "type": "technique"}]
         assert d["synthesis"] is not None
 
 
@@ -137,7 +137,7 @@ class TestLiteratureReview:
                     section_id="overview",
                     title="Overview",
                     description="Overview section",
-                    concepts=["DML"],
+                    concepts=[{"name": "DML", "type": "method"}],
                     synthesis="Overview synthesis.",
                 ),
             ],
@@ -180,7 +180,7 @@ class TestLiteratureReview:
                     section_id="methods",
                     title="Methods",
                     description="Methods desc",
-                    concepts=["A", "B"],
+                    concepts=[{"name": "A", "type": "concept"}, {"name": "B", "type": "method"}],
                 ),
             ],
         )
@@ -284,13 +284,19 @@ class TestExploreTopicConcepts:
         seed = _make_concept("DML", "method")
         neighbor = _make_concept("cross-fitting", "technique")
         mock_search.return_value = [seed]
-        mock_neighborhood.return_value = [neighbor]
+        mock_neighborhood.return_value = {
+            "concepts": [neighbor],
+            "relationships": [],
+            "center": seed,
+        }
 
         concepts = await _explore_topic_concepts("double machine learning")
 
         assert len(concepts) >= 1
         names = [c["name"] for c in concepts]
         assert "DML" in names
+        # Verify get_neighborhood called with UUID, not string
+        mock_neighborhood.assert_called_once_with(seed.id, hops=1)
 
     @pytest.mark.asyncio
     @patch("research_kb_storage.graph_queries.get_neighborhood")
@@ -298,10 +304,10 @@ class TestExploreTopicConcepts:
     async def test_empty_topic_returns_empty(self, mock_search, mock_neighborhood):
         """Returns empty list when no concepts found."""
         mock_search.return_value = []
-        mock_neighborhood.return_value = []
 
         concepts = await _explore_topic_concepts("nonexistent_topic_xyz")
         assert concepts == []
+        mock_neighborhood.assert_not_called()
 
     @pytest.mark.asyncio
     @patch("research_kb_storage.graph_queries.get_neighborhood")
@@ -310,7 +316,11 @@ class TestExploreTopicConcepts:
         """Limits results to max_concepts."""
         seeds = [_make_concept(f"concept_{i}", "concept") for i in range(10)]
         mock_search.return_value = seeds
-        mock_neighborhood.return_value = []
+        mock_neighborhood.return_value = {
+            "concepts": [],
+            "relationships": [],
+            "center": seeds[0],
+        }
 
         concepts = await _explore_topic_concepts("test", max_concepts=5)
         assert len(concepts) <= 5

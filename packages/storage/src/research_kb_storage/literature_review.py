@@ -166,7 +166,7 @@ class ReviewSection:
     section_id: str
     title: str
     description: str
-    concepts: list[str] = field(default_factory=list)
+    concepts: list[dict] = field(default_factory=list)
     evidence: list[ReviewEvidence] = field(default_factory=list)
     synthesis: Optional[str] = None
 
@@ -221,7 +221,8 @@ class LiteratureReview:
             else:
                 parts.append(f"*{section.description}*")
                 if section.concepts:
-                    parts.append(f"\nKey concepts: {', '.join(section.concepts[:10])}")
+                    concept_names = [c["name"] if isinstance(c, dict) else c for c in section.concepts[:10]]
+                    parts.append(f"\nKey concepts: {', '.join(concept_names)}")
             parts.append("")
 
         if self.conclusion:
@@ -313,10 +314,8 @@ async def _explore_topic_concepts(
     # 1-hop neighborhood for each seed
     for seed in seed_concepts[:3]:  # Limit to top 3 seeds to control explosion
         try:
-            neighbors = await get_neighborhood(
-                str(seed.canonical_name or seed.name), max_hops=1
-            )
-            for n in neighbors:
+            neighborhood = await get_neighborhood(seed.id, hops=1)
+            for n in neighborhood.get("concepts", []):
                 if n.id not in all_concepts and len(all_concepts) < max_concepts:
                     ntype = (
                         n.concept_type.value
@@ -450,11 +449,8 @@ async def _synthesize_section(
 
     # Build concept list
     concept_list = "\n".join(
-        f"- {c} ({t})"
-        for c, t in [
-            (cd, section.concepts[i] if i < len(section.concepts) else "concept")
-            for i, cd in enumerate(section.concepts[:10])
-        ]
+        f"- {c['name']} ({c['type']})"
+        for c in section.concepts[:10]
     ) if section.concepts else "No specific concepts identified."
 
     # Build evidence text
@@ -533,7 +529,9 @@ async def _synthesize_intro_conclusion(
             all_sources.add(e.source_title)
             if e.domain:
                 all_domains.add(e.domain)
-        all_concepts.update(s.concepts)
+        all_concepts.update(
+            c["name"] if isinstance(c, dict) else c for c in s.concepts
+        )
 
     if part == "introduction":
         prompt = INTRODUCTION_PROMPT.format(
@@ -619,7 +617,7 @@ async def generate_literature_review(
     sections: list[ReviewSection] = []
     for section_def in REVIEW_SECTIONS:
         section_concepts = [
-            c["name"]
+            {"name": c["name"], "type": c["type"]}
             for c in concepts
             if c["type"] in section_def["concept_types"]
         ]
@@ -675,7 +673,9 @@ async def generate_literature_review(
 
     all_concepts = set()
     for s in sections:
-        all_concepts.update(s.concepts)
+        all_concepts.update(
+            c["name"] if isinstance(c, dict) else c for c in s.concepts
+        )
 
     sections_with_synthesis = sum(1 for s in sections if s.synthesis)
 
