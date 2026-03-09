@@ -108,4 +108,51 @@ Until that works, the platform is not serving its purpose.
 | AH | 2026-03-01 | Semantic chunking — heading-aware PDF splitting |
 | AI | 2026-03-01 | Literature review + operational scripts (MCP tool #22, weight opt, rechunk) |
 
-All 5 tiers complete. Semantic chunking ✅, literature review ✅, weight optimization scripts ✅. Next: live weight optimization run, rechunking corpus, or remaining codex domains.
+| AJ | 2026-03-06 | Docling migration — LaTeX-preserving PDF extraction |
+| Sprint 1 | 2026-03-09 | output_format on get_source + cross_domain_concepts, research-agent friction fixes |
+
+All 5 tiers complete. Semantic chunking done, literature review done, weight optimization scripts ready. Full corpus rechunk in progress (Docling).
+
+---
+
+## 6. Execution Roadmap
+
+Decided 2026-03-02 via `/iterate`. Budget: $50-100.
+
+### Sprint Sequence
+
+| Sprint | Status | Cost | Description |
+|--------|--------|------|-------------|
+| 1. Friction fixes | ✅ Done | $0 | MCP output_format, research-agent venv/stats fixes |
+| 2. Weight optimization | Blocked | $0 | Requires post-rechunk concept re-extraction |
+| 3. Live validation | Pending | ~$5 | North Star: research-agent DML query + KB reviews |
+| 4. time_series pilot | Superseded | ~$15-30 | Full corpus rechunk running instead |
+
+### Budget Estimate
+
+| Activity | Cost |
+|----------|------|
+| Cross-repo fixes (Sprint 1) | $0 |
+| Weight optimization (Sprint 2) | $0 |
+| Live validation (~100 queries) | ~$5.50 |
+| Full corpus rechunk (Docling) | $0 (GPU) |
+| Concept re-extraction (Haiku) | ~$250-300 (full) or $0 (if FTS+vector MRR ≥ 0.7) |
+| **Total** | **$5-305** (decision gate at post-rechunk eval) |
+
+### Post-Rechunk Pipeline (Critical Path)
+
+1. Backfill embeddings (~4-6h, GPU)
+2. Regenerate golden candidates
+3. Eval retrieval (FTS+vector only) — **decision gate**
+4. If MRR < 0.7: concept re-extraction (Haiku 4.5)
+5. KuzuDB sync
+6. Sprint 2 weight optimization
+7. Sprint 3 live validation
+
+### Backlog
+
+- Integrate `literature_review` into research-agent ($0, medium priority)
+- Multi-hop reasoning chains (low priority)
+- Embed 26.5K missing concept embeddings (low)
+- Temporal reasoning / contradiction detection (low)
+- Remaining 10 codex domains (low)
