@@ -13,6 +13,7 @@ Usage:
     python scripts/rechunk_corpus.py --json                 # JSON output for monitoring
     python scripts/rechunk_corpus.py --skip-backup          # Skip backup reminder
     python scripts/rechunk_corpus.py --no-embed             # Extract only, NULL embeddings
+    python scripts/rechunk_corpus.py --force                # Re-rechunk ALL sources (incl. already Docling)
 
 Two-phase GPU workflow (when Docling + embed_server can't share VRAM):
     1. Kill embed_server
@@ -44,24 +45,30 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" /
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
 from research_kb_common import get_logger
-from research_kb_pdf import EmbeddingClient, extract_and_chunk
+from research_kb_pdf import EmbeddingClient, extract_and_chunk, reset_converter
 from research_kb_storage import DatabaseConfig, get_connection_pool
 
 logger = get_logger(__name__)
 
 
 async def get_sources_to_rechunk(
-    pool, domain: str | None, source_id: str | None, limit: int | None
+    pool,
+    domain: str | None,
+    source_id: str | None,
+    limit: int | None,
+    force: bool = False,
 ):
     """Fetch sources that need rechunking.
 
-    Skips sources where ALL chunks already have metadata.chunking_method = 'docling'.
+    By default, skips sources where ALL chunks already have
+    metadata.chunking_method = 'docling'. Use force=True to rechunk everything.
 
     Args:
         pool: asyncpg connection pool
         domain: Optional domain_id filter
         source_id: Optional single source UUID
         limit: Optional max number of sources
+        force: If True, include already-rechunked sources
 
     Returns:
         List of dicts with id, title, file_path, domain_id, old_chunk_count
@@ -80,7 +87,7 @@ async def get_sources_to_rechunk(
 
         where = " AND ".join(conditions)
 
-        # Skip sources already fully rechunked
+        # Base query with optional HAVING filter
         query = f"""
             SELECT s.id, s.title, s.file_path, s.domain_id,
                    COUNT(c.id) as chunk_count,
@@ -91,12 +98,18 @@ async def get_sources_to_rechunk(
             LEFT JOIN chunks c ON c.source_id = s.id
             WHERE {where}
             GROUP BY s.id, s.title, s.file_path, s.domain_id
+        """
+
+        if not force:
+            # Skip sources already fully rechunked
+            query += """
             HAVING COUNT(c.id) = 0
                 OR COUNT(c.id) FILTER (
                     WHERE c.metadata->>'chunking_method' = 'docling'
                 ) < COUNT(c.id)
-            ORDER BY s.title
-        """
+            """
+
+        query += " ORDER BY s.title"
 
         if limit:
             params.append(limit)
@@ -162,8 +175,44 @@ async def rechunk_source(
         }
 
     try:
-        # Extract and chunk with Docling
-        extraction_result, new_chunks = extract_and_chunk(str(pdf_path), max_tokens=300)
+        # Extract and chunk with Docling (singleton converter — no VRAM leak)
+        try:
+            extraction_result, new_chunks = extract_and_chunk(
+                str(pdf_path), max_tokens=300
+            )
+        except (RuntimeError, ValueError) as e:
+            if "CUDA out of memory" in str(e) or "CUDA error" in str(e):
+                logger.warning("gpu_oom_fallback_cpu", title=title)
+                import gc
+                import os
+
+                gc.collect()
+                try:
+                    import torch
+
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                except ImportError:
+                    pass
+
+                # Reset singleton so it reinitializes on CPU
+                reset_converter()
+                old_val = os.environ.get("CUDA_VISIBLE_DEVICES")
+                os.environ["CUDA_VISIBLE_DEVICES"] = ""
+                try:
+                    extraction_result, new_chunks = extract_and_chunk(
+                        str(pdf_path), max_tokens=300
+                    )
+                finally:
+                    # Restore GPU visibility for next source
+                    if old_val is None:
+                        os.environ.pop("CUDA_VISIBLE_DEVICES", None)
+                    else:
+                        os.environ["CUDA_VISIBLE_DEVICES"] = old_val
+                    reset_converter()  # Force GPU converter reload for next source
+            else:
+                raise
+
         new_count = len(new_chunks)
 
         if dry_run:
@@ -176,6 +225,10 @@ async def rechunk_source(
                 "reason": "",
                 "elapsed_s": time.time() - t0,
             }
+
+        # Sanitize null bytes defensively (PostgreSQL rejects \x00)
+        for chunk in new_chunks:
+            chunk.content = chunk.content.replace("\x00", "").replace("\ufffd", "")
 
         # Deduplicate chunks by content hash (HybridChunker can produce dupes)
         seen_hashes: set[str] = set()
@@ -245,6 +298,18 @@ async def rechunk_source(
                         chunk.metadata,  # dict -> jsonb via set_type_codec
                         source["domain_id"],
                     )
+
+        # GPU memory cleanup after each source
+        import gc
+
+        gc.collect()
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except ImportError:
+            pass
 
         elapsed = time.time() - t0
         status = "success" if not no_embed else "extracted"
@@ -327,6 +392,12 @@ def parse_args():
         help="Extract and chunk only, store with NULL embeddings. "
         "Use backfill_embeddings.py afterward to fill embeddings.",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-rechunk ALL sources, including those already chunked with Docling. "
+        "Use for full corpus re-processing after extractor fixes.",
+    )
     return parser.parse_args()
 
 
@@ -387,7 +458,11 @@ async def main():
 
     # Get sources to rechunk
     sources = await get_sources_to_rechunk(
-        pool, domain=args.domain, source_id=args.source_id, limit=args.limit
+        pool,
+        domain=args.domain,
+        source_id=args.source_id,
+        limit=args.limit,
+        force=args.force,
     )
 
     if not sources:

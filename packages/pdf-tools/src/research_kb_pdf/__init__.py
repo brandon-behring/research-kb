@@ -13,6 +13,8 @@ __version__ = "1.0.0"
 from research_kb_pdf.docling_extractor import (
     DoclingExtractionResult,
     extract_and_chunk,
+    get_converter,
+    reset_converter,
 )
 
 from research_kb_pdf.chunker import (
@@ -68,6 +70,8 @@ __all__ = [
     # Extraction (Docling)
     "DoclingExtractionResult",
     "extract_and_chunk",
+    "get_converter",
+    "reset_converter",
     # Chunking utilities
     "TextChunk",
     "count_tokens",

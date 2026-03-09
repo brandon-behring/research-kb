@@ -7,13 +7,46 @@ HybridChunker for structure-aware chunking. Equations are preserved as LaTeX
 Replaces PyMuPDF extraction pipeline. GROBID remains for citation metadata only.
 """
 
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from research_kb_common import get_logger
-from research_kb_pdf.chunker import BGE_MODEL, BGE_REVISION, TextChunk, count_tokens
+from research_kb_pdf.chunker import BGE_MODEL, BGE_REVISION, TextChunk, count_tokens, get_tokenizer
 
 logger = get_logger(__name__)
+
+# Singleton DocumentConverter — loads Granite-Docling-258M once (~5s, ~2.5 GB VRAM)
+_converter = None
+_converter_lock = threading.Lock()
+
+
+def get_converter():
+    """Lazy-load DocumentConverter singleton (thread-safe).
+
+    Loads Granite-Docling-258M once (~5s, ~2.5 GB VRAM on GPU).
+    Reuse across calls to avoid VRAM leaks from repeated model loads.
+    """
+    global _converter
+    if _converter is not None:
+        return _converter
+    with _converter_lock:
+        if _converter is None:
+            from docling.document_converter import DocumentConverter
+
+            _converter = DocumentConverter()
+        return _converter
+
+
+def reset_converter():
+    """Clear the singleton DocumentConverter.
+
+    Call before switching GPU/CPU mode (e.g., OOM fallback) to force
+    reinitialization on next get_converter() call.
+    """
+    global _converter
+    with _converter_lock:
+        _converter = None
 
 
 @dataclass
@@ -93,11 +126,9 @@ def extract_and_chunk(
         >>> print(f"{len(chunks)} chunks, {len(latex_chunks)} with LaTeX")
     """
     from docling.chunking import HybridChunker
-    from docling.document_converter import DocumentConverter
     from docling_core.transforms.chunker.tokenizer.huggingface import (
         HuggingFaceTokenizer,
     )
-    from transformers import AutoTokenizer
 
     pdf_path = Path(pdf_path)
     if not pdf_path.exists():
@@ -105,9 +136,9 @@ def extract_and_chunk(
 
     logger.info("docling_extraction_start", path=str(pdf_path))
 
-    # Convert PDF with Docling
+    # Convert PDF with Docling (singleton — no VRAM leak)
     try:
-        converter = DocumentConverter()
+        converter = get_converter()
         result = converter.convert(str(pdf_path))
         doc = result.document
     except Exception as e:
@@ -116,7 +147,7 @@ def extract_and_chunk(
         ) from e
 
     # Use BGE tokenizer for consistent token counts with embedding model
-    hf_tokenizer = AutoTokenizer.from_pretrained(BGE_MODEL, revision=BGE_REVISION)
+    hf_tokenizer = get_tokenizer()
     tokenizer = HuggingFaceTokenizer(
         tokenizer=hf_tokenizer,
         max_tokens=max_tokens,
@@ -139,6 +170,9 @@ def extract_and_chunk(
     for i, dc in enumerate(doc_chunks):
         # Get enriched text (includes heading context)
         content = chunker.contextualize(dc)
+
+        # Sanitize null bytes and replacement chars (PostgreSQL rejects \x00)
+        content = content.replace("\x00", "").replace("\ufffd", "")
 
         # Extract headings from chunk metadata
         headings: list[str] = []

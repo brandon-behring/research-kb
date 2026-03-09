@@ -25,13 +25,7 @@ from typing import Iterator, Optional
 
 from docling.document_converter import DocumentConverter
 
-
-def _get_converter() -> DocumentConverter:
-    """Create a shared DocumentConverter instance.
-
-    Loads Granite-Docling-258M on first call (~5s, ~2.5 GB VRAM).
-    """
-    return DocumentConverter()
+from research_kb_pdf.docling_extractor import get_converter
 
 
 def is_text_extractable(
@@ -121,7 +115,7 @@ def scan_directory(
         Metadata dict for each PDF
     """
     if converter is None:
-        converter = _get_converter()
+        converter = get_converter()
 
     pattern = "**/*.pdf" if recursive else "*.pdf"
 
@@ -207,8 +201,8 @@ Each PDF takes ~10-30s to process (full Docling extraction).
     print(f"Threshold: {args.threshold} chars/page minimum")
     print("Loading Docling model (first PDF may take ~5s)...\n")
 
-    # Create converter once for all PDFs
-    converter = _get_converter()
+    # Create converter once for all PDFs (shared singleton)
+    converter = get_converter()
 
     results = list(
         scan_directory(

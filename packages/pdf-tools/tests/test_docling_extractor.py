@@ -11,6 +11,8 @@ Tests cover:
 - File not found handling
 - Chunking method metadata
 - DoclingExtractionResult fields
+- Singleton get_converter / reset_converter
+- Null-byte sanitization
 """
 
 from pathlib import Path
@@ -23,6 +25,8 @@ from research_kb_pdf.docling_extractor import (
     DoclingExtractionResult,
     _get_page_from_prov,
     extract_and_chunk,
+    get_converter,
+    reset_converter,
 )
 
 pytestmark = pytest.mark.unit
@@ -66,26 +70,35 @@ def _make_mock_document(markdown_text="# Title\n\nSome content", pages=None):
     return doc
 
 
+# Patch targets: singleton functions instead of low-level classes
+_PATCH_GET_CONVERTER = "research_kb_pdf.docling_extractor.get_converter"
+_PATCH_GET_TOKENIZER = "research_kb_pdf.docling_extractor.get_tokenizer"
+_PATCH_HF_TOKENIZER = (
+    "docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer"
+)
+_PATCH_HYBRID_CHUNKER = "docling.chunking.HybridChunker"
+
+
 class TestExtractAndChunk:
     """Test the main extract_and_chunk function."""
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_returns_textchunks(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """extract_and_chunk returns (DoclingExtractionResult, list[TextChunk])."""
         # Create test PDF file
         pdf_file = tmp_path / "test.pdf"
         pdf_file.write_bytes(b"%PDF-1.4 fake")
 
-        # Mock converter
+        # Mock converter singleton
         mock_doc = _make_mock_document()
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         # Mock chunker
         mock_chunks = [
@@ -104,12 +117,12 @@ class TestExtractAndChunk:
         assert all(isinstance(c, TextChunk) for c in chunks)
         assert len(chunks) == 2
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_textchunk_fields_populated(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """All TextChunk fields are correctly populated."""
         pdf_file = tmp_path / "test.pdf"
@@ -118,7 +131,7 @@ class TestExtractAndChunk:
         mock_doc = _make_mock_document()
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         content_text = "Statistical inference for causal effects."
         mock_chunks = [_make_mock_chunk(content_text, headings=["Causal Inference"], page=3)]
@@ -137,12 +150,12 @@ class TestExtractAndChunk:
         assert chunk.char_count == len(content_text)
         assert chunk.chunk_index == 0
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_section_metadata_from_headings(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """Section metadata is extracted from chunk headings."""
         pdf_file = tmp_path / "test.pdf"
@@ -151,7 +164,7 @@ class TestExtractAndChunk:
         mock_doc = _make_mock_document()
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         mock_chunks = [
             _make_mock_chunk("Content", headings=["Chapter 1", "Section 1.1"], page=1),
@@ -172,12 +185,12 @@ class TestExtractAndChunk:
         assert chunks[1].metadata["section"] is None
         assert chunks[1].metadata["heading_level"] == 0
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_latex_preserved_in_content(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """LaTeX equations are preserved in chunk content."""
         pdf_file = tmp_path / "test.pdf"
@@ -189,7 +202,7 @@ class TestExtractAndChunk:
         )
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         mock_chunks = [_make_mock_chunk(latex_content, page=1)]
         mock_chunker = MagicMock()
@@ -203,12 +216,12 @@ class TestExtractAndChunk:
         assert "\\beta" in chunks[0].content
         assert result.has_equations is True
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_chunk_index_sequential(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """Chunk indices are sequential starting from 0."""
         pdf_file = tmp_path / "test.pdf"
@@ -217,7 +230,7 @@ class TestExtractAndChunk:
         mock_doc = _make_mock_document()
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         mock_chunks = [
             _make_mock_chunk(f"Chunk {i} content", page=i + 1) for i in range(5)
@@ -232,12 +245,12 @@ class TestExtractAndChunk:
         for i, chunk in enumerate(chunks):
             assert chunk.chunk_index == i
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_chunking_method_is_docling(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """All chunks have chunking_method='docling' in metadata."""
         pdf_file = tmp_path / "test.pdf"
@@ -246,7 +259,7 @@ class TestExtractAndChunk:
         mock_doc = _make_mock_document()
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         mock_chunks = [_make_mock_chunk("Content", page=1)]
         mock_chunker = MagicMock()
@@ -294,12 +307,12 @@ class TestDoclingExtractionResult:
         assert result.has_equations is False
         assert result.heading_count == 0  # default
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_extraction_result_pages_from_document(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """total_pages comes from document.pages."""
         pdf_file = tmp_path / "test.pdf"
@@ -308,7 +321,7 @@ class TestDoclingExtractionResult:
         mock_doc = _make_mock_document(pages={1: MagicMock(), 2: MagicMock(), 3: MagicMock()})
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         mock_chunker = MagicMock()
         mock_chunker.chunk.return_value = []
@@ -378,12 +391,12 @@ class TestGetPageFromProv:
 class TestContractCompatibility:
     """Verify TextChunk format matches storage layer expectations."""
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_chunk_has_required_storage_fields(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """TextChunk has all fields required by ChunkStore.batch_create."""
         pdf_file = tmp_path / "test.pdf"
@@ -392,7 +405,7 @@ class TestContractCompatibility:
         mock_doc = _make_mock_document()
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         mock_chunks = [_make_mock_chunk("Test content for storage.", page=1)]
         mock_chunker = MagicMock()
@@ -416,12 +429,12 @@ class TestContractCompatibility:
         assert chunk.start_page >= 1
         assert chunk.end_page >= chunk.start_page
 
-    @patch("docling.document_converter.DocumentConverter")
-    @patch("docling.chunking.HybridChunker")
-    @patch("docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer")
-    @patch("transformers.AutoTokenizer")
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
     def test_metadata_has_chunking_method(
-        self, mock_auto_tok, mock_hf_tok, mock_chunker_cls, mock_converter_cls, tmp_path
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
     ):
         """Chunk metadata includes chunking_method for rechunk filtering."""
         pdf_file = tmp_path / "test.pdf"
@@ -430,7 +443,7 @@ class TestContractCompatibility:
         mock_doc = _make_mock_document()
         mock_result = MagicMock()
         mock_result.document = mock_doc
-        mock_converter_cls.return_value.convert.return_value = mock_result
+        mock_get_conv.return_value.convert.return_value = mock_result
 
         mock_chunks = [_make_mock_chunk("Content", page=1)]
         mock_chunker = MagicMock()
@@ -442,3 +455,78 @@ class TestContractCompatibility:
 
         # rechunk_corpus.py filters on this field
         assert chunks[0].metadata["chunking_method"] == "docling"
+
+
+class TestSingleton:
+    """Test get_converter / reset_converter singleton pattern."""
+
+    def test_reset_clears_singleton(self):
+        """reset_converter() clears the cached converter."""
+        import research_kb_pdf.docling_extractor as mod
+
+        mod._converter = "fake_converter"
+        reset_converter()
+        assert mod._converter is None
+
+    @patch("research_kb_pdf.docling_extractor.DocumentConverter", create=True)
+    def test_get_converter_creates_once(self, mock_dc_cls):
+        """get_converter() creates DocumentConverter only once."""
+        import research_kb_pdf.docling_extractor as mod
+
+        # Ensure clean state
+        reset_converter()
+
+        # Patch the lazy import inside get_converter
+        mock_instance = MagicMock()
+        with patch.dict(
+            "sys.modules",
+            {"docling.document_converter": MagicMock(DocumentConverter=MagicMock(return_value=mock_instance))},
+        ):
+            c1 = get_converter()
+            c2 = get_converter()
+
+        assert c1 is c2
+        # Cleanup
+        reset_converter()
+
+    def test_reset_allows_reinit(self):
+        """After reset, get_converter() creates a fresh instance."""
+        import research_kb_pdf.docling_extractor as mod
+
+        mod._converter = "old"
+        reset_converter()
+        assert mod._converter is None
+
+
+class TestNullByteSanitization:
+    """Test that null bytes are stripped from chunk content."""
+
+    @patch(_PATCH_GET_CONVERTER)
+    @patch(_PATCH_HYBRID_CHUNKER)
+    @patch(_PATCH_HF_TOKENIZER)
+    @patch(_PATCH_GET_TOKENIZER)
+    def test_null_bytes_stripped(
+        self, mock_get_tok, mock_hf_tok, mock_chunker_cls, mock_get_conv, tmp_path
+    ):
+        """Null bytes and replacement chars are removed from content."""
+        pdf_file = tmp_path / "test.pdf"
+        pdf_file.write_bytes(b"%PDF-1.4 fake")
+
+        mock_doc = _make_mock_document()
+        mock_result = MagicMock()
+        mock_result.document = mock_doc
+        mock_get_conv.return_value.convert.return_value = mock_result
+
+        # Content with null byte and replacement char
+        dirty_content = "Hello\x00World\ufffdEnd"
+        mock_chunks = [_make_mock_chunk(dirty_content, page=1)]
+        mock_chunker = MagicMock()
+        mock_chunker.chunk.return_value = mock_chunks
+        mock_chunker.contextualize.side_effect = lambda c: c.text
+        mock_chunker_cls.return_value = mock_chunker
+
+        _, chunks = extract_and_chunk(pdf_file)
+
+        assert "\x00" not in chunks[0].content
+        assert "\ufffd" not in chunks[0].content
+        assert chunks[0].content == "HelloWorldEnd"
