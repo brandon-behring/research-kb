@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 from unittest.mock import patch
 from uuid import uuid4
@@ -286,6 +288,102 @@ class TestGetSource:
                 chunk_limit=100,
             )
             assert chunks_mock.call_args[1]["limit"] == 50
+
+    async def test_get_source_json_format(self, sample_source):
+        """Get source returns valid JSON when output_format='json'."""
+        mcp = MockFastMCP()
+        register_source_tools(mcp)
+
+        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock:
+            get_mock.return_value = sample_source
+
+            result = await mcp.tools["research_kb_get_source"]["func"](
+                source_id=str(sample_source.id),
+                output_format="json",
+            )
+
+            parsed = json.loads(result)
+            assert parsed["source_id"] == str(sample_source.id)
+            assert parsed["title"] == "Treatment Effects Paper"
+            assert parsed["authors"] == ["Author, A."]
+            assert parsed["year"] == 2020
+            assert parsed["source_type"] == "paper"
+            assert "chunks" not in parsed  # Not requested
+
+    async def test_get_source_json_with_chunks(self, sample_source, sample_chunks):
+        """Get source JSON includes chunks when requested."""
+        mcp = MockFastMCP()
+        register_source_tools(mcp)
+
+        with (
+            patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock,
+            patch("research_kb_mcp.tools.sources.get_source_chunks") as chunks_mock,
+        ):
+            get_mock.return_value = sample_source
+            chunks_mock.return_value = sample_chunks
+
+            result = await mcp.tools["research_kb_get_source"]["func"](
+                source_id=str(sample_source.id),
+                include_chunks=True,
+                output_format="json",
+            )
+
+            parsed = json.loads(result)
+            assert "chunks" in parsed
+            assert len(parsed["chunks"]) == 2
+            assert parsed["chunks"][0]["content"] == "This is the introduction."
+            assert parsed["chunks"][0]["page_start"] == 1
+            assert parsed["chunks"][1]["content"] == "This is the methods section."
+
+    async def test_get_source_markdown_default(self, sample_source):
+        """Get source defaults to markdown (backward compatibility)."""
+        mcp = MockFastMCP()
+        register_source_tools(mcp)
+
+        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock:
+            get_mock.return_value = sample_source
+
+            result = await mcp.tools["research_kb_get_source"]["func"](
+                source_id=str(sample_source.id),
+            )
+
+            # Markdown output starts with header, not JSON
+            assert result.startswith("## ")
+            assert "Treatment Effects Paper" in result
+
+    async def test_get_source_json_not_found(self):
+        """Get source returns markdown error even with json format for not-found."""
+        mcp = MockFastMCP()
+        register_source_tools(mcp)
+
+        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock:
+            get_mock.return_value = None
+
+            result = await mcp.tools["research_kb_get_source"]["func"](
+                source_id="nonexistent-id",
+                output_format="json",
+            )
+
+            # Error is returned before format dispatch
+            assert "Error" in result
+            assert "not found" in result
+
+    async def test_get_source_json_metadata(self, sample_source):
+        """Get source JSON includes metadata dict."""
+        mcp = MockFastMCP()
+        register_source_tools(mcp)
+
+        with patch("research_kb_mcp.tools.sources.get_source_by_id") as get_mock:
+            get_mock.return_value = sample_source
+
+            result = await mcp.tools["research_kb_get_source"]["func"](
+                source_id=str(sample_source.id),
+                output_format="json",
+            )
+
+            parsed = json.loads(result)
+            assert "metadata" in parsed
+            assert parsed["metadata"] == {"doi": "10.1234/example"}
 
 
 class TestSourceCitations:

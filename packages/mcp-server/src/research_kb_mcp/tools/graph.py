@@ -20,6 +20,7 @@ from research_kb_mcp.formatters import (
     format_graph_path,
     format_connection_explanation,
     format_connection_explanation_json,
+    format_cross_domain_concepts_json,
 )
 from research_kb_storage import CrossDomainStore, ConceptStore, explain_connection
 from research_kb_common import get_logger
@@ -125,6 +126,7 @@ def register_graph_tools(mcp: FastMCP) -> None:
         concept_name: Optional[str] = None,
         similarity_threshold: float = 0.85,
         limit: int = 10,
+        output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Find equivalent or related concepts across knowledge domains.
 
@@ -139,9 +141,10 @@ def register_graph_tools(mcp: FastMCP) -> None:
             target_domain: Domain to find matches in (required)
             similarity_threshold: Minimum similarity score (0.0-1.0, default 0.85)
             limit: Maximum matches to return (1-50, default 10)
+            output_format: Response format - "markdown" (default) or "json"
 
         Returns:
-            Markdown-formatted list of cross-domain matches with:
+            Markdown-formatted or JSON list of cross-domain matches with:
             - Source concept (from source domain)
             - Matched concepts (from target domain)
             - Similarity scores
@@ -160,6 +163,13 @@ def register_graph_tools(mcp: FastMCP) -> None:
         limit = max(1, min(50, limit))
         similarity_threshold = max(0.5, min(1.0, similarity_threshold))
 
+        def _classify_link(score: float) -> str:
+            if score >= 0.95:
+                return "EQUIVALENT"
+            elif score >= 0.90:
+                return "ANALOGOUS"
+            return "RELATED"
+
         try:
             # If concept_id provided, find cross-domain links for that concept
             if concept_id:
@@ -171,10 +181,30 @@ def register_graph_tools(mcp: FastMCP) -> None:
                 if not links:
                     return f"**No cross-domain links found** for concept `{concept_id}`"
 
+                limited_links = links[:limit]
+
+                if output_format == "json":
+                    matches = [
+                        {
+                            "name": link.get("linked_concept_name", "Unknown"),
+                            "concept_id": str(link.get("linked_concept_id", "")),
+                            "domain": link.get("linked_domain", "Unknown"),
+                            "link_type": link.get("link_type", "UNKNOWN"),
+                            "confidence": link.get("confidence_score", 0),
+                        }
+                        for link in limited_links
+                    ]
+                    return format_cross_domain_concepts_json(
+                        source_concept={"concept_id": concept_id},
+                        matches=matches,
+                        source_domain=source_domain,
+                        target_domain=target_domain,
+                    )
+
                 lines = ["## Cross-Domain Concept Links"]
                 lines.append(f"*Concept ID: `{concept_id}`*\n")
 
-                for link in links[:limit]:
+                for link in limited_links:
                     link_type = link.get("link_type", "UNKNOWN")
                     score = link.get("confidence_score", 0)
                     name = link.get("linked_concept_name", "Unknown")
@@ -205,10 +235,33 @@ def register_graph_tools(mcp: FastMCP) -> None:
                 )
 
                 if existing:
+                    limited_existing = existing[:limit]
+
+                    if output_format == "json":
+                        matches = [
+                            {
+                                "name": link.get("linked_concept_name", "Unknown"),
+                                "concept_id": str(link.get("linked_concept_id", "")),
+                                "domain": link.get("linked_domain", "Unknown"),
+                                "link_type": link.get("link_type", "UNKNOWN"),
+                                "confidence": link.get("confidence_score", 0),
+                            }
+                            for link in limited_existing
+                        ]
+                        return format_cross_domain_concepts_json(
+                            source_concept={
+                                "name": source_concept.name,
+                                "concept_id": str(source_concept.id),
+                            },
+                            matches=matches,
+                            source_domain=source_domain,
+                            target_domain=target_domain,
+                        )
+
                     lines = [f"## Cross-Domain Links: {source_concept.name}"]
                     lines.append(f"*Domain: {source_domain} | {len(existing)} links*\n")
 
-                    for link in existing[:limit]:
+                    for link in limited_existing:
                         link_type = link.get("link_type", "UNKNOWN")
                         score = link.get("confidence_score", 0)
                         name = link.get("linked_concept_name", "Unknown")
@@ -235,15 +288,38 @@ def register_graph_tools(mcp: FastMCP) -> None:
                     ][:limit]
 
                     if similar:
+                        if output_format == "json":
+                            matches = []
+                            for concept, score in similar:
+                                c_type = (
+                                    concept.concept_type.value
+                                    if hasattr(concept.concept_type, "value")
+                                    else concept.concept_type
+                                )
+                                matches.append(
+                                    {
+                                        "name": concept.name,
+                                        "concept_id": str(concept.id),
+                                        "concept_type": c_type,
+                                        "link_type": _classify_link(score),
+                                        "similarity": score,
+                                    }
+                                )
+                            return format_cross_domain_concepts_json(
+                                source_concept={
+                                    "name": source_concept.name,
+                                    "concept_id": str(source_concept.id),
+                                },
+                                matches=matches,
+                                source_domain=source_domain,
+                                target_domain=target_domain,
+                            )
+
                         lines = [f"## Similar Concepts in {target_domain}"]
                         lines.append(f"*Source: {source_concept.name} ({source_domain})*\n")
 
                         for concept, score in similar:
-                            link_type = (
-                                "EQUIVALENT"
-                                if score >= 0.95
-                                else "ANALOGOUS" if score >= 0.90 else "RELATED"
-                            )
+                            link_type = _classify_link(score)
                             c_type = (
                                 concept.concept_type.value
                                 if hasattr(concept.concept_type, "value")
@@ -273,15 +349,28 @@ def register_graph_tools(mcp: FastMCP) -> None:
             links.sort(key=lambda x: x["similarity"], reverse=True)
             links = links[:limit]
 
+            if output_format == "json":
+                matches = [
+                    {
+                        "source_name": link["source_name"],
+                        "target_name": link["target_name"],
+                        "link_type": _classify_link(link["similarity"]),
+                        "similarity": link["similarity"],
+                    }
+                    for link in links
+                ]
+                return format_cross_domain_concepts_json(
+                    source_concept={},
+                    matches=matches,
+                    source_domain=source_domain,
+                    target_domain=target_domain,
+                )
+
             lines = [f"## Cross-Domain Discovery: {source_domain} ↔ {target_domain}"]
             lines.append(f"*{len(links)} matches above {similarity_threshold:.2f} threshold*\n")
 
             for link in links:
-                link_type = (
-                    "EQUIVALENT"
-                    if link["similarity"] >= 0.95
-                    else "ANALOGOUS" if link["similarity"] >= 0.90 else "RELATED"
-                )
+                link_type = _classify_link(link["similarity"])
                 lines.append(
                     f"- **{link['source_name']}** ↔ **{link['target_name']}** [{link_type}]"
                 )

@@ -5,7 +5,7 @@ Exposes source listing, detail, and citation functionality.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Literal, Optional
 
 from fastmcp import FastMCP
 
@@ -21,6 +21,7 @@ from research_kb_storage import get_citing_sources, get_cited_sources
 from research_kb_mcp.formatters import (
     format_source_list,
     format_source_detail,
+    format_source_detail_json,
     format_citations,
     format_citing_sources,
     format_cited_sources,
@@ -69,6 +70,7 @@ def register_source_tools(mcp: FastMCP) -> None:
         source_id: str,
         include_chunks: bool = False,
         chunk_limit: int = 10,
+        output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Get detailed information about a specific source.
 
@@ -79,9 +81,10 @@ def register_source_tools(mcp: FastMCP) -> None:
             source_id: UUID of the source (from search results or list)
             include_chunks: Include content chunks in response (default False)
             chunk_limit: Maximum chunks to include (1-50, default 10)
+            output_format: Response format - "markdown" (default) or "json"
 
         Returns:
-            Markdown-formatted source details with:
+            Markdown-formatted or JSON source details with:
             - Full title
             - All authors
             - Year and type
@@ -98,6 +101,8 @@ def register_source_tools(mcp: FastMCP) -> None:
             chunk_limit = max(1, min(50, chunk_limit))
             chunks = await get_source_chunks(source_id, limit=chunk_limit)
 
+        if output_format == "json":
+            return format_source_detail_json(source, chunks)
         return format_source_detail(source, chunks)
 
     @mcp.tool()

@@ -1018,6 +1018,76 @@ def format_assumption_audit_json(result: MethodAssumptions) -> str:
 # ── Connection Explanation Formatters (Phase AC) ─────────────────────────────
 
 
+def format_source_detail_json(source: Source, chunks: Optional[list] = None) -> str:
+    """Format detailed source information as structured JSON.
+
+    Args:
+        source: Source object with metadata
+        chunks: Optional list of Chunk objects
+
+    Returns:
+        JSON string with source metadata and optional chunks array
+    """
+    type_val = (
+        source.source_type.value
+        if hasattr(source.source_type, "value")
+        else source.source_type
+    )
+
+    result: dict = {
+        "source_id": str(source.id),
+        "title": source.title,
+        "authors": source.authors if source.authors else [],
+        "year": source.year,
+        "source_type": type_val,
+        "metadata": source.metadata if source.metadata else {},
+    }
+
+    if chunks is not None:
+        result["chunks"] = []
+        for chunk in chunks:
+            content = chunk.content if hasattr(chunk, "content") else str(chunk)
+            chunk_data: dict = {
+                "chunk_id": str(chunk.id),
+                "content": truncate(content, 500),
+                "page_start": getattr(chunk, "page_start", None),
+                "page_end": getattr(chunk, "page_end", None),
+                "section": getattr(chunk, "section", None),
+            }
+            result["chunks"].append(chunk_data)
+
+    return json.dumps(result, indent=2)
+
+
+def format_cross_domain_concepts_json(
+    source_concept: dict,
+    matches: list[dict],
+    source_domain: str,
+    target_domain: str,
+) -> str:
+    """Format cross-domain concept matches as structured JSON.
+
+    Args:
+        source_concept: Dict with source concept info (name, id, type)
+        matches: List of match dicts with name, similarity, link_type, id, etc.
+        source_domain: Source domain name
+        target_domain: Target domain name
+
+    Returns:
+        JSON string with source concept and matches array
+    """
+    return json.dumps(
+        {
+            "source_concept": source_concept,
+            "source_domain": source_domain,
+            "target_domain": target_domain,
+            "match_count": len(matches),
+            "matches": matches,
+        },
+        indent=2,
+    )
+
+
 def format_connection_explanation(result: ConnectionExplanation) -> str:
     """Format ConnectionExplanation as markdown for LLM consumption.
 
