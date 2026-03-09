@@ -177,6 +177,24 @@ async def rechunk_source(
                 "elapsed_s": time.time() - t0,
             }
 
+        # Deduplicate chunks by content hash (HybridChunker can produce dupes)
+        seen_hashes: set[str] = set()
+        deduped_chunks = []
+        for chunk in new_chunks:
+            h = hashlib.sha256(chunk.content.encode("utf-8")).hexdigest()
+            if h not in seen_hashes:
+                seen_hashes.add(h)
+                deduped_chunks.append(chunk)
+        if len(deduped_chunks) < len(new_chunks):
+            logger.info(
+                "deduped_chunks",
+                source_id=str(source_id),
+                original=len(new_chunks),
+                deduped=len(deduped_chunks),
+            )
+        new_chunks = deduped_chunks
+        new_count = len(new_chunks)
+
         # Generate embeddings (unless --no-embed for two-phase workflow)
         embeddings = None
         if not no_embed and embed_client is not None:
