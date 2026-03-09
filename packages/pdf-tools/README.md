@@ -4,9 +4,9 @@ PDF extraction, chunking, and embedding for the research-kb system.
 
 ## Features
 
-- **PyMuPDF extraction**: Fast textbook extraction with page number tracking
+- **Docling extraction**: LaTeX-preserving extraction via Granite-Docling-258M
 - **GROBID integration**: Academic paper parsing with IMRAD structure detection
-- **Smart chunking**: 300 +/- 50 tokens with 50-token overlap, sentence-aware boundaries
+- **Structure-aware chunking**: Docling HybridChunker (~300 tokens, heading-boundary-aware)
 - **BGE embeddings**: 1024-dim vectors via BGE-large-en-v1.5 (Unix socket server)
 - **Cross-encoder reranking**: Optional reranking with BGE-reranker-v2-m3
 
@@ -19,25 +19,18 @@ pip install -e packages/pdf-tools
 ## Usage
 
 ```python
-from research_kb_pdf import (
-    extract_pdf,
-    chunk_document,
-    EmbeddingClient,
-)
+from research_kb_pdf import extract_and_chunk, EmbeddingClient
 
-# 1. Extract PDF
-document = extract_pdf("paper.pdf")
-print(f"Extracted {document.total_pages} pages")
+# 1. Extract + chunk with Docling (LaTeX-preserving)
+result, chunks = extract_and_chunk("paper.pdf", max_tokens=300)
+print(f"{result.total_pages} pages, {len(chunks)} chunks, equations: {result.has_equations}")
 
-# 2. Chunk document
-chunks = chunk_document(document, target_tokens=300, overlap_tokens=50)
-print(f"Created {len(chunks)} chunks")
-
-# 3. Embed chunks (requires running embed server)
+# 2. Embed chunks (requires running embed server)
 # Start server: python -m research_kb_pdf.embed_server &
 client = EmbeddingClient()
-embeddings = client.embed_chunks(chunks)
-print(f"Generated {len(embeddings)} embeddings")
+for chunk in chunks:
+    embedding = client.embed(chunk.content)
+    print(f"Chunk {chunk.chunk_index}: {len(embedding)} dims")
 ```
 
 ## Embedding Server

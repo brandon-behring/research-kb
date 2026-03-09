@@ -37,7 +37,7 @@ from research_kb_common import (
     get_logger,
 )
 from research_kb_contracts import SourceType
-from research_kb_pdf import EmbeddingClient, chunk_by_structure, extract_with_headings
+from research_kb_pdf import EmbeddingClient, extract_and_chunk
 from research_kb_storage import (
     ChunkStore,
     DatabaseConfig,
@@ -157,25 +157,22 @@ async def ingest_textbook(
     if not quiet:
         logger.info("extracting_pdf", path=pdf_path)
 
-    doc, headings = extract_with_headings(pdf_path)
+    extraction_result, chunks = extract_and_chunk(pdf_path, max_tokens=300)
 
     metadata = {
         "domain": DOMAIN,
-        "extraction_method": "pymupdf",
-        "total_pages": doc.total_pages,
-        "total_chars": doc.total_chars,
-        "total_headings": len(headings),
+        "extraction_method": "docling",
+        "total_pages": extraction_result.total_pages,
+        "total_chars": extraction_result.total_chars,
+        "total_headings": extraction_result.heading_count,
+        "has_equations": extraction_result.has_equations,
         "auto_ingested": True,
         "source": "ingest_rag_llm_textbooks",
+        "total_chunks": len(chunks),
     }
 
     if not quiet:
-        logger.info("chunking_document", path=pdf_path)
-    chunks = chunk_by_structure(doc, headings, target_tokens=300)
-    metadata["total_chunks"] = len(chunks)
-
-    if not quiet:
-        logger.info("chunking_complete", path=pdf_path, chunks=len(chunks))
+        logger.info("extraction_complete", path=pdf_path, chunks=len(chunks))
 
     file_hash = compute_file_hash(pdf_path)
 
@@ -239,10 +236,10 @@ async def ingest_textbook(
             "ingestion_complete",
             source_id=str(source.id),
             chunks=chunks_created,
-            headings=len(headings),
+            headings=extraction_result.heading_count,
         )
 
-    return str(source.id), chunks_created, len(headings)
+    return str(source.id), chunks_created, extraction_result.heading_count
 
 
 def parse_args():

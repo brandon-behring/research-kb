@@ -23,8 +23,7 @@ from research_kb_common import get_logger
 from research_kb_contracts import SourceType
 from research_kb_pdf import (
     EmbeddingClient,
-    chunk_by_structure,
-    extract_with_headings,
+    extract_and_chunk,
 )
 from research_kb_storage import (
     ChunkStore,
@@ -163,28 +162,34 @@ async def ingest_pdf(
     authors: list[str],
     year: int | None,
     metadata: dict | None = None,
+    domain_id: str = "causal_inference",
 ) -> tuple[str, int, int]:
     """Ingest a single PDF file.
+
+    Args:
+        pdf_path: Path to PDF file.
+        title: Paper title.
+        authors: List of author names.
+        year: Publication year.
+        metadata: Extra metadata dict.
+        domain_id: Research-kb domain to assign (default: causal_inference).
 
     Returns: (source_id, chunks_created, headings_found)
     """
     logger.info("extracting_pdf", path=pdf_path)
 
-    # Extract text and headings (returns tuple)
-    doc, headings = extract_with_headings(pdf_path)
+    # Extract and chunk with Docling
+    extraction_result, chunks = extract_and_chunk(pdf_path, max_tokens=300)
 
     metadata = metadata or {}
-    metadata["extraction_method"] = "pymupdf"
-    metadata["total_pages"] = doc.total_pages
-    metadata["total_chars"] = doc.total_chars
-    metadata["total_headings"] = len(headings)
-
-    # Chunk the document
-    logger.info("chunking_document", path=pdf_path)
-    chunks = chunk_by_structure(doc, headings, target_tokens=300)
+    metadata["extraction_method"] = "docling"
+    metadata["total_pages"] = extraction_result.total_pages
+    metadata["total_chars"] = extraction_result.total_chars
+    metadata["total_headings"] = extraction_result.heading_count
     metadata["total_chunks"] = len(chunks)
+    metadata["has_equations"] = extraction_result.has_equations
 
-    logger.info("chunking_complete", path=pdf_path, chunks=len(chunks))
+    logger.info("extraction_complete", path=pdf_path, chunks=len(chunks))
 
     # Compute file hash
     file_hash = compute_file_hash(pdf_path)
@@ -194,10 +199,11 @@ async def ingest_pdf(
     source = await SourceStore.create(
         source_type=SourceType.PAPER,
         title=title,
+        file_hash=file_hash,
+        domain_id=domain_id,
         authors=authors,
         year=year,
         file_path=pdf_path,
-        file_hash=file_hash,
         metadata=metadata,
     )
 
@@ -236,14 +242,28 @@ async def ingest_pdf(
         "ingestion_complete",
         source_id=str(source.id),
         chunks=chunks_created,
-        headings=len(headings),
+        headings=extraction_result.heading_count,
     )
 
-    return str(source.id), chunks_created, len(headings)
+    return str(source.id), chunks_created, extraction_result.heading_count
 
 
 async def main():
-    """Ingest all missing papers from fixtures/papers/."""
+    """Ingest all missing papers from fixtures/papers/.
+
+    Accepts optional --domain CLI arg (default: causal_inference).
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Ingest missing papers into research-kb")
+    parser.add_argument(
+        "--domain",
+        default="causal_inference",
+        help="Domain ID to assign to ingested papers (default: causal_inference)",
+    )
+    args = parser.parse_args()
+    domain_id = args.domain
+
     papers_dir = Path(__file__).parent.parent / "fixtures" / "papers"
 
     if not papers_dir.exists():
@@ -303,6 +323,7 @@ async def main():
                 authors=authors,
                 year=year,
                 metadata=extra_metadata,
+                domain_id=domain_id,
             )
 
             results["success"].append(

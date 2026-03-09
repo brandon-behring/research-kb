@@ -289,7 +289,7 @@ class TestPDFDispatcher:
             domain_id="causal_inference",
             file_path=str(TEST_PDF),
             file_hash="abc123",
-            metadata={"total_headings": 5, "extraction_method": "pymupdf"},
+            metadata={"total_headings": 5, "extraction_method": "docling"},
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
@@ -315,15 +315,42 @@ class TestPDFDispatcher:
         # Verify get_by_file_hash was called
         mock_source_store.get_by_file_hash.assert_called_once()
 
+    @patch("research_kb_pdf.dispatcher.extract_and_chunk")
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
-    async def test_ingest_pdf_force_pymupdf(self, mock_source_store, mock_chunk_store, tmp_path):
-        """Test ingest_pdf with force_pymupdf skips GROBID."""
+    async def test_ingest_pdf_with_docling(
+        self, mock_source_store, mock_chunk_store, mock_extract, tmp_path
+    ):
+        """Test ingest_pdf uses Docling extraction."""
         if not TEST_PDF.exists():
             pytest.skip(f"Test PDF not found: {TEST_PDF}")
 
         # Mock no existing source
         mock_source_store.get_by_file_hash = AsyncMock(return_value=None)
+
+        # Mock Docling extraction
+        from research_kb_pdf.chunker import TextChunk
+        from research_kb_pdf.docling_extractor import DoclingExtractionResult
+
+        mock_extraction = DoclingExtractionResult(
+            file_path=str(TEST_PDF),
+            total_pages=10,
+            total_chars=5000,
+            has_equations=False,
+            heading_count=5,
+        )
+        mock_chunks = [
+            TextChunk(
+                content="Test chunk content.",
+                start_page=1,
+                end_page=1,
+                token_count=4,
+                char_count=19,
+                chunk_index=0,
+                metadata={"section": None, "heading_level": 0, "chunking_method": "docling"},
+            )
+        ]
+        mock_extract.return_value = (mock_extraction, mock_chunks)
 
         # Mock SourceStore.create to avoid DB interaction
         from datetime import datetime, timezone
@@ -338,7 +365,7 @@ class TestPDFDispatcher:
             domain_id="causal_inference",
             file_path=str(TEST_PDF),
             file_hash="test_hash",
-            metadata={"extraction_method": "pymupdf"},
+            metadata={"extraction_method": "docling"},
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
@@ -353,26 +380,50 @@ class TestPDFDispatcher:
             source_type=SourceType.TEXTBOOK,
             title="Test Book",
             domain_id="causal_inference",
-            force_pymupdf=True,
-            skip_embedding=True,  # Skip embedding for test
+            force_pymupdf=True,  # Ignored — always uses Docling
+            skip_embedding=True,
         )
 
-        # Result is now IngestResult
         assert isinstance(result, IngestResult)
-        assert result.source.metadata["extraction_method"] == "pymupdf"
+        assert result.extraction_method == "docling"
         mock_source_store.create.assert_called_once()
+        mock_extract.assert_called_once()
 
+    @patch("research_kb_pdf.dispatcher.extract_and_chunk")
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
-    async def test_ingest_pdf_grobid_fallback(self, mock_source_store, mock_chunk_store, tmp_path):
-        """Test GROBID→PyMuPDF fallback when GROBID fails."""
+    async def test_ingest_pdf_grobid_unavailable(
+        self, mock_source_store, mock_chunk_store, mock_extract, tmp_path
+    ):
+        """Test ingestion when GROBID is unavailable — still uses Docling."""
         if not TEST_PDF.exists():
             pytest.skip(f"Test PDF not found: {TEST_PDF}")
 
-        # Mock no existing source
         mock_source_store.get_by_file_hash = AsyncMock(return_value=None)
 
-        # Mock SourceStore.create
+        from research_kb_pdf.chunker import TextChunk
+        from research_kb_pdf.docling_extractor import DoclingExtractionResult
+
+        mock_extraction = DoclingExtractionResult(
+            file_path=str(TEST_PDF),
+            total_pages=5,
+            total_chars=3000,
+            has_equations=True,
+            heading_count=3,
+        )
+        mock_chunks = [
+            TextChunk(
+                content="$$E[Y|X] = X\\beta$$",
+                start_page=1,
+                end_page=1,
+                token_count=10,
+                char_count=20,
+                chunk_index=0,
+                metadata={"section": None, "heading_level": 0, "chunking_method": "docling"},
+            )
+        ]
+        mock_extract.return_value = (mock_extraction, mock_chunks)
+
         from datetime import datetime, timezone
         from research_kb_contracts import Source
 
@@ -385,7 +436,7 @@ class TestPDFDispatcher:
             domain_id="causal_inference",
             file_path=str(TEST_PDF),
             file_hash="test_hash",
-            metadata={"extraction_method": "pymupdf"},
+            metadata={"extraction_method": "docling"},
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
@@ -398,7 +449,7 @@ class TestPDFDispatcher:
             dlq_path=tmp_path / "dlq.jsonl",
         )
 
-        # Mock GROBID client to fail (is_alive is sync, not async)
+        # Mock GROBID client to fail
         dispatcher.grobid_client.is_alive = MagicMock(return_value=False)
 
         result = await dispatcher.ingest_pdf(
@@ -406,24 +457,26 @@ class TestPDFDispatcher:
             source_type=SourceType.PAPER,
             title="Test Paper",
             domain_id="causal_inference",
-            skip_embedding=True,  # Skip embedding for test
+            skip_embedding=True,
         )
 
-        # Result is now IngestResult, should fall back to PyMuPDF
         assert isinstance(result, IngestResult)
-        assert result.source.metadata["extraction_method"] == "pymupdf"
+        assert result.extraction_method == "docling"
         mock_source_store.create.assert_called_once()
 
-    async def test_ingest_pdf_complete_failure_adds_to_dlq(self, tmp_path):
-        """Test complete failure (both GROBID and PyMuPDF) adds to DLQ."""
-        # Create a corrupted/empty PDF that will fail PyMuPDF extraction
+    @patch("research_kb_pdf.dispatcher.extract_and_chunk")
+    async def test_ingest_pdf_complete_failure_adds_to_dlq(self, mock_extract, tmp_path):
+        """Test extraction failure adds entry to DLQ."""
         bad_pdf = tmp_path / "corrupted.pdf"
         bad_pdf.write_bytes(b"Not a real PDF")
 
         dispatcher = PDFDispatcher(dlq_path=tmp_path / "dlq.jsonl")
 
-        # Mock GROBID to fail (is_alive is sync, not async)
+        # Mock GROBID to fail
         dispatcher.grobid_client.is_alive = MagicMock(return_value=False)
+
+        # Mock Docling to fail
+        mock_extract.side_effect = ValueError("Docling extraction failed")
 
         # Mock SourceStore to avoid DB
         with patch("research_kb_pdf.dispatcher.SourceStore", None):
@@ -442,11 +495,12 @@ class TestPDFDispatcher:
         assert entries[0].metadata["title"] == "Bad Paper"
         assert entries[0].retry_count == 0
 
+    @patch("research_kb_pdf.dispatcher.extract_and_chunk")
     @patch("research_kb_pdf.dispatcher.CitationStore")
     @patch("research_kb_pdf.dispatcher.ChunkStore")
     @patch("research_kb_pdf.dispatcher.SourceStore")
     async def test_retry_from_dlq_success(
-        self, mock_source_store, mock_chunk_store, mock_citation_store, tmp_path
+        self, mock_source_store, mock_chunk_store, mock_citation_store, mock_extract, tmp_path
     ):
         """Test successful retry from DLQ."""
         if not TEST_PDF.exists():
@@ -465,6 +519,30 @@ class TestPDFDispatcher:
             },
         )
 
+        # Mock Docling extraction
+        from research_kb_pdf.chunker import TextChunk
+        from research_kb_pdf.docling_extractor import DoclingExtractionResult
+
+        mock_extraction = DoclingExtractionResult(
+            file_path=str(TEST_PDF),
+            total_pages=5,
+            total_chars=3000,
+            has_equations=False,
+            heading_count=3,
+        )
+        mock_chunks = [
+            TextChunk(
+                content="Retry chunk.",
+                start_page=1,
+                end_page=1,
+                token_count=2,
+                char_count=12,
+                chunk_index=0,
+                metadata={"chunking_method": "docling"},
+            )
+        ]
+        mock_extract.return_value = (mock_extraction, mock_chunks)
+
         # Mock SourceStore
         mock_source_store.get_by_file_hash = AsyncMock(return_value=None)
 
@@ -480,7 +558,7 @@ class TestPDFDispatcher:
             domain_id="causal_inference",
             file_path=str(TEST_PDF),
             file_hash="test_hash",
-            metadata={"extraction_method": "pymupdf"},
+            metadata={"extraction_method": "docling"},
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
@@ -489,14 +567,11 @@ class TestPDFDispatcher:
         mock_chunk_store.batch_create = AsyncMock(return_value=[])
         mock_citation_store.batch_create = AsyncMock(return_value=[])
 
-        # Retry (with skip_embedding since we're testing)
-        # Note: retry_from_dlq doesn't expose skip_embedding, but ingest_pdf is called
-        # which will try to embed. We mock the embed_client to avoid failure.
+        # Mock embed_client to avoid failure
         dispatcher.embed_client.embed = MagicMock(return_value=[0.1] * 1024)
 
         result = await dispatcher.retry_from_dlq(entry.id)
 
-        # Result is now IngestResult
         assert result is not None
         assert isinstance(result, IngestResult)
         assert result.source.id == created_source.id
@@ -511,9 +586,9 @@ class TestPDFDispatcher:
         result = await dispatcher.retry_from_dlq("non-existent-id")
         assert result is None
 
-    async def test_retry_from_dlq_failure_increments_retry_count(self, tmp_path):
+    @patch("research_kb_pdf.dispatcher.extract_and_chunk")
+    async def test_retry_from_dlq_failure_increments_retry_count(self, mock_extract, tmp_path):
         """Test failed retry increments retry_count."""
-        # Create bad PDF
         bad_pdf = tmp_path / "bad.pdf"
         bad_pdf.write_bytes(b"Not a PDF")
 
@@ -527,9 +602,11 @@ class TestPDFDispatcher:
             metadata={"source_type": "paper", "title": "Bad Paper"},
         )
 
+        # Mock Docling to fail
+        mock_extract.side_effect = ValueError("Docling extraction failed")
+
         # Mock SourceStore to avoid DB
         with patch("research_kb_pdf.dispatcher.SourceStore", None):
-            # Retry should fail
             with pytest.raises(ValueError):
                 await dispatcher.retry_from_dlq(entry.id)
 
@@ -537,12 +614,9 @@ class TestPDFDispatcher:
         assert dispatcher.dlq.get(entry.id) is None
 
         # Check that there's an entry with retry_count = 1
-        # (Note: There may be multiple entries if nested failures occur,
-        #  but we care that retry_count was incremented)
         new_entries = dispatcher.dlq.list()
         assert len(new_entries) >= 1
 
-        # Find entry with retry_count = 1
         retry_entries = [e for e in new_entries if e.retry_count == 1]
         assert len(retry_entries) >= 1
         assert retry_entries[0].file_path == str(bad_pdf)

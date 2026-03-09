@@ -68,8 +68,7 @@ async def ingestion_helper():
         get_connection_pool,
     )
     from research_kb_pdf import (
-        extract_with_headings,
-        chunk_with_sections,
+        extract_and_chunk,
         EmbeddingClient,
     )
     from research_kb_contracts import SourceType
@@ -100,11 +99,8 @@ async def ingestion_helper():
                 metadata={"test": True},
             )
 
-            # Extract text and headings
-            extraction, headings = extract_with_headings(str(pdf_path))
-
-            # Chunk with sections
-            chunks_data = chunk_with_sections(extraction, headings)
+            # Extract and chunk with Docling
+            _extraction_result, chunks_data = extract_and_chunk(str(pdf_path))
 
             # Create embeddings
             if self.embed_client is None:

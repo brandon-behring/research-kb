@@ -260,14 +260,13 @@ async def ingest_papers() -> dict:
 
             try:
                 # Use the ingestion pipeline
-                from research_kb_pdf import extract_pdf, chunk_document
+                from research_kb_pdf import extract_and_chunk
                 from research_kb_pdf.embed_client import EmbeddingClient
 
                 print(f"  [ingest] {paper['title'][:60]}...")
 
-                # Extract text
-                doc = extract_pdf(str(pdf_path))
-                chunks = chunk_document(doc, target_tokens=300, overlap_tokens=50)
+                # Extract and chunk with Docling
+                _extraction_result, chunks = extract_and_chunk(str(pdf_path), max_tokens=300)
 
                 # Store source
                 async with pool.acquire() as conn:

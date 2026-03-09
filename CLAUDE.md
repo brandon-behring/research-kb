@@ -195,7 +195,7 @@ common (logging, retry, instrumentation)
 | **contracts** | Pure Pydantic schemas - zero business logic |
 | **common** | Cross-cutting: logging (structlog), retry (tenacity), tracing (OpenTelemetry) |
 | **storage** | Exclusive database ownership (asyncpg, pgvector) |
-| **pdf-tools** | PDF extraction (PyMuPDF, GROBID) + embeddings (sentence-transformers) |
+| **pdf-tools** | PDF extraction (Docling, GROBID) + embeddings (sentence-transformers) |
 | **cli** | Typer-based interface, thin wrapper |
 | **extraction** | Concept extraction via Ollama LLM |
 | **api** | FastAPI REST endpoints with health checks and metrics |

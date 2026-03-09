@@ -33,7 +33,7 @@ common (logging, retry, instrumentation)
 | **contracts** | Shared data models | Pydantic |
 | **common** | Logging, retry, instrumentation | structlog, tenacity, OpenTelemetry |
 | **storage** | Database + search orchestration | asyncpg, pgvector, KuzuDB |
-| **pdf-tools** | PDF extraction + embedding | PyMuPDF, GROBID, BGE-large |
+| **pdf-tools** | PDF extraction + embedding | Docling, GROBID, BGE-large |
 | **extraction** | Concept extraction from text | Ollama, Anthropic |
 | **cli** | Command-line interface | Typer |
 | **api** | REST endpoints + health checks | FastAPI |

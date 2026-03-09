@@ -19,8 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 from research_kb_common import get_logger
 from research_kb_pdf import (
     EmbeddingClient,
-    chunk_by_structure,
-    extract_with_headings,
+    extract_and_chunk,
 )
 from research_kb_storage import ChunkStore, DatabaseConfig, get_connection_pool
 
@@ -48,13 +47,10 @@ async def repair_source(source_id: str, file_path: str, title: str, pool):
 
     # Extract text and headings
     try:
-        doc, headings = extract_with_headings(file_path)
+        extraction_result, chunks = extract_and_chunk(file_path, max_tokens=300)
     except Exception as e:
         logger.error("extraction_failed", file_path=file_path, error=str(e))
         return 0
-
-    # Chunk the document
-    chunks = chunk_by_structure(doc, headings, target_tokens=300)
 
     if not chunks:
         logger.warning("no_chunks_created", file_path=file_path)

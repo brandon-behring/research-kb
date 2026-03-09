@@ -27,8 +27,7 @@ from research_kb_common import get_logger
 from research_kb_contracts import SourceType
 from research_kb_pdf import (
     EmbeddingClient,
-    chunk_by_structure,
-    extract_with_headings,
+    extract_and_chunk,
 )
 from research_kb_storage import (
     ChunkStore,
@@ -1622,22 +1621,16 @@ async def ingest_pdf(
     """
     pdf_path = Path(pdf_path)
 
-    # 1. Extract with heading detection
+    # 1. Extract and chunk with Docling
     logger.info("extracting_pdf", path=str(pdf_path))
-    doc, headings = extract_with_headings(pdf_path)
+    extraction_result, chunks = extract_and_chunk(pdf_path, max_tokens=300)
 
     logger.info(
         "extraction_complete",
         path=str(pdf_path),
-        pages=doc.total_pages,
-        headings=len(headings),
+        pages=extraction_result.total_pages,
+        chunks=len(chunks),
     )
-
-    # 2. Chunk with section tracking
-    logger.info("chunking_document", path=str(pdf_path))
-    chunks = chunk_by_structure(doc, headings)
-
-    logger.info("chunking_complete", path=str(pdf_path), chunks=len(chunks))
 
     # 3. Calculate file hash for idempotency
     sha256_hash = hashlib.sha256()
@@ -1658,11 +1651,12 @@ async def ingest_pdf(
         domain_id=domain_id,
         metadata={
             **metadata,
-            "extraction_method": "pymupdf",
-            "total_pages": doc.total_pages,
-            "total_chars": doc.total_chars,
-            "total_headings": len(headings),
+            "extraction_method": "docling",
+            "total_pages": extraction_result.total_pages,
+            "total_chars": extraction_result.total_chars,
+            "total_headings": extraction_result.heading_count,
             "total_chunks": len(chunks),
+            "has_equations": extraction_result.has_equations,
         },
     )
 
@@ -1704,10 +1698,10 @@ async def ingest_pdf(
         "ingestion_complete",
         source_id=str(source.id),
         chunks_created=chunks_created,
-        headings_detected=len(headings),
+        headings_detected=extraction_result.heading_count,
     )
 
-    return str(source.id), chunks_created, len(headings)
+    return str(source.id), chunks_created, extraction_result.heading_count
 
 
 def parse_args():

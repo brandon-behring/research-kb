@@ -10,8 +10,7 @@ from research_kb_pdf import (
     EmbeddingClient,
     embed_text,
     embed_texts,
-    extract_pdf,
-    chunk_document,
+    extract_and_chunk,
 )
 from research_kb_pdf.embed_server import EmbeddingServer
 
@@ -193,9 +192,8 @@ class TestEmbeddingClientIntegration:
         if not TEST_PDF.exists():
             pytest.skip(f"Test PDF not found: {TEST_PDF}")
 
-        # Extract and chunk PDF
-        doc = extract_pdf(TEST_PDF)
-        chunks = chunk_document(doc, target_tokens=300)
+        # Extract and chunk PDF with Docling
+        extraction_result, chunks = extract_and_chunk(str(TEST_PDF))
 
         # Embed chunks
         client = EmbeddingClient()
@@ -204,7 +202,7 @@ class TestEmbeddingClientIntegration:
         assert len(embeddings) == len(chunks)
         assert all(len(emb) == 1024 for emb in embeddings)
 
-        print(f"\n✅ Embedded {len(chunks)} chunks from {doc.total_pages}-page PDF")
+        print(f"\n  Embedded {len(chunks)} chunks from {extraction_result.total_pages}-page PDF")
 
     def test_convenience_functions(self, server_running):
         """Test convenience functions embed_text and embed_texts."""
@@ -246,12 +244,9 @@ class TestEmbeddingEndToEnd:
         if not TEST_PDF.exists():
             pytest.skip(f"Test PDF not found: {TEST_PDF}")
 
-        # Step 1: Extract PDF
-        doc = extract_pdf(TEST_PDF)
-        assert doc.total_pages > 0
-
-        # Step 2: Chunk document
-        chunks = chunk_document(doc, target_tokens=300)
+        # Step 1+2: Extract and chunk PDF with Docling
+        extraction_result, chunks = extract_and_chunk(str(TEST_PDF))
+        assert extraction_result.total_pages > 0
         assert len(chunks) > 0
 
         # Step 3: Embed chunks
@@ -265,7 +260,8 @@ class TestEmbeddingEndToEnd:
             assert chunk.token_count > 0, f"Chunk {i} has no tokens"
 
         print(
-            f"\n✅ Full pipeline: {doc.total_pages} pages → {len(chunks)} chunks → {len(embeddings)} embeddings"
+            f"\n  Full pipeline: {extraction_result.total_pages} pages -> "
+            f"{len(chunks)} chunks -> {len(embeddings)} embeddings"
         )
 
     def test_embedding_consistency(self, server_running):

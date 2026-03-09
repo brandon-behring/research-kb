@@ -69,7 +69,7 @@ common (logging, retry, instrumentation)
 | **contracts** | Pure Pydantic schemas - zero business logic |
 | **common** | Cross-cutting: logging (structlog), retry (tenacity), tracing |
 | **storage** | Exclusive database ownership (asyncpg, pgvector) |
-| **pdf-tools** | PDF extraction (PyMuPDF, GROBID) + embeddings |
+| **pdf-tools** | PDF extraction (Docling, GROBID) + embeddings |
 | **cli** | Typer-based interface, thin wrapper |
 | **extraction** | Concept extraction via Ollama LLM |
 | **api** | FastAPI REST endpoints with health checks and metrics |
@@ -95,8 +95,8 @@ Query → Embed Query → Execute in Parallel:
 
 ### Ingestion Flow
 ```
-PDF → Hash Check (idempotency) → GROBID/PyMuPDF →
-  Chunk (300 tokens) → Embed (BGE-large) → Store
+PDF → Hash Check (idempotency) → Docling (+ GROBID for papers) →
+  HybridChunker (300 tokens) → Embed (BGE-large) → Store
 ```
 
 ---

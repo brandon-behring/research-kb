@@ -1,13 +1,12 @@
-"""PDF Dispatcher - Orchestrates ingestion with GROBID→PyMuPDF fallback.
+"""PDF Dispatcher - Orchestrates ingestion with Docling extraction.
 
 Provides:
 - PDFDispatcher class for orchestrating PDF ingestion
-- GROBID→PyMuPDF fallback logic for metadata extraction
+- Docling-based PDF extraction with LaTeX-preserving chunking
+- GROBID for citation/author metadata on academic papers
 - Full chunking and embedding pipeline
 - Integration with Dead Letter Queue for error tracking
 - Idempotency via file hash checking
-
-Phase 1.5.1: Extended to include chunking + embedding storage.
 """
 
 import hashlib
@@ -19,11 +18,11 @@ from research_kb_common import get_logger
 from research_kb_contracts import Source, SourceType
 
 from research_kb_pdf.bibtex_generator import citation_to_bibtex
-from research_kb_pdf.chunker import chunk_by_structure, TextChunk
+from research_kb_pdf.chunker import TextChunk
 from research_kb_pdf.dlq import DeadLetterQueue
+from research_kb_pdf.docling_extractor import extract_and_chunk
 from research_kb_pdf.embedding_client import EmbeddingClient
 from research_kb_pdf.grobid_client import GrobidClient, ExtractedPaper
-from research_kb_pdf.pymupdf_extractor import extract_with_headings
 
 # Will be imported from storage package
 try:
@@ -45,7 +44,7 @@ class IngestResult:
         source: Created Source record
         chunk_count: Number of chunks created
         headings_detected: Number of headings detected for section tracking
-        extraction_method: Method used for text extraction ("grobid" or "pymupdf")
+        extraction_method: Method used for text extraction ("grobid+docling" or "docling")
         grobid_metadata_extracted: Whether GROBID was used for metadata
         citations_extracted: Number of citations extracted and stored
     """
@@ -59,18 +58,17 @@ class IngestResult:
 
 
 class PDFDispatcher:
-    """Orchestrates PDF ingestion with GROBID→PyMuPDF fallback.
+    """Orchestrates PDF ingestion with Docling extraction + optional GROBID metadata.
 
-    Pipeline (Phase 1.5.1 extended):
+    Pipeline:
     1. Calculate file hash for idempotency check
     2. Check if already ingested via SourceStore.get_by_file_hash()
-    3. Try GROBID for metadata extraction (if service available)
-    4. Extract text with PyMuPDF (always, for chunking)
-    5. Detect headings and chunk with section tracking
-    6. Generate embeddings via EmbeddingClient
-    7. Store chunks via ChunkStore.batch_create
-    8. Log failures to DLQ for manual review
-    9. Return IngestResult with source and chunk statistics
+    3. Try GROBID for citation/author metadata (if service available)
+    4. Extract text and chunk with Docling (LaTeX-preserving)
+    5. Generate embeddings via EmbeddingClient
+    6. Store chunks via ChunkStore.batch_create
+    7. Log failures to DLQ for manual review
+    8. Return IngestResult with source and chunk statistics
 
     Example:
         >>> dispatcher = PDFDispatcher(
@@ -144,18 +142,18 @@ class PDFDispatcher:
         force_pymupdf: bool = False,
         skip_embedding: bool = False,
     ) -> IngestResult:
-        """Ingest a PDF with full chunking and embedding pipeline.
-
-        Phase 1.5.1: Extended to include chunking + embedding + storage.
+        """Ingest a PDF with Docling extraction and embedding pipeline.
 
         Args:
             pdf_path: Path to PDF file
             source_type: Type of source (textbook, paper, code_repo)
             title: Source title
+            domain_id: Domain identifier for the source
             authors: List of author names
             year: Publication year
             metadata: Optional metadata (doi, arxiv_id, etc.)
-            force_pymupdf: Skip GROBID metadata extraction
+            force_pymupdf: Ignored (kept for API compatibility). GROBID is
+                skipped when True.
             skip_embedding: Skip embedding generation (for testing)
 
         Returns:
@@ -244,36 +242,34 @@ class PDFDispatcher:
                     logger.warning(
                         "grobid_not_available",
                         path=str(pdf_path),
-                        fallback="pymupdf_only",
+                        fallback="docling_only",
                     )
             except Exception as e:
                 logger.warning(
                     "grobid_extraction_failed",
                     path=str(pdf_path),
                     error=str(e),
-                    fallback="pymupdf_only",
+                    fallback="docling_only",
                 )
 
-        # Always use PyMuPDF for text extraction and chunking
+        # Extract text and chunk with Docling
         try:
-            # Extract with heading detection
-            doc, headings = extract_with_headings(pdf_path)
+            extraction_result, chunks = extract_and_chunk(pdf_path)
 
             logger.info(
-                "pymupdf_extraction_success",
+                "docling_extraction_success",
                 path=str(pdf_path),
-                pages=doc.total_pages,
-                chars=doc.total_chars,
-                headings=len(headings),
+                pages=extraction_result.total_pages,
+                chars=extraction_result.total_chars,
+                chunks=len(chunks),
+                has_equations=extraction_result.has_equations,
             )
-
-            # Chunk with section tracking
-            chunks = chunk_by_structure(doc, headings)
-            logger.info("chunking_complete", path=str(pdf_path), chunks=len(chunks))
 
             # Create Source record
             if SourceStore is None:
                 raise ValueError("SourceStore not available (testing mode)")
+
+            extraction_method = "grobid+docling" if grobid_used else "docling"
 
             source = await SourceStore.create(
                 source_type=source_type,
@@ -286,11 +282,12 @@ class PDFDispatcher:
                 metadata={
                     **(metadata or {}),
                     **grobid_metadata,
-                    "extraction_method": "grobid+pymupdf" if grobid_used else "pymupdf",
-                    "total_pages": doc.total_pages,
-                    "total_chars": doc.total_chars,
-                    "total_headings": len(headings),
+                    "extraction_method": extraction_method,
+                    "total_pages": extraction_result.total_pages,
+                    "total_chars": extraction_result.total_chars,
+                    "total_headings": extraction_result.heading_count,
                     "total_chunks": len(chunks),
+                    "has_equations": extraction_result.has_equations,
                 },
             )
             logger.info("source_created", source_id=str(source.id))
@@ -302,7 +299,7 @@ class PDFDispatcher:
                 skip_embedding=skip_embedding,
             )
 
-            # Store citations if GROBID extracted them (Phase 1.5.2)
+            # Store citations if GROBID extracted them
             citations_stored = 0
             if grobid_doc and grobid_doc.citations and CitationStore is not None:
                 citations_stored = await self._store_citations(
@@ -315,14 +312,14 @@ class PDFDispatcher:
                 source_id=str(source.id),
                 chunks_created=chunks_created,
                 citations_stored=citations_stored,
-                headings_detected=len(headings),
+                headings_detected=extraction_result.heading_count,
             )
 
             return IngestResult(
                 source=source,
                 chunk_count=chunks_created,
-                headings_detected=len(headings),
-                extraction_method="grobid+pymupdf" if grobid_used else "pymupdf",
+                headings_detected=extraction_result.heading_count,
+                extraction_method=extraction_method,
                 grobid_metadata_extracted=grobid_used,
                 citations_extracted=citations_stored,
             )

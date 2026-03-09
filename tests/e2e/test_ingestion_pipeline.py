@@ -39,6 +39,7 @@ async def test_full_pipeline_simple_pdf(test_db, pdf_dispatcher, small_pdf_path)
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Test Paper - Heterogeneous Treatment Effects",
+        domain_id="causal_inference",
         authors=["Athey", "Imbens"],
         year=2016,
         skip_embedding=True,  # Skip embeddings for basic pipeline test
@@ -87,6 +88,7 @@ async def test_grobid_citation_extraction(
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Test Paper with Citations",
+        domain_id="causal_inference",
         force_pymupdf=False,  # Allow GROBID
         skip_embedding=True,  # Skip embeddings for citation test
     )
@@ -146,6 +148,7 @@ async def test_duplicate_detection(test_db, pdf_dispatcher, small_pdf_path):
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Test Paper - First",
+        domain_id="causal_inference",
         skip_embedding=True,
     )
 
@@ -154,6 +157,7 @@ async def test_duplicate_detection(test_db, pdf_dispatcher, small_pdf_path):
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Test Paper - Second",  # Different title, same file
+        domain_id="causal_inference",
         skip_embedding=True,
     )
 
@@ -183,6 +187,7 @@ async def test_dlq_on_corrupted_pdf(test_db, pdf_dispatcher, corrupted_pdf_path)
             pdf_path=str(corrupted_pdf_path),
             source_type=SourceType.PAPER,
             title="Corrupted PDF",
+            domain_id="causal_inference",
         )
 
     # Verify no source created
@@ -218,6 +223,7 @@ async def test_large_pdf_multiple_pages(test_db, pdf_dispatcher):
         pdf_path=str(large_pdf),
         source_type=SourceType.PAPER,
         title="Double Machine Learning",
+        domain_id="econometrics",
         authors=[
             "Chernozhukov",
             "Chetverikov",
@@ -260,6 +266,7 @@ async def test_search_after_ingestion(test_db, pdf_dispatcher, small_pdf_path):
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Treatment Effects Paper",
+        domain_id="causal_inference",
         skip_embedding=True,  # Skip embeddings for FTS search test
     )
 
@@ -295,6 +302,7 @@ async def test_source_metadata_preservation(test_db, pdf_dispatcher, small_pdf_p
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Metadata Test Paper",
+        domain_id="causal_inference",
         authors=["Test", "Author"],
         year=2024,
         metadata={
@@ -329,6 +337,7 @@ async def test_chunk_location_tracking(test_db, pdf_dispatcher, small_pdf_path):
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Location Tracking Test",
+        domain_id="causal_inference",
         skip_embedding=True,
     )
 
@@ -374,6 +383,7 @@ async def test_embedding_generation_and_storage(
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Embedding Test Paper",
+        domain_id="causal_inference",
         skip_embedding=False,
     )
 
@@ -407,6 +417,7 @@ async def test_idempotency_same_hash(test_db, pdf_dispatcher, small_pdf_path):
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Idempotency Test - First",
+        domain_id="causal_inference",
         authors=["Author1"],
         year=2020,
         skip_embedding=True,
@@ -420,6 +431,7 @@ async def test_idempotency_same_hash(test_db, pdf_dispatcher, small_pdf_path):
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
         title="Idempotency Test - Second",  # Different metadata
+        domain_id="causal_inference",
         authors=["Author2"],  # Different author
         year=2021,  # Different year
         skip_embedding=True,
@@ -441,7 +453,7 @@ async def test_idempotency_same_hash(test_db, pdf_dispatcher, small_pdf_path):
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_graceful_degradation_no_grobid(test_db, pdf_dispatcher, small_pdf_path):
-    """Test pipeline works without GROBID (fallback to PyMuPDF only).
+    """Test pipeline works without GROBID (Docling-only extraction).
 
     Validates:
     - PDF ingested successfully without GROBID
@@ -449,19 +461,20 @@ async def test_graceful_degradation_no_grobid(test_db, pdf_dispatcher, small_pdf
     - No citations extracted (expected)
     - No errors thrown
     """
-    # Force PyMuPDF-only mode
+    # Docling-only mode (skip GROBID)
     result = await pdf_dispatcher.ingest_pdf(
         pdf_path=str(small_pdf_path),
         source_type=SourceType.PAPER,
-        title="PyMuPDF Only Test",
-        force_pymupdf=True,  # Skip GROBID entirely
+        title="Docling Only Test",
+        domain_id="causal_inference",
+        force_pymupdf=True,  # Skips GROBID (param kept for API compat)
         skip_embedding=True,
     )
 
     # Validate result
     assert result.source is not None
     assert result.chunk_count > 5
-    assert result.extraction_method == "pymupdf"
+    assert result.extraction_method == "docling"
     assert result.citations_extracted == 0
     assert result.grobid_metadata_extracted is False
 

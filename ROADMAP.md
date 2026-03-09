@@ -5,7 +5,7 @@ A semantic search system for research literature with graph-boosted retrieval. C
 ## Phase 1: Foundation (Weeks 1-2) ✅ COMPLETE
 
 - PostgreSQL + pgvector (1024-dim embeddings)
-- PDF extraction (PyMuPDF + GROBID)
+- PDF extraction (Docling + GROBID)
 - Hybrid search (FTS + vector, configurable weights)
 - CLI: `research-kb query`, `stats`, `sources`
 

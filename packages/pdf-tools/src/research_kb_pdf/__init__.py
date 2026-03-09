@@ -1,33 +1,25 @@
 """PDF extraction and chunking for research-kb system.
 
 This package provides:
-- PDF text extraction (PyMuPDF for textbooks, GROBID for papers)
-- Token-based chunking with overlap
+- PDF extraction via Docling (LaTeX-preserving, Granite-Docling-258M)
+- Structure-aware chunking via Docling's HybridChunker
 - Embedding generation via BGE-large-en-v1.5
+- Citation metadata via GROBID (academic papers)
 - Integration with research-kb storage layer
 """
 
 __version__ = "1.0.0"
 
-from research_kb_pdf.pymupdf_extractor import (
-    ExtractedDocument,
-    ExtractedPage,
-    Heading,
-    extract_pdf,
-    get_text_with_page_numbers,
-    get_full_text,
-    detect_headings,
-    extract_with_headings,
+from research_kb_pdf.docling_extractor import (
+    DoclingExtractionResult,
+    extract_and_chunk,
 )
 
 from research_kb_pdf.chunker import (
     TextChunk,
-    Section,
-    chunk_document,
-    chunk_with_sections,
-    chunk_by_structure,
-    split_into_sections,
     count_tokens,
+    split_paragraphs,
+    split_sentences,
 )
 
 from research_kb_pdf.embedding_client import (
@@ -73,23 +65,14 @@ from research_kb_pdf.rerank_client import (
 )
 
 __all__ = [
-    # Extraction
-    "ExtractedDocument",
-    "ExtractedPage",
-    "Heading",
-    "extract_pdf",
-    "get_text_with_page_numbers",
-    "get_full_text",
-    "detect_headings",
-    "extract_with_headings",
-    # Chunking
+    # Extraction (Docling)
+    "DoclingExtractionResult",
+    "extract_and_chunk",
+    # Chunking utilities
     "TextChunk",
-    "Section",
-    "chunk_document",
-    "chunk_with_sections",
-    "chunk_by_structure",
-    "split_into_sections",
     "count_tokens",
+    "split_paragraphs",
+    "split_sentences",
     # Embedding
     "EmbeddingClient",
     "embed_text",
@@ -111,7 +94,7 @@ __all__ = [
     "generate_bibliography",
     "generate_bibtex_key",
     "escape_bibtex",
-    # Reranking (Phase 3)
+    # Reranking
     "CrossEncoderReranker",
     "RerankResult",
     "RerankClient",

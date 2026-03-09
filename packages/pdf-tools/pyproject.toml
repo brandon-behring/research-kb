@@ -12,7 +12,7 @@ dependencies = [
     "research-kb-contracts",
     "research-kb-common",
     "research-kb-storage",
-    "pymupdf>=1.23.0",
+    "docling[torch-gpu]>=2.9.0",
     "requests>=2.31.0",
     "lxml>=5.0.0",
     "sentence-transformers>=2.2.0",

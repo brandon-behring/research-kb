@@ -149,7 +149,7 @@ Graph (15%) and citation (15%) signals are **enabled by default** in CLI and MCP
 | `contracts` | Shared data models | Pydantic |
 | `common` | Logging, retry, instrumentation | structlog, tenacity |
 | `storage` | Database + search orchestration | asyncpg, pgvector, KuzuDB |
-| `pdf-tools` | PDF extraction + embedding | PyMuPDF, GROBID, BGE-large |
+| `pdf-tools` | PDF extraction + embedding | Docling, GROBID, BGE-large |
 | `extraction` | Concept extraction from text | Ollama LLM |
 | `cli` | Command-line interface | Typer |
 | `api` | REST endpoints + health checks | FastAPI |

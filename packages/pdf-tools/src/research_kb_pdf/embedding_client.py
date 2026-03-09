@@ -231,9 +231,8 @@ class EmbeddingClient:
             List of embeddings (same order as chunks)
 
         Example:
-            >>> from research_kb_pdf import extract_pdf, chunk_document
-            >>> doc = extract_pdf("paper.pdf")
-            >>> chunks = chunk_document(doc)
+            >>> from research_kb_pdf import extract_and_chunk
+            >>> _, chunks = extract_and_chunk("paper.pdf")
             >>> client = EmbeddingClient()
             >>> embeddings = client.embed_chunks(chunks)
             >>> len(embeddings) == len(chunks)

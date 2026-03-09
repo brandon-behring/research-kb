@@ -11,42 +11,39 @@ This skill teaches agents how to ingest PDF documents into the research knowledg
 ## Ingestion Pipeline Overview
 
 ```
-PDF → Extraction → Chunking → Embedding → Storage
+PDF → Docling (Granite-258M) → HybridChunker → Embedding → Storage
+      ↓ (papers only)
+      GROBID → Citation metadata
 ```
 
 ### 1. Extraction Methods
 
-**PyMuPDF (Textbooks)**
-- Best for: Textbooks with complex formatting, figures, tables
-- Preserves: Page numbers, font sizes for heading detection
-- Output: `ExtractedDocument` with pages and detected headings
+**Docling (All PDFs)**
+- Best for: All document types — textbooks, papers, technical manuals
+- Uses: IBM Granite-Docling-258M for document understanding
+- Preserves: Equations as LaTeX (`$$...$$` or `\(...\)`), headings, tables
+- Output: `DoclingExtractionResult` + `list[TextChunk]`
 
-**GROBID (Papers)**
-- Best for: Academic papers with structured sections
-- Extracts: Title, authors, abstract, sections (IMRAD format), citations
-- Output: `ExtractedPaper` with metadata, sections, and bibliography
+**GROBID (Papers — metadata only)**
+- Used for: Citation extraction from academic papers
+- Extracts: Authors, title, abstract, citations, DOI/arXiv IDs
+- Output: `ExtractedPaper` with bibliography and BibTeX
 
-### 2. Heading Detection
+### 2. Structure-Aware Chunking
 
-Font-size based heuristics detect headings:
-- H1: font_size > median + 2σ
-- H2: font_size > median + 1.5σ
-- H3: font_size > median + σ
+Docling's HybridChunker provides structure-aware chunking:
+- Respects heading boundaries (no mid-section splits)
+- Contextualizes chunks with parent heading hierarchy
+- Uses BGE-large-en-v1.5 tokenizer for consistent token counts
+- Target: 300 tokens per chunk (configurable via `max_tokens`)
 
-### 3. Chunking Strategy
-
-- **Target size**: 300 tokens (±50)
-- **Overlap**: Sentence boundary aware
-- **Section tracking**: Each chunk knows its parent heading hierarchy
-- **Metadata preserved**: page numbers, section name, heading level
-
-### 4. Embedding Generation
+### 3. Embedding Generation
 
 - **Model**: BGE-large-en-v1.5 (1024 dimensions)
 - **Server**: Unix socket for low-latency inference
 - **Start server**: `python -m research_kb_pdf.embed_server`
 
-### 5. Citation Extraction & Storage
+### 4. Citation Extraction & Storage
 
 GROBID extracts citations from `<listBibl>` in TEI-XML:
 - Authors, title, year, venue
@@ -68,17 +65,16 @@ count = await CitationStore.count_by_source(source.id)
 
 ## Usage Examples
 
-### Ingest a Single PDF
+### Extract and Chunk a PDF
 
 ```python
-from research_kb_pdf import extract_with_headings, chunk_with_sections, EmbeddingClient
-from research_kb_storage import SourceStore, ChunkStore, get_connection_pool
+from research_kb_pdf import extract_and_chunk, EmbeddingClient
 
-# Extract
-doc, headings = extract_with_headings("textbook.pdf")
+# Extract + chunk in one call (Docling + HybridChunker)
+result, chunks = extract_and_chunk("textbook.pdf", max_tokens=300)
 
-# Chunk
-chunks = chunk_with_sections(doc, headings)
+print(f"{result.total_pages} pages, {len(chunks)} chunks")
+print(f"Has equations: {result.has_equations}")
 
 # Embed and store
 client = EmbeddingClient()
@@ -98,6 +94,7 @@ result: IngestResult = await dispatcher.ingest_pdf(
     pdf_path="paper.pdf",
     source_type=SourceType.PAPER,
     title="Attention Is All You Need",
+    domain_id="deep_learning",
     authors=["Vaswani", "Shazeer"],
     year=2017,
     metadata={"arxiv_id": "1706.03762"},
@@ -108,7 +105,7 @@ result: IngestResult = await dispatcher.ingest_pdf(
 # - result.chunk_count: Number of chunks created
 # - result.citations_extracted: Number of citations stored
 # - result.headings_detected: Detected heading count
-# - result.extraction_method: "grobid+pymupdf" or "pymupdf"
+# - result.extraction_method: "grobid+docling" or "docling"
 ```
 
 ### Generate BibTeX
@@ -154,15 +151,25 @@ Failed ingestions go to the DLQ:
 {
     "section": "3.3 The Backdoor Criterion",
     "heading_level": 2,
-    "chunk_type": "theorem",  # theorem | definition | example | proof
+    "chunking_method": "docling",
 }
 ```
 
 ## Performance Notes
 
-- Textbook (500 pages): ~5 minutes
-- Paper (20 pages): ~30 seconds
+- Textbook (500 pages): ~5-15 minutes (Docling model inference)
+- Paper (20 pages): ~30-60 seconds
 - Embedding: ~50ms per chunk on GPU
+- First PDF loads Granite-Docling-258M model (~5s, ~2.5 GB VRAM)
+
+## GPU VRAM Management
+
+RTX 2070 (7.6 GB) runs both Docling (~2.5-3.5 GB) and embed_server (~2.5 GB).
+During ingestion, these run **sequentially per source** (not simultaneously).
+
+If VRAM is tight:
+- Kill daemon before ingesting: `systemctl --user stop research-kb-daemon`
+- Force Docling to CPU: `CUDA_VISIBLE_DEVICES="" python scripts/ingest_missing_textbooks.py`
 
 ## Troubleshooting
 
@@ -171,4 +178,6 @@ Failed ingestions go to the DLQ:
 | Embedding server not running | `python -m research_kb_pdf.embed_server` |
 | GROBID not available | `docker-compose up grobid` |
 | PostgreSQL connection failed | `docker start research-kb-postgres` |
-| Duplicate source | Check `file_hash` - same PDF already ingested |
+| Duplicate source | Check `file_hash` — same PDF already ingested |
+| Docling GPU OOM | Set `CUDA_VISIBLE_DEVICES=""` to force CPU mode |
+| Slow extraction | Expected: Docling is ~10-30s/PDF (GPU), ~30-60s (CPU) |

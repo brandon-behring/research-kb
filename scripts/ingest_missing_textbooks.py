@@ -28,8 +28,7 @@ from research_kb_common import get_logger
 from research_kb_contracts import SourceType
 from research_kb_pdf import (
     EmbeddingClient,
-    chunk_by_structure,
-    extract_with_headings,
+    extract_and_chunk,
 )
 from research_kb_storage import (
     ChunkStore,
@@ -124,23 +123,19 @@ async def ingest_textbook(
     if not quiet:
         logger.info("extracting_pdf", path=pdf_path)
 
-    # Extract text and headings
-    doc, headings = extract_with_headings(pdf_path)
+    # Extract and chunk with Docling
+    extraction_result, chunks = extract_and_chunk(pdf_path, max_tokens=300)
 
     metadata = metadata or {}
-    metadata["extraction_method"] = "pymupdf"
-    metadata["total_pages"] = doc.total_pages
-    metadata["total_chars"] = doc.total_chars
-    metadata["total_headings"] = len(headings)
-
-    # Chunk the document
-    if not quiet:
-        logger.info("chunking_document", path=pdf_path)
-    chunks = chunk_by_structure(doc, headings, target_tokens=300)
+    metadata["extraction_method"] = "docling"
+    metadata["total_pages"] = extraction_result.total_pages
+    metadata["total_chars"] = extraction_result.total_chars
+    metadata["total_headings"] = extraction_result.heading_count
     metadata["total_chunks"] = len(chunks)
+    metadata["has_equations"] = extraction_result.has_equations
 
     if not quiet:
-        logger.info("chunking_complete", path=pdf_path, chunks=len(chunks))
+        logger.info("extraction_complete", path=pdf_path, chunks=len(chunks))
 
     # Compute file hash
     file_hash = compute_file_hash(pdf_path)
@@ -201,10 +196,10 @@ async def ingest_textbook(
             "ingestion_complete",
             source_id=str(source.id),
             chunks=chunks_created,
-            headings=len(headings),
+            headings=extraction_result.heading_count,
         )
 
-    return str(source.id), chunks_created, len(headings)
+    return str(source.id), chunks_created, extraction_result.heading_count
 
 
 # Skip list - auxiliary files without content

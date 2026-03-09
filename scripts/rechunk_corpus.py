@@ -12,6 +12,13 @@ Usage:
     python scripts/rechunk_corpus.py --quiet                # Minimal output
     python scripts/rechunk_corpus.py --json                 # JSON output for monitoring
     python scripts/rechunk_corpus.py --skip-backup          # Skip backup reminder
+    python scripts/rechunk_corpus.py --no-embed             # Extract only, NULL embeddings
+
+Two-phase GPU workflow (when Docling + embed_server can't share VRAM):
+    1. Kill embed_server
+    2. python scripts/rechunk_corpus.py --no-embed --skip-backup --json > rechunk_report.json
+    3. Restart embed_server
+    4. python scripts/backfill_embeddings.py --json > backfill_report.json
 
 After rechunking, you MUST re-run:
     1. python scripts/regenerate_golden_candidates.py  (update eval chunk UUIDs)
@@ -37,8 +44,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" /
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
 from research_kb_common import get_logger
-from research_kb_pdf import EmbeddingClient, extract_with_headings
-from research_kb_pdf.chunker import chunk_by_structure
+from research_kb_pdf import EmbeddingClient, extract_and_chunk
 from research_kb_storage import DatabaseConfig, get_connection_pool
 
 logger = get_logger(__name__)
@@ -49,7 +55,7 @@ async def get_sources_to_rechunk(
 ):
     """Fetch sources that need rechunking.
 
-    Skips sources where ALL chunks already have metadata.chunking_method = 'structure'.
+    Skips sources where ALL chunks already have metadata.chunking_method = 'docling'.
 
     Args:
         pool: asyncpg connection pool
@@ -79,15 +85,15 @@ async def get_sources_to_rechunk(
             SELECT s.id, s.title, s.file_path, s.domain_id,
                    COUNT(c.id) as chunk_count,
                    COUNT(c.id) FILTER (
-                       WHERE c.metadata->>'chunking_method' = 'structure'
-                   ) as structure_count
+                       WHERE c.metadata->>'chunking_method' = 'docling'
+                   ) as docling_count
             FROM sources s
             LEFT JOIN chunks c ON c.source_id = s.id
             WHERE {where}
             GROUP BY s.id, s.title, s.file_path, s.domain_id
             HAVING COUNT(c.id) = 0
                 OR COUNT(c.id) FILTER (
-                    WHERE c.metadata->>'chunking_method' = 'structure'
+                    WHERE c.metadata->>'chunking_method' = 'docling'
                 ) < COUNT(c.id)
             ORDER BY s.title
         """
@@ -111,7 +117,12 @@ async def get_sources_to_rechunk(
 
 
 async def rechunk_source(
-    pool, source: dict, embed_client: EmbeddingClient, dry_run: bool, quiet: bool
+    pool,
+    source: dict,
+    embed_client: EmbeddingClient | None,
+    dry_run: bool,
+    quiet: bool,
+    no_embed: bool = False,
 ):
     """Re-chunk a single source: extract -> chunk -> delete old -> embed -> insert.
 
@@ -121,9 +132,10 @@ async def rechunk_source(
     Args:
         pool: asyncpg connection pool
         source: Source dict with id, title, file_path, domain_id, old_chunk_count
-        embed_client: Embedding client for generating vectors
+        embed_client: Embedding client for generating vectors (None if no_embed)
         dry_run: If True, only report what would change
         quiet: Minimal output
+        no_embed: If True, insert chunks with NULL embeddings (two-phase workflow)
 
     Returns:
         Dict with results: old_count, new_count, delta, status, elapsed_s
@@ -150,9 +162,8 @@ async def rechunk_source(
         }
 
     try:
-        # Extract and chunk
-        doc, headings = extract_with_headings(str(pdf_path))
-        new_chunks = chunk_by_structure(doc, headings, target_tokens=300)
+        # Extract and chunk with Docling
+        extraction_result, new_chunks = extract_and_chunk(str(pdf_path), max_tokens=300)
         new_count = len(new_chunks)
 
         if dry_run:
@@ -166,9 +177,11 @@ async def rechunk_source(
                 "elapsed_s": time.time() - t0,
             }
 
-        # Generate embeddings in batches
-        texts = [chunk.content for chunk in new_chunks]
-        embeddings = embed_client.embed_batch(texts, batch_size=32)
+        # Generate embeddings (unless --no-embed for two-phase workflow)
+        embeddings = None
+        if not no_embed and embed_client is not None:
+            texts = [chunk.content for chunk in new_chunks]
+            embeddings = embed_client.embed_batch(texts, batch_size=32)
 
         # Transaction: delete old chunks -> insert new
         async with pool.acquire() as conn:
@@ -188,13 +201,15 @@ async def rechunk_source(
                 )
 
                 # Insert new chunks with proper type handling
-                for chunk, embedding in zip(new_chunks, embeddings):
+                for i, chunk in enumerate(new_chunks):
                     content_hash = hashlib.sha256(
                         chunk.content.encode("utf-8")
                     ).hexdigest()
 
-                    # Convert embedding list to numpy array for pgvector
-                    embedding_vec = np.array(embedding, dtype=np.float32)
+                    # Convert embedding to numpy array for pgvector, or None
+                    embedding_vec = None
+                    if embeddings is not None:
+                        embedding_vec = np.array(embeddings[i], dtype=np.float32)
 
                     await conn.execute(
                         """
@@ -214,12 +229,13 @@ async def rechunk_source(
                     )
 
         elapsed = time.time() - t0
+        status = "success" if not no_embed else "extracted"
         return {
             "title": title,
             "old_count": old_count,
             "new_count": new_count,
             "delta": new_count - old_count,
-            "status": "success",
+            "status": status,
             "reason": "",
             "elapsed_s": elapsed,
         }
@@ -287,6 +303,12 @@ def parse_args():
         action="store_true",
         help="Skip the backup reminder at start",
     )
+    parser.add_argument(
+        "--no-embed",
+        action="store_true",
+        help="Extract and chunk only, store with NULL embeddings. "
+        "Use backfill_embeddings.py afterward to fill embeddings.",
+    )
     return parser.parse_args()
 
 
@@ -351,7 +373,7 @@ async def main():
     )
 
     if not sources:
-        msg = "No sources need rechunking (all already have chunking_method='structure')."
+        msg = "No sources need rechunking (all already have chunking_method='docling')."
         if args.json_output:
             print(json.dumps({"status": "no_work", "message": msg}))
         else:
@@ -367,9 +389,9 @@ async def main():
         print(f"  Total existing chunks: {total_old_chunks:,}")
         print()
 
-    # Initialize embedding client (not needed for dry run)
+    # Initialize embedding client (not needed for dry run or --no-embed)
     embed_client = None
-    if not args.dry_run:
+    if not args.dry_run and not args.no_embed:
         embed_client = EmbeddingClient()
 
     # Process each source
@@ -387,7 +409,12 @@ async def main():
             )
 
         result = await rechunk_source(
-            pool, source, embed_client, dry_run=args.dry_run, quiet=args.quiet
+            pool,
+            source,
+            embed_client,
+            dry_run=args.dry_run,
+            quiet=args.quiet,
+            no_embed=args.no_embed,
         )
         results.append(result)
 
@@ -404,10 +431,11 @@ async def main():
                 )
             )
         elif not args.quiet:
-            if result["status"] == "success":
+            if result["status"] in ("success", "extracted"):
+                embed_note = " [no-embed]" if result["status"] == "extracted" else ""
                 print(
                     f"{result['old_count']} -> {result['new_count']} chunks "
-                    f"(delta {result['delta']:+d}, {result['elapsed_s']:.1f}s)"
+                    f"(delta {result['delta']:+d}, {result['elapsed_s']:.1f}s){embed_note}"
                 )
             elif result["status"] == "dry_run":
                 print(
@@ -424,7 +452,7 @@ async def main():
     elapsed = time.time() - start_time
 
     # Summary
-    success = [r for r in results if r["status"] == "success"]
+    success = [r for r in results if r["status"] in ("success", "extracted")]
     failed = [r for r in results if r["status"] == "failed"]
     skipped = [r for r in results if r["status"] == "skipped"]
     dry_run_results = [r for r in results if r["status"] == "dry_run"]
@@ -475,17 +503,29 @@ async def main():
         if not args.dry_run and success:
             print()
             print("NEXT STEPS:")
+            if args.no_embed:
+                print(
+                    "  1. Restart embed_server: "
+                    "python -m research_kb_pdf.embed_server"
+                )
+                print(
+                    "  2. Backfill embeddings: "
+                    "python scripts/backfill_embeddings.py --json"
+                )
             print(
-                "  1. Regenerate golden candidates: "
+                f"  {'3' if args.no_embed else '1'}. Regenerate golden candidates: "
                 "python scripts/regenerate_golden_candidates.py"
             )
             print(
-                "  2. Re-run concept extraction: "
+                f"  {'4' if args.no_embed else '2'}. Re-run concept extraction: "
                 "python scripts/extract_concepts.py"
             )
-            print("  3. Sync KuzuDB: python scripts/sync_kuzu.py")
             print(
-                "  4. Validate retrieval: "
+                f"  {'5' if args.no_embed else '3'}. Sync KuzuDB: "
+                "python scripts/sync_kuzu.py"
+            )
+            print(
+                f"  {'6' if args.no_embed else '4'}. Validate retrieval: "
                 "python scripts/eval_retrieval.py --per-domain"
             )
 

@@ -98,19 +98,19 @@ class TestLargePDFMemory:
         size_mb = LARGE_PDF.stat().st_size / (1024 * 1024)
         assert size_mb > 50, f"Expected large PDF (>50MB), got {size_mb:.1f}MB"
 
-    def test_single_pass_extraction_memory(self):
-        """Test single-pass extraction doesn't use excessive memory."""
+    def test_docling_extraction_memory(self):
+        """Test Docling extraction doesn't use excessive memory."""
         if not LARGE_PDF.exists():
             pytest.skip(f"Large PDF not found: {LARGE_PDF}")
 
         import tracemalloc
-        from research_kb_pdf import extract_with_headings
+        from research_kb_pdf import extract_and_chunk
 
         # Start memory tracking
         tracemalloc.start()
 
-        # Extract PDF (single-pass)
-        doc, headings = extract_with_headings(str(LARGE_PDF))
+        # Extract PDF with Docling
+        extraction_result, chunks = extract_and_chunk(str(LARGE_PDF))
 
         # Get peak memory usage
         current, peak = tracemalloc.get_traced_memory()
@@ -118,56 +118,19 @@ class TestLargePDFMemory:
 
         peak_mb = peak / (1024 * 1024)
 
-        # For an 82MB PDF, peak memory should stay under 2GB
-        # (generous limit to account for variations)
-        assert peak_mb < 2000, f"Peak memory {peak_mb:.1f}MB exceeds 2GB limit"
+        # For an 82MB PDF, peak memory should stay under 4GB
+        # (Docling model inference uses more memory than PyMuPDF)
+        assert peak_mb < 4000, f"Peak memory {peak_mb:.1f}MB exceeds 4GB limit"
 
         # Verify extraction worked
-        assert doc.total_pages > 0
-        assert doc.total_chars > 0
+        assert extraction_result.total_pages > 0
+        assert extraction_result.total_chars > 0
+        assert len(chunks) > 0
 
         print(
-            f"\n✅ Large PDF extraction: {doc.total_pages} pages, "
-            f"{doc.total_chars:,} chars, peak memory {peak_mb:.1f}MB"
-        )
-
-    def test_single_pass_vs_double_memory(self):
-        """Compare single-pass vs old double-open approach."""
-        if not LARGE_PDF.exists():
-            pytest.skip(f"Large PDF not found: {LARGE_PDF}")
-
-        import tracemalloc
-        from research_kb_pdf import extract_pdf, detect_headings, extract_with_headings
-
-        # Measure old approach (double open)
-        tracemalloc.start()
-        doc1 = extract_pdf(str(LARGE_PDF))
-        headings1 = detect_headings(str(LARGE_PDF))
-        _, peak_double = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-
-        # Measure new approach (single pass)
-        tracemalloc.start()
-        doc2, headings2 = extract_with_headings(str(LARGE_PDF))
-        _, peak_single = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-
-        # Single pass should use less memory (or at least not more)
-        # Allow some variance due to Python GC timing
-        assert peak_single <= peak_double * 1.5, (
-            f"Single-pass ({peak_single/1e6:.1f}MB) should use less memory "
-            f"than double-open ({peak_double/1e6:.1f}MB)"
-        )
-
-        # Results should be equivalent
-        assert doc1.total_pages == doc2.total_pages
-        assert doc1.total_chars == doc2.total_chars
-        # Heading counts should be same (ordering may differ slightly)
-        assert len(headings1) == len(headings2)
-
-        print(
-            f"\n✅ Memory comparison: double={peak_double/1e6:.1f}MB, "
-            f"single={peak_single/1e6:.1f}MB"
+            f"\n  Docling extraction: {extraction_result.total_pages} pages, "
+            f"{extraction_result.total_chars:,} chars, {len(chunks)} chunks, "
+            f"peak memory {peak_mb:.1f}MB"
         )
 
 

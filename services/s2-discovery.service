@@ -6,13 +6,13 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=<PROJECT_ROOT>
+WorkingDirectory=/home/brandon_behring/Claude/research-kb
 
 # Run discovery pipeline with multiple strategies
 # 1. Topics discovery (pre-configured causal inference topics)
 # 2. Citation traversal (expand from existing corpus)
 ExecStart=/bin/bash -c '\
-    cd <PROJECT_ROOT> && \
+    cd /home/brandon_behring/Claude/research-kb && \
     source .venv/bin/activate && \
     echo "=== S2 Discovery Run: $(date -Iseconds) ===" && \
     echo "--- Topics Discovery ---" && \
@@ -35,7 +35,7 @@ ExecStart=/bin/bash -c '\
 
 # Environment
 Environment=PYTHONUNBUFFERED=1
-Environment=HOME=$HOME
+Environment=HOME=/home/brandon_behring
 
 # Timeouts - discovery can take a while
 TimeoutStartSec=600
@@ -56,7 +56,7 @@ ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=yes
 # Allow write to project directory for cache/logs
-ReadWritePaths=<PROJECT_ROOT>
+ReadWritePaths=/home/brandon_behring/Claude/research-kb
 
 [Install]
 WantedBy=default.target
