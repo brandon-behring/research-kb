@@ -227,8 +227,19 @@ async def rechunk_source(
             }
 
         # Sanitize null bytes defensively (PostgreSQL rejects \x00)
+        def _sanitize_strings(obj):
+            """Recursively remove null bytes from all string values."""
+            if isinstance(obj, dict):
+                return {k: _sanitize_strings(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [_sanitize_strings(v) for v in obj]
+            elif isinstance(obj, str):
+                return obj.replace("\x00", "").replace("\ufffd", "")
+            return obj
+
         for chunk in new_chunks:
             chunk.content = chunk.content.replace("\x00", "").replace("\ufffd", "")
+            chunk.metadata = _sanitize_strings(chunk.metadata)
 
         # Deduplicate chunks by content hash (HybridChunker can produce dupes)
         seen_hashes: set[str] = set()

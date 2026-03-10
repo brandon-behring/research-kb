@@ -182,6 +182,11 @@ def extract_and_chunk(
         # Extract page numbers from provenance
         start_page, end_page = _get_page_from_prov(dc)
 
+        # Sanitize heading strings (Docling can extract \x00 from corrupted PDFs)
+        safe_headings = [
+            h.replace("\x00", "").replace("\ufffd", "") for h in headings
+        ]
+
         text_chunks.append(
             TextChunk(
                 content=content,
@@ -191,8 +196,8 @@ def extract_and_chunk(
                 char_count=len(content),
                 chunk_index=i,
                 metadata={
-                    "section": headings[-1] if headings else None,
-                    "heading_level": len(headings),
+                    "section": safe_headings[-1] if safe_headings else None,
+                    "heading_level": len(safe_headings),
                     "chunking_method": "docling",
                 },
             )
