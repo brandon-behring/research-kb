@@ -21,6 +21,8 @@ Usage:
     python scripts/eval_retrieval.py --verbose
     python scripts/eval_retrieval.py --tag core
     python scripts/eval_retrieval.py --output metrics.json  # For CI
+    python scripts/eval_retrieval.py --use-citations --citation-weight 0.15  # 3-way (FTS+vector+citation)
+    python scripts/eval_retrieval.py --per-domain --use-citations  # Per-domain with citations
 """
 
 import asyncio
@@ -48,6 +50,7 @@ from research_kb_storage import (
     SearchQuery,
     get_connection_pool,
     search_hybrid,
+    search_hybrid_v2,
 )
 
 
@@ -155,6 +158,8 @@ async def run_test_case(
     test_case: TestCase,
     embed_client: EmbeddingClient,
     scoring_method: str = "weighted",
+    use_citations: bool = False,
+    citation_weight: float = 0.15,
 ) -> TestResult:
     """Run a single test case.
 
@@ -162,6 +167,8 @@ async def run_test_case(
         test_case: The test case to run
         embed_client: Embedding client for query embedding
         scoring_method: Score combination method - "weighted" or "rrf"
+        use_citations: Enable citation authority signal
+        citation_weight: Weight for citation signal (0-1)
 
     Returns:
         TestResult with pass/fail and details
@@ -178,9 +185,15 @@ async def run_test_case(
             vector_weight=0.7,
             limit=test_case.expected_in_top_k,
             scoring_method=scoring_method,
+            use_citations=use_citations,
+            citation_weight=citation_weight if use_citations else 0.0,
         )
 
-        results = await search_hybrid(query)
+        # Use v2 when citation signal is active, base search otherwise
+        if use_citations:
+            results = await search_hybrid_v2(query)
+        else:
+            results = await search_hybrid(query)
 
         if not results:
             return TestResult(
@@ -259,6 +272,8 @@ async def run_eval(
     tag_filter: Optional[str] = None,
     verbose: bool = False,
     scoring_method: str = "weighted",
+    use_citations: bool = False,
+    citation_weight: float = 0.15,
 ) -> tuple[list[TestResult], dict]:
     """Run full evaluation suite.
 
@@ -267,6 +282,8 @@ async def run_eval(
         tag_filter: Optional tag to filter by
         verbose: Print detailed output
         scoring_method: Score combination method - "weighted" or "rrf"
+        use_citations: Enable citation authority signal
+        citation_weight: Weight for citation signal (0-1)
 
     Returns:
         Tuple of (results list, metrics dict)
@@ -291,7 +308,13 @@ async def run_eval(
         if verbose:
             print(f"  Testing: {tc.query}")
 
-        result = await run_test_case(tc, embed_client, scoring_method=scoring_method)
+        result = await run_test_case(
+            tc,
+            embed_client,
+            scoring_method=scoring_method,
+            use_citations=use_citations,
+            citation_weight=citation_weight,
+        )
         results.append(result)
 
         if verbose:
@@ -592,6 +615,8 @@ async def run_golden_dataset_eval(
     verbose: bool = False,
     scoring_method: str = "weighted",
     domain_filter: bool = False,
+    use_citations: bool = False,
+    citation_weight: float = 0.15,
 ) -> tuple[list[TestResult], dict]:
     """Run evaluation against a golden dataset JSON file.
 
@@ -604,6 +629,8 @@ async def run_golden_dataset_eval(
         verbose: Print detailed output
         scoring_method: Score combination method
         domain_filter: Pass domain_id to SearchQuery (diagnostic mode)
+        use_citations: Enable citation authority signal
+        citation_weight: Weight for citation signal (0-1)
 
     Returns:
         Tuple of (results list, metrics dict)
@@ -643,8 +670,13 @@ async def run_golden_dataset_eval(
                 limit=10,
                 scoring_method=scoring_method,
                 domain_id=domain if domain_filter else None,
+                use_citations=use_citations,
+                citation_weight=citation_weight if use_citations else 0.0,
             )
-            search_results = await search_hybrid(query)
+            if use_citations:
+                search_results = await search_hybrid_v2(query)
+            else:
+                search_results = await search_hybrid(query)
 
             # Strict: exact chunk_id match
             matched_rank = None
@@ -752,11 +784,24 @@ async def main():
         default=None,
         help="Comma-separated domains to scope --fail-below gate (e.g., causal_inference,econometrics,statistics)",
     )
+    parser.add_argument(
+        "--use-citations",
+        action="store_true",
+        help="Enable citation authority signal (3-way: FTS+vector+citation)",
+    )
+    parser.add_argument(
+        "--citation-weight",
+        type=float,
+        default=0.15,
+        help="Weight for citation authority signal (default: 0.15)",
+    )
     args = parser.parse_args()
 
     print(f"Scoring method: {args.scoring}")
     if args.domain_filter:
         print("Domain filter: ENABLED (passing domain_id to search)")
+    if args.use_citations:
+        print(f"Citation signal: ENABLED (weight={args.citation_weight})")
 
     # Choose evaluation mode: golden dataset JSON or YAML test cases
     if args.dataset:
@@ -770,6 +815,8 @@ async def main():
             verbose=args.verbose,
             scoring_method=args.scoring,
             domain_filter=args.domain_filter,
+            use_citations=args.use_citations,
+            citation_weight=args.citation_weight,
         )
     else:
         yaml_path = Path(__file__).parent.parent / "fixtures" / "eval" / "retrieval_test_cases.yaml"
@@ -781,6 +828,8 @@ async def main():
             tag_filter=args.tag,
             verbose=args.verbose,
             scoring_method=args.scoring,
+            use_citations=args.use_citations,
+            citation_weight=args.citation_weight,
         )
 
     print_summary(results, metrics)

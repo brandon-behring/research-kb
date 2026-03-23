@@ -6,7 +6,8 @@
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
 - **KuzuDB**: ✅ Operational (310K concepts, 744K relationships, <300ms graph queries)
 - **MCP Server**: 22 tools available
-- **Domains**: 22 tagged (causal_inference, rag_llm, time_series, finance, mathematics, software_engineering, deep_learning, sql, recommender_systems, adtech, and 12 more)
+- **Corpus**: 514 sources, 303K chunks (updated 2026-03-11)
+- **Domains**: 23 tagged (causal_inference, rag_llm, time_series, finance, mathematics, software_engineering, deep_learning, sql, recommender_systems, adtech, and 13 more)
 - **ProactiveContext**: Integrated via `fast_search` (~200ms latency)
 
 ---
@@ -21,6 +22,7 @@
 | Run the CLI | [CLAUDE.md](../CLAUDE.md#cli-usage) |
 | Set up locally | [Local Development](guides/LOCAL_DEVELOPMENT.md) |
 | See domain coverage gaps | [Domain Coverage](DOMAIN_COVERAGE.md) |
+| See what to buy/download next | [Acquisition List](ACQUISITION_LIST.md) |
 | Find a script's usage | [Script Utilities](scripts/UTILITIES.md) |
 | Update status docs | `python scripts/generate_status.py` |
 
@@ -95,6 +97,8 @@ docs/
 ├── scripts/                    # Script documentation
 │   └── UTILITIES.md               # Categorized script index with usage examples
 │
+├── ACQUISITION_LIST.md         # Definitive buy/download list (cross-referenced against DB)
+├── owned_inventory.json        # Ground truth owned inventory (generated)
 ├── DOMAIN_COVERAGE.md          # Domain gap analysis vs interview prep
 │
 ├── guides/                     # How-to guides

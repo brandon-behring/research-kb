@@ -65,7 +65,7 @@ def load_sidecar_metadata(pdf_path: Path) -> dict | None:
                 "authors": data.get("authors", []),
                 "year": data.get("year"),
                 "source_db": data.get("source_db"),
-                "domain": data.get("domain"),
+                "domain": data.get("domain_id") or data.get("domain"),
             }
         except Exception:
             return None
@@ -115,6 +115,7 @@ async def ingest_textbook(
     domain_id: str,
     metadata: dict | None = None,
     quiet: bool = False,
+    no_embed: bool = False,
 ) -> tuple[str, int, int]:
     """Ingest a single textbook PDF.
 
@@ -155,14 +156,19 @@ async def ingest_textbook(
         metadata=metadata,
     )
 
-    # Batch generate embeddings
-    embedding_client = EmbeddingClient()
-    texts = [chunk.content for chunk in chunks]
+    # Generate embeddings (unless --no-embed for two-phase GPU workflow)
+    if no_embed:
+        if not quiet:
+            logger.info("skipping_embeddings", chunks=len(chunks))
+        embeddings = [None] * len(chunks)
+    else:
+        embedding_client = EmbeddingClient()
+        texts = [chunk.content for chunk in chunks]
 
-    if not quiet:
-        logger.info("generating_embeddings", chunks=len(chunks))
+        if not quiet:
+            logger.info("generating_embeddings", chunks=len(chunks))
 
-    embeddings = embedding_client.embed_batch(texts, batch_size=32)
+        embeddings = embedding_client.embed_batch(texts, batch_size=32)
 
     # Prepare batch data for insertion
     chunks_data = []
@@ -176,6 +182,7 @@ async def ingest_textbook(
                 "page_start": chunk.start_page,
                 "page_end": chunk.end_page,
                 "embedding": embedding,
+                "domain_id": domain_id,
                 "metadata": {
                     "section_header": chunk.metadata.get("section", ""),
                     "chunk_index": i,
@@ -352,6 +359,11 @@ def parse_args():
         action="store_true",
         help="Output summary as JSON (for programmatic parsing)",
     )
+    parser.add_argument(
+        "--no-embed",
+        action="store_true",
+        help="Skip embedding generation (use backfill_embeddings.py later)",
+    )
     return parser.parse_args()
 
 
@@ -458,6 +470,7 @@ async def main():
                 domain_id=domain_id,
                 metadata={"auto_ingested": True, "source": "missing_textbooks_script"},
                 quiet=quiet,
+                no_embed=args.no_embed,
             )
 
             elapsed = time.time() - start_time

@@ -58,7 +58,7 @@ class SearchOptions:
     limit: int = 10
     context_type: ContextType = ContextType.balanced
     source_filter: Optional[str] = None
-    use_graph: bool = True
+    use_graph: bool = False
     graph_weight: float = 0.2
     use_rerank: bool = True
     use_expand: bool = True

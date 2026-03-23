@@ -72,6 +72,7 @@ async def get_all_sources(
                     title=row["title"],
                     authors=row["authors"] or [],
                     year=row["year"],
+                    domain_id=row["domain_id"] or "causal_inference",
                     file_path=row["file_path"],
                     file_hash=row["file_hash"],
                     metadata=row["metadata"] or {},

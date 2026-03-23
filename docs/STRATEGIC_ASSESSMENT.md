@@ -117,42 +117,64 @@ All 5 tiers complete. Semantic chunking done, literature review done, weight opt
 
 ## 6. Execution Roadmap
 
-Decided 2026-03-02 via `/iterate`. Budget: $50-100.
+Updated 2026-03-20. Budget: $0 (KG re-extraction deferred).
+
+### Current State (Phase 0 Diagnostic, 2026-03-20)
+
+| Metric | Value |
+|--------|-------|
+| Sources | 823 (575 textbooks, 226 papers, 22 code repos) |
+| Chunks | 670,831 (450K embedded, 220K null) |
+| Docling chunks | 274,747 (41%) — all pre-March, all embedded |
+| Legacy chunks | 396,084 (59%) — post-March batch + small pre-March legacy |
+| Citations | 211 sources extracted, 5,028 internal edges, 132 with authority |
+| Citation gap | 322 post-March sources have zero citations |
+| Concepts | 310K (stale chunk IDs — KG disabled pending re-extraction) |
+| Eval | 98 test cases, MRR 0.729 (FTS+vector), golden candidates valid |
 
 ### Sprint Sequence
 
 | Sprint | Status | Cost | Description |
 |--------|--------|------|-------------|
 | 1. Friction fixes | ✅ Done | $0 | MCP output_format, research-agent venv/stats fixes |
-| 2. Weight optimization | Blocked | $0 | Requires post-rechunk concept re-extraction |
-| 3. Live validation | Pending | ~$5 | North Star: research-agent DML query + KB reviews |
-| 4. time_series pilot | Superseded | ~$15-30 | Full corpus rechunk running instead |
+| RAG optimization | **In progress** | $0 | Embedding backfill + citation network + 3-way search defaults |
+| Weight optimization | Next | $0 | 3-way weight tuning (FTS+vector+citation) after backfill |
+| Live validation | Pending | ~$5 | North Star: research-agent DML query + KB reviews |
+
+### RAG Optimization Plan (2026-03-20, $0)
+
+**Search defaults changed**: Graph OFF (stale KG), Citations ON (free signal).
+
+1. **Embedding backfill** (~5-10h GPU): 220K chunks across 179 sources invisible to vector search
+2. **Citation extraction** (~2-4h CPU): 322 post-March sources missing citations, parallel with embedding
+3. **Weight optimization**: `optimize_weights.py --no-graph --cross-validate` for 3-way tuning
+4. **Eval comparison**: `eval_retrieval.py --per-domain --use-citations` vs baseline
+
+**Expected**: MRR ~0.76-0.80 with embedding backfill + citation signal + optimized weights.
+
+### Knowledge Graph: Deferred
+
+- 310K concepts, 744K relationships — chunk IDs stale after corpus growth
+- Re-extraction cost: ~$250-300 (Haiku 4.5 API)
+- Search auto-normalizes to FTS+vector+citation when graph disabled
+- Revisit when budget allows or when FTS+vector+citation MRR plateaus
 
 ### Budget Estimate
 
 | Activity | Cost |
 |----------|------|
-| Cross-repo fixes (Sprint 1) | $0 |
-| Weight optimization (Sprint 2) | $0 |
+| Embedding backfill (local GPU) | $0 |
+| Citation extraction (GROBID, local) | $0 |
+| Weight optimization (local compute) | $0 |
+| KG re-extraction (deferred) | ~$250-300 |
 | Live validation (~100 queries) | ~$5.50 |
-| Full corpus rechunk (Docling) | $0 (GPU) |
-| Concept re-extraction (Haiku) | ~$250-300 (full) or $0 (if FTS+vector MRR ≥ 0.7) |
-| **Total** | **$5-305** (decision gate at post-rechunk eval) |
-
-### Post-Rechunk Pipeline (Critical Path)
-
-1. Backfill embeddings (~4-6h, GPU)
-2. Regenerate golden candidates
-3. Eval retrieval (FTS+vector only) — **decision gate**
-4. If MRR < 0.7: concept re-extraction (Haiku 4.5)
-5. KuzuDB sync
-6. Sprint 2 weight optimization
-7. Sprint 3 live validation
+| **Current total** | **$0** |
 
 ### Backlog
 
 - Integrate `literature_review` into research-agent ($0, medium priority)
+- Docling rechunk of post-March sources (59% legacy, $0 GPU, low priority)
+- Catalog expansion: ~995 core-domain books actionable (deferred)
+- Interactive citation network visualization (Streamlit/D3.js)
 - Multi-hop reasoning chains (low priority)
-- Embed 26.5K missing concept embeddings (low)
 - Temporal reasoning / contradiction detection (low)
-- Remaining 10 codex domains (low)

@@ -145,7 +145,7 @@ class TestSearchOptions:
         assert options.limit == 10
         assert options.context_type == ContextType.balanced
         assert options.source_filter is None
-        assert options.use_graph is True
+        assert options.use_graph is False  # disabled pending KG re-extraction
         assert options.graph_weight == pytest.approx(0.2)
         assert options.use_rerank is True
         assert options.use_expand is True

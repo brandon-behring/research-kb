@@ -66,7 +66,8 @@ mypy packages/            # Type check
 ```bash
 python scripts/ingest_corpus.py                  # Ingest corpus
 python scripts/extract_concepts.py --limit 1000  # Extract concepts (requires Ollama)
-python scripts/eval_retrieval.py                 # Validate retrieval quality
+python scripts/eval_retrieval.py                 # Validate retrieval quality (FTS+vector)
+python scripts/eval_retrieval.py --use-citations # Validate with citation signal (3-way)
 python scripts/run_quality_checks.py             # Quality metrics
 ```
 
@@ -119,12 +120,12 @@ OLLAMA_KV_CACHE_TYPE=q8_0  # Quantized KV cache
 ### CLI Usage
 
 ```bash
-# Search and retrieval (4-way ranking: FTS + vector + graph + citation)
-research-kb search query "instrumental variables"            # Default (all signals)
-research-kb search query "test" --no-graph                   # Without graph
-research-kb search query "IV" --no-citations                 # Without citation authority
+# Search and retrieval (3-way default: FTS + vector + citation; graph disabled pending re-extraction)
+research-kb search query "instrumental variables"            # Default (FTS+vector+citation)
+research-kb search query "test" --no-citations               # Without citation authority (FTS+vector only)
 research-kb search query "IV" --citation-weight 0.25         # Boost citation influence
 research-kb search query "IV" --context building             # Context-tuned weights
+research-kb search query "IV" --graph                        # Enable graph signal (if KG data is current)
 
 # Source management
 research-kb sources list                                     # List sources
@@ -228,24 +229,24 @@ Key enums:
 
 ### Hybrid Search
 
-4-way ranking combines text matching, semantic similarity, knowledge graph, and citation authority:
+**Default (3-way)**: FTS + vector + citation authority. Knowledge graph disabled pending re-extraction (~$250).
 
 ```
-score = fts_weight × fts + vector_weight × vector + graph_weight × graph + citation_weight × citation
+score = fts_weight × fts + vector_weight × vector + citation_weight × citation
 ```
 
 **Signals:**
 - **FTS**: PostgreSQL full-text search (keyword matching)
 - **Vector**: BGE-large cosine similarity (semantic matching)
-- **Graph**: Concept co-occurrence boost (knowledge graph)
-- **Citation**: PageRank-style authority score (citation network)
+- **Graph**: Concept co-occurrence boost (knowledge graph) — **disabled by default** (stale chunk IDs after corpus growth)
+- **Citation**: PageRank-style authority score (citation network) — **enabled by default**
 
-Context types adjust weights (base FTS + vector; graph and citation are **enabled by default** in CLI/MCP; disable with `--no-graph`/`--no-citations`):
+Context types adjust base FTS + vector weights (citation adds 15% on top, normalized):
 - **building**: 20% FTS, 80% vector (favor semantic breadth)
 - **auditing**: 50% FTS, 50% vector (favor precision)
 - **balanced**: 30% FTS, 70% vector (default)
 
-When `use_graph` or `use_citations` are active, each adds 15% weight (FTS/vector reduced proportionally).
+When `use_graph` or `use_citations` are active, each adds weight (FTS/vector reduced proportionally via normalization). Enable graph with `--graph` flag when KG data is re-extracted.
 
 ### HyDE (Hypothetical Document Embeddings)
 

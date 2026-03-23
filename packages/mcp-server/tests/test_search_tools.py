@@ -163,7 +163,7 @@ class TestSearchToolExecution:
             call_args = search_mock.call_args[0][0]
             assert call_args.query == "instrumental variables"
             assert call_args.limit == 10  # default
-            assert call_args.use_graph is True  # default
+            assert call_args.use_graph is False  # default (graph disabled, pending KG re-extraction)
             assert call_args.use_citations is True  # default
 
             # Verify result format

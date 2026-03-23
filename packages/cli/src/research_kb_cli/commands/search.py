@@ -53,10 +53,10 @@ def query(
         help="Hide content snippets in markdown output",
     ),
     use_graph: bool = typer.Option(
-        True,
+        False,
         "--graph/--no-graph",
         "-g/-G",
-        help="Enable/disable graph-boosted ranking (default: enabled)",
+        help="Enable/disable graph-boosted ranking (default: disabled, pending KG re-extraction)",
     ),
     graph_weight: float = typer.Option(
         0.2,

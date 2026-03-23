@@ -896,170 +896,259 @@ test_cases:
     tags: [phase_j, mathematics]
     notes: "Phase J: Optimization fundamentals"
 
-  # ===== Phase AE: Interview Prep Domain (medium/hard) =====
-  # 23 sources, 10,265 chunks. Q&A flashcard format covering experimentation,
-  # system design, algorithms, SQL, ML, behavioral, and more.
+  # ===== Post-Ingestion: New Domain Coverage =====
 
-  # --- DS System Design (vol15, 837 chunks) ---
-  - query: "data science system design interview loop"
-    expected_source_pattern: "interview prep.*system design|interview prep.*ds"
-    expected_in_top_k: 10
-    expected_concepts: ["system design", "feature engineering", "model serving", "feedback loop"]
+  # --- actuarial_insurance (25 sources) ---
+  - query: "actuarial mortality tables life contingencies"
+    expected_source_pattern: "actuarial mathematics|life contingenc|dickson"
+    expected_in_top_k: 5
+    expected_concepts: ["mortality", "life table", "actuarial", "contingencies"]
     relevance_grade: 3
-    domain: interview_prep
+    domain: actuarial_insurance
     difficulty: medium
-    tags: [phase_ae, interview_prep, system_design]
-    notes: "Phase AE: DS system design interview structure"
+    tags: [phase_post_ingestion, actuarial_insurance]
+    notes: "Post-ingestion: Core actuarial concept"
 
-  # --- Experimentation (vol1, 1191 chunks) ---
-  - query: "CUPED CUPAC variance reduction experiment"
-    expected_source_pattern: "interview prep.*experimentation|interview prep.*vol1"
-    expected_in_top_k: 10
-    expected_concepts: ["CUPED", "CUPAC", "variance reduction", "covariate adjustment"]
+  - query: "annuity present value pricing"
+    expected_source_pattern: "annuity|actuarial|variable-annuity"
+    expected_in_top_k: 5
+    expected_concepts: ["annuity", "present value", "pricing", "discount factor"]
     relevance_grade: 3
-    domain: interview_prep
+    domain: actuarial_insurance
     difficulty: medium
-    tags: [phase_ae, interview_prep, experimentation]
-    notes: "Phase AE: Advanced experimentation technique"
+    tags: [phase_post_ingestion, actuarial_insurance]
+    notes: "Post-ingestion: Annuity valuation"
 
-  - query: "switchback experiment interference network effects"
-    expected_source_pattern: "interview prep.*experimentation|interview prep.*vol1"
-    expected_in_top_k: 10
-    expected_concepts: ["switchback", "interference", "network effects", "SUTVA violation"]
+  # --- algebra (18 sources) ---
+  - query: "group theory symmetry homomorphism"
+    expected_source_pattern: "group theory|hungerford|algebra|zee"
+    expected_in_top_k: 5
+    expected_concepts: ["group", "homomorphism", "symmetry", "isomorphism"]
     relevance_grade: 3
-    domain: interview_prep
+    domain: algebra
     difficulty: medium
-    tags: [phase_ae, interview_prep, experimentation]
-    notes: "Phase AE: Marketplace experimentation challenge"
+    tags: [phase_post_ingestion, algebra]
+    notes: "Post-ingestion: Abstract algebra fundamentals"
 
-  # --- Python & Algorithms (vol3, 314 chunks) ---
-  - query: "heapq Python priority queue implementation"
-    expected_source_pattern: "interview prep.*python|interview prep.*algorithm"
-    expected_in_top_k: 10
-    expected_concepts: ["heap", "priority queue", "heapq", "min-heap"]
+  - query: "Galois theory field extension"
+    expected_source_pattern: "algebra|hungerford|lang|sigler"
+    expected_in_top_k: 5
+    expected_concepts: ["Galois theory", "field extension", "polynomial", "splitting field"]
     relevance_grade: 3
-    domain: interview_prep
-    difficulty: medium
-    tags: [phase_ae, interview_prep, algorithms]
-    notes: "Phase AE: Python data structure for coding interviews"
-
-  - query: "lru_cache memoization decorator Python"
-    expected_source_pattern: "interview prep.*python|interview prep.*algorithm"
-    expected_in_top_k: 10
-    expected_concepts: ["memoization", "caching", "decorator", "dynamic programming"]
-    relevance_grade: 3
-    domain: interview_prep
-    difficulty: medium
-    tags: [phase_ae, interview_prep, algorithms]
-    notes: "Phase AE: Python caching for recursive solutions"
-
-  # --- SQL Mastery (vol4, 275 chunks) ---
-  - query: "SQL window functions ROW_NUMBER PARTITION BY"
-    expected_source_pattern: "interview prep.*sql|interview prep.*vol4"
-    expected_in_top_k: 10
-    expected_concepts: ["window function", "ROW_NUMBER", "PARTITION BY", "ranking"]
-    relevance_grade: 3
-    domain: interview_prep
-    difficulty: medium
-    tags: [phase_ae, interview_prep, sql]
-    notes: "Phase AE: SQL interview essential topic"
-
-  - query: "SELF JOIN hierarchical data SQL"
-    expected_source_pattern: "interview prep.*sql|interview prep.*vol4"
-    expected_in_top_k: 10
-    expected_concepts: ["self-join", "hierarchical data", "recursive query"]
-    relevance_grade: 3
-    domain: interview_prep
-    difficulty: medium
-    tags: [phase_ae, interview_prep, sql]
-    notes: "Phase AE: SQL join pattern for interviews"
-
-  # --- ML Foundations (vol5, 550 chunks + Huyen, 526 chunks) ---
-  - query: "bias variance tradeoff underfitting overfitting ML interview"
-    expected_source_pattern: "interview prep.*ml|machine learning interviews|interview prep.*vol5"
-    expected_in_top_k: 10
-    expected_concepts: ["bias-variance tradeoff", "overfitting", "underfitting", "generalization"]
-    relevance_grade: 3
-    domain: interview_prep
-    difficulty: medium
-    tags: [phase_ae, interview_prep, ml]
-    notes: "Phase AE: Core ML interview concept"
-
-  - query: "feature engineering selection importance"
-    expected_source_pattern: "interview prep.*ml|machine learning interviews|interview prep.*vol5"
-    expected_in_top_k: 10
-    expected_concepts: ["feature engineering", "feature selection", "feature importance"]
-    relevance_grade: 3
-    domain: interview_prep
-    difficulty: medium
-    tags: [phase_ae, interview_prep, ml]
-    notes: "Phase AE: Applied ML interview topic"
-
-  # --- Behavioral (26 chunks) ---
-  - query: "STAR method behavioral interview leadership"
-    expected_source_pattern: "interview prep|machine learning interviews"
-    expected_in_top_k: 10
-    expected_concepts: ["STAR method", "behavioral interview", "leadership"]
-    relevance_grade: 3
-    domain: interview_prep
+    domain: algebra
     difficulty: hard
-    tags: [phase_ae, interview_prep, behavioral]
-    notes: "Phase AE: Behavioral interview framework (broad match — behavioral source small at 26 chunks)"
+    tags: [phase_post_ingestion, algebra]
+    notes: "Post-ingestion: Advanced algebra"
 
-  # --- Product Analytics (vol9, 281 chunks) ---
-  - query: "product analytics metric framework north star"
-    expected_source_pattern: "interview prep.*product|interview prep.*vol9"
-    expected_in_top_k: 10
-    expected_concepts: ["product analytics", "metric", "north star", "funnel"]
+  # --- analysis (18 sources) ---
+  - query: "Banach space functional analysis operator"
+    expected_source_pattern: "functional analysis|conway|hilbert|halmos"
+    expected_in_top_k: 5
+    expected_concepts: ["Banach space", "functional analysis", "operator", "norm"]
     relevance_grade: 3
-    domain: interview_prep
+    domain: analysis
     difficulty: medium
-    tags: [phase_ae, interview_prep, product]
-    notes: "Phase AE: Product sense interview topic"
+    tags: [phase_post_ingestion, analysis]
+    notes: "Post-ingestion: Functional analysis core"
 
-  # --- MLOps (vol8, 312 chunks) ---
-  - query: "model deployment serving infrastructure MLOps"
-    expected_source_pattern: "interview prep.*mlops|interview prep.*vol8"
+  - query: "complex analysis Cauchy integral formula"
+    expected_source_pattern: "complex analysis|marsden|lang|conway|basic.*analysis|stein"
     expected_in_top_k: 10
-    expected_concepts: ["model serving", "deployment", "MLOps", "inference"]
+    expected_concepts: ["Cauchy integral", "complex analysis", "holomorphic", "residue"]
     relevance_grade: 3
-    domain: interview_prep
+    domain: analysis
     difficulty: medium
-    tags: [phase_ae, interview_prep, mlops]
-    notes: "Phase AE: MLOps interview topic"
+    tags: [phase_post_ingestion, analysis]
+    notes: "Post-ingestion: Complex analysis fundamentals (broadened pattern + top_k)"
 
-  # --- GenAI & LLM (vol6, 294 chunks) ---
-  - query: "prompt engineering LLM interview techniques"
-    expected_source_pattern: "interview prep|llm|generative|language model"
-    expected_in_top_k: 10
-    expected_concepts: ["prompt engineering", "LLM", "few-shot", "chain-of-thought"]
+  # --- biology_neuroscience (21 sources) ---
+  - query: "neuroscience excitability bursting neural dynamics"
+    expected_source_pattern: "neuroscience|dynamical|excitability|bursting"
+    expected_in_top_k: 5
+    expected_concepts: ["excitability", "bursting", "neuron", "dynamical system"]
     relevance_grade: 3
-    domain: interview_prep
+    domain: biology_neuroscience
     difficulty: medium
-    tags: [phase_ae, interview_prep, genai]
-    notes: "Phase AE: GenAI interview — broad match (rag_llm sources also relevant)"
+    tags: [phase_post_ingestion, biology_neuroscience]
+    notes: "Post-ingestion: Computational neuroscience (Izhikevich textbook)"
 
-  # --- Pricing (vol7, 257 chunks) ---
-  - query: "pricing elasticity optimization revenue"
-    expected_source_pattern: "interview prep.*pricing|interview prep.*vol7"
+  - query: "epidemiological network model disease spreading"
+    expected_source_pattern: "ebola|network model|epidem|spreading|campbell|biology"
     expected_in_top_k: 10
-    expected_concepts: ["pricing", "elasticity", "revenue optimization", "demand curve"]
+    expected_concepts: ["epidemiology", "network model", "disease spreading", "SIR"]
     relevance_grade: 3
-    domain: interview_prep
+    domain: biology_neuroscience
     difficulty: medium
-    tags: [phase_ae, interview_prep, pricing]
-    notes: "Phase AE: Pricing interview topic"
+    tags: [phase_post_ingestion, biology_neuroscience]
+    notes: "Post-ingestion: Epidemiological modeling (broadened pattern + top_k)"
 
-  # --- Company-Specific (vol_interview_amazon_*, vol_meta_*) ---
-  - query: "Amazon leadership principles interview preparation"
-    expected_source_pattern: "interview prep.*amazon|interview prep.*company"
-    expected_in_top_k: 10
-    expected_concepts: ["leadership principles", "Amazon", "behavioral interview"]
+  # --- linear_algebra (16 sources) ---
+  - query: "eigenvalue decomposition spectral theorem"
+    expected_source_pattern: "linear algebra|strang|lay|roman"
+    expected_in_top_k: 5
+    expected_concepts: ["eigenvalue", "spectral theorem", "diagonalization", "eigenvector"]
     relevance_grade: 3
-    domain: interview_prep
+    domain: linear_algebra
+    difficulty: medium
+    tags: [phase_post_ingestion, linear_algebra]
+    notes: "Post-ingestion: Core linear algebra"
+
+  - query: "Jordan canonical form matrix similarity"
+    expected_source_pattern: "linear algebra|roman|advanced|strang"
+    expected_in_top_k: 5
+    expected_concepts: ["Jordan form", "canonical form", "similarity", "nilpotent"]
+    relevance_grade: 3
+    domain: linear_algebra
     difficulty: hard
-    tags: [phase_ae, interview_prep, company_specific]
-    notes: "Phase AE: Company-specific interview prep"
+    tags: [phase_post_ingestion, linear_algebra]
+    notes: "Post-ingestion: Advanced linear algebra"
+
+  # --- numerical_methods (18 sources) ---
+  - query: "finite element method numerical PDE"
+    expected_source_pattern: "numerical|computational|partial differential|iserles|burden"
+    expected_in_top_k: 5
+    expected_concepts: ["finite element", "PDE", "numerical method", "mesh"]
+    relevance_grade: 3
+    domain: numerical_methods
+    difficulty: medium
+    tags: [phase_post_ingestion, numerical_methods]
+    notes: "Post-ingestion: Numerical PDE solving"
+
+  - query: "numerical integration quadrature interpolation"
+    expected_source_pattern: "numerical|burden|iserles|analysis"
+    expected_in_top_k: 5
+    expected_concepts: ["quadrature", "interpolation", "numerical integration", "polynomial"]
+    relevance_grade: 3
+    domain: numerical_methods
+    difficulty: medium
+    tags: [phase_post_ingestion, numerical_methods]
+    notes: "Post-ingestion: Numerical approximation"
+
+  # --- optimization (18 sources) ---
+  - query: "convex optimization duality KKT conditions"
+    expected_source_pattern: "cvxbook|convex|optimization|boyd"
+    expected_in_top_k: 5
+    expected_concepts: ["convex optimization", "duality", "KKT", "Lagrangian"]
+    relevance_grade: 3
+    domain: optimization
+    difficulty: medium
+    tags: [phase_post_ingestion, optimization]
+    notes: "Post-ingestion: Boyd & Vandenberghe core"
+
+  - query: "dynamic programming Bellman equation optimal control"
+    expected_source_pattern: "dynamic programming|optimal control|bertsekas"
+    expected_in_top_k: 5
+    expected_concepts: ["dynamic programming", "Bellman equation", "optimal control", "value function"]
+    relevance_grade: 3
+    domain: optimization
+    difficulty: medium
+    tags: [phase_post_ingestion, optimization]
+    notes: "Post-ingestion: Dynamic programming fundamentals"
+
+  # --- physics (16 sources) ---
+  - query: "quantum mechanics Schrodinger equation wave function"
+    expected_source_pattern: "quantum mechanics|griffiths|introduction to quantum"
+    expected_in_top_k: 5
+    expected_concepts: ["Schrodinger equation", "wave function", "quantum mechanics", "Hamiltonian"]
+    relevance_grade: 3
+    domain: physics
+    difficulty: medium
+    tags: [phase_post_ingestion, physics]
+    notes: "Post-ingestion: Quantum mechanics fundamentals"
+
+  - query: "classical electrodynamics Maxwell equations"
+    expected_source_pattern: "electrodynamics|jackson|griffiths"
+    expected_in_top_k: 5
+    expected_concepts: ["Maxwell equations", "electrodynamics", "electromagnetic", "field"]
+    relevance_grade: 3
+    domain: physics
+    difficulty: medium
+    tags: [phase_post_ingestion, physics]
+    notes: "Post-ingestion: Classical E&M"
+
+  # --- probability_theory (20 sources) ---
+  - query: "Brownian motion stochastic calculus Ito"
+    expected_source_pattern: "brownian motion|stochastic calculus|karatzas|shreve"
+    expected_in_top_k: 5
+    expected_concepts: ["Brownian motion", "stochastic calculus", "Ito formula", "martingale"]
+    relevance_grade: 3
+    domain: probability_theory
+    difficulty: medium
+    tags: [phase_post_ingestion, probability_theory]
+    notes: "Post-ingestion: Stochastic calculus core"
+
+  - query: "measure theoretic probability sigma algebra"
+    expected_source_pattern: "measure theory|probability theory|athreya|dasgupta"
+    expected_in_top_k: 5
+    expected_concepts: ["measure theory", "sigma algebra", "probability measure", "Borel"]
+    relevance_grade: 3
+    domain: probability_theory
+    difficulty: hard
+    tags: [phase_post_ingestion, probability_theory]
+    notes: "Post-ingestion: Rigorous probability foundations"
+
+  # --- reinforcement_learning (18 sources) ---
+  - query: "Q-learning temporal difference policy gradient"
+    expected_source_pattern: "reinforcement learning|deep reinforcement|grokking|bertsekas"
+    expected_in_top_k: 5
+    expected_concepts: ["Q-learning", "temporal difference", "policy gradient", "value function"]
+    relevance_grade: 3
+    domain: reinforcement_learning
+    difficulty: medium
+    tags: [phase_post_ingestion, reinforcement_learning]
+    notes: "Post-ingestion: RL fundamentals"
+
+  - query: "Markov decision process MDP reward"
+    expected_source_pattern: "reinforcement learning|bertsekas|optimal control|grokking|lecture"
+    expected_in_top_k: 10
+    expected_concepts: ["MDP", "Markov decision process", "reward", "policy"]
+    relevance_grade: 3
+    domain: reinforcement_learning
+    difficulty: medium
+    tags: [phase_post_ingestion, reinforcement_learning]
+    notes: "Post-ingestion: MDP framework (broadened to include lecture titles)"
+
+  # --- signal_processing (11 sources) ---
+  - query: "discrete Fourier transform DFT spectral analysis"
+    expected_source_pattern: "signal processing|oppenheim|lyons|digital"
+    expected_in_top_k: 5
+    expected_concepts: ["DFT", "Fourier transform", "spectral analysis", "frequency"]
+    relevance_grade: 3
+    domain: signal_processing
+    difficulty: medium
+    tags: [phase_post_ingestion, signal_processing]
+    notes: "Post-ingestion: DSP fundamentals"
+
+  - query: "wavelet transform multiresolution analysis"
+    expected_source_pattern: "wavelet|frazier|signal|transform"
+    expected_in_top_k: 5
+    expected_concepts: ["wavelet", "multiresolution", "transform", "scaling function"]
+    relevance_grade: 3
+    domain: signal_processing
+    difficulty: medium
+    tags: [phase_post_ingestion, signal_processing]
+    notes: "Post-ingestion: Wavelet theory"
+
+  # --- topology_geometry (16 sources) ---
+  - query: "differential geometry manifold tangent bundle"
+    expected_source_pattern: "differential geometry|manifold|pressley|mcinerney|spivak"
+    expected_in_top_k: 5
+    expected_concepts: ["manifold", "tangent bundle", "differential geometry", "smooth map"]
+    relevance_grade: 3
+    domain: topology_geometry
+    difficulty: medium
+    tags: [phase_post_ingestion, topology_geometry]
+    notes: "Post-ingestion: Differential geometry core"
+
+  - query: "algebraic topology homology fundamental group"
+    expected_source_pattern: "topology|munkres|morse theory|manifold"
+    expected_in_top_k: 5
+    expected_concepts: ["homology", "fundamental group", "topology", "homotopy"]
+    relevance_grade: 3
+    domain: topology_geometry
+    difficulty: hard
+    tags: [phase_post_ingestion, topology_geometry]
+    notes: "Post-ingestion: Algebraic topology"
 
 # Metrics targets (Master Plan Lines 1382-1383)
 metrics:

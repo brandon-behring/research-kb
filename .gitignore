@@ -32,6 +32,7 @@ Thumbs.db
 # Project-specific - Large corpus PDFs (source separately)
 fixtures/papers/
 fixtures/textbooks/
+fixtures/library_books/
 fixtures/golden/
 
 # Large model files (download separately)
@@ -43,6 +44,7 @@ models/
 !fixtures/demo/
 fixtures/demo/papers/
 .extraction_checkpoint.json
+.mass_ingest_checkpoint.json
 *.log
 .env
 *.sql                   # Database dumps
@@ -56,6 +58,14 @@ fixtures/demo/papers/
 !.claude/
 backups/
 .dlq/
+
+# Library catalog review (symlinked PDFs for offline browsing)
+fixtures/library_catalog/review/
+# Library catalog cache/checkpoints (regenerable)
+fixtures/library_catalog/.cache/
+fixtures/library_catalog/.enrichment_checkpoint.json
+fixtures/library_catalog/.llm_classification_checkpoint.json
+fixtures/library_catalog/.llm_output_batch_*.json
 
 # Phase 3: Archived operational data
 .archive/

@@ -84,7 +84,7 @@ async def run_query(
     limit: int,
     context_type: ContextType,
     source_filter: Optional[str],
-    use_graph: bool = True,
+    use_graph: bool = False,
     graph_weight: float = 0.2,
     use_citations: bool = True,
     citation_weight: float = 0.15,

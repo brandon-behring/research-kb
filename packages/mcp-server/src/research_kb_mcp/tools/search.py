@@ -23,7 +23,7 @@ def register_search_tools(mcp: FastMCP) -> None:
         limit: int = 10,
         domain: str | None = None,
         context_type: Literal["building", "auditing", "balanced"] = "balanced",
-        use_graph: bool = True,
+        use_graph: bool = False,
         use_rerank: bool = True,
         use_expand: bool = True,
         use_citations: bool = True,
@@ -50,7 +50,7 @@ def register_search_tools(mcp: FastMCP) -> None:
                 - "building": Favor semantic breadth (20% FTS, 80% vector)
                 - "auditing": Favor precision (50% FTS, 50% vector)
                 - "balanced": Default balance (30% FTS, 70% vector)
-            use_graph: Include knowledge graph signals (default True)
+            use_graph: Include knowledge graph signals (default False, pending KG re-extraction)
             use_rerank: Apply cross-encoder reranking (default True)
             use_expand: Expand query with synonyms (default True)
             use_citations: Enable citation authority boosting (default True)
