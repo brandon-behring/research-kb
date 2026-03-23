@@ -2,12 +2,13 @@
 
 ## Current Status
 
-- **Phase**: Core phases ✅ Complete | Phase 4.3 (ProactiveContext Integration) ✅ Complete
+- **Phase**: All core phases ✅ Complete | Catalog ingestion ✅ Complete (2026-03-23)
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
-- **KuzuDB**: ✅ Operational (310K concepts, 744K relationships, <300ms graph queries)
-- **MCP Server**: 22 tools available
-- **Corpus**: 514 sources, 303K chunks (updated 2026-03-11)
-- **Domains**: 23 tagged (causal_inference, rag_llm, time_series, finance, mathematics, software_engineering, deep_learning, sql, recommender_systems, adtech, and 13 more)
+- **Corpus**: 997 sources, 857K chunks, 100% embedded, 41,852 citation edges (updated 2026-03-23)
+- **Domains**: 35 tagged across causal_inference, rag_llm, time_series, finance, mathematics, physics, algebra, optimization, and 27 more
+- **Search**: 3-way hybrid (FTS + vector + citation). MRR 0.771, Hit Rate 94.4% on 107 eval test cases
+- **MCP Server**: 22 tools available (9 with JSON output_format)
+- **KuzuDB**: 310K concepts, 744K relationships (stale chunk IDs — graph search disabled, re-extraction deferred)
 - **ProactiveContext**: Integrated via `fast_search` (~200ms latency)
 
 ---
@@ -66,6 +67,10 @@
 | AG. Doc Trust Alignment | ✅ Complete | 11 stale claims fixed, --gate-domains for eval CI | [→](../ROADMAP.md) |
 | AH. Semantic Chunking | ✅ Complete | Structure-driven chunker, heading-aware PDF splitting | [→](../ROADMAP.md) |
 | AI. Literature Review | ✅ Complete | Graph+search+LLM review generation, MCP tool #22, operational scripts | [→](../ROADMAP.md) |
+| AJ. Docling Migration | ✅ Complete | LaTeX-preserving PDF extraction (IBM Docling/Granite-258M) | [→](../ROADMAP.md) |
+| Sprint 1 | ✅ Complete | MCP output_format on get_source + cross_domain_concepts | [→](STRATEGIC_ASSESSMENT.md) |
+| RAG Optimization | ✅ Complete | 100% embeddings, 41K citation edges, 3-way search defaults | [→](STRATEGIC_ASSESSMENT.md) |
+| Catalog Ingestion | ✅ Complete | 552 books ingested (Tier 1+2), 12 new domains, 107 eval cases | [→](STRATEGIC_ASSESSMENT.md) |
 
 ---
 

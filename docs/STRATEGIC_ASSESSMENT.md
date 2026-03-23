@@ -110,71 +110,55 @@ Until that works, the platform is not serving its purpose.
 
 | AJ | 2026-03-06 | Docling migration — LaTeX-preserving PDF extraction |
 | Sprint 1 | 2026-03-09 | output_format on get_source + cross_domain_concepts, research-agent friction fixes |
+| RAG Opt | 2026-03-21 | 100% embeddings (was 67%), 41K citation edges (was 5K), 3-way search defaults |
+| Cleanup | 2026-03-21 | Removed 22 interview_prep code_repos, retagged ML Interviews to machine_learning |
+| Catalog | 2026-03-22 | 552 books ingested (Tier 1+2), 12 new domains, 211 new sources |
+| Citations | 2026-03-23 | Full citation rebuild: 41,852 edges, 997/997 sources with authority |
 
-All 5 tiers complete. Semantic chunking done, literature review done, weight optimization scripts ready. Full corpus rechunk in progress (Docling).
+All 5 original tiers + RAG optimization + catalog ingestion complete. 997 sources, 857K chunks, 35 domains. Next unlock: KG re-extraction (~$250-300).
 
 ---
 
 ## 6. Execution Roadmap
 
-Updated 2026-03-20. Budget: $0 (KG re-extraction deferred).
+Updated 2026-03-23. All $0 sprints complete. KG re-extraction remains the next major unlock.
 
-### Current State (Phase 0 Diagnostic, 2026-03-20)
+### Current State (2026-03-23)
 
 | Metric | Value |
 |--------|-------|
-| Sources | 823 (575 textbooks, 226 papers, 22 code repos) |
-| Chunks | 670,831 (450K embedded, 220K null) |
-| Docling chunks | 274,747 (41%) — all pre-March, all embedded |
-| Legacy chunks | 396,084 (59%) — post-March batch + small pre-March legacy |
-| Citations | 211 sources extracted, 5,028 internal edges, 132 with authority |
-| Citation gap | 322 post-March sources have zero citations |
-| Concepts | 310K (stale chunk IDs — KG disabled pending re-extraction) |
-| Eval | 98 test cases, MRR 0.729 (FTS+vector), golden candidates valid |
+| Sources | 997 (~771 textbooks, 226 papers) |
+| Chunks | 857,024 (100% embedded, 0 null) |
+| Citation edges | 41,852 (all 997 sources have authority) |
+| Concepts | 310K (stale chunk IDs — KG disabled, 0/997 sources linked) |
+| Eval | 107 test cases, 35 domains, MRR 0.771, Hit Rate 94.4% |
+| Search mode | 3-way default (FTS + vector + citation). Graph OFF |
 
-### Sprint Sequence
+### Sprint History
 
 | Sprint | Status | Cost | Description |
 |--------|--------|------|-------------|
 | 1. Friction fixes | ✅ Done | $0 | MCP output_format, research-agent venv/stats fixes |
-| RAG optimization | **In progress** | $0 | Embedding backfill + citation network + 3-way search defaults |
-| Weight optimization | Next | $0 | 3-way weight tuning (FTS+vector+citation) after backfill |
-| Live validation | Pending | ~$5 | North Star: research-agent DML query + KB reviews |
+| 2. RAG optimization | ✅ Done | $0 | 100% embeddings, 41K citation edges, 3-way defaults |
+| 3. Interview prep cleanup | ✅ Done | $0 | Removed 22 derivative code_repo sources |
+| 4. Catalog ingestion | ✅ Done | $0 | 552 books (Tier 1+2), 12 new domains, 107 eval cases |
+| 5. Weight optimization | In progress | $0 | 3-way weight tuning (FTS+vector+citation) |
+| 6. Live validation | Pending | ~$5 | North Star: research-agent DML query |
 
-### RAG Optimization Plan (2026-03-20, $0)
+### Knowledge Graph: Deferred (~$250-300)
 
-**Search defaults changed**: Graph OFF (stale KG), Citations ON (free signal).
-
-1. **Embedding backfill** (~5-10h GPU): 220K chunks across 179 sources invisible to vector search
-2. **Citation extraction** (~2-4h CPU): 322 post-March sources missing citations, parallel with embedding
-3. **Weight optimization**: `optimize_weights.py --no-graph --cross-validate` for 3-way tuning
-4. **Eval comparison**: `eval_retrieval.py --per-domain --use-citations` vs baseline
-
-**Expected**: MRR ~0.76-0.80 with embedding backfill + citation signal + optimized weights.
-
-### Knowledge Graph: Deferred
-
-- 310K concepts, 744K relationships — chunk IDs stale after corpus growth
-- Re-extraction cost: ~$250-300 (Haiku 4.5 API)
-- Search auto-normalizes to FTS+vector+citation when graph disabled
-- Revisit when budget allows or when FTS+vector+citation MRR plateaus
-
-### Budget Estimate
-
-| Activity | Cost |
-|----------|------|
-| Embedding backfill (local GPU) | $0 |
-| Citation extraction (GROBID, local) | $0 |
-| Weight optimization (local compute) | $0 |
-| KG re-extraction (deferred) | ~$250-300 |
-| Live validation (~100 queries) | ~$5.50 |
-| **Current total** | **$0** |
+The single biggest remaining capability gap:
+- 310K concepts, 744K relationships exist but reference stale chunk IDs
+- 0/997 sources have working concept→chunk links
+- Graph search, concept neighborhood, and graph-traced synthesis all degraded
+- Re-extraction: Haiku 4.5 on 857K chunks (~$250-300)
+- Revisit when budget allows
 
 ### Backlog
 
 - Integrate `literature_review` into research-agent ($0, medium priority)
-- Docling rechunk of post-March sources (59% legacy, $0 GPU, low priority)
-- Catalog expansion: ~995 core-domain books actionable (deferred)
-- Interactive citation network visualization (Streamlit/D3.js)
-- Multi-hop reasoning chains (low priority)
+- KG re-extraction + KuzuDB sync (~$250-300, high priority when budget allows)
+- Live validation with research-agent (~$5)
+- Interactive citation network visualization (Streamlit/D3.js, low)
+- Multi-hop reasoning chains (blocked by KG, low)
 - Temporal reasoning / contradiction detection (low)

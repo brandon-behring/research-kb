@@ -5,7 +5,7 @@ Tunes the 4 search weights (FTS/vector/graph/citation) to maximize MRR
 using scipy.optimize with sum-to-1 constraints.
 
 Supports:
-- Global optimization across all 98 test cases
+- Global optimization across all eval cases
 - Per-domain optimization (only for domains with >= min_cases)
 - K-fold cross-validation to detect overfitting
 - Comparison report: current vs optimized weights
@@ -17,6 +17,10 @@ Usage:
     python scripts/optimize_weights.py --dry-run            # Show current, don't optimize
     python scripts/optimize_weights.py --method nelder-mead # Optimization method
 """
+
+import nest_asyncio
+
+nest_asyncio.apply()  # Allow nested event loops (scipy calls run_until_complete inside asyncio.run)
 
 import argparse
 import asyncio
