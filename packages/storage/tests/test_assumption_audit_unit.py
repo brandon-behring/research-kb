@@ -30,6 +30,19 @@ pytestmark = pytest.mark.unit
 _NOW = datetime.now(timezone.utc)
 
 
+@pytest.fixture(autouse=True)
+def _mock_kg_staleness():
+    """Mock KG staleness check to return False (fresh KG) for all unit tests.
+
+    Unit tests mock graph results directly, so the staleness guard would
+    bypass those mocks against the real (stale) DB. This fixture ensures
+    the guard always reports fresh KG in test context.
+    """
+    MethodAssumptionAuditor._kg_stale_cache = False
+    yield
+    MethodAssumptionAuditor._kg_stale_cache = None
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

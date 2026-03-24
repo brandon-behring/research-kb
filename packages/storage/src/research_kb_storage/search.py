@@ -602,8 +602,8 @@ async def search_with_rerank(
     original_limit = query.limit
     query.limit = rerank_top_k * fetch_multiplier
 
-    # Use graph-boosted search if enabled, otherwise basic hybrid
-    if query.use_graph:
+    # Use v2 for graph or citation signals, otherwise basic hybrid
+    if query.use_graph or query.use_citations:
         candidates = await search_hybrid_v2(query)
     else:
         candidates = await search_hybrid(query)
@@ -1008,7 +1008,7 @@ async def search_with_expansion(
             query,
             rerank_top_k=rerank_top_k,
         )
-    elif query.use_graph:
+    elif query.use_graph or query.use_citations:
         results = await search_hybrid_v2(query)
     else:
         results = await search_hybrid(query)

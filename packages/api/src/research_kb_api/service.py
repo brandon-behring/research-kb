@@ -302,6 +302,8 @@ async def search(options: SearchOptions) -> SearchResponse:
             embedding=query_embedding,
             fts_weight=fts_weight,
             vector_weight=vector_weight,
+            use_citations=options.use_citations,
+            citation_weight=options.citation_weight,
             limit=options.limit,
             source_filter=options.source_filter,
             domain_id=options.domain_id,
@@ -326,7 +328,8 @@ async def search(options: SearchOptions) -> SearchResponse:
             )
     elif options.use_rerank:
         results = await search_with_rerank(search_query, rerank_top_k=options.limit)
-    elif use_graph:
+    elif use_graph or options.use_citations:
+        # Use v2 for either graph or citation signals (or both)
         results = await search_hybrid_v2(search_query)
     else:
         results = await search_hybrid(search_query)

@@ -470,19 +470,35 @@ class TestSearch:
 
         mock_search_deps["hybrid_v2"].assert_called_once()
 
-    async def test_search_uses_hybrid_without_graph(self, mock_search_deps, sample_search_result):
-        """Test search uses basic hybrid without graph."""
+    async def test_search_uses_hybrid_without_graph_or_citations(self, mock_search_deps, sample_search_result):
+        """Test search uses basic hybrid without graph or citations."""
         mock_search_deps["hybrid"].return_value = [sample_search_result]
         options = SearchOptions(
             query="test",
             use_expand=False,
             use_rerank=False,
             use_graph=False,
+            use_citations=False,
         )
 
         await search(options)
 
         mock_search_deps["hybrid"].assert_called_once()
+
+    async def test_search_uses_v2_with_citations_no_graph(self, mock_search_deps, sample_search_result):
+        """Test search uses hybrid_v2 when citations enabled but graph disabled."""
+        mock_search_deps["hybrid_v2"].return_value = [sample_search_result]
+        options = SearchOptions(
+            query="test",
+            use_expand=False,
+            use_rerank=False,
+            use_graph=False,
+            use_citations=True,
+        )
+
+        await search(options)
+
+        mock_search_deps["hybrid_v2"].assert_called_once()
 
     async def test_search_falls_back_when_no_concepts(self, mock_search_deps, sample_search_result):
         """Test search falls back to non-graph when no concepts exist."""
@@ -493,11 +509,12 @@ class TestSearch:
             use_expand=False,
             use_rerank=False,
             use_graph=True,  # Requested but should fall back
+            use_citations=False,  # Disable citations to test pure fallback
         )
 
         await search(options)
 
-        # Should fall back to basic hybrid since no concepts
+        # Should fall back to basic hybrid since no concepts and no citations
         mock_search_deps["hybrid"].assert_called_once()
 
     async def test_search_normalizes_weights_with_graph(self, mock_search_deps):

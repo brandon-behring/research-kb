@@ -188,6 +188,39 @@ class MethodAssumptionAuditor:
     Phase 4.1b adds: Ollama fallback when graph returns <3 assumptions.
     """
 
+    # Cache the staleness check result per process (avoid repeated queries)
+    _kg_stale_cache: Optional[bool] = None
+
+    @staticmethod
+    async def _check_kg_staleness() -> bool:
+        """Check if knowledge graph chunk links are stale.
+
+        Returns True if chunk_concepts references no valid chunks,
+        meaning all graph-based lookups will return cross-contaminated
+        or empty results. Result is cached per process.
+        """
+        if MethodAssumptionAuditor._kg_stale_cache is not None:
+            return MethodAssumptionAuditor._kg_stale_cache
+
+        pool = await get_connection_pool()
+        async with pool.acquire() as conn:
+            # Check if ANY chunk_concepts row references a chunk that still exists
+            linked = await conn.fetchval("""
+                SELECT EXISTS(
+                    SELECT 1 FROM chunk_concepts cc
+                    JOIN chunks c ON c.id = cc.chunk_id
+                    LIMIT 1
+                )
+            """)
+            is_stale = not linked
+            MethodAssumptionAuditor._kg_stale_cache = is_stale
+            if is_stale:
+                logger.warning(
+                    "kg_staleness_detected",
+                    detail="chunk_concepts has 0 valid chunk links — graph results unreliable",
+                )
+            return is_stale
+
     @staticmethod
     async def find_method(method_name: str) -> Optional[Concept]:
         """Find method concept by name, canonical name, or alias.
@@ -927,11 +960,23 @@ class MethodAssumptionAuditor:
             )
 
         # Step 2: Get assumptions from graph (with domain filtering)
-        graph_assumptions = await MethodAssumptionAuditor.get_assumptions_from_graph(
-            method.id,
-            filter_by_domain=filter_by_domain,
-            domain=domain,
-        )
+        # Guard: skip graph if chunk_concepts is stale (0 linked chunks).
+        # Stale KG returns cross-contaminated results (e.g., physics concepts
+        # in causal inference methods). Added 2026-03-24 after North Star validation.
+        kg_is_stale = await MethodAssumptionAuditor._check_kg_staleness()
+        if kg_is_stale:
+            logger.info(
+                "skipping_stale_kg",
+                method=method.canonical_name,
+                reason="chunk_concepts references stale chunk IDs (0 linked chunks)",
+            )
+            graph_assumptions = []
+        else:
+            graph_assumptions = await MethodAssumptionAuditor.get_assumptions_from_graph(
+                method.id,
+                filter_by_domain=filter_by_domain,
+                domain=domain,
+            )
 
         # Step 3: Try to enrich with cached details
         cached_assumptions = await MethodAssumptionAuditor.get_cached_assumptions(method.id)
