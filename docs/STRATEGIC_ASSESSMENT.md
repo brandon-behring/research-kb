@@ -29,18 +29,18 @@ The system was designed to be the **hippocampus** (long-term memory) of an AI-au
 
 After Phase F (January 2026), **zero phases advanced core capability**. The last 20 phases are infrastructure hardening, coverage gates, doc alignment, domain tagging, and test fortification.
 
-### 1.3 What was never built
+### 1.3 What was never built (updated 2026-03-23)
 
 Features from original plans, Gemini audit, or ROADMAP "Future Work":
 
-1. **Path-Augmented Synthesis**: `graph_path` returns node IDs but never fetches chunk text or produces natural-language synthesis
-2. **Learned Weight Optimization**: Search weights are hand-tuned magic numbers
-3. **Multi-hop Reasoning Chain Explanations**: Designed in Phase 3 notes, not implemented
-4. **Semantic Chunking**: Still using 300-token fixed windows
-5. **Concept Deduplication at Scale**: `_normalize_concept` handles casing only; 312K concepts with significant duplication
-6. **Automated Literature Review**: ROADMAP future work, never started
-7. **Temporal Reasoning / Contradiction Detection**: Never started
-8. **The other 10 Codex domains**: Only Domain 3 built
+1. ~~**Path-Augmented Synthesis**~~ → ✅ DONE (Phase AC: `explain_connection` — graph path + evidence hydration + LLM synthesis)
+2. **Learned Weight Optimization**: Script exists (`optimize_weights.py`) but blocked — 18s/query makes Nelder-Mead impractical. Needs refactor to precompute scores
+3. **Multi-hop Reasoning Chain Explanations**: PARTIAL — `explain_connection` does single-path; no multi-hop chains
+4. ~~**Semantic Chunking**~~ → ✅ DONE (Phase AH: heading-aware splitting; Phase AJ: Docling/Granite-258M LaTeX-preserving extraction)
+5. ~~**Concept Deduplication at Scale**~~ → ✅ DONE (Phase AF: 2,370 singular/plural pairs merged, 312K→310K)
+6. ~~**Automated Literature Review**~~ → ✅ DONE (Phase AI: `generate_literature_review()`, MCP tool #22, CLI `review generate`)
+7. **Temporal Reasoning / Contradiction Detection**: Not started
+8. **The other 10 Codex domains**: Not started — only Domain 3 built
 
 ### 1.4 Evidence the platform serves itself, not users
 
@@ -76,13 +76,14 @@ CI cadence labels, stale golden_dataset refs, MRR threshold correction, README t
 
 ---
 
-## 3. What NOT to do
+## 3. What NOT to do (updated 2026-03-23)
 
 - No more coverage gate raises (70% is sufficient)
 - No more doc alignment phases (audit_docs.py exists)
-- No more test fortification phases (2,630 tests is enough)
+- No more test fortification phases (2,700+ tests is enough)
 - No more mypy/black/ruff phases (all at zero baseline)
-- No new domain acquisition until existing domains deliver value
+- No more ingestion until KG is restored (997 sources is sufficient corpus)
+- No more eval test case writing without running eval first (validate patterns against real results)
 
 ---
 
@@ -142,7 +143,7 @@ Updated 2026-03-23. All $0 sprints complete. KG re-extraction remains the next m
 | 2. RAG optimization | ✅ Done | $0 | 100% embeddings, 41K citation edges, 3-way defaults |
 | 3. Interview prep cleanup | ✅ Done | $0 | Removed 22 derivative code_repo sources |
 | 4. Catalog ingestion | ✅ Done | $0 | 552 books (Tier 1+2), 12 new domains, 107 eval cases |
-| 5. Weight optimization | In progress | $0 | 3-way weight tuning (FTS+vector+citation) |
+| 5. Weight optimization | Blocked | $0 | Script runs 18s/query (40h total). Needs precompute refactor |
 | 6. Live validation | Pending | ~$5 | North Star: research-agent DML query |
 
 ### Knowledge Graph: Deferred (~$250-300)
@@ -154,11 +155,14 @@ The single biggest remaining capability gap:
 - Re-extraction: Haiku 4.5 on 857K chunks (~$250-300)
 - Revisit when budget allows
 
-### Backlog
+### Prioritized Roadmap
 
-- Integrate `literature_review` into research-agent ($0, medium priority)
-- KG re-extraction + KuzuDB sync (~$250-300, high priority when budget allows)
-- Live validation with research-agent (~$5)
-- Interactive citation network visualization (Streamlit/D3.js, low)
-- Multi-hop reasoning chains (blocked by KG, low)
-- Temporal reasoning / contradiction detection (low)
+| Priority | Item | Cost | Dependency |
+|----------|------|------|------------|
+| 1 | Refactor `optimize_weights.py` (precompute scores) | $0 | None |
+| 2 | Live validation: North Star DML query | ~$5 | None |
+| 3 | KG re-extraction (Haiku 4.5, 857K chunks) | ~$250-300 | Depends on #2 results |
+| 4 | Research-agent: wire `literature_review` tool | $0 | None |
+| 5 | Interactive citation network (Streamlit/D3.js) | $0 | Low priority |
+| 6 | Multi-hop reasoning chains | $0 | Blocked by #3 |
+| 7 | Temporal reasoning / contradiction detection | $0 | Low priority |
