@@ -151,7 +151,7 @@ Qualitative status:
 | 2. RAG optimization | ✅ Done | $0 | 100% embeddings at time of sprint, 41K citation edges, 3-way defaults |
 | 3. Interview prep cleanup | ✅ Done | $0 | Removed 22 derivative code_repo sources |
 | 4. Catalog ingestion | ✅ Done | $0 | 552 books (Tier 1+2), 12 new domains, 107 eval cases |
-| 5. Weight optimization | Blocked | $0 | Script runs 18s/query (40h total). Needs precompute refactor |
+| 5. Weight optimization | ✅ Done | $0 | Disk cache + parallel precompute. ~7 min first run, ~2s cached |
 | 6. Live validation | Pending | ~$5 | North Star: research-agent DML query |
 
 ### Knowledge Graph: Deferred (until ingestion stabilizes)
@@ -166,8 +166,9 @@ The single biggest remaining capability gap:
 
 | Priority | Item | Cost | Dependency |
 |----------|------|------|------------|
-| 1 | Refactor `optimize_weights.py` (precompute scores) | $0 | None |
-| 2 | Live validation: North Star DML query | ~$5 | None |
+| ~~1~~ | ~~Refactor `optimize_weights.py`~~ | ~~$0~~ | ✅ Done — disk cache + parallel precompute |
+| 1 | Embedding backfill (post-catalog chunks) | $0 | embed_server + ~2h GPU |
+| 2 | Live validation: cross-disciplinary North Star | ~$5 | None |
 | 3 | KG re-extraction (Haiku 4.5, all chunks) | TBD (depends on final corpus size) | Depends on #2 results + ingestion stabilization |
 | 4 | Research-agent: wire `literature_review` tool | $0 | None |
 | 5 | Interactive citation network (Streamlit/D3.js) | $0 | Low priority |

@@ -11,11 +11,12 @@ Supports:
 - Comparison report: current vs optimized weights
 
 Usage:
-    python scripts/optimize_weights.py                      # Global optimization
-    python scripts/optimize_weights.py --per-domain         # Per-domain tuning
-    python scripts/optimize_weights.py --cross-validate     # With 5-fold CV
-    python scripts/optimize_weights.py --dry-run            # Show current, don't optimize
-    python scripts/optimize_weights.py --method nelder-mead # Optimization method
+    python scripts/optimize_weights.py --cache /tmp/wc.json              # First run: precompute + optimize (~7 min)
+    python scripts/optimize_weights.py --cache /tmp/wc.json              # Cached run: ~2s
+    python scripts/optimize_weights.py --cache /tmp/wc.json --per-domain # Per-domain tuning (cached)
+    python scripts/optimize_weights.py --cache /tmp/wc.json --dry-run    # Show current weights, don't optimize
+    python scripts/optimize_weights.py --concurrency 10                  # Faster precompute (more DB connections)
+    python scripts/optimize_weights.py --cross-validate                  # With 5-fold CV
 """
 
 import nest_asyncio
@@ -28,7 +29,7 @@ import json
 import sys
 import time
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Optional
 from uuid import UUID
@@ -129,6 +130,68 @@ def find_latest_golden_file() -> Path:
     return candidates[-1]
 
 
+def save_cache(cached: list[CachedCase], path: str) -> None:
+    """Serialize precomputed scores to JSON for reuse across runs.
+
+    Saves raw signal scores per chunk so optimization can skip the expensive
+    precompute step on subsequent runs.
+    """
+    data = []
+    for cc in cached:
+        data.append(
+            {
+                "query": cc.case.query,
+                "domain": cc.case.domain,
+                "source_title": cc.case.source_title,
+                "difficulty": cc.case.difficulty,
+                "target_chunk_ids": [str(cid) for cid in cc.case.target_chunk_ids],
+                "results": [
+                    {
+                        "chunk_id": str(cs.chunk_id),
+                        "fts_score": cs.fts_score,
+                        "vector_score": cs.vector_score,
+                        "graph_score": cs.graph_score,
+                        "citation_score": cs.citation_score,
+                    }
+                    for cs in cc.results
+                ],
+            }
+        )
+    Path(path).write_text(json.dumps(data, indent=2))
+    print(f"  Saved cache: {len(data)} cases -> {path}")
+
+
+def load_cache(path: str) -> list[CachedCase]:
+    """Load precomputed scores from JSON cache.
+
+    Returns CachedCase objects without embeddings (not needed for cached evaluation).
+    """
+    raw = json.loads(Path(path).read_text())
+    cached = []
+    for entry in raw:
+        case = EvalCase(
+            query=entry["query"],
+            target_chunk_ids={UUID(cid) for cid in entry["target_chunk_ids"]},
+            domain=entry.get("domain", "unknown"),
+            source_title=entry.get("source_title", ""),
+            difficulty=entry.get("difficulty", "medium"),
+            embedding=[],  # Not needed for cached evaluation
+        )
+        results = [
+            ChunkScores(
+                chunk_id=UUID(r["chunk_id"]),
+                fts_score=r["fts_score"],
+                vector_score=r["vector_score"],
+                graph_score=r["graph_score"],
+                citation_score=r["citation_score"],
+            )
+            for r in entry["results"]
+        ]
+        cached.append(CachedCase(case=case, results=results))
+    print(f"  Loaded cache: {len(cached)} cases from {path}")
+    return cached
+
+
 async def load_eval_cases(dataset_path: Path, embed_client: EmbeddingClient) -> list[EvalCase]:
     """Load golden dataset and precompute embeddings.
 
@@ -170,46 +233,49 @@ async def precompute_scores(
     use_graph: bool = False,
     use_citations: bool = True,
     fetch_limit: int = 50,
+    concurrency: int = 5,
 ) -> list[CachedCase]:
     """Precompute raw signal scores for all eval cases (run search ONCE per case).
 
     Fetches a wide result set (top-50) so different weight combinations can
-    re-rank without missing candidates. This is the expensive step (~18s/case).
+    re-rank without missing candidates. Uses parallel execution with a semaphore
+    to limit concurrent DB queries.
 
     Args:
         cases: Eval cases with precomputed embeddings
         use_graph: Include graph signal in precomputation
         use_citations: Include citation signal
         fetch_limit: Number of results to cache per query (wider = better coverage)
+        concurrency: Max parallel search tasks (limited by DB pool size)
 
     Returns:
-        List of CachedCase with raw per-signal scores
+        List of CachedCase with raw per-signal scores (order matches input)
     """
-    cached = []
     total = len(cases)
+    sem = asyncio.Semaphore(concurrency)
+    completed = [0]  # Mutable counter for progress reporting
 
-    for i, case in enumerate(cases, 1):
-        query = SearchQuery(
-            text=case.query,
-            embedding=case.embedding,
-            fts_weight=0.3,
-            vector_weight=0.7,
-            graph_weight=0.2 if use_graph else 0.0,
-            use_graph=use_graph,
-            citation_weight=0.15 if use_citations else 0.0,
-            use_citations=use_citations,
-            limit=fetch_limit,
-        )
+    async def compute_one(case: EvalCase) -> CachedCase:
+        async with sem:
+            query = SearchQuery(
+                text=case.query,
+                embedding=case.embedding,
+                fts_weight=0.3,
+                vector_weight=0.7,
+                graph_weight=0.2 if use_graph else 0.0,
+                use_graph=use_graph,
+                citation_weight=0.15 if use_citations else 0.0,
+                use_citations=use_citations,
+                limit=fetch_limit,
+            )
 
-        try:
-            if use_citations and search_hybrid_v2 is not None:
-                results = await search_hybrid_v2(query)
-            else:
-                results = await search_hybrid(query)
+            try:
+                if use_citations and search_hybrid_v2 is not None:
+                    results = await search_hybrid_v2(query)
+                else:
+                    results = await search_hybrid(query)
 
-            chunk_scores = []
-            for r in results:
-                chunk_scores.append(
+                chunk_scores = [
                     ChunkScores(
                         chunk_id=r.chunk.id,
                         fts_score=r.fts_score or 0.0,
@@ -217,16 +283,22 @@ async def precompute_scores(
                         graph_score=r.graph_score or 0.0,
                         citation_score=r.citation_score or 0.0,
                     )
-                )
-            cached.append(CachedCase(case=case, results=chunk_scores))
-        except Exception as e:
-            print(f"  WARNING: Failed to precompute case {i}: {e}")
-            cached.append(CachedCase(case=case, results=[]))
+                    for r in results
+                ]
+                result = CachedCase(case=case, results=chunk_scores)
+            except Exception as e:
+                print(f"  WARNING: Failed to precompute '{case.query[:40]}': {e}")
+                result = CachedCase(case=case, results=[])
 
-        if i % 20 == 0 or i == total:
-            print(f"  Precomputed {i}/{total} cases")
+            completed[0] += 1
+            if completed[0] % 20 == 0 or completed[0] == total:
+                print(f"  Precomputed {completed[0]}/{total} cases")
 
-    return cached
+            return result
+
+    tasks = [compute_one(case) for case in cases]
+    cached = await asyncio.gather(*tasks)
+    return list(cached)
 
 
 def evaluate_weights_cached(
@@ -304,7 +376,7 @@ def evaluate_weights_cached(
 async def evaluate_weights(
     cases: list[EvalCase],
     weights: WeightConfig,
-    use_graph: bool = True,
+    use_graph: bool = False,
     use_citations: bool = True,
 ) -> dict:
     """Legacy evaluate_weights — calls search per case. Use evaluate_weights_cached instead.
@@ -372,7 +444,7 @@ async def evaluate_weights(
 def optimize_global_cached(
     cached_cases: list[CachedCase],
     method: str = "nelder-mead",
-    use_graph: bool = True,
+    use_graph: bool = False,
     use_citations: bool = True,
 ) -> tuple[WeightConfig, dict]:
     """Find optimal global weights using precomputed scores.
@@ -477,7 +549,7 @@ def optimize_global_cached(
 async def optimize_global(
     cases: list[EvalCase],
     method: str = "nelder-mead",
-    use_graph: bool = True,
+    use_graph: bool = False,
     use_citations: bool = True,
 ) -> tuple[WeightConfig, dict]:
     """Legacy optimizer — runs search per case per iteration. Slow.
@@ -535,7 +607,7 @@ async def cross_validate(
     cases: list[EvalCase],
     weights: WeightConfig,
     k_folds: int = 5,
-    use_graph: bool = True,
+    use_graph: bool = False,
     use_citations: bool = True,
 ) -> dict:
     """K-fold cross-validation for weight robustness.
@@ -573,7 +645,7 @@ async def cross_validate(
 async def optimize_per_domain(
     cases: list[EvalCase],
     min_cases: int = 5,
-    use_graph: bool = True,
+    use_graph: bool = False,
     use_citations: bool = True,
 ) -> dict[str, tuple[WeightConfig, dict]]:
     """Optimize weights per domain (only domains with >= min_cases).
@@ -660,6 +732,18 @@ def parse_args():
         default=None,
         help="Save results to JSON file",
     )
+    parser.add_argument(
+        "--cache",
+        type=str,
+        default=None,
+        help="Path to cache file for precomputed scores (saves on first run, loads on subsequent)",
+    )
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=5,
+        help="Parallel precompute tasks (default: 5, limited by DB pool size)",
+    )
     return parser.parse_args()
 
 
@@ -695,9 +779,22 @@ async def main():
         print("ERROR: No valid eval cases found")
         sys.exit(1)
 
-    # Precompute scores (the expensive step — ~18s/case, done once)
-    print(f"\n--- Precomputing raw scores (this takes ~{len(cases) * 18 // 60} min) ---")
-    cached = await precompute_scores(cases, use_graph=use_graph, use_citations=use_citations)
+    # Load or compute raw scores
+    if args.cache and Path(args.cache).exists():
+        print(f"\n--- Loading cached scores from {args.cache} ---")
+        cached = load_cache(args.cache)
+        print(f"  {len(cached)} cached cases loaded (skipping precompute)")
+    else:
+        est_min = len(cases) * 18 // 60 // max(args.concurrency, 1)
+        print(f"\n--- Precomputing raw scores ({args.concurrency}x parallel, ~{est_min} min) ---")
+        cached = await precompute_scores(
+            cases,
+            use_graph=use_graph,
+            use_citations=use_citations,
+            concurrency=args.concurrency,
+        )
+        if args.cache:
+            save_cache(cached, args.cache)
 
     # Evaluate current weights using cached scores (instant)
     print(f"\n--- Current weights: {CURRENT_WEIGHTS} ---")
