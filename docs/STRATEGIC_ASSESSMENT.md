@@ -116,7 +116,7 @@ Until that works, the platform is not serving its purpose.
 | Catalog | 2026-03-22 | 552 books ingested (Tier 1+2), 12 new domains, 211 new sources |
 | Citations | 2026-03-23 | Full citation rebuild: 41,852 edges, 997/997 sources with authority |
 
-All 5 original tiers + RAG optimization + catalog ingestion complete. 997 sources, 857K chunks, 35 domains. Next unlock: KG re-extraction (~$250-300).
+All 5 original tiers + RAG optimization + catalog ingestion complete. 1,198 sources, 1,012K chunks, 36 domains. Next unlock: KG re-extraction (~$250-300).
 
 ---
 

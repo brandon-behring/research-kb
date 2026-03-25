@@ -6,15 +6,15 @@
 
 Graph-boosted semantic search for research literature.
 
-Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 21-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
+Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 22-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
 
 ## Features
 
 - **4-signal hybrid search** -- BM25 + vector + knowledge graph + citation authority, with context-aware weight profiles
-- **21-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, assumption auditing, and concept synthesis
+- **22-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, assumption auditing, and concept synthesis
 - **Knowledge graph** -- 310K concepts and 744K relationships extracted from research literature, served by KuzuDB
-- **Citation authority** -- PageRank-style scoring over 15K+ citation links; bibliographic coupling for related-work discovery
-- **Multi-domain** -- 22 corpus domains, 20 extraction prompt configs, extensible to new domains
+- **Citation authority** -- PageRank-style scoring over 41K+ citation links; bibliographic coupling for related-work discovery
+- **Multi-domain** -- 35 corpus domains, 20 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
 - **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
 
@@ -80,7 +80,7 @@ research-kb search query "instrumental variables"
 research-kb-mcp
 ```
 
-Then add to your Claude Code MCP config to access all 21 tools from conversation.
+Then add to your Claude Code MCP config to access all 22 tools from conversation.
 
 ## How It Works
 
@@ -123,7 +123,7 @@ Graph (15%) and citation (15%) signals are **enabled by default** in CLI and MCP
 ┌───────────────────────────────────────────────────┐
 │  Interfaces                                       │
 │  ┌─────┐  ┌─────────┐  ┌─────┐  ┌───────────┐   │
-│  │ CLI │  │MCP (21) │  │ API │  │ Dashboard │   │
+│  │ CLI │  │MCP (22) │  │ API │  │ Dashboard │   │
 │  └──┬──┘  └────┬────┘  └──┬──┘  └─────┬─────┘   │
 │     └──────────┴──────────┴────────────┘          │
 │                     │                              │
@@ -164,7 +164,7 @@ Graph (15%) and citation (15%) signals are **enabled by default** in CLI and MCP
 
 | Decision | Rationale | Alternative Rejected |
 |----------|-----------|---------------------|
-| BGE-large-en-v1.5 (1024d) | Single model ensures embedding consistency across 228K chunks | Multi-model (marginal quality gain, consistency cost) |
+| BGE-large-en-v1.5 (1024d) | Single model ensures embedding consistency across 1M+ chunks | Multi-model (marginal quality gain, consistency cost) |
 | KuzuDB embedded graph | Solved O(N*M) recursive CTE bottleneck: 85s -> 2.1s | PostgreSQL-only graph (too slow at scale) |
 | Weighted sum over RRF | Validated 5-1 superiority on golden dataset | Reciprocal Rank Fusion (loses magnitude signal) |
 | asyncpg connection pooling | Handles concurrent MCP + API + CLI requests | Synchronous psycopg2 (blocks on I/O) |
@@ -201,16 +201,16 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 | Dimension | Count |
 |-----------|-------|
-| Sources (papers, textbooks) | 495 |
-| Text chunks (100% embedded) | 228K |
+| Sources (papers, textbooks) | 1,198 |
+| Text chunks | 1,012K |
 | Concepts (9 types) | 310K |
 | Relationships | 744K |
-| Citations | 15,166 |
+| Citations | 41,852 |
 
 <!-- AUTO-GEN:mcp-tools:START -->
 ## MCP Server
 
-21 tools organized by function, designed for conversational use in Claude Code:
+22 tools organized by function, designed for conversational use in Claude Code:
 
 | Category | Tools | Description |
 |----------|-------|-------------|
@@ -220,7 +220,7 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 | **Graph** | `research_kb_graph_neighborhood`, `research_kb_graph_path`, `research_kb_cross_domain_concepts` | Traverse concept relationships |
 | **Citations** | `research_kb_citation_network`, `research_kb_biblio_coupling` | Upstream/downstream influence, bibliographic coupling |
 | **Health** | `research_kb_health`, `research_kb_stats`, `research_kb_list_domains` | System status and corpus metrics |
-| **Advanced** | `research_kb_audit_assumptions`, `research_kb_explain_connection` | Assumption audit with gap reporting; concept connection synthesis (graph + evidence + LLM) |
+| **Advanced** | `research_kb_audit_assumptions`, `research_kb_explain_connection`, `research_kb_literature_review` | Assumption audit with gap reporting; concept connection synthesis (graph + evidence + LLM); structured literature review generation |
 <!-- AUTO-GEN:mcp-tools:END -->
 
 ## Testing
@@ -292,31 +292,44 @@ research-kb enrich job-status                            # Check enrichment job 
 
 ## Multi-Domain Support
 
-research-kb supports 22 corpus domains with 20 extraction prompt configurations:
+research-kb supports 35 corpus domains with 20 extraction prompt configurations:
 
 | Domain | Sources | Description |
 |--------|---------|-------------|
-| `causal_inference` | 89 | Causal inference, structural models, treatment effects |
-| `rag_llm` | 76 | Retrieval-augmented generation, language models |
-| `time_series` | 48 | Time series analysis, forecasting, temporal methods |
-| `deep_learning` | 35 | Neural networks, transformers, optimization |
-| `econometrics` | 35 | Econometric theory and estimation |
-| `software_engineering` | 30 | Design patterns, testing, architecture, DevOps |
-| `mathematics` | 28 | Pure and applied mathematics |
-| `finance` | 23 | Quantitative finance and risk |
-| `interview_prep` | 23 | Technical interview preparation |
-| `statistics` | 18 | Statistical theory and methods |
-| `ml_engineering` | 17 | ML systems, MLOps, production ML |
-| `machine_learning` | 14 | General ML algorithms and theory |
-| `algorithms` | 12 | Algorithm design and analysis |
-| `data_science` | 12 | Data analysis and visualization |
-| `portfolio_management` | 11 | Portfolio theory and optimization |
-| `functional_programming` | 8 | FP concepts and languages |
+| `software_engineering` | 147 | Design patterns, testing, architecture, DevOps |
+| `causal_inference` | 102 | Causal inference, structural models, treatment effects |
+| `rag_llm` | 91 | Retrieval-augmented generation, language models |
+| `machine_learning` | 76 | General ML algorithms and theory |
+| `time_series` | 67 | Time series analysis, forecasting, temporal methods |
+| `numerical_methods` | 53 | Numerical analysis and computational methods |
+| `deep_learning` | 53 | Neural networks, transformers, optimization |
+| `mathematics` | 49 | Pure and applied mathematics |
+| `linear_algebra` | 48 | Linear algebra and matrix theory |
+| `econometrics` | 44 | Econometric theory and estimation |
+| `finance` | 43 | Quantitative finance and risk |
+| `statistics` | 37 | Statistical theory and methods |
+| `data_science` | 29 | Data analysis and visualization |
+| `algorithms` | 28 | Algorithm design and analysis |
+| `ml_engineering` | 28 | ML systems, MLOps, production ML |
+| `actuarial_insurance` | 25 | Actuarial science and insurance modeling |
+| `functional_programming` | 25 | FP concepts and languages |
+| `portfolio_management` | 21 | Portfolio theory and optimization |
+| `biology_neuroscience` | 21 | Biology, neuroscience, computational models |
+| `interview_prep` | 20 | Technical interview preparation |
+| `dynamical_systems` | 20 | Dynamical systems and control theory |
+| `probability_theory` | 20 | Probability theory and stochastic processes |
+| `optimization` | 18 | Mathematical optimization and operations research |
+| `fitness` | 18 | Exercise science and training |
+| `reinforcement_learning` | 18 | Reinforcement learning and decision processes |
+| `analysis` | 18 | Real and functional analysis |
+| `algebra` | 18 | Abstract algebra and algebraic structures |
+| `physics` | 16 | Physics and mathematical physics |
+| `topology_geometry` | 16 | Topology, geometry, and manifolds |
+| `sql` | 15 | SQL, databases, query optimization |
+| `signal_processing` | 11 | Signal processing and spectral methods |
 | `forecasting` | 5 | Forecasting methods and evaluation |
-| `recommender_systems` | 3 | Recommender systems, collaborative filtering |
-| `sql` | 2 | SQL, databases, query optimization |
-| `adtech` | 2 | Advertising technology, auction mechanisms |
-| `fitness` | 2 | Exercise science and training |
+| `recommender_systems` | 5 | Recommender systems, collaborative filtering |
+| `adtech` | 3 | Advertising technology, auction mechanisms |
 | `economics` | 2 | Economic theory |
 
 All search, concept extraction, and graph operations support domain filtering via the `--domain` flag.

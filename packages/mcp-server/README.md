@@ -4,7 +4,7 @@ MCP (Model Context Protocol) server exposing the research-kb causal inference kn
 
 ## Overview
 
-This package provides 16 MCP tools for:
+This package provides 22 MCP tools for:
 - **Hybrid search** combining full-text, vector similarity, knowledge graph, and citation signals
 - **Source browsing** with citation network exploration
 - **Concept discovery** via knowledge graph traversal

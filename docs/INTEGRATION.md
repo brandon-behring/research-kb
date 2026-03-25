@@ -70,7 +70,7 @@ open http://localhost:8000/docs
 
 ## 3. MCP Server (Claude Code)
 
-Add to your Claude Code MCP configuration (`~/.config/claude-code/config.json`):
+Add to your Claude Code MCP configuration (`~/.claude.json`):
 
 ```json
 {
@@ -83,7 +83,7 @@ Add to your Claude Code MCP configuration (`~/.config/claude-code/config.json`):
 }
 ```
 
-This exposes 19 tools to Claude Code — see [CLAUDE.md](../CLAUDE.md#mcp-server-claude-code-integration) for the full tool list.
+This exposes 22 tools to Claude Code — see [CLAUDE.md](../CLAUDE.md#mcp-server-claude-code-integration) for the full tool list.
 
 ## Context Types
 

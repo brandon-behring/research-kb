@@ -11,7 +11,7 @@ This package provides **exclusive database access** for all research-kb operatio
 - **CitationStore / BiblioStore** -- Citation network and bibliographic coupling
 - **ConceptStore / RelationshipStore / ChunkConceptStore** -- Knowledge graph entities
 - **MethodStore / AssumptionStore** -- Method-assumption cache for auditing
-- **DomainStore** -- Multi-domain corpus management (19 domains)
+- **DomainStore** -- Multi-domain corpus management (36 domains)
 - **DiscoveryStore / QueueStore** -- Paper discovery and ingestion queue
 - **CrossDomainStore** -- Cross-domain concept links
 - **4-way hybrid search** -- FTS + vector + graph + citation authority
