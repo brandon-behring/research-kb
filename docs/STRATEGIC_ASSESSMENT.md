@@ -123,8 +123,12 @@ Until that works, the platform is not serving its purpose.
 | Batch 1 | 2026-03-24 | Gap-fill ingestion + SE/Python + 66 arXiv papers |
 | Batch 2 | 2026-03-25 | Cleanup + 25 remaining books + paper ingestion bug fix |
 | Audit | 2026-03-25 | Contradictions audit — unified graph defaults, fixed narrative, reference-only metrics |
+| Optimizer | 2026-03-25 | Weight optimizer refactor — disk cache + parallel precompute (32min → 7min → 2s cached) |
+| Validation | 2026-03-25 | Cross-disciplinary validation: search works (Q2 pass), KG broken (chunk_concepts=0), Anthropic credits exhausted |
 
-All 5 original tiers complete. Ingestion ongoing for cross-disciplinary coverage. Next unlock: KG re-extraction (deferred until ingestion stabilizes).
+All 5 original tiers complete. Ingestion ongoing for cross-disciplinary coverage.
+
+**Validated 2026-03-25**: 3-way search returns multi-domain results for explicit cross-domain topics. KG-dependent synthesis tools (explain_connection, literature_review, audit_assumptions) blocked by two resource constraints: Anthropic API credits exhausted + chunk_concepts=0.
 
 ---
 

@@ -390,7 +390,14 @@ async def synthesize_connection(
         logger.warning("synthesis_anthropic_import_failed", message="pip install anthropic")
         return None
     except Exception as e:
-        logger.error("synthesis_llm_failed", error=str(e))
+        error_msg = str(e)
+        if "credit balance is too low" in error_msg:
+            logger.error(
+                "synthesis_insufficient_credits",
+                detail="Add credits at console.anthropic.com",
+            )
+        else:
+            logger.error("synthesis_llm_failed", error=error_msg)
         return None
 
 

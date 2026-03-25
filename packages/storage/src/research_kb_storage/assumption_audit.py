@@ -805,7 +805,15 @@ class MethodAssumptionAuditor:
             logger.error("anthropic_json_parse_error", error=str(e))
             return []
         except Exception as e:
-            logger.error("anthropic_extraction_failed", error=str(e))
+            error_msg = str(e)
+            # Surface specific API errors so callers can diagnose
+            if "credit balance is too low" in error_msg:
+                logger.error(
+                    "anthropic_insufficient_credits",
+                    detail="Add credits at console.anthropic.com",
+                )
+            else:
+                logger.error("anthropic_extraction_failed", error=error_msg)
             return []
 
     @staticmethod
@@ -1067,6 +1075,17 @@ class MethodAssumptionAuditor:
 
                 backend_label = effective_backend
                 source = f"graph+{backend_label}" if graph_assumptions else backend_label
+            else:
+                # LLM fallback was attempted but returned nothing
+                # Surface this so callers know the fallback ran and failed
+                if source == "empty":
+                    source = f"llm_fallback_failed:{effective_backend}"
+                    logger.warning(
+                        "llm_fallback_returned_empty",
+                        method=method.canonical_name,
+                        backend=effective_backend,
+                        hint="Check API credits or service availability",
+                    )
 
         # Step 5: Generate code docstring snippet
         docstring = _generate_docstring_snippet(

@@ -508,7 +508,15 @@ async def _synthesize_section(
         )
         return response.content[0].text
     except Exception as e:
-        logger.error("section_synthesis_failed", section=section.section_id, error=str(e))
+        error_msg = str(e)
+        if "credit balance is too low" in error_msg:
+            logger.error(
+                "section_synthesis_insufficient_credits",
+                section=section.section_id,
+                detail="Add credits at console.anthropic.com",
+            )
+        else:
+            logger.error("section_synthesis_failed", section=section.section_id, error=error_msg)
         return None
 
 
@@ -582,7 +590,14 @@ async def _synthesize_intro_conclusion(
         )
         return response.content[0].text
     except Exception as e:
-        logger.error(f"{part}_synthesis_failed", error=str(e))
+        error_msg = str(e)
+        if "credit balance is too low" in error_msg:
+            logger.error(
+                f"{part}_synthesis_insufficient_credits",
+                detail="Add credits at console.anthropic.com",
+            )
+        else:
+            logger.error(f"{part}_synthesis_failed", error=error_msg)
         return None
 
 
