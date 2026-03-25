@@ -102,7 +102,10 @@ def load_s2_sidecar(pdf_path: Path) -> dict | None:
     """
     import json
 
+    # Try .s2.json first (S2 acquisition pipeline), then .json (classify_arxiv_papers)
     sidecar_path = pdf_path.with_suffix(".s2.json")
+    if not sidecar_path.exists():
+        sidecar_path = pdf_path.with_suffix(".json")
     if not sidecar_path.exists():
         return None
 
@@ -120,7 +123,8 @@ def get_metadata_for_pdf(pdf_path: Path) -> tuple[str, list[str], int | None, di
     """Get metadata for a PDF, preferring S2 sidecar over filename parsing.
 
     Returns:
-        Tuple of (title, authors, year, extra_metadata)
+        Tuple of (title, authors, year, extra_metadata).
+        If sidecar has domain_id, it's included in extra_metadata["sidecar_domain_id"].
     """
     # Try S2 sidecar first (rich metadata from Semantic Scholar)
     sidecar = load_s2_sidecar(pdf_path)
@@ -146,6 +150,9 @@ def get_metadata_for_pdf(pdf_path: Path) -> tuple[str, list[str], int | None, di
             "s2_acquired_at": sidecar.get("acquired_at"),
             "metadata_source": "s2_sidecar",
         }
+        # Preserve sidecar domain_id for per-paper domain override
+        if sidecar.get("domain_id"):
+            extra_metadata["sidecar_domain_id"] = sidecar["domain_id"]
         # Remove None values
         extra_metadata = {k: v for k, v in extra_metadata.items() if v is not None}
 
@@ -163,6 +170,7 @@ async def ingest_pdf(
     year: int | None,
     metadata: dict | None = None,
     domain_id: str = "causal_inference",
+    no_embed: bool = False,
 ) -> tuple[str, int, int]:
     """Ingest a single PDF file.
 
@@ -173,6 +181,7 @@ async def ingest_pdf(
         year: Publication year.
         metadata: Extra metadata dict.
         domain_id: Research-kb domain to assign (default: causal_inference).
+        no_embed: If True, skip embedding generation (two-phase GPU workflow).
 
     Returns: (source_id, chunks_created, headings_found)
     """
@@ -207,16 +216,18 @@ async def ingest_pdf(
         metadata=metadata,
     )
 
-    # Generate embeddings and store chunks
-    embedding_client = EmbeddingClient()
+    # Generate embeddings (unless --no-embed for two-phase GPU workflow)
+    if no_embed:
+        logger.info("skipping_embeddings", chunks=len(chunks))
+        embeddings = [None] * len(chunks)
+    else:
+        embedding_client = EmbeddingClient()
+        logger.info("generating_embeddings", chunks=len(chunks))
+        embeddings = [embedding_client.embed(chunk.content) for chunk in chunks]
 
-    logger.info("generating_embeddings", chunks=len(chunks))
     chunks_created = 0
 
-    for i, chunk in enumerate(chunks):
-        # embed() is synchronous
-        embedding = embedding_client.embed(chunk.content)
-
+    for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
         # Compute content hash for deduplication
         content_hash = hashlib.sha256(chunk.content.encode("utf-8")).hexdigest()
 
@@ -225,6 +236,7 @@ async def ingest_pdf(
             source_id=source.id,
             content=chunk.content,
             content_hash=content_hash,
+            domain_id=domain_id,
             page_start=chunk.start_page,
             page_end=chunk.end_page,
             embedding=embedding,
@@ -261,6 +273,11 @@ async def main():
         default="causal_inference",
         help="Domain ID to assign to ingested papers (default: causal_inference)",
     )
+    parser.add_argument(
+        "--no-embed",
+        action="store_true",
+        help="Skip embeddings (two-phase GPU workflow, use backfill_embeddings.py later)",
+    )
     args = parser.parse_args()
     domain_id = args.domain
 
@@ -270,8 +287,8 @@ async def main():
         print(f"Error: {papers_dir} does not exist")
         return
 
-    # Get all PDFs
-    all_pdfs = list(papers_dir.glob("*.pdf"))
+    # Get all PDFs (including subdirectories)
+    all_pdfs = list(papers_dir.glob("*.pdf")) + list(papers_dir.glob("*/*.pdf"))
     print(f"Found {len(all_pdfs)} PDFs in {papers_dir}")
 
     # Initialize database connection pool
@@ -316,6 +333,9 @@ async def main():
         else:
             print(f"  📝 Using filename metadata: {title[:50]}...")
 
+        # Use per-paper domain from sidecar if available, else CLI default
+        paper_domain = extra_metadata.pop("sidecar_domain_id", None) or domain_id
+
         try:
             source_id, num_chunks, num_headings = await ingest_pdf(
                 pdf_path=str(pdf_path),
@@ -323,7 +343,8 @@ async def main():
                 authors=authors,
                 year=year,
                 metadata=extra_metadata,
-                domain_id=domain_id,
+                domain_id=paper_domain,
+                no_embed=args.no_embed,
             )
 
             results["success"].append(
