@@ -115,7 +115,7 @@ The weight profile adapts to the search intent:
 | `auditing` | 50% | 50% | -- | -- | Precise lookup -- keyword accuracy matters |
 | `balanced` | 30% | 70% | -- | -- | Default -- good general performance |
 
-Graph (15%) and citation (15%) signals are **enabled by default** in CLI and MCP interfaces. Disable with `--no-graph` / `--no-citations`. When active, FTS and vector weights are reduced proportionally.
+Citation (15%) signals are **enabled by default**. Graph is **disabled by default** while knowledge graph chunk links are being rebuilt — enable with `--graph` flag. When active, FTS and vector weights are reduced proportionally.
 
 ## Architecture
 
@@ -199,13 +199,7 @@ The graph-boosted warm latency of 2.1s represents a **40x improvement** from the
 
 ### Corpus Scale
 
-| Dimension | Count |
-|-----------|-------|
-| Sources (papers, textbooks) | 1,198 |
-| Text chunks | 1,012K |
-| Concepts (9 types) | 310K |
-| Relationships | 744K |
-| Citations | 41,852 |
+Run `python scripts/generate_status.py` for current metrics. See [`docs/status/CURRENT_STATUS.md`](docs/status/CURRENT_STATUS.md) for the latest auto-generated snapshot.
 
 <!-- AUTO-GEN:mcp-tools:START -->
 ## MCP Server

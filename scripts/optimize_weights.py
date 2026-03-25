@@ -125,9 +125,7 @@ def find_latest_golden_file() -> Path:
     """Find the most recent golden_candidates JSON file."""
     candidates = sorted(FIXTURES_DIR.glob("golden_candidates_*.json"))
     if not candidates:
-        raise FileNotFoundError(
-            f"No golden_candidates_*.json files found in {FIXTURES_DIR}"
-        )
+        raise FileNotFoundError(f"No golden_candidates_*.json files found in {FIXTURES_DIR}")
     return candidates[-1]
 
 
@@ -411,24 +409,25 @@ def optimize_global_cached(
         eval_count[0] += 1
 
         if eval_count[0] % 50 == 0:
-            print(
-                f"  Iteration {eval_count[0]}: MRR={metrics['mrr']:.4f} "
-                f"{weights}"
-            )
+            print(f"  Iteration {eval_count[0]}: MRR={metrics['mrr']:.4f} " f"{weights}")
 
         return -metrics["mrr"]
 
     # Initial point: current weights (log-space for softmax parameterization)
     n_params = 4
     if use_graph and use_citations:
-        x0 = np.log([CURRENT_WEIGHTS.fts, CURRENT_WEIGHTS.vector,
-                      CURRENT_WEIGHTS.graph, CURRENT_WEIGHTS.citation])
+        x0 = np.log(
+            [
+                CURRENT_WEIGHTS.fts,
+                CURRENT_WEIGHTS.vector,
+                CURRENT_WEIGHTS.graph,
+                CURRENT_WEIGHTS.citation,
+            ]
+        )
     elif use_graph:
-        x0 = np.log([CURRENT_WEIGHTS.fts, CURRENT_WEIGHTS.vector,
-                      CURRENT_WEIGHTS.graph, 0.01])
+        x0 = np.log([CURRENT_WEIGHTS.fts, CURRENT_WEIGHTS.vector, CURRENT_WEIGHTS.graph, 0.01])
     elif use_citations:
-        x0 = np.log([CURRENT_WEIGHTS.fts, CURRENT_WEIGHTS.vector,
-                      0.01, CURRENT_WEIGHTS.citation])
+        x0 = np.log([CURRENT_WEIGHTS.fts, CURRENT_WEIGHTS.vector, 0.01, CURRENT_WEIGHTS.citation])
     else:
         x0 = np.log([CURRENT_WEIGHTS.fts, CURRENT_WEIGHTS.vector, 0.01, 0.01])
 
@@ -493,7 +492,8 @@ async def optimize_global(
         exp_params = np.exp(params - np.max(params))
         w = exp_params / exp_params.sum()
         weights = WeightConfig(
-            fts=float(w[0]), vector=float(w[1]),
+            fts=float(w[0]),
+            vector=float(w[1]),
             graph=float(w[2]) if use_graph else 0.0,
             citation=float(w[3]) if use_citations else 0.0,
         )
@@ -511,14 +511,16 @@ async def optimize_global(
 
     print(f"\nOptimizing with {method} ({len(cases)} cases, LIVE QUERIES - slow)...")
     t0 = time.time()
-    result = minimize(objective, x0, method="Nelder-Mead",
-                      options={"maxiter": 100, "xatol": 0.01, "fatol": 0.001})
+    result = minimize(
+        objective, x0, method="Nelder-Mead", options={"maxiter": 100, "xatol": 0.01, "fatol": 0.001}
+    )
     elapsed = time.time() - t0
 
     exp_params = np.exp(result.x - np.max(result.x))
     w = exp_params / exp_params.sum()
     optimal = WeightConfig(
-        fts=float(w[0]), vector=float(w[1]),
+        fts=float(w[0]),
+        vector=float(w[1]),
         graph=float(w[2]) if use_graph else 0.0,
         citation=float(w[3]) if use_citations else 0.0,
     )
@@ -709,7 +711,9 @@ async def main():
             current_metrics["per_domain"].items(),
             key=lambda x: -x[1]["mrr"],
         ):
-            print(f"    {domain:25s}: MRR={dm['mrr']:.3f} Hit={dm['hit_rate']:.0%} (n={dm['count']})")
+            print(
+                f"    {domain:25s}: MRR={dm['mrr']:.3f} Hit={dm['hit_rate']:.0%} (n={dm['count']})"
+            )
 
     if args.dry_run:
         print("\n[dry-run] Stopping before optimization.")
@@ -723,7 +727,9 @@ async def main():
 
     # Improvement
     delta_mrr = optimal_metrics["mrr"] - current_metrics["mrr"]
-    print(f"\n  Improvement: MRR {current_metrics['mrr']:.4f} -> {optimal_metrics['mrr']:.4f} (delta {delta_mrr:+.4f})")
+    print(
+        f"\n  Improvement: MRR {current_metrics['mrr']:.4f} -> {optimal_metrics['mrr']:.4f} (delta {delta_mrr:+.4f})"
+    )
 
     # Cross-validation (using cached scores — fast)
     cv_results = None
@@ -813,7 +819,9 @@ async def main():
     print(f"Optimal weights: {optimal}")
     print(f"\nTo deploy globally, update these locations:")
     print(f"  1. packages/cli/src/research_kb_cli/_shared.py:88-89 (graph_weight, citation_weight)")
-    print(f"  2. packages/cli/src/research_kb_cli/_shared.py:74-79 (get_context_weights FTS/vector)")
+    print(
+        f"  2. packages/cli/src/research_kb_cli/_shared.py:74-79 (get_context_weights FTS/vector)"
+    )
     print(f"  3. packages/mcp-server/src/research_kb_mcp/tools/search.py:20-34 (MCP tool defaults)")
     print(f"  4. packages/storage/src/research_kb_storage/domain_store.py:105-108 (DB defaults)")
 

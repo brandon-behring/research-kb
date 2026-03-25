@@ -6,7 +6,7 @@ computation, and entry processing.
 
 import json
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 import pytest
@@ -66,7 +66,12 @@ class TestRegenerate:
 
         chunk_id = str(uuid4())
         mock_find_chunks.return_value = [
-            {"chunk_id": chunk_id, "similarity": 0.92, "content_preview": "...", "source_title": "Test"}
+            {
+                "chunk_id": chunk_id,
+                "similarity": 0.92,
+                "content_preview": "...",
+                "source_title": "Test",
+            }
         ]
 
         # Write test input
@@ -111,14 +116,33 @@ class TestRegenerate:
 
         # First call succeeds, second returns no matches
         mock_find_chunks.side_effect = [
-            [{"chunk_id": str(uuid4()), "similarity": 0.85, "content_preview": "...", "source_title": "A"}],
+            [
+                {
+                    "chunk_id": str(uuid4()),
+                    "similarity": 0.85,
+                    "content_preview": "...",
+                    "source_title": "A",
+                }
+            ],
             [],  # No match
         ]
 
         input_path = tmp_path / "golden_candidates_test.json"
         entries = [
-            {"query": "q1", "target_chunk_ids": [str(uuid4())], "domain": "d1", "source_title": "S1", "difficulty": "easy"},
-            {"query": "q2", "target_chunk_ids": [str(uuid4())], "domain": "d2", "source_title": "S2", "difficulty": "hard"},
+            {
+                "query": "q1",
+                "target_chunk_ids": [str(uuid4())],
+                "domain": "d1",
+                "source_title": "S1",
+                "difficulty": "easy",
+            },
+            {
+                "query": "q2",
+                "target_chunk_ids": [str(uuid4())],
+                "domain": "d2",
+                "source_title": "S2",
+                "difficulty": "hard",
+            },
         ]
         input_path.write_text(json.dumps(entries))
 
@@ -141,12 +165,23 @@ class TestRegenerate:
         mock_embed_cls.return_value = MagicMock()
 
         mock_find_chunks.return_value = [
-            {"chunk_id": str(uuid4()), "similarity": 0.3, "content_preview": "...", "source_title": "S"}
+            {
+                "chunk_id": str(uuid4()),
+                "similarity": 0.3,
+                "content_preview": "...",
+                "source_title": "S",
+            }
         ]
 
         input_path = tmp_path / "golden_candidates_test.json"
         entries = [
-            {"query": "q1", "target_chunk_ids": [str(uuid4())], "domain": "d1", "source_title": "S1", "difficulty": "easy"},
+            {
+                "query": "q1",
+                "target_chunk_ids": [str(uuid4())],
+                "domain": "d1",
+                "source_title": "S1",
+                "difficulty": "easy",
+            },
         ]
         input_path.write_text(json.dumps(entries))
 
@@ -160,21 +195,30 @@ class TestRegenerate:
     @patch("regenerate_golden_candidates.EmbeddingClient")
     @patch("regenerate_golden_candidates.get_connection_pool")
     @patch("regenerate_golden_candidates.find_best_chunks_for_query")
-    async def test_writes_output_file(
-        self, mock_find_chunks, mock_pool, mock_embed_cls, tmp_path
-    ):
+    async def test_writes_output_file(self, mock_find_chunks, mock_pool, mock_embed_cls, tmp_path):
         """Non-verify mode writes a new golden candidates file."""
         mock_pool.return_value = MagicMock()
         mock_embed_cls.return_value = MagicMock()
 
         new_chunk_id = str(uuid4())
         mock_find_chunks.return_value = [
-            {"chunk_id": new_chunk_id, "similarity": 0.9, "content_preview": "...", "source_title": "S"}
+            {
+                "chunk_id": new_chunk_id,
+                "similarity": 0.9,
+                "content_preview": "...",
+                "source_title": "S",
+            }
         ]
 
         input_path = tmp_path / "golden_candidates_test.json"
         entries = [
-            {"query": "test", "target_chunk_ids": [str(uuid4())], "domain": "d1", "source_title": "S1", "difficulty": "easy"},
+            {
+                "query": "test",
+                "target_chunk_ids": [str(uuid4())],
+                "domain": "d1",
+                "source_title": "S1",
+                "difficulty": "easy",
+            },
         ]
         input_path.write_text(json.dumps(entries))
 
@@ -208,7 +252,13 @@ class TestRegenerate:
 
         input_path = tmp_path / "golden_candidates_test.json"
         entries = [
-            {"query": "q1", "target_chunk_ids": [str(uuid4())], "domain": "d1", "source_title": "S1", "difficulty": "easy"},
+            {
+                "query": "q1",
+                "target_chunk_ids": [str(uuid4())],
+                "domain": "d1",
+                "source_title": "S1",
+                "difficulty": "easy",
+            },
         ]
         input_path.write_text(json.dumps(entries))
 

@@ -371,7 +371,9 @@ async def main() -> None:
             save_checkpoint(checkpoint)
 
             if args.quiet and not args.json:
-                print(f"OK [{pos}/{total}] {entry['filename']}: {num_chunks} chunks ({elapsed:.0f}s)")
+                print(
+                    f"OK [{pos}/{total}] {entry['filename']}: {num_chunks} chunks ({elapsed:.0f}s)"
+                )
             elif not args.json:
                 print(f"  OK {num_chunks} chunks ({elapsed:.0f}s)")
 
@@ -405,9 +407,7 @@ async def main() -> None:
             checkpoint["failed"][sha] = f"embedding: {str(e)[:100]}"
             save_checkpoint(checkpoint)
             if args.quiet and not args.json:
-                print(
-                    f"FAIL [{pos}/{total}] {entry['filename']}: embedding failure (recoverable)"
-                )
+                print(f"FAIL [{pos}/{total}] {entry['filename']}: embedding failure (recoverable)")
 
         except StorageError as e:
             results["failed"].append(

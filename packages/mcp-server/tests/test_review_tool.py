@@ -1,7 +1,7 @@
 """Tests for literature review MCP tool."""
 
 import json
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -79,6 +79,7 @@ class TestReviewToolMarkdown:
                 nonlocal captured_fn
                 captured_fn = fn
                 return fn
+
             return decorator
 
         mcp.tool = capture_tool
@@ -111,6 +112,7 @@ class TestReviewToolMarkdown:
                 nonlocal captured_fn
                 captured_fn = fn
                 return fn
+
             return decorator
 
         mcp.tool = capture_tool
@@ -147,6 +149,7 @@ class TestReviewToolParams:
                 nonlocal captured_fn
                 captured_fn = fn
                 return fn
+
             return decorator
 
         mcp.tool = capture_tool

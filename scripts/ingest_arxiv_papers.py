@@ -161,6 +161,7 @@ async def main():
                 pdf_path=pdf,
                 source_type=SourceType.PAPER,
                 title=title,
+                domain_id="deep_learning",
                 authors=authors,
                 year=year,
                 metadata=metadata,

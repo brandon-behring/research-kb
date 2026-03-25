@@ -260,7 +260,7 @@ class DaemonClient:
         self,
         query: str,
         limit: int = 10,
-        use_graph: bool = True,
+        use_graph: bool = False,
         use_citations: bool = True,
         context_type: str = "balanced",
     ) -> SearchResponse:

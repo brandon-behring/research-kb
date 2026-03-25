@@ -45,7 +45,7 @@ def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     app = FastAPI(
         title="Research-KB API",
-        description="Semantic search API for causal inference literature",
+        description="Semantic search API for multi-domain research literature",
         version="1.0.0",
         lifespan=lifespan,
         docs_url="/docs",

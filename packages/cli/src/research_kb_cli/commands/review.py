@@ -5,8 +5,6 @@ Commands:
 """
 
 import asyncio
-import logging
-from typing import Optional
 
 import typer
 

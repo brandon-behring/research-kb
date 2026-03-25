@@ -4,7 +4,7 @@
 
 - **Phase**: All core phases ✅ Complete | Catalog ingestion ✅ Complete (2026-03-23)
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
-- **Corpus**: 997 sources, 857K chunks, 100% embedded, 41,852 citation edges (updated 2026-03-23)
+- **Corpus**: See [CURRENT_STATUS.md](status/CURRENT_STATUS.md) for live metrics (run `scripts/generate_status.py` to refresh)
 - **Domains**: 35 tagged across causal_inference, rag_llm, time_series, finance, mathematics, physics, algebra, optimization, and 27 more
 - **Search**: 3-way hybrid (FTS + vector + citation). MRR 0.771, Hit Rate 94.4% on 107 eval test cases
 - **MCP Server**: 22 tools available (9 with JSON output_format)

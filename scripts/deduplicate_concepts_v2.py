@@ -178,9 +178,7 @@ async def merge_concept(
     for table, fk_col, unique_cols in UNIQUE_CONSTRAINT_TABLES:
         # Step 1: Delete rows that would conflict after re-pointing
         if unique_cols:
-            unique_clause = " AND ".join(
-                f"dup.{col} = existing.{col}" for col in unique_cols
-            )
+            unique_clause = " AND ".join(f"dup.{col} = existing.{col}" for col in unique_cols)
             await conn.execute(
                 f"""
                 DELETE FROM {table} dup
@@ -217,9 +215,7 @@ async def merge_concept(
         update_counts[key] = update_counts.get(key, 0) + count
 
     # Step 3: Merge aliases
-    remove_aliases = await conn.fetchval(
-        "SELECT aliases FROM concepts WHERE id = $1", remove_id
-    )
+    remove_aliases = await conn.fetchval("SELECT aliases FROM concepts WHERE id = $1", remove_id)
     aliases_to_add = [remove_name]
     if remove_aliases:
         aliases_to_add.extend(remove_aliases)
@@ -437,11 +433,10 @@ async def pass_merge_hyphen(
         if not dry_run:
             try:
                 async with conn.transaction():
-                    counts = await merge_concept(
-                        conn, keep_id, keep_name, remove_id, remove_name
-                    )
+                    counts = await merge_concept(conn, keep_id, keep_name, remove_id, remove_name)
                     stats.fk_updates += sum(
-                        v for k, v in counts.items()
+                        v
+                        for k, v in counts.items()
                         if k not in ("aliases_merged", "self_loops_removed")
                     )
                     stats.aliases_merged += counts.get("aliases_merged", 0)
@@ -496,11 +491,10 @@ async def pass_merge_article(
         if not dry_run:
             try:
                 async with conn.transaction():
-                    counts = await merge_concept(
-                        conn, keep_id, keep_name, remove_id, remove_name
-                    )
+                    counts = await merge_concept(conn, keep_id, keep_name, remove_id, remove_name)
                     stats.fk_updates += sum(
-                        v for k, v in counts.items()
+                        v
+                        for k, v in counts.items()
                         if k not in ("aliases_merged", "self_loops_removed")
                     )
                     stats.aliases_merged += counts.get("aliases_merged", 0)
@@ -611,11 +605,10 @@ async def pass_merge_plural(
         if not dry_run:
             try:
                 async with conn.transaction():
-                    counts = await merge_concept(
-                        conn, keep_id, keep_name, remove_id, remove_name
-                    )
+                    counts = await merge_concept(conn, keep_id, keep_name, remove_id, remove_name)
                     stats.fk_updates += sum(
-                        v for k, v in counts.items()
+                        v
+                        for k, v in counts.items()
                         if k not in ("aliases_merged", "self_loops_removed")
                     )
                     stats.aliases_merged += counts.get("aliases_merged", 0)
@@ -708,7 +701,8 @@ Pass names:
         help="Limit to first N items (for testing)",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Show details for each item",
     )
@@ -728,7 +722,9 @@ Pass names:
     try:
         # Snapshot before
         before_count = await conn.fetchval("SELECT COUNT(*) FROM concepts")
-        print(f"{'DRY RUN' if dry_run else 'EXECUTING'}: Semantic Concept Deduplication (Phase AF-2)")
+        print(
+            f"{'DRY RUN' if dry_run else 'EXECUTING'}: Semantic Concept Deduplication (Phase AF-2)"
+        )
         print(f"Concepts before: {before_count:,}")
         print(f"Passes: {', '.join(passes)}")
         print("=" * 60)
@@ -756,10 +752,14 @@ Pass names:
             after_count = await conn.fetchval("SELECT COUNT(*) FROM concepts")
             print(f"\nConcepts before: {before_count:,}")
             print(f"Concepts after:  {after_count:,}")
-            print(f"Reduction:       {before_count - after_count:,} ({(before_count - after_count) / before_count * 100:.1f}%)")
+            print(
+                f"Reduction:       {before_count - after_count:,} ({(before_count - after_count) / before_count * 100:.1f}%)"
+            )
         else:
             estimated = before_count - total_deleted
-            print(f"\nEstimated after: ~{estimated:,} ({total_deleted / before_count * 100:.1f}% reduction)")
+            print(
+                f"\nEstimated after: ~{estimated:,} ({total_deleted / before_count * 100:.1f}% reduction)"
+            )
             print("\nThis was a DRY RUN. Use --execute to apply changes.")
 
     finally:

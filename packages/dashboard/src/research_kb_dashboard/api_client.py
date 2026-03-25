@@ -99,7 +99,7 @@ class ResearchKBClient:
         limit: int = 20,
         context_type: str = "balanced",
         source_filter: Optional[str] = None,
-        use_graph: bool = True,
+        use_graph: bool = False,
         graph_weight: float = 0.2,
         use_rerank: bool = True,
         use_expand: bool = True,

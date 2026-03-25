@@ -177,7 +177,7 @@ class TestSearch:
         assert payload["query"] == "instrumental variables"
         assert payload["limit"] == 20
         assert payload["context_type"] == "balanced"
-        assert payload["use_graph"] is True
+        assert payload["use_graph"] is False
         assert payload["use_rerank"] is True
 
     async def test_search_with_all_params(self):

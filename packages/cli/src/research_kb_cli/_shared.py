@@ -102,7 +102,7 @@ async def run_query(
         limit: Maximum results
         context_type: Context mode for weight tuning
         source_filter: Optional source type filter
-        use_graph: Enable graph-boosted search (default: True)
+        use_graph: Enable graph-boosted search (default: False)
         graph_weight: Graph score weight (default: 0.2)
         use_citations: Enable citation authority boosting (default: True)
         citation_weight: Citation score weight (default: 0.15)

@@ -22,7 +22,6 @@ for pkg in ["storage", "contracts", "common"]:
 
 from research_kb_storage import SourceStore, get_connection_pool
 
-
 # Directories to scan for PDFs
 PDF_SCAN_DIRS = [
     ROOT / "fixtures" / "papers",
@@ -168,9 +167,7 @@ async def main() -> None:
             "orphan_pdfs": len(orphans),
         },
         "by_domain": dict(domain_counts.most_common()),
-        "thin_domains": {
-            k: v for k, v in domain_counts.most_common() if v < 5
-        },
+        "thin_domains": {k: v for k, v in domain_counts.most_common() if v < 5},
         "sources": sources_data,
         "orphan_pdfs": orphans,
     }

@@ -52,7 +52,7 @@ async def search_chunks(
             limit=limit,
             context_type=context_type,
             source_filter=api_source_filter,
-            use_graph=True,
+            use_graph=False,
             use_rerank=True,
             use_expand=True,
         )

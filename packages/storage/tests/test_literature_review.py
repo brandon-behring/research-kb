@@ -6,15 +6,13 @@ evidence assembly, LLM synthesis, and quality metrics.
 
 import json
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
+from unittest.mock import MagicMock, patch
+from uuid import uuid4
 
 import pytest
 
 from research_kb_storage.literature_review import (
     EVIDENCE_CONTENT_MAX_CHARS,
-    MAX_CONCEPTS_EXPLORED,
-    MAX_EVIDENCE_PER_SECTION,
     REVIEW_SECTIONS,
     LiteratureReview,
     ReviewEvidence,
@@ -115,12 +113,18 @@ class TestReviewSection:
             section_id="methods",
             title="Methods",
             description="Test methods section",
-            concepts=[{"name": "DML", "type": "method"}, {"name": "cross-fitting", "type": "technique"}],
+            concepts=[
+                {"name": "DML", "type": "method"},
+                {"name": "cross-fitting", "type": "technique"},
+            ],
             synthesis="This section covers DML methods.",
         )
         d = section.to_dict()
         assert d["section_id"] == "methods"
-        assert d["concepts"] == [{"name": "DML", "type": "method"}, {"name": "cross-fitting", "type": "technique"}]
+        assert d["concepts"] == [
+            {"name": "DML", "type": "method"},
+            {"name": "cross-fitting", "type": "technique"},
+        ]
         assert d["synthesis"] is not None
 
 
@@ -301,9 +305,7 @@ class TestExploreTopicConcepts:
     @pytest.mark.asyncio
     @patch("research_kb_storage.graph_queries.get_neighborhood")
     @patch("research_kb_storage.concept_store.ConceptStore.search")
-    async def test_returns_concepts_from_graph(
-        self, mock_search, mock_neighborhood
-    ):
+    async def test_returns_concepts_from_graph(self, mock_search, mock_neighborhood):
         """Finds seed concepts and expands via neighborhood."""
         seed = _make_concept("DML", "method")
         neighbor = _make_concept("cross-fitting", "technique")
@@ -444,10 +446,20 @@ class TestGenerateLiteratureReview:
     ):
         """Generates review structure without LLM synthesis."""
         mock_explore.return_value = [
-            {"id": str(uuid4()), "name": "DML", "type": "method",
-             "definition": "Double ML", "relevance": 1.0},
-            {"id": str(uuid4()), "name": "overlap", "type": "assumption",
-             "definition": "Support overlap", "relevance": 0.8},
+            {
+                "id": str(uuid4()),
+                "name": "DML",
+                "type": "method",
+                "definition": "Double ML",
+                "relevance": 1.0,
+            },
+            {
+                "id": str(uuid4()),
+                "name": "overlap",
+                "type": "assumption",
+                "definition": "Support overlap",
+                "relevance": 0.8,
+            },
         ]
         mock_search_ev.return_value = [
             ReviewEvidence(
@@ -481,8 +493,13 @@ class TestGenerateLiteratureReview:
     ):
         """Generates review with LLM synthesis."""
         mock_explore.return_value = [
-            {"id": str(uuid4()), "name": "IV", "type": "method",
-             "definition": "Instrumental variables", "relevance": 1.0},
+            {
+                "id": str(uuid4()),
+                "name": "IV",
+                "type": "method",
+                "definition": "Instrumental variables",
+                "relevance": 1.0,
+            },
         ]
         mock_search_ev.return_value = [
             ReviewEvidence(
@@ -540,10 +557,14 @@ class TestGenerateLiteratureReview:
         """Quality metrics are computed correctly."""
         src_id = uuid4()
         mock_explore.return_value = [
-            {"id": str(uuid4()), "name": "A", "type": "concept",
-             "definition": "", "relevance": 1.0},
-            {"id": str(uuid4()), "name": "B", "type": "method",
-             "definition": "", "relevance": 0.5},
+            {
+                "id": str(uuid4()),
+                "name": "A",
+                "type": "concept",
+                "definition": "",
+                "relevance": 1.0,
+            },
+            {"id": str(uuid4()), "name": "B", "type": "method", "definition": "", "relevance": 0.5},
         ]
         mock_search_ev.return_value = [
             ReviewEvidence(
@@ -573,8 +594,13 @@ class TestGenerateLiteratureReview:
     async def test_to_markdown_and_json_consistency(self, mock_explore, mock_search_ev):
         """to_markdown() and to_dict() both work on the same review."""
         mock_explore.return_value = [
-            {"id": str(uuid4()), "name": "X", "type": "concept",
-             "definition": "", "relevance": 1.0},
+            {
+                "id": str(uuid4()),
+                "name": "X",
+                "type": "concept",
+                "definition": "",
+                "relevance": 1.0,
+            },
         ]
         mock_search_ev.return_value = []
 

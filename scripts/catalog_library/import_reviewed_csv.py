@@ -9,6 +9,7 @@ Usage:
     python scripts/catalog_library/import_reviewed_csv.py
     python scripts/catalog_library/import_reviewed_csv.py --dry-run  # Preview changes
 """
+
 from __future__ import annotations
 
 import argparse
@@ -21,16 +22,39 @@ from typing import Any
 
 # Canonical 33-domain taxonomy (for validation)
 CANONICAL_DOMAINS = {
-    "algebra", "analysis", "topology_geometry", "linear_algebra",
-    "probability_theory", "mathematics",
-    "dynamical_systems", "numerical_methods", "optimization",
-    "statistics", "causal_inference", "econometrics", "time_series",
-    "algorithms", "software_engineering", "functional_programming", "sql",
-    "machine_learning", "deep_learning", "reinforcement_learning",
-    "rag_llm", "ml_engineering", "data_science", "recommender_systems",
-    "physics", "biology_neuroscience", "signal_processing",
-    "finance", "portfolio_management", "actuarial_insurance", "adtech",
-    "interview_prep", "fitness",
+    "algebra",
+    "analysis",
+    "topology_geometry",
+    "linear_algebra",
+    "probability_theory",
+    "mathematics",
+    "dynamical_systems",
+    "numerical_methods",
+    "optimization",
+    "statistics",
+    "causal_inference",
+    "econometrics",
+    "time_series",
+    "algorithms",
+    "software_engineering",
+    "functional_programming",
+    "sql",
+    "machine_learning",
+    "deep_learning",
+    "reinforcement_learning",
+    "rag_llm",
+    "ml_engineering",
+    "data_science",
+    "recommender_systems",
+    "physics",
+    "biology_neuroscience",
+    "signal_processing",
+    "finance",
+    "portfolio_management",
+    "actuarial_insurance",
+    "adtech",
+    "interview_prep",
+    "fitness",
 }
 
 
@@ -89,22 +113,18 @@ def apply_updates(
             continue
 
         if suggested not in CANONICAL_DOMAINS:
-            warnings.append(
-                f"Unknown domain '{suggested}' for {entry.get('filename', sha)}"
-            )
+            warnings.append(f"Unknown domain '{suggested}' for {entry.get('filename', sha)}")
             # Still apply it, but warn
 
         # Parse secondary domains
-        secondaries = [
-            d.strip() for d in secondary_str.split(",") if d.strip()
-        ] if secondary_str else []
+        secondaries = (
+            [d.strip() for d in secondary_str.split(",") if d.strip()] if secondary_str else []
+        )
 
         # Validate secondaries
         for sd in secondaries:
             if sd not in CANONICAL_DOMAINS:
-                warnings.append(
-                    f"Unknown secondary domain '{sd}' for {entry.get('filename', sha)}"
-                )
+                warnings.append(f"Unknown secondary domain '{sd}' for {entry.get('filename', sha)}")
 
         # Check if anything changed
         old_domain = entry.get("domain", "unclassified")
@@ -138,9 +158,7 @@ def apply_updates(
     return changed, skipped, unchanged, warnings
 
 
-def generate_summary(
-    books: list[dict], other: list[dict], output_path: Path
-) -> dict[str, Any]:
+def generate_summary(books: list[dict], other: list[dict], output_path: Path) -> dict[str, Any]:
     """Regenerate catalog summary statistics."""
     all_entries = books + other
     domain_dist = Counter(e["domain"] for e in all_entries)
@@ -230,10 +248,17 @@ def main() -> None:
     else:
         # Simulate
         new_dist = Counter(
-            csv_rows[e["sha256"]].get("suggested_domain", e["domain"])
-            if e["sha256"] in csv_rows
-            and csv_rows[e["sha256"]].get("skip", "FALSE").upper() != "TRUE"
-            else ("skip" if e["sha256"] in csv_rows and csv_rows[e["sha256"]].get("skip", "FALSE").upper() == "TRUE" else e["domain"])
+            (
+                csv_rows[e["sha256"]].get("suggested_domain", e["domain"])
+                if e["sha256"] in csv_rows
+                and csv_rows[e["sha256"]].get("skip", "FALSE").upper() != "TRUE"
+                else (
+                    "skip"
+                    if e["sha256"] in csv_rows
+                    and csv_rows[e["sha256"]].get("skip", "FALSE").upper() == "TRUE"
+                    else e["domain"]
+                )
+            )
             for e in books + other
         )
 
@@ -258,7 +283,9 @@ def main() -> None:
         )
 
         summary = generate_summary(books, other, catalog_dir / "catalog_summary_r2.json")
-        print(f"  Summary: {summary['unique_domains']} domains, {summary['skipped_entries']} skipped")
+        print(
+            f"  Summary: {summary['unique_domains']} domains, {summary['skipped_entries']} skipped"
+        )
         print("\nDone. Catalogs updated.")
     else:
         print("\nDry run complete. No files modified.")

@@ -15,7 +15,6 @@ Tests cover:
 - Null-byte sanitization
 """
 
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -73,9 +72,7 @@ def _make_mock_document(markdown_text="# Title\n\nSome content", pages=None):
 # Patch targets: singleton functions instead of low-level classes
 _PATCH_GET_CONVERTER = "research_kb_pdf.docling_extractor.get_converter"
 _PATCH_GET_TOKENIZER = "research_kb_pdf.docling_extractor.get_tokenizer"
-_PATCH_HF_TOKENIZER = (
-    "docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer"
-)
+_PATCH_HF_TOKENIZER = "docling_core.transforms.chunker.tokenizer.huggingface.HuggingFaceTokenizer"
 _PATCH_HYBRID_CHUNKER = "docling.chunking.HybridChunker"
 
 
@@ -197,9 +194,7 @@ class TestExtractAndChunk:
         pdf_file.write_bytes(b"%PDF-1.4 fake")
 
         latex_content = "The regression model is $$E[Y|X] = X\\beta + \\epsilon$$"
-        mock_doc = _make_mock_document(
-            markdown_text=f"# Model\n\n{latex_content}"
-        )
+        mock_doc = _make_mock_document(markdown_text=f"# Model\n\n{latex_content}")
         mock_result = MagicMock()
         mock_result.document = mock_doc
         mock_get_conv.return_value.convert.return_value = mock_result
@@ -232,9 +227,7 @@ class TestExtractAndChunk:
         mock_result.document = mock_doc
         mock_get_conv.return_value.convert.return_value = mock_result
 
-        mock_chunks = [
-            _make_mock_chunk(f"Chunk {i} content", page=i + 1) for i in range(5)
-        ]
+        mock_chunks = [_make_mock_chunk(f"Chunk {i} content", page=i + 1) for i in range(5)]
         mock_chunker = MagicMock()
         mock_chunker.chunk.return_value = mock_chunks
         mock_chunker.contextualize.side_effect = lambda c: c.text
@@ -471,7 +464,6 @@ class TestSingleton:
     @patch("research_kb_pdf.docling_extractor.DocumentConverter", create=True)
     def test_get_converter_creates_once(self, mock_dc_cls):
         """get_converter() creates DocumentConverter only once."""
-        import research_kb_pdf.docling_extractor as mod
 
         # Ensure clean state
         reset_converter()
@@ -480,7 +472,11 @@ class TestSingleton:
         mock_instance = MagicMock()
         with patch.dict(
             "sys.modules",
-            {"docling.document_converter": MagicMock(DocumentConverter=MagicMock(return_value=mock_instance))},
+            {
+                "docling.document_converter": MagicMock(
+                    DocumentConverter=MagicMock(return_value=mock_instance)
+                )
+            },
         ):
             c1 = get_converter()
             c2 = get_converter()

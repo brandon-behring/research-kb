@@ -63,7 +63,9 @@ class SearchRequest(BaseModel):
         None,
         description="Filter by source type (PAPER, TEXTBOOK, etc.)",
     )
-    use_graph: bool = Field(True, description="Enable graph-boosted search")
+    use_graph: bool = Field(
+        False, description="Enable graph-boosted search (disabled while KG chunk links are stale)"
+    )
     graph_weight: float = Field(0.2, ge=0, le=1, description="Graph score weight")
     use_rerank: bool = Field(True, description="Enable cross-encoder reranking")
     use_expand: bool = Field(True, description="Enable query expansion")

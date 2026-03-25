@@ -62,225 +62,527 @@ def _setup_logging(quiet: bool) -> None:
 
 TEXT_DOMAIN_KEYWORDS: dict[str, list[str]] = {
     "algebra": [
-        "group theory", "ring theory", "field extension", "galois theory",
-        "homomorphism", "isomorphism", "module theory", "commutative algebra",
-        "representation theory", "lie algebra", "lie group", "ideal theory",
-        "noetherian ring", "polynomial ring", "quotient group", "sylow theorem",
-        "abstract algebra", "algebraic structure", "homological algebra",
+        "group theory",
+        "ring theory",
+        "field extension",
+        "galois theory",
+        "homomorphism",
+        "isomorphism",
+        "module theory",
+        "commutative algebra",
+        "representation theory",
+        "lie algebra",
+        "lie group",
+        "ideal theory",
+        "noetherian ring",
+        "polynomial ring",
+        "quotient group",
+        "sylow theorem",
+        "abstract algebra",
+        "algebraic structure",
+        "homological algebra",
     ],
     "analysis": [
-        "real analysis", "complex analysis", "functional analysis",
-        "harmonic analysis", "measure theory", "lebesgue integral",
-        "banach space", "hilbert space", "sobolev space", "distribution theory",
-        "fourier series", "fourier transform", "spectral theory",
-        "operator theory", "compact operator", "bounded linear",
-        "dominated convergence", "monotone convergence", "lp space",
+        "real analysis",
+        "complex analysis",
+        "functional analysis",
+        "harmonic analysis",
+        "measure theory",
+        "lebesgue integral",
+        "banach space",
+        "hilbert space",
+        "sobolev space",
+        "distribution theory",
+        "fourier series",
+        "fourier transform",
+        "spectral theory",
+        "operator theory",
+        "compact operator",
+        "bounded linear",
+        "dominated convergence",
+        "monotone convergence",
+        "lp space",
     ],
     "topology_geometry": [
-        "topological space", "manifold", "riemannian geometry",
-        "differential geometry", "algebraic topology", "cohomology",
-        "homotopy", "homology group", "fundamental group", "fiber bundle",
-        "sheaf theory", "symplectic geometry", "knot theory",
-        "covering space", "simplicial complex", "euler characteristic",
-        "differential form", "tangent bundle", "curvature tensor",
+        "topological space",
+        "manifold",
+        "riemannian geometry",
+        "differential geometry",
+        "algebraic topology",
+        "cohomology",
+        "homotopy",
+        "homology group",
+        "fundamental group",
+        "fiber bundle",
+        "sheaf theory",
+        "symplectic geometry",
+        "knot theory",
+        "covering space",
+        "simplicial complex",
+        "euler characteristic",
+        "differential form",
+        "tangent bundle",
+        "curvature tensor",
     ],
     "dynamical_systems": [
-        "dynamical system", "bifurcation", "chaos theory", "hamiltonian system",
-        "perturbation theory", "stability theory", "nonlinear dynamics",
-        "celestial mechanics", "n-body problem", "ergodic theory",
-        "lyapunov exponent", "poincare map", "phase space", "attractor",
-        "lagrangian mechanics", "classical mechanics", "euler-lagrange",
-        "canonical transformation", "action-angle",
+        "dynamical system",
+        "bifurcation",
+        "chaos theory",
+        "hamiltonian system",
+        "perturbation theory",
+        "stability theory",
+        "nonlinear dynamics",
+        "celestial mechanics",
+        "n-body problem",
+        "ergodic theory",
+        "lyapunov exponent",
+        "poincare map",
+        "phase space",
+        "attractor",
+        "lagrangian mechanics",
+        "classical mechanics",
+        "euler-lagrange",
+        "canonical transformation",
+        "action-angle",
     ],
     "probability_theory": [
-        "probability measure", "stochastic process", "stochastic calculus",
-        "markov chain", "martingale", "brownian motion", "ito integral",
-        "stochastic differential equation", "random variable", "poisson process",
-        "central limit theorem", "law of large numbers", "conditional expectation",
-        "measure-theoretic probability", "filtration",
+        "probability measure",
+        "stochastic process",
+        "stochastic calculus",
+        "markov chain",
+        "martingale",
+        "brownian motion",
+        "ito integral",
+        "stochastic differential equation",
+        "random variable",
+        "poisson process",
+        "central limit theorem",
+        "law of large numbers",
+        "conditional expectation",
+        "measure-theoretic probability",
+        "filtration",
     ],
     "numerical_methods": [
-        "numerical analysis", "finite element method", "finite difference",
-        "numerical integration", "quadrature", "interpolation",
-        "numerical linear algebra", "iterative method", "convergence rate",
-        "runge-kutta", "newton method", "conjugate gradient",
-        "convex optimization", "approximation theory",
+        "numerical analysis",
+        "finite element method",
+        "finite difference",
+        "numerical integration",
+        "quadrature",
+        "interpolation",
+        "numerical linear algebra",
+        "iterative method",
+        "convergence rate",
+        "runge-kutta",
+        "newton method",
+        "conjugate gradient",
+        "convex optimization",
+        "approximation theory",
     ],
     "linear_algebra": [
-        "linear algebra", "matrix analysis", "eigenvalue", "eigenvector",
-        "singular value decomposition", "vector space", "linear transformation",
-        "determinant", "matrix factorization", "jordan form",
-        "positive definite", "orthogonal matrix", "unitary matrix",
-        "tensor product", "inner product space",
+        "linear algebra",
+        "matrix analysis",
+        "eigenvalue",
+        "eigenvector",
+        "singular value decomposition",
+        "vector space",
+        "linear transformation",
+        "determinant",
+        "matrix factorization",
+        "jordan form",
+        "positive definite",
+        "orthogonal matrix",
+        "unitary matrix",
+        "tensor product",
+        "inner product space",
     ],
     "causal_inference": [
-        "causal inference", "causal effect", "counterfactual",
-        "instrumental variable", "propensity score", "treatment effect",
-        "difference-in-differences", "regression discontinuity",
-        "double machine learning", "potential outcome", "rubin causal model",
-        "average treatment effect", "selection bias", "confounding",
-        "directed acyclic graph", "structural causal model",
+        "causal inference",
+        "causal effect",
+        "counterfactual",
+        "instrumental variable",
+        "propensity score",
+        "treatment effect",
+        "difference-in-differences",
+        "regression discontinuity",
+        "double machine learning",
+        "potential outcome",
+        "rubin causal model",
+        "average treatment effect",
+        "selection bias",
+        "confounding",
+        "directed acyclic graph",
+        "structural causal model",
     ],
     "deep_learning": [
-        "deep learning", "neural network", "transformer architecture",
-        "attention mechanism", "convolutional neural network",
-        "recurrent neural network", "batch normalization", "dropout",
-        "backpropagation", "gradient descent", "loss function",
-        "generative adversarial", "autoencoder", "diffusion model",
-        "residual network", "transfer learning", "fine-tuning",
-        "embedding layer", "activation function",
+        "deep learning",
+        "neural network",
+        "transformer architecture",
+        "attention mechanism",
+        "convolutional neural network",
+        "recurrent neural network",
+        "batch normalization",
+        "dropout",
+        "backpropagation",
+        "gradient descent",
+        "loss function",
+        "generative adversarial",
+        "autoencoder",
+        "diffusion model",
+        "residual network",
+        "transfer learning",
+        "fine-tuning",
+        "embedding layer",
+        "activation function",
     ],
     "machine_learning": [
-        "machine learning", "supervised learning", "unsupervised learning",
-        "classification", "regression", "clustering", "random forest",
-        "support vector machine", "decision tree", "ensemble method",
-        "boosting", "bagging", "kernel method", "feature selection",
-        "cross-validation", "bias-variance tradeoff", "overfitting",
-        "regularization", "probabilistic graphical model",
+        "machine learning",
+        "supervised learning",
+        "unsupervised learning",
+        "classification",
+        "regression",
+        "clustering",
+        "random forest",
+        "support vector machine",
+        "decision tree",
+        "ensemble method",
+        "boosting",
+        "bagging",
+        "kernel method",
+        "feature selection",
+        "cross-validation",
+        "bias-variance tradeoff",
+        "overfitting",
+        "regularization",
+        "probabilistic graphical model",
     ],
     "reinforcement_learning": [
-        "reinforcement learning", "reward function", "policy gradient",
-        "q-learning", "temporal difference", "markov decision process",
-        "bellman equation", "actor-critic", "monte carlo tree search",
-        "exploration exploitation", "value function", "deep q-network",
+        "reinforcement learning",
+        "reward function",
+        "policy gradient",
+        "q-learning",
+        "temporal difference",
+        "markov decision process",
+        "bellman equation",
+        "actor-critic",
+        "monte carlo tree search",
+        "exploration exploitation",
+        "value function",
+        "deep q-network",
         "multi-armed bandit",
     ],
     "rag_llm": [
-        "natural language processing", "language model", "information retrieval",
-        "text classification", "named entity recognition", "sentiment analysis",
-        "word embedding", "word2vec", "bert", "gpt", "tokenization",
-        "text generation", "prompt engineering", "retrieval augmented generation",
-        "large language model", "question answering", "text mining",
-        "semantic search", "vector database",
+        "natural language processing",
+        "language model",
+        "information retrieval",
+        "text classification",
+        "named entity recognition",
+        "sentiment analysis",
+        "word embedding",
+        "word2vec",
+        "bert",
+        "gpt",
+        "tokenization",
+        "text generation",
+        "prompt engineering",
+        "retrieval augmented generation",
+        "large language model",
+        "question answering",
+        "text mining",
+        "semantic search",
+        "vector database",
     ],
     "statistics": [
-        "statistical inference", "hypothesis testing", "confidence interval",
-        "maximum likelihood", "bayesian inference", "bayesian statistics",
-        "generalized linear model", "survival analysis", "nonparametric",
-        "experimental design", "analysis of variance", "regression analysis",
-        "multivariate analysis", "sufficient statistic", "exponential family",
-        "fisher information", "likelihood ratio",
+        "statistical inference",
+        "hypothesis testing",
+        "confidence interval",
+        "maximum likelihood",
+        "bayesian inference",
+        "bayesian statistics",
+        "generalized linear model",
+        "survival analysis",
+        "nonparametric",
+        "experimental design",
+        "analysis of variance",
+        "regression analysis",
+        "multivariate analysis",
+        "sufficient statistic",
+        "exponential family",
+        "fisher information",
+        "likelihood ratio",
     ],
     "econometrics": [
-        "econometrics", "panel data", "generalized method of moments",
-        "cointegration", "heteroskedasticity", "endogeneity",
-        "two-stage least squares", "instrumental variable",
-        "fixed effects", "random effects", "hausman test",
-        "granger causality", "vector autoregression",
+        "econometrics",
+        "panel data",
+        "generalized method of moments",
+        "cointegration",
+        "heteroskedasticity",
+        "endogeneity",
+        "two-stage least squares",
+        "instrumental variable",
+        "fixed effects",
+        "random effects",
+        "hausman test",
+        "granger causality",
+        "vector autoregression",
     ],
     "finance": [
-        "derivatives pricing", "option pricing", "black-scholes",
-        "quantitative finance", "algorithmic trading", "credit risk",
-        "value at risk", "fixed income", "yield curve", "interest rate model",
-        "stochastic volatility", "risk management", "financial engineering",
-        "monte carlo simulation", "financial mathematics",
+        "derivatives pricing",
+        "option pricing",
+        "black-scholes",
+        "quantitative finance",
+        "algorithmic trading",
+        "credit risk",
+        "value at risk",
+        "fixed income",
+        "yield curve",
+        "interest rate model",
+        "stochastic volatility",
+        "risk management",
+        "financial engineering",
+        "monte carlo simulation",
+        "financial mathematics",
     ],
     "portfolio_management": [
-        "portfolio optimization", "asset allocation", "modern portfolio theory",
-        "mean-variance optimization", "efficient frontier", "sharpe ratio",
-        "capital asset pricing model", "factor model", "risk parity",
-        "portfolio construction", "rebalancing",
+        "portfolio optimization",
+        "asset allocation",
+        "modern portfolio theory",
+        "mean-variance optimization",
+        "efficient frontier",
+        "sharpe ratio",
+        "capital asset pricing model",
+        "factor model",
+        "risk parity",
+        "portfolio construction",
+        "rebalancing",
     ],
     "actuarial_insurance": [
-        "actuarial science", "insurance mathematics", "loss model",
-        "ruin theory", "life contingencies", "mortality table",
-        "premium calculation", "reserving", "credibility theory",
-        "risk theory", "casualty actuarial",
+        "actuarial science",
+        "insurance mathematics",
+        "loss model",
+        "ruin theory",
+        "life contingencies",
+        "mortality table",
+        "premium calculation",
+        "reserving",
+        "credibility theory",
+        "risk theory",
+        "casualty actuarial",
     ],
     "physics": [
-        "quantum mechanics", "classical mechanics", "electrodynamics",
-        "thermodynamics", "statistical mechanics", "quantum field theory",
-        "general relativity", "special relativity", "condensed matter",
-        "particle physics", "schrodinger equation", "lagrangian",
-        "hamiltonian", "maxwell equations", "feynman diagram",
-        "path integral", "wave function", "angular momentum",
+        "quantum mechanics",
+        "classical mechanics",
+        "electrodynamics",
+        "thermodynamics",
+        "statistical mechanics",
+        "quantum field theory",
+        "general relativity",
+        "special relativity",
+        "condensed matter",
+        "particle physics",
+        "schrodinger equation",
+        "lagrangian",
+        "hamiltonian",
+        "maxwell equations",
+        "feynman diagram",
+        "path integral",
+        "wave function",
+        "angular momentum",
     ],
     "biology_neuroscience": [
-        "molecular biology", "genetics", "genomics", "bioinformatics",
-        "computational neuroscience", "neural circuit", "neuroscience",
-        "protein structure", "dna sequence", "gene expression",
-        "evolution", "ecology", "population genetics", "systems biology",
+        "molecular biology",
+        "genetics",
+        "genomics",
+        "bioinformatics",
+        "computational neuroscience",
+        "neural circuit",
+        "neuroscience",
+        "protein structure",
+        "dna sequence",
+        "gene expression",
+        "evolution",
+        "ecology",
+        "population genetics",
+        "systems biology",
     ],
     "signal_processing": [
-        "signal processing", "digital signal processing", "control theory",
-        "control system", "feedback control", "transfer function",
-        "filter design", "fourier transform", "wavelet transform",
-        "system identification", "adaptive filter", "z-transform",
-        "frequency response", "bode plot",
+        "signal processing",
+        "digital signal processing",
+        "control theory",
+        "control system",
+        "feedback control",
+        "transfer function",
+        "filter design",
+        "fourier transform",
+        "wavelet transform",
+        "system identification",
+        "adaptive filter",
+        "z-transform",
+        "frequency response",
+        "bode plot",
     ],
     "time_series": [
-        "time series analysis", "forecasting", "arima", "garch",
-        "kalman filter", "state space model", "spectral analysis",
-        "autoregressive", "moving average", "seasonal decomposition",
-        "exponential smoothing", "unit root", "stationarity",
+        "time series analysis",
+        "forecasting",
+        "arima",
+        "garch",
+        "kalman filter",
+        "state space model",
+        "spectral analysis",
+        "autoregressive",
+        "moving average",
+        "seasonal decomposition",
+        "exponential smoothing",
+        "unit root",
+        "stationarity",
     ],
     "algorithms": [
-        "algorithm design", "data structure", "computational complexity",
-        "graph algorithm", "dynamic programming", "greedy algorithm",
-        "sorting algorithm", "binary search", "hash table",
-        "balanced tree", "shortest path", "minimum spanning tree",
-        "np-complete", "big-o notation", "amortized analysis",
+        "algorithm design",
+        "data structure",
+        "computational complexity",
+        "graph algorithm",
+        "dynamic programming",
+        "greedy algorithm",
+        "sorting algorithm",
+        "binary search",
+        "hash table",
+        "balanced tree",
+        "shortest path",
+        "minimum spanning tree",
+        "np-complete",
+        "big-o notation",
+        "amortized analysis",
     ],
     "software_engineering": [
-        "software engineering", "design pattern", "software architecture",
-        "refactoring", "continuous integration", "microservice",
-        "distributed system", "version control", "test-driven development",
-        "clean code", "code review", "agile methodology",
-        "kubernetes", "docker", "cloud native", "devops",
-        "site reliability engineering", "infrastructure as code",
-        "object-oriented", "api design",
+        "software engineering",
+        "design pattern",
+        "software architecture",
+        "refactoring",
+        "continuous integration",
+        "microservice",
+        "distributed system",
+        "version control",
+        "test-driven development",
+        "clean code",
+        "code review",
+        "agile methodology",
+        "kubernetes",
+        "docker",
+        "cloud native",
+        "devops",
+        "site reliability engineering",
+        "infrastructure as code",
+        "object-oriented",
+        "api design",
     ],
     "data_science": [
-        "data science", "data mining", "data analysis", "data visualization",
-        "exploratory data analysis", "feature engineering", "data pipeline",
-        "pandas", "numpy", "matplotlib", "jupyter notebook",
-        "scientific computing", "data wrangling",
+        "data science",
+        "data mining",
+        "data analysis",
+        "data visualization",
+        "exploratory data analysis",
+        "feature engineering",
+        "data pipeline",
+        "pandas",
+        "numpy",
+        "matplotlib",
+        "jupyter notebook",
+        "scientific computing",
+        "data wrangling",
     ],
     "functional_programming": [
-        "functional programming", "haskell", "lambda calculus",
-        "category theory", "monad", "type theory", "scala",
-        "purely functional", "immutable data", "pattern matching",
-        "higher-order function", "algebraic data type", "functor",
+        "functional programming",
+        "haskell",
+        "lambda calculus",
+        "category theory",
+        "monad",
+        "type theory",
+        "scala",
+        "purely functional",
+        "immutable data",
+        "pattern matching",
+        "higher-order function",
+        "algebraic data type",
+        "functor",
     ],
     "mathematics": [
-        "number theory", "combinatorics", "discrete mathematics",
-        "graph theory", "set theory", "mathematical logic",
-        "differential equation", "calculus", "integral",
-        "mathematical proof", "theorem", "lemma", "corollary",
+        "number theory",
+        "combinatorics",
+        "discrete mathematics",
+        "graph theory",
+        "set theory",
+        "mathematical logic",
+        "differential equation",
+        "calculus",
+        "integral",
+        "mathematical proof",
+        "theorem",
+        "lemma",
+        "corollary",
     ],
     "interview_prep": [
-        "coding interview", "system design interview", "behavioral interview",
-        "leetcode", "programming interview", "cracking the coding",
-        "technical interview", "algorithm interview",
+        "coding interview",
+        "system design interview",
+        "behavioral interview",
+        "leetcode",
+        "programming interview",
+        "cracking the coding",
+        "technical interview",
+        "algorithm interview",
     ],
     "sql": [
-        "sql query", "relational database", "database design",
-        "query optimization", "join operation", "stored procedure",
-        "database management system", "normalization",
+        "sql query",
+        "relational database",
+        "database design",
+        "query optimization",
+        "join operation",
+        "stored procedure",
+        "database management system",
+        "normalization",
     ],
     "recommender_systems": [
-        "recommender system", "collaborative filtering",
-        "content-based filtering", "matrix factorization",
-        "recommendation engine", "user-item interaction",
+        "recommender system",
+        "collaborative filtering",
+        "content-based filtering",
+        "matrix factorization",
+        "recommendation engine",
+        "user-item interaction",
     ],
     "adtech": [
-        "computational advertising", "real-time bidding", "ad serving",
-        "click-through rate", "programmatic advertising",
+        "computational advertising",
+        "real-time bidding",
+        "ad serving",
+        "click-through rate",
+        "programmatic advertising",
         "advertising technology",
     ],
     "fitness": [
-        "strength training", "resistance training", "exercise physiology",
-        "bodybuilding", "athletic performance", "sport science",
-        "weightlifting", "mobility", "muscle hypertrophy",
+        "strength training",
+        "resistance training",
+        "exercise physiology",
+        "bodybuilding",
+        "athletic performance",
+        "sport science",
+        "weightlifting",
+        "mobility",
+        "muscle hypertrophy",
     ],
     "ml_engineering": [
-        "mlops", "model deployment", "model serving", "feature store",
-        "ml pipeline", "machine learning engineering", "model monitoring",
-        "experiment tracking", "model registry",
+        "mlops",
+        "model deployment",
+        "model serving",
+        "feature store",
+        "ml pipeline",
+        "machine learning engineering",
+        "model monitoring",
+        "experiment tracking",
+        "model registry",
     ],
     "forecasting": [
-        "demand forecasting", "predictive analytics", "prophet",
-        "exponential smoothing", "forecast accuracy",
+        "demand forecasting",
+        "predictive analytics",
+        "prophet",
+        "exponential smoothing",
+        "forecast accuracy",
         "time series forecasting",
     ],
 }
@@ -452,6 +754,7 @@ def extract_isbns(text: str) -> list[str]:
 # Stage 1: Text extraction (runs in worker processes)
 # ---------------------------------------------------------------------------
 
+
 def _extract_text_from_pdf(filepath: str, max_pages: int = 5) -> dict[str, Any]:
     """Extract text from first N pages of a PDF. Runs in subprocess."""
     import logging as _logging
@@ -516,6 +819,7 @@ def _extract_text_from_pdf(filepath: str, max_pages: int = 5) -> dict[str, Any]:
 # Stage 3: OpenLibrary lookup
 # ---------------------------------------------------------------------------
 
+
 def _load_ol_cache(cache_path: Path) -> dict[str, Any]:
     if cache_path.exists():
         return json.loads(cache_path.read_text())
@@ -562,7 +866,7 @@ def _lookup_isbn_openlibrary(isbn: str, cache: dict, cache_path: Path) -> dict |
                 cache[isbn] = {"isbn_queried": isbn, "found": False}
                 return cache[isbn]
             if e.code == 429:
-                wait = 2 ** attempt
+                wait = 2**attempt
                 log.warning("OpenLibrary rate limited, waiting %ds", wait)
                 time.sleep(wait)
                 continue
@@ -573,7 +877,7 @@ def _lookup_isbn_openlibrary(isbn: str, cache: dict, cache_path: Path) -> dict |
             if attempt == retries - 1:
                 cache[isbn] = {"isbn_queried": isbn, "found": False, "error": str(e)[:200]}
                 return cache[isbn]
-            time.sleep(2 ** attempt)
+            time.sleep(2**attempt)
 
     return None
 
@@ -596,6 +900,7 @@ def _resolve_ol_authors(authors_raw: list) -> list[str]:
 # ---------------------------------------------------------------------------
 # Stage 4: Rule-based classification
 # ---------------------------------------------------------------------------
+
 
 def _classify_by_text_keywords(text: str) -> tuple[str | None, str, int]:
     """Classify domain from extracted text body. Returns (domain, confidence, match_count)."""
@@ -809,6 +1114,7 @@ def pick_best_copy(entries_in_group: list[dict]) -> str:
 # Needs classification output (for Claude Code Phase B)
 # ---------------------------------------------------------------------------
 
+
 def build_needs_classification(
     entries: list[dict],
     checkpoint: dict,
@@ -820,23 +1126,29 @@ def build_needs_classification(
         # Unclassified or low confidence
         if not r2_class or r2_class.get("confidence") in ("unclassified", None):
             needs.append(entry)
-        elif entry.get("domain") == "unclassified" and r2_class and r2_class.get("confidence") == "low":
+        elif (
+            entry.get("domain") == "unclassified"
+            and r2_class
+            and r2_class.get("confidence") == "low"
+        ):
             needs.append(entry)
 
     result = []
     for entry in needs:
         sha = entry["sha256"]
         cp = checkpoint.get(sha, {})
-        result.append({
-            "sha256": sha,
-            "filename": entry.get("filename", ""),
-            "title": entry.get("title", ""),
-            "authors": entry.get("authors", []),
-            "text_sample": cp.get("text_sample", "")[:2000],
-            "r2_openlibrary": entry.get("r2_openlibrary"),
-            "current_domain": entry.get("domain", "unclassified"),
-            "current_confidence": entry.get("confidence", "unclassified"),
-        })
+        result.append(
+            {
+                "sha256": sha,
+                "filename": entry.get("filename", ""),
+                "title": entry.get("title", ""),
+                "authors": entry.get("authors", []),
+                "text_sample": cp.get("text_sample", "")[:2000],
+                "r2_openlibrary": entry.get("r2_openlibrary"),
+                "current_domain": entry.get("domain", "unclassified"),
+                "current_confidence": entry.get("confidence", "unclassified"),
+            }
+        )
 
     return result
 
@@ -846,22 +1158,50 @@ def build_needs_classification(
 # ---------------------------------------------------------------------------
 
 CSV_FIELDS = [
-    "sha256", "filename", "file_size_mb", "domain", "confidence",
-    "priority_score", "title", "authors", "year", "publisher",
-    "is_book", "r2_isbns", "r2_ol_title", "r2_ol_found",
-    "r2_classification_domain", "r2_classification_confidence",
-    "r2_classification_method", "r2_chars_extracted", "r2_extractable",
-    "r2_has_toc", "r2_content_fingerprint", "reclassified_as_book",
-    "duplicate_group", "r2_dedup_is_best_copy",
+    "sha256",
+    "filename",
+    "file_size_mb",
+    "domain",
+    "confidence",
+    "priority_score",
+    "title",
+    "authors",
+    "year",
+    "publisher",
+    "is_book",
+    "r2_isbns",
+    "r2_ol_title",
+    "r2_ol_found",
+    "r2_classification_domain",
+    "r2_classification_confidence",
+    "r2_classification_method",
+    "r2_chars_extracted",
+    "r2_extractable",
+    "r2_has_toc",
+    "r2_content_fingerprint",
+    "reclassified_as_book",
+    "duplicate_group",
+    "r2_dedup_is_best_copy",
 ]
 
 
 def _flatten_for_csv(entry: dict) -> dict[str, Any]:
     """Flatten nested R2 fields for CSV output."""
     flat: dict[str, Any] = {}
-    for k in ["sha256", "filename", "file_size_mb", "domain", "confidence",
-              "priority_score", "title", "year", "publisher", "is_book",
-              "duplicate_group", "reclassified_as_book"]:
+    for k in [
+        "sha256",
+        "filename",
+        "file_size_mb",
+        "domain",
+        "confidence",
+        "priority_score",
+        "title",
+        "year",
+        "publisher",
+        "is_book",
+        "duplicate_group",
+        "reclassified_as_book",
+    ]:
         flat[k] = entry.get(k, "")
 
     flat["authors"] = "; ".join(entry.get("authors") or [])
@@ -900,6 +1240,7 @@ def write_csv(entries: list[dict], path: Path) -> None:
 # ---------------------------------------------------------------------------
 # Main pipeline
 # ---------------------------------------------------------------------------
+
 
 def load_catalog(path: Path) -> list[dict]:
     """Load a catalog JSON file."""
@@ -997,13 +1338,18 @@ def run_stage1(
                 rate = done / elapsed if elapsed > 0 else 0
                 log.info(
                     "  Stage 1: %d/%d done (%.0f/sec, %d errors)",
-                    done, len(to_extract), rate, errors,
+                    done,
+                    len(to_extract),
+                    rate,
+                    errors,
                 )
 
     elapsed = time.time() - t0
     log.info(
         "Stage 1 complete: %d extracted in %.1fs (%d errors)",
-        done, elapsed, errors,
+        done,
+        elapsed,
+        errors,
     )
     return checkpoint
 
@@ -1039,7 +1385,8 @@ def run_stage2_3(
 
     log.info(
         "Stage 3: OpenLibrary lookup — %d cached, %d to fetch",
-        already_cached, len(to_lookup),
+        already_cached,
+        len(to_lookup),
     )
 
     t0 = time.time()
@@ -1143,21 +1490,30 @@ def run_stage5(
                 "is_best_copy": e["sha256"] == best_sha,
             }
             if e["sha256"] != best_sha:
-                e["priority_score"] = max(0, e["priority_score"] + R2_SCORE_ADJUSTMENTS["hash_duplicate_not_preferred"])
-                e["priority_reasons"] = e.get("priority_reasons", []) + ["r2:hash_dup_not_preferred"]
+                e["priority_score"] = max(
+                    0, e["priority_score"] + R2_SCORE_ADJUSTMENTS["hash_duplicate_not_preferred"]
+                )
+                e["priority_reasons"] = e.get("priority_reasons", []) + [
+                    "r2:hash_dup_not_preferred"
+                ]
 
     # Mark non-grouped entries
     grouped_shas = {s for shas in fp_groups.values() for s in shas}
     for entry in all_entries:
         if entry["sha256"] not in grouped_shas:
-            entry.setdefault("r2_dedup", {
-                "content_fingerprint_group": None,
-                "is_best_copy": True,
-            })
+            entry.setdefault(
+                "r2_dedup",
+                {
+                    "content_fingerprint_group": None,
+                    "is_best_copy": True,
+                },
+            )
             delta_unique = R2_SCORE_ADJUSTMENTS["unique_fingerprint"]
             if entry.get("r2_text_extraction", {}).get("content_fingerprint"):
                 entry["priority_score"] = entry.get("priority_score", 0) + delta_unique
-                entry["priority_reasons"] = entry.get("priority_reasons", []) + ["r2:unique_fingerprint"]
+                entry["priority_reasons"] = entry.get("priority_reasons", []) + [
+                    "r2:unique_fingerprint"
+                ]
 
     # Reclassify "other" entries as books if evidence warrants
     reclassified_count = 0
@@ -1192,7 +1548,8 @@ def run_stage5(
 
     log.info(
         "Stage 5 complete: %d fingerprint groups, %d reclassified as books",
-        len(fp_groups), reclassified_count,
+        len(fp_groups),
+        reclassified_count,
     )
 
     summary = {
@@ -1200,8 +1557,12 @@ def run_stage5(
         "total_other_r2": len(remaining_others),
         "reclassified_as_books": reclassified_count,
         "content_fingerprint_groups": len(fp_groups),
-        "domain_distribution": dict(Counter(e.get("domain", "unclassified") for e in books_final).most_common()),
-        "confidence_distribution": dict(Counter(e.get("confidence", "unclassified") for e in books_final).most_common()),
+        "domain_distribution": dict(
+            Counter(e.get("domain", "unclassified") for e in books_final).most_common()
+        ),
+        "confidence_distribution": dict(
+            Counter(e.get("confidence", "unclassified") for e in books_final).most_common()
+        ),
         "priority_distribution": {
             "80+": sum(1 for e in books_final if e.get("priority_score", 0) >= 80),
             "60-79": sum(1 for e in books_final if 60 <= e.get("priority_score", 0) < 80),
@@ -1211,8 +1572,14 @@ def run_stage5(
         },
         "isbns_found": sum(1 for e in books_final if e.get("r2_isbns")),
         "ol_hits": sum(1 for e in books_final if (e.get("r2_openlibrary") or {}).get("found")),
-        "extractable": sum(1 for e in books_final if (e.get("r2_text_extraction") or {}).get("extractable")),
-        "non_extractable": sum(1 for e in books_final if not (e.get("r2_text_extraction") or {}).get("extractable", True)),
+        "extractable": sum(
+            1 for e in books_final if (e.get("r2_text_extraction") or {}).get("extractable")
+        ),
+        "non_extractable": sum(
+            1
+            for e in books_final
+            if not (e.get("r2_text_extraction") or {}).get("extractable", True)
+        ),
         "avg_priority_score": round(
             sum(e.get("priority_score", 0) for e in books_final) / max(len(books_final), 1), 1
         ),
@@ -1224,6 +1591,7 @@ def run_stage5(
 # ---------------------------------------------------------------------------
 # Merge mode (Phase C)
 # ---------------------------------------------------------------------------
+
 
 def run_merge(
     classified_path: Path,
@@ -1242,8 +1610,12 @@ def run_merge(
     others = json.loads(other_path.read_text()) if other_path.exists() else []
     classified = json.loads(classified_path.read_text())
 
-    log.info("Merging %d classifications into %d books + %d others",
-             len(classified), len(books), len(others))
+    log.info(
+        "Merging %d classifications into %d books + %d others",
+        len(classified),
+        len(books),
+        len(others),
+    )
 
     # Index by sha256
     all_entries = {e["sha256"]: e for e in books + others}
@@ -1292,6 +1664,7 @@ def run_merge(
 # Output writing
 # ---------------------------------------------------------------------------
 
+
 def _write_outputs(
     books: list[dict],
     others: list[dict],
@@ -1320,12 +1693,12 @@ def _write_outputs(
         summary = {
             "total_books_r2": len(books),
             "total_other_r2": len(others),
-            "domain_distribution": dict(Counter(
-                e.get("domain", "unclassified") for e in books
-            ).most_common()),
-            "confidence_distribution": dict(Counter(
-                e.get("confidence", "unclassified") for e in books
-            ).most_common()),
+            "domain_distribution": dict(
+                Counter(e.get("domain", "unclassified") for e in books).most_common()
+            ),
+            "confidence_distribution": dict(
+                Counter(e.get("confidence", "unclassified") for e in books).most_common()
+            ),
             "merged": is_merge,
         }
 
@@ -1339,37 +1712,52 @@ def _write_outputs(
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Round 2 Catalog Enrichment Pipeline",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
-    p.add_argument("--input", type=Path,
-                    default=Path("fixtures/library_catalog/catalog_books.json"),
-                    help="Round 1 books catalog")
-    p.add_argument("--input-other", type=Path,
-                    default=Path("fixtures/library_catalog/catalog_other.json"),
-                    help="Round 1 other catalog")
-    p.add_argument("--output-dir", type=Path,
-                    default=Path("fixtures/library_catalog/"),
-                    help="Output directory")
-    p.add_argument("--checkpoint", type=Path,
-                    default=Path("fixtures/library_catalog/.enrichment_checkpoint.json"),
-                    help="Checkpoint file for resumability")
-    p.add_argument("--cache-dir", type=Path,
-                    default=Path("fixtures/library_catalog/.cache/"),
-                    help="Cache directory for API responses")
-    p.add_argument("--workers", type=int, default=8,
-                    help="Parallel workers for text extraction")
-    p.add_argument("--skip-openlibrary", action="store_true",
-                    help="Skip OpenLibrary lookups (offline mode)")
-    p.add_argument("--limit", type=int, default=0,
-                    help="Process only first N entries (testing)")
-    p.add_argument("--quiet", action="store_true",
-                    help="Minimal output")
-    p.add_argument("--merge", type=Path, default=None,
-                    help="Merge classified_results.json (Phase C)")
+    p.add_argument(
+        "--input",
+        type=Path,
+        default=Path("fixtures/library_catalog/catalog_books.json"),
+        help="Round 1 books catalog",
+    )
+    p.add_argument(
+        "--input-other",
+        type=Path,
+        default=Path("fixtures/library_catalog/catalog_other.json"),
+        help="Round 1 other catalog",
+    )
+    p.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("fixtures/library_catalog/"),
+        help="Output directory",
+    )
+    p.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=Path("fixtures/library_catalog/.enrichment_checkpoint.json"),
+        help="Checkpoint file for resumability",
+    )
+    p.add_argument(
+        "--cache-dir",
+        type=Path,
+        default=Path("fixtures/library_catalog/.cache/"),
+        help="Cache directory for API responses",
+    )
+    p.add_argument("--workers", type=int, default=8, help="Parallel workers for text extraction")
+    p.add_argument(
+        "--skip-openlibrary", action="store_true", help="Skip OpenLibrary lookups (offline mode)"
+    )
+    p.add_argument("--limit", type=int, default=0, help="Process only first N entries (testing)")
+    p.add_argument("--quiet", action="store_true", help="Minimal output")
+    p.add_argument(
+        "--merge", type=Path, default=None, help="Merge classified_results.json (Phase C)"
+    )
 
     return p.parse_args()
 
@@ -1388,13 +1776,17 @@ def main() -> None:
     others = load_catalog(args.input_other)
 
     if args.limit > 0:
-        books = books[:args.limit]
-        others = others[:max(1, args.limit // 3)]
+        books = books[: args.limit]
+        others = others[: max(1, args.limit // 3)]
         log.info("Limited to %d books + %d others", len(books), len(others))
 
     all_entries = books + others
-    log.info("Processing %d total entries (%d books + %d other)",
-             len(all_entries), len(books), len(others))
+    log.info(
+        "Processing %d total entries (%d books + %d other)",
+        len(all_entries),
+        len(books),
+        len(others),
+    )
 
     # Load checkpoint
     checkpoint = load_checkpoint(args.checkpoint)
@@ -1406,7 +1798,11 @@ def main() -> None:
 
     # Stage 2+3: ISBN extraction + OpenLibrary
     checkpoint, ol_cache = run_stage2_3(
-        all_entries, checkpoint, args.cache_dir, args.skip_openlibrary, args.quiet,
+        all_entries,
+        checkpoint,
+        args.cache_dir,
+        args.skip_openlibrary,
+        args.quiet,
     )
     save_checkpoint(checkpoint, args.checkpoint)
 
@@ -1430,7 +1826,10 @@ def main() -> None:
 
     # Stage 5: Rescore + dedup
     books_final, others_final, summary = run_stage5(
-        books, others, checkpoint, args.quiet,
+        books,
+        others,
+        checkpoint,
+        args.quiet,
     )
 
     # Build needs_classification.json

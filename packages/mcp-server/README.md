@@ -1,6 +1,6 @@
 # Research KB MCP Server
 
-MCP (Model Context Protocol) server exposing the research-kb causal inference knowledge base to Claude Code.
+MCP (Model Context Protocol) server exposing the research-kb multi-domain research knowledge base to Claude Code.
 
 ## Overview
 

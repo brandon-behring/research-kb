@@ -136,7 +136,7 @@ class TestSearchRequest:
         assert request.limit == 10  # default
         assert request.context_type == ContextType.balanced  # default
         assert request.source_filter is None  # default
-        assert request.use_graph is True  # default
+        assert request.use_graph is False  # default (graph disabled while KG stale)
         assert request.graph_weight == pytest.approx(0.2)  # default
         assert request.use_rerank is True  # default
         assert request.use_expand is True  # default

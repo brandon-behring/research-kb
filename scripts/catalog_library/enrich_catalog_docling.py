@@ -73,6 +73,7 @@ def _truncate_pdf(src: Path, dst: Path, max_pages: int = 10) -> bool:
         if n_pages <= max_pages:
             # Just copy
             import shutil
+
             shutil.copy2(src, dst)
             pdf.close()
             return True
@@ -111,17 +112,25 @@ def main() -> None:
     p = argparse.ArgumentParser(
         description="Docling fallback for scanned/image-only PDFs",
     )
-    p.add_argument("--input", type=Path,
-                    default=Path("fixtures/library_catalog/catalog_books_r2.json"),
-                    help="R2 catalog with r2_text_extraction fields")
-    p.add_argument("--input-other", type=Path,
-                    default=Path("fixtures/library_catalog/catalog_other_r2.json"),
-                    help="R2 other catalog")
-    p.add_argument("--checkpoint", type=Path,
-                    default=Path("fixtures/library_catalog/.enrichment_checkpoint.json"),
-                    help="Enrichment checkpoint to patch")
-    p.add_argument("--limit", type=int, default=0,
-                    help="Process only first N scanned PDFs")
+    p.add_argument(
+        "--input",
+        type=Path,
+        default=Path("fixtures/library_catalog/catalog_books_r2.json"),
+        help="R2 catalog with r2_text_extraction fields",
+    )
+    p.add_argument(
+        "--input-other",
+        type=Path,
+        default=Path("fixtures/library_catalog/catalog_other_r2.json"),
+        help="R2 other catalog",
+    )
+    p.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=Path("fixtures/library_catalog/.enrichment_checkpoint.json"),
+        help="Enrichment checkpoint to patch",
+    )
+    p.add_argument("--limit", type=int, default=0, help="Process only first N scanned PDFs")
     p.add_argument("--quiet", action="store_true")
     args = p.parse_args()
 
@@ -155,7 +164,7 @@ def main() -> None:
         return
 
     if args.limit > 0:
-        scanned = scanned[:args.limit]
+        scanned = scanned[: args.limit]
 
     log.info("Processing %d scanned PDFs with Docling", len(scanned))
     t0 = time.time()
@@ -193,9 +202,11 @@ def main() -> None:
             # Patch checkpoint
             text_sample = text[:2000]
             normalized = re.sub(r"\s+", " ", text[:5000].lower().strip())
-            fingerprint = hashlib.sha256(
-                normalized.encode("utf-8", errors="replace")
-            ).hexdigest()[:16] if len(normalized) > 50 else None
+            fingerprint = (
+                hashlib.sha256(normalized.encode("utf-8", errors="replace")).hexdigest()[:16]
+                if len(normalized) > 50
+                else None
+            )
 
             first_3k = text[:3000].lower()
             has_toc = "table of contents" in first_3k or "contents\n" in first_3k
@@ -226,7 +237,9 @@ def main() -> None:
     elapsed = time.time() - t0
     log.info(
         "Docling complete: %d success, %d errors in %.1fs",
-        success, errors, elapsed,
+        success,
+        errors,
+        elapsed,
     )
 
     # Summary

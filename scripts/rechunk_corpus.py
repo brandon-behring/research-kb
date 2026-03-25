@@ -177,9 +177,7 @@ async def rechunk_source(
     try:
         # Extract and chunk with Docling (singleton converter — no VRAM leak)
         try:
-            extraction_result, new_chunks = extract_and_chunk(
-                str(pdf_path), max_tokens=300
-            )
+            extraction_result, new_chunks = extract_and_chunk(str(pdf_path), max_tokens=300)
         except (RuntimeError, ValueError) as e:
             if "CUDA out of memory" in str(e) or "CUDA error" in str(e):
                 logger.warning("gpu_oom_fallback_cpu", title=title)
@@ -200,9 +198,7 @@ async def rechunk_source(
                 old_val = os.environ.get("CUDA_VISIBLE_DEVICES")
                 os.environ["CUDA_VISIBLE_DEVICES"] = ""
                 try:
-                    extraction_result, new_chunks = extract_and_chunk(
-                        str(pdf_path), max_tokens=300
-                    )
+                    extraction_result, new_chunks = extract_and_chunk(str(pdf_path), max_tokens=300)
                 finally:
                     # Restore GPU visibility for next source
                     if old_val is None:
@@ -278,15 +274,11 @@ async def rechunk_source(
 
             async with conn.transaction():
                 # Delete old chunks (cascades to chunk_concepts)
-                await conn.execute(
-                    "DELETE FROM chunks WHERE source_id = $1", source_id
-                )
+                await conn.execute("DELETE FROM chunks WHERE source_id = $1", source_id)
 
                 # Insert new chunks with proper type handling
                 for i, chunk in enumerate(new_chunks):
-                    content_hash = hashlib.sha256(
-                        chunk.content.encode("utf-8")
-                    ).hexdigest()
+                    content_hash = hashlib.sha256(chunk.content.encode("utf-8")).hexdigest()
 
                     # Convert embedding to numpy array for pgvector, or None
                     embedding_vec = None
@@ -354,9 +346,7 @@ async def rechunk_source(
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Re-chunk corpus with structure-driven chunking."
-    )
+    parser = argparse.ArgumentParser(description="Re-chunk corpus with structure-driven chunking.")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -573,9 +563,7 @@ async def main():
         "chunks_new": total_new,
         "chunks_delta": total_new - total_old,
         "elapsed_s": round(elapsed, 1),
-        "failed_sources": [
-            {"title": r["title"][:50], "reason": r["reason"]} for r in failed
-        ],
+        "failed_sources": [{"title": r["title"][:50], "reason": r["reason"]} for r in failed],
     }
 
     if args.json_output:
@@ -594,8 +582,7 @@ async def main():
         print(f"Skipped: {len(skipped)} sources")
         print(f"Failed: {len(failed)} sources")
         print(
-            f"Chunks: {total_old:,} old -> {total_new:,} new "
-            f"(delta {total_new - total_old:+,})"
+            f"Chunks: {total_old:,} old -> {total_new:,} new " f"(delta {total_new - total_old:+,})"
         )
         print(f"Elapsed: {elapsed:.1f}s")
 
@@ -608,14 +595,8 @@ async def main():
             print()
             print("NEXT STEPS:")
             if args.no_embed:
-                print(
-                    "  1. Restart embed_server: "
-                    "python -m research_kb_pdf.embed_server"
-                )
-                print(
-                    "  2. Backfill embeddings: "
-                    "python scripts/backfill_embeddings.py --json"
-                )
+                print("  1. Restart embed_server: " "python -m research_kb_pdf.embed_server")
+                print("  2. Backfill embeddings: " "python scripts/backfill_embeddings.py --json")
             print(
                 f"  {'3' if args.no_embed else '1'}. Regenerate golden candidates: "
                 "python scripts/regenerate_golden_candidates.py"
@@ -624,10 +605,7 @@ async def main():
                 f"  {'4' if args.no_embed else '2'}. Re-run concept extraction: "
                 "python scripts/extract_concepts.py"
             )
-            print(
-                f"  {'5' if args.no_embed else '3'}. Sync KuzuDB: "
-                "python scripts/sync_kuzu.py"
-            )
+            print(f"  {'5' if args.no_embed else '3'}. Sync KuzuDB: " "python scripts/sync_kuzu.py")
             print(
                 f"  {'6' if args.no_embed else '4'}. Validate retrieval: "
                 "python scripts/eval_retrieval.py --per-domain"

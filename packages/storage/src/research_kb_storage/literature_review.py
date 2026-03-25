@@ -19,7 +19,6 @@ See CLAUDE.md "MCP Server" section for tool documentation.
 from __future__ import annotations
 
 import os
-from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Optional
 from uuid import UUID
@@ -221,7 +220,9 @@ class LiteratureReview:
             else:
                 parts.append(f"*{section.description}*")
                 if section.concepts:
-                    concept_names = [c["name"] if isinstance(c, dict) else c for c in section.concepts[:10]]
+                    concept_names = [
+                        c["name"] if isinstance(c, dict) else c for c in section.concepts[:10]
+                    ]
                     parts.append(f"\nKey concepts: {', '.join(concept_names)}")
             parts.append("")
 
@@ -381,11 +382,9 @@ async def _search_evidence_for_section(
     embed_client = EmbeddingClient()
 
     # Build section-specific query
-    section_concepts = [
-        c["name"]
-        for c in concepts
-        if c["type"] in section_def["concept_types"]
-    ][:5]
+    section_concepts = [c["name"] for c in concepts if c["type"] in section_def["concept_types"]][
+        :5
+    ]
 
     if section_concepts:
         query_text = f"{topic} {' '.join(section_concepts)} {section_def['search_suffix']}"
@@ -474,10 +473,11 @@ async def _synthesize_section(
         return None
 
     # Build concept list
-    concept_list = "\n".join(
-        f"- {c['name']} ({c['type']})"
-        for c in section.concepts[:10]
-    ) if section.concepts else "No specific concepts identified."
+    concept_list = (
+        "\n".join(f"- {c['name']} ({c['type']})" for c in section.concepts[:10])
+        if section.concepts
+        else "No specific concepts identified."
+    )
 
     # Build evidence text
     evidence_parts = []
@@ -541,8 +541,7 @@ async def _synthesize_intro_conclusion(
     # Build section summaries
     section_summaries = "\n".join(
         f"- {s.title}: {len(s.evidence)} evidence sources, "
-        f"{len(s.concepts)} concepts"
-        + (f" — {s.synthesis[:100]}..." if s.synthesis else "")
+        f"{len(s.concepts)} concepts" + (f" — {s.synthesis[:100]}..." if s.synthesis else "")
         for s in sections
     )
 
@@ -555,9 +554,7 @@ async def _synthesize_intro_conclusion(
             all_sources.add(e.source_title)
             if e.domain:
                 all_domains.add(e.domain)
-        all_concepts.update(
-            c["name"] if isinstance(c, dict) else c for c in s.concepts
-        )
+        all_concepts.update(c["name"] if isinstance(c, dict) else c for c in s.concepts)
 
     if part == "introduction":
         prompt = INTRODUCTION_PROMPT.format(
@@ -635,9 +632,7 @@ async def generate_literature_review(
 
     if not concepts:
         # Fallback: search-only mode (no graph data)
-        return await _generate_search_only_review(
-            topic, style, use_llm, max_evidence_per_section
-        )
+        return await _generate_search_only_review(topic, style, use_llm, max_evidence_per_section)
 
     # 2. Organize into sections
     sections: list[ReviewSection] = []
@@ -685,12 +680,8 @@ async def generate_literature_review(
     introduction = None
     conclusion = None
     if use_llm:
-        introduction = await _synthesize_intro_conclusion(
-            topic, sections, style, "introduction"
-        )
-        conclusion = await _synthesize_intro_conclusion(
-            topic, sections, style, "conclusion"
-        )
+        introduction = await _synthesize_intro_conclusion(topic, sections, style, "introduction")
+        conclusion = await _synthesize_intro_conclusion(topic, sections, style, "conclusion")
 
     # 6. Quality metrics
     all_sources = set()
@@ -711,9 +702,7 @@ async def generate_literature_review(
 
     all_concepts = set()
     for s in sections:
-        all_concepts.update(
-            c["name"] if isinstance(c, dict) else c for c in s.concepts
-        )
+        all_concepts.update(c["name"] if isinstance(c, dict) else c for c in s.concepts)
 
     sections_with_synthesis = sum(1 for s in sections if s.synthesis)
 

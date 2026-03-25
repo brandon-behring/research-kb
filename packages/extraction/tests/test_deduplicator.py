@@ -93,7 +93,9 @@ class TestCanonicalName:
         """Test combined hyphen normalization + article stripping."""
         dedup = Deduplicator(domain_id="causal_inference")
 
-        assert dedup.to_canonical_name("the difference-in-differences") == "difference in differences"
+        assert (
+            dedup.to_canonical_name("the difference-in-differences") == "difference in differences"
+        )
         assert dedup.to_canonical_name("a well-known method") == "well known method"
 
     def test_hyphen_space_equivalence(self):
@@ -108,9 +110,9 @@ class TestCanonicalName:
             ("double-robust", "double robust"),
         ]
         for hyphenated, spaced in pairs:
-            assert dedup.to_canonical_name(hyphenated) == dedup.to_canonical_name(spaced), (
-                f"Mismatch: {hyphenated!r} vs {spaced!r}"
-            )
+            assert dedup.to_canonical_name(hyphenated) == dedup.to_canonical_name(
+                spaced
+            ), f"Mismatch: {hyphenated!r} vs {spaced!r}"
 
     def test_article_equivalence(self):
         """Test that article-prefixed and bare forms produce identical canonical names."""
@@ -123,9 +125,9 @@ class TestCanonicalName:
             ("an instrumental variable", "instrumental variable"),
         ]
         for with_article, bare in pairs:
-            assert dedup.to_canonical_name(with_article) == dedup.to_canonical_name(bare), (
-                f"Mismatch: {with_article!r} vs {bare!r}"
-            )
+            assert dedup.to_canonical_name(with_article) == dedup.to_canonical_name(
+                bare
+            ), f"Mismatch: {with_article!r} vs {bare!r}"
 
 
 class TestKnownConceptManagement:

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Research Knowledge Base: A semantic search system for causal inference literature with graph-boosted retrieval. Combines full-text search, vector similarity (BGE-large-en-v1.5, 1024 dimensions), and knowledge graph signals.
+Research Knowledge Base: A semantic search system for research literature across 35+ domains with graph-boosted retrieval. Combines full-text search, vector similarity (BGE-large-en-v1.5, 1024 dimensions), and knowledge graph signals.
 
 ## Commands
 

@@ -6,7 +6,7 @@
 
 ## Purpose & Overview
 
-Research-KB is a semantic search system for causal inference literature that combines:
+Research-KB is a semantic search system for research literature across multiple domains that combines:
 - **Full-text search** (PostgreSQL FTS)
 - **Vector similarity** (BGE-large-en-v1.5, 1024 dimensions)
 - **Knowledge graph signals** (concept relationships)

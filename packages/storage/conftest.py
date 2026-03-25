@@ -79,6 +79,11 @@ async def db_pool():
     # Clean up after test
     await close_connection_pool()
 
+    # Reset process-global caches that leak between tests
+    from research_kb_storage.assumption_audit import MethodAssumptionAuditor
+
+    MethodAssumptionAuditor._kg_stale_cache = None
+
 
 @pytest_asyncio.fixture(scope="function")
 async def test_db(db_pool):

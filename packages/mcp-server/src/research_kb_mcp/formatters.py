@@ -1029,9 +1029,7 @@ def format_source_detail_json(source: Source, chunks: Optional[list] = None) -> 
         JSON string with source metadata and optional chunks array
     """
     type_val = (
-        source.source_type.value
-        if hasattr(source.source_type, "value")
-        else source.source_type
+        source.source_type.value if hasattr(source.source_type, "value") else source.source_type
     )
 
     result: dict = {

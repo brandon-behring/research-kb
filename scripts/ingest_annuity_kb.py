@@ -86,7 +86,7 @@ def chunk_markdown(text: str) -> list[dict]:
     Returns list of dicts with 'content' and 'location' keys.
     """
     # Split by headings (##, ###, etc.)
-    sections = re.split(r'(?=^#{1,4}\s)', text, flags=re.MULTILINE)
+    sections = re.split(r"(?=^#{1,4}\s)", text, flags=re.MULTILINE)
     chunks = []
 
     for section in sections:
@@ -95,14 +95,14 @@ def chunk_markdown(text: str) -> list[dict]:
             continue
 
         # Extract heading for location
-        heading_match = re.match(r'^(#{1,4})\s+(.+)', section)
+        heading_match = re.match(r"^(#{1,4})\s+(.+)", section)
         heading = heading_match.group(2).strip() if heading_match else "Preamble"
 
         if len(section) <= TARGET_CHUNK_CHARS:
             chunks.append({"content": section, "location": heading})
         else:
             # Split large sections by paragraphs
-            paragraphs = section.split('\n\n')
+            paragraphs = section.split("\n\n")
             current = ""
             for para in paragraphs:
                 if len(current) + len(para) > TARGET_CHUNK_CHARS and current:

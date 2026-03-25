@@ -38,9 +38,7 @@ from research_kb_storage import DatabaseConfig, get_connection_pool
 logger = get_logger(__name__)
 
 
-async def get_sources_needing_embeddings(
-    pool, domain: str | None, limit: int | None
-) -> list[dict]:
+async def get_sources_needing_embeddings(pool, domain: str | None, limit: int | None) -> list[dict]:
     """Find sources with chunks that have NULL embeddings.
 
     Args:
@@ -215,9 +213,7 @@ def parse_args():
         action="store_true",
         help="Show scope without backfilling",
     )
-    parser.add_argument(
-        "-q", "--quiet", action="store_true", help="Minimal output"
-    )
+    parser.add_argument("-q", "--quiet", action="store_true", help="Minimal output")
     parser.add_argument(
         "--json",
         action="store_true",
@@ -238,9 +234,7 @@ async def main():
 
     pool = await get_connection_pool(DatabaseConfig())
 
-    sources = await get_sources_needing_embeddings(
-        pool, domain=args.domain, limit=args.limit
-    )
+    sources = await get_sources_needing_embeddings(pool, domain=args.domain, limit=args.limit)
 
     if not sources:
         msg = "No chunks with NULL embeddings found."
@@ -291,9 +285,7 @@ async def main():
                 flush=True,
             )
 
-        result = await backfill_source(
-            pool, source, embed_client, batch_size=args.batch_size
-        )
+        result = await backfill_source(pool, source, embed_client, batch_size=args.batch_size)
         results.append(result)
 
         if args.json_output:
@@ -326,9 +318,7 @@ async def main():
         "failed_count": len(failed),
         "chunks_filled": total_filled,
         "elapsed_s": round(elapsed, 1),
-        "failed_sources": [
-            {"title": r["title"][:50], "reason": r["reason"]} for r in failed
-        ],
+        "failed_sources": [{"title": r["title"][:50], "reason": r["reason"]} for r in failed],
     }
 
     if args.json_output:

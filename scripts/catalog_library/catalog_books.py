@@ -28,7 +28,6 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-
 # ---------------------------------------------------------------------------
 # Domain taxonomy
 # ---------------------------------------------------------------------------
@@ -36,185 +35,415 @@ from typing import Any
 DOMAIN_KEYWORDS: dict[str, list[str]] = {
     # Math sub-domains
     "algebra": [
-        "algebra", "galois", "group theory", "ring theory", "field theory",
-        "commutative", "homological", "representation theory", "module theory",
-        "abstract algebra", "algebraic structure", "lie algebra", "lie group",
+        "algebra",
+        "galois",
+        "group theory",
+        "ring theory",
+        "field theory",
+        "commutative",
+        "homological",
+        "representation theory",
+        "module theory",
+        "abstract algebra",
+        "algebraic structure",
+        "lie algebra",
+        "lie group",
     ],
     "analysis": [
-        "real analysis", "complex analysis", "functional analysis",
-        "harmonic analysis", "measure theory", "fourier", "operator theory",
-        "spectral theory", "lebesgue", "banach", "hilbert space",
-        "sobolev", "distribution theory",
+        "real analysis",
+        "complex analysis",
+        "functional analysis",
+        "harmonic analysis",
+        "measure theory",
+        "fourier",
+        "operator theory",
+        "spectral theory",
+        "lebesgue",
+        "banach",
+        "hilbert space",
+        "sobolev",
+        "distribution theory",
     ],
     "topology_geometry": [
-        "topology", "manifold", "riemannian", "cohomology", "homotopy",
-        "differential geometry", "algebraic geometry", "knot theory",
-        "symplectic", "differential forms", "fiber bundle", "sheaf",
-        "homology", "algebraic topology",
+        "topology",
+        "manifold",
+        "riemannian",
+        "cohomology",
+        "homotopy",
+        "differential geometry",
+        "algebraic geometry",
+        "knot theory",
+        "symplectic",
+        "differential forms",
+        "fiber bundle",
+        "sheaf",
+        "homology",
+        "algebraic topology",
     ],
     "dynamical_systems": [
-        "dynamical system", "bifurcation", "chaos", "hamiltonian",
-        "perturbation", "stability theory", "nonlinear dynamics",
-        "celestial mechanics", "n-body", "vortex", "vortices", "orbit",
-        "ergodic", "kam theory", "kam theorem", "three-body",
-        "poincare", "lyapunov", "classical dynamics",
-        "classical mechanics", "lagrangian mechanics",
+        "dynamical system",
+        "bifurcation",
+        "chaos",
+        "hamiltonian",
+        "perturbation",
+        "stability theory",
+        "nonlinear dynamics",
+        "celestial mechanics",
+        "n-body",
+        "vortex",
+        "vortices",
+        "orbit",
+        "ergodic",
+        "kam theory",
+        "kam theorem",
+        "three-body",
+        "poincare",
+        "lyapunov",
+        "classical dynamics",
+        "classical mechanics",
+        "lagrangian mechanics",
     ],
     "probability_theory": [
-        "probability theory", "stochastic process", "stochastic calculus",
-        "markov chain", "martingale", "random variable", "brownian motion",
-        "measure-theoretic probability", "stochastic differential",
-        "random walk", "poisson process",
+        "probability theory",
+        "stochastic process",
+        "stochastic calculus",
+        "markov chain",
+        "martingale",
+        "random variable",
+        "brownian motion",
+        "measure-theoretic probability",
+        "stochastic differential",
+        "random walk",
+        "poisson process",
     ],
     "numerical_methods": [
-        "numerical analysis", "numerical method", "convex optimization",
-        "finite element", "approximation theory", "interpolation",
-        "computational mathematics", "numerical linear algebra",
-        "numerical solution", "quadrature",
+        "numerical analysis",
+        "numerical method",
+        "convex optimization",
+        "finite element",
+        "approximation theory",
+        "interpolation",
+        "computational mathematics",
+        "numerical linear algebra",
+        "numerical solution",
+        "quadrature",
     ],
     "linear_algebra": [
-        "linear algebra", "matrix analysis", "eigenvalue", "vector space",
-        "singular value", "svd", "tensor decomposition", "matrix theory",
+        "linear algebra",
+        "matrix analysis",
+        "eigenvalue",
+        "vector space",
+        "singular value",
+        "svd",
+        "tensor decomposition",
+        "matrix theory",
         "matrix computation",
     ],
     # Existing research-kb domains (expanded)
     "causal_inference": [
-        "causal inference", "causal effect", "counterfactual",
-        "instrumental variable", "propensity score", "treatment effect",
-        "difference-in-difference", "regression discontinuity",
-        "double machine learning", "potential outcome",
+        "causal inference",
+        "causal effect",
+        "counterfactual",
+        "instrumental variable",
+        "propensity score",
+        "treatment effect",
+        "difference-in-difference",
+        "regression discontinuity",
+        "double machine learning",
+        "potential outcome",
     ],
     "deep_learning": [
-        "deep learning", "neural network", "transformer", "attention mechanism",
-        "bert", "convolutional neural", "diffusion model", "generative adversarial",
-        "autoencoder", "recurrent neural", "lstm", "batch normalization",
+        "deep learning",
+        "neural network",
+        "transformer",
+        "attention mechanism",
+        "bert",
+        "convolutional neural",
+        "diffusion model",
+        "generative adversarial",
+        "autoencoder",
+        "recurrent neural",
+        "lstm",
+        "batch normalization",
     ],
     "machine_learning": [
-        "machine learning", "probabilistic graphical", "mixture model",
-        "kernel method", "ensemble method", "boosting", "random forest",
-        "support vector", "decision tree", "classification",
-        "supervised learning", "unsupervised learning",
+        "machine learning",
+        "probabilistic graphical",
+        "mixture model",
+        "kernel method",
+        "ensemble method",
+        "boosting",
+        "random forest",
+        "support vector",
+        "decision tree",
+        "classification",
+        "supervised learning",
+        "unsupervised learning",
     ],
     "reinforcement_learning": [
-        "reinforcement learning", "reward function", "policy gradient",
-        "q-learning", "bandit", "markov decision", "temporal difference",
-        "actor-critic", "monte carlo tree",
+        "reinforcement learning",
+        "reward function",
+        "policy gradient",
+        "q-learning",
+        "bandit",
+        "markov decision",
+        "temporal difference",
+        "actor-critic",
+        "monte carlo tree",
     ],
     "rag_llm": [
-        "natural language processing", "language model", "information retrieval",
-        "text mining", "word embedding", "sentiment analysis", "named entity",
-        "question answering", "text generation", "prompt engineering",
-        "retrieval augmented", "large language model",
+        "natural language processing",
+        "language model",
+        "information retrieval",
+        "text mining",
+        "word embedding",
+        "sentiment analysis",
+        "named entity",
+        "question answering",
+        "text generation",
+        "prompt engineering",
+        "retrieval augmented",
+        "large language model",
     ],
     "statistics": [
-        "statistical inference", "hypothesis testing", "generalized linear",
-        "survival analysis", "bayesian statistics", "bayesian inference",
-        "multivariate statistics", "nonparametric statistics",
-        "time series analysis", "regression analysis", "mixed model",
-        "experimental design", "statistical learning",
+        "statistical inference",
+        "hypothesis testing",
+        "generalized linear",
+        "survival analysis",
+        "bayesian statistics",
+        "bayesian inference",
+        "multivariate statistics",
+        "nonparametric statistics",
+        "time series analysis",
+        "regression analysis",
+        "mixed model",
+        "experimental design",
+        "statistical learning",
     ],
     "econometrics": [
-        "econometrics", "panel data", "instrumental variable",
-        "generalized method of moments", "cointegration",
-        "heteroskedasticity", "endogeneity", "two-stage least squares",
+        "econometrics",
+        "panel data",
+        "instrumental variable",
+        "generalized method of moments",
+        "cointegration",
+        "heteroskedasticity",
+        "endogeneity",
+        "two-stage least squares",
     ],
     "finance": [
-        "value at risk", "derivatives pricing", "quantitative finance",
-        "algorithmic trading", "fixed income", "credit risk", "option pricing",
-        "portfolio theory", "asset pricing", "black-scholes", "stochastic finance",
-        "financial engineering", "risk management",
+        "value at risk",
+        "derivatives pricing",
+        "quantitative finance",
+        "algorithmic trading",
+        "fixed income",
+        "credit risk",
+        "option pricing",
+        "portfolio theory",
+        "asset pricing",
+        "black-scholes",
+        "stochastic finance",
+        "financial engineering",
+        "risk management",
     ],
     "portfolio_management": [
-        "portfolio management", "portfolio optimization", "asset allocation",
-        "modern portfolio theory", "factor model", "capm",
-        "mean-variance", "sharpe ratio",
+        "portfolio management",
+        "portfolio optimization",
+        "asset allocation",
+        "modern portfolio theory",
+        "factor model",
+        "capm",
+        "mean-variance",
+        "sharpe ratio",
     ],
     "actuarial_insurance": [
-        "actuarial", "insurance mathematics", "loss model", "ruin theory",
-        "life contingencies", "casualty actuarial",
+        "actuarial",
+        "insurance mathematics",
+        "loss model",
+        "ruin theory",
+        "life contingencies",
+        "casualty actuarial",
     ],
     "physics": [
-        "quantum mechanics", "classical mechanics", "electrodynamics",
-        "thermodynamics", "statistical mechanics", "quantum field theory",
-        "general relativity", "special relativity", "condensed matter",
-        "particle physics", "solid state physics", "optics",
+        "quantum mechanics",
+        "classical mechanics",
+        "electrodynamics",
+        "thermodynamics",
+        "statistical mechanics",
+        "quantum field theory",
+        "general relativity",
+        "special relativity",
+        "condensed matter",
+        "particle physics",
+        "solid state physics",
+        "optics",
     ],
     "biology_neuroscience": [
-        "biology", "neuroscience", "genetics", "evolution", "ecology",
-        "molecular biology", "neural network biology", "brain science",
-        "computational neuroscience", "bioinformatics", "genomics",
+        "biology",
+        "neuroscience",
+        "genetics",
+        "evolution",
+        "ecology",
+        "molecular biology",
+        "neural network biology",
+        "brain science",
+        "computational neuroscience",
+        "bioinformatics",
+        "genomics",
     ],
     "signal_processing": [
-        "signal processing", "digital signal", "control theory",
-        "control systems", "feedback control", "filter design",
-        "fourier transform", "wavelet", "system identification",
+        "signal processing",
+        "digital signal",
+        "control theory",
+        "control systems",
+        "feedback control",
+        "filter design",
+        "fourier transform",
+        "wavelet",
+        "system identification",
     ],
     "time_series": [
-        "time series", "forecasting", "arima", "garch", "kalman filter",
-        "state space model", "spectral analysis",
+        "time series",
+        "forecasting",
+        "arima",
+        "garch",
+        "kalman filter",
+        "state space model",
+        "spectral analysis",
     ],
     "algorithms": [
-        "algorithm design", "data structure", "computational complexity",
-        "graph algorithm", "combinatorial optimization", "dynamic programming",
-        "divide and conquer", "greedy algorithm",
+        "algorithm design",
+        "data structure",
+        "computational complexity",
+        "graph algorithm",
+        "combinatorial optimization",
+        "dynamic programming",
+        "divide and conquer",
+        "greedy algorithm",
     ],
     "software_engineering": [
-        "software engineering", "design pattern", "software architecture",
-        "refactoring", "continuous integration", "devops", "microservice",
-        "distributed system", "version control", "clean code",
-        "test-driven", "agile", "kubernetes", "docker", "cloud native",
-        "site reliability", "programming language", "compiler",
-        "continuous delivery", "infrastructure as code",
+        "software engineering",
+        "design pattern",
+        "software architecture",
+        "refactoring",
+        "continuous integration",
+        "devops",
+        "microservice",
+        "distributed system",
+        "version control",
+        "clean code",
+        "test-driven",
+        "agile",
+        "kubernetes",
+        "docker",
+        "cloud native",
+        "site reliability",
+        "programming language",
+        "compiler",
+        "continuous delivery",
+        "infrastructure as code",
     ],
     "data_science": [
-        "data science", "data mining", "data analysis", "data visualization",
-        "exploratory data", "feature engineering", "data pipeline",
-        "data analytics", "scientific computing", "python data",
+        "data science",
+        "data mining",
+        "data analysis",
+        "data visualization",
+        "exploratory data",
+        "feature engineering",
+        "data pipeline",
+        "data analytics",
+        "scientific computing",
+        "python data",
     ],
     "functional_programming": [
-        "functional programming", "haskell", "lambda calculus", "category theory",
-        "monad", "type theory", "scala functional",
+        "functional programming",
+        "haskell",
+        "lambda calculus",
+        "category theory",
+        "monad",
+        "type theory",
+        "scala functional",
     ],
     "mathematics": [
         # Catch-all for math that doesn't fit sub-domains
-        "mathematics", "mathematical", "theorem", "proof", "lemma",
-        "calculus", "differential equation", "number theory", "combinatorics",
-        "discrete mathematics", "graph theory", "set theory", "logic",
+        "mathematics",
+        "mathematical",
+        "theorem",
+        "proof",
+        "lemma",
+        "calculus",
+        "differential equation",
+        "number theory",
+        "combinatorics",
+        "discrete mathematics",
+        "graph theory",
+        "set theory",
+        "logic",
     ],
     "interview_prep": [
-        "interview", "coding interview", "system design interview",
-        "cracking the code", "programming interview",
+        "interview",
+        "coding interview",
+        "system design interview",
+        "cracking the code",
+        "programming interview",
     ],
     "sql": [
-        "sql", "database design", "relational database", "query optimization",
+        "sql",
+        "database design",
+        "relational database",
+        "query optimization",
     ],
     "recommender_systems": [
-        "recommender system", "recommendation", "collaborative filtering",
-        "content-based filtering", "matrix factorization",
+        "recommender system",
+        "recommendation",
+        "collaborative filtering",
+        "content-based filtering",
+        "matrix factorization",
     ],
     "adtech": [
-        "advertising technology", "computational advertising", "ad serving",
-        "real-time bidding", "programmatic",
+        "advertising technology",
+        "computational advertising",
+        "ad serving",
+        "real-time bidding",
+        "programmatic",
     ],
     "fitness": [
-        "fitness", "strength training", "exercise", "bodybuilding",
-        "supple leopard", "mobility", "crossfit", "weightlifting",
-        "athletic performance", "sport science",
+        "fitness",
+        "strength training",
+        "exercise",
+        "bodybuilding",
+        "supple leopard",
+        "mobility",
+        "crossfit",
+        "weightlifting",
+        "athletic performance",
+        "sport science",
     ],
     "ml_engineering": [
-        "mlops", "ml engineering", "model deployment", "model serving",
-        "feature store", "ml pipeline", "machine learning engineering",
+        "mlops",
+        "ml engineering",
+        "model deployment",
+        "model serving",
+        "feature store",
+        "ml pipeline",
+        "machine learning engineering",
     ],
     "forecasting": [
-        "forecasting method", "demand forecasting", "predictive analytics",
-        "prophet", "exponential smoothing",
+        "forecasting method",
+        "demand forecasting",
+        "predictive analytics",
+        "prophet",
+        "exponential smoothing",
     ],
 }
 
 # ODE/PDE keywords — check context to route correctly
 ODE_PDE_KEYWORDS = [
-    "ordinary differential equation", "partial differential equation",
-    "ode", "pde", "boundary value", "initial value problem",
+    "ordinary differential equation",
+    "partial differential equation",
+    "ode",
+    "pde",
+    "boundary value",
+    "initial value problem",
     "differential equation",
 ]
 
@@ -262,15 +491,37 @@ NON_BOOK_METADATA_PATTERNS = [
 # ---------------------------------------------------------------------------
 
 KNOWN_PUBLISHERS_TIER1 = {
-    "springer", "cambridge", "mit press", "oxford", "wiley",
-    "princeton", "ams", "american mathematical society",
-    "siam", "world scientific",
+    "springer",
+    "cambridge",
+    "mit press",
+    "oxford",
+    "wiley",
+    "princeton",
+    "ams",
+    "american mathematical society",
+    "siam",
+    "world scientific",
 }
 KNOWN_PUBLISHERS_TIER2 = {
-    "pearson", "mcgraw-hill", "mcgraw hill", "crc", "academic press",
-    "elsevier", "addison-wesley", "addison wesley", "o'reilly", "oreilly",
-    "manning", "no starch", "prentice hall", "cengage", "brooks/cole",
-    "john wiley", "chapman", "birkhauser", "birkhäuser",
+    "pearson",
+    "mcgraw-hill",
+    "mcgraw hill",
+    "crc",
+    "academic press",
+    "elsevier",
+    "addison-wesley",
+    "addison wesley",
+    "o'reilly",
+    "oreilly",
+    "manning",
+    "no starch",
+    "prentice hall",
+    "cengage",
+    "brooks/cole",
+    "john wiley",
+    "chapman",
+    "birkhauser",
+    "birkhäuser",
 }
 
 KNOWN_SERIES = [
@@ -291,28 +542,103 @@ KNOWN_SERIES = [
 ]
 
 CANONICAL_AUTHORS = [
-    "rudin", "strang", "lang", "munkres", "strogatz", "durrett",
-    "boyd", "axler", "murphy", "sutton", "bishop", "hastie",
-    "goodfellow", "arnold", "marsden", "folland", "royden",
-    "hungerford", "do carmo", "nocedal", "trefethen", "halmos",
-    "hoffman", "kunze", "artin", "dummit", "foote", "hatcher",
-    "lee", "milnor", "spivak", "stein", "shakarchi", "evans",
-    "brezis", "conway", "kreyszig", "berger", "ahlfors",
-    "serre", "atiyah", "macdonald", "hartshorne", "griffiths",
-    "karatzas", "shreve", "oksendal", "billingsley",
-    "kolmogorov", "shiryaev", "vapnik", "tibshirani",
-    "gelman", "wasserman", "casella", "berger",
-    "bertsekas", "tsitsiklis", "koller", "friedman",
-    "jurafsky", "manning", "bengio", "lecun",
-    "cover", "thomas", "haykin", "shalev-shwartz",
-    "rockafellar", "bertsekas", "luenberger",
-    "hamilton", "enders", "wooldridge", "angrist", "pischke",
-    "pearl", "imbens", "chernozhukov",
-    "meyer", "moler", "burden", "faires",
-    "feynman", "landau", "lifshitz", "jackson", "griffiths",
-    "sakurai", "weinberg", "peskin", "schroeder",
-    "goldstein", "poole", "safko",
-    "cohen-tannoudji", "shankar",
+    "rudin",
+    "strang",
+    "lang",
+    "munkres",
+    "strogatz",
+    "durrett",
+    "boyd",
+    "axler",
+    "murphy",
+    "sutton",
+    "bishop",
+    "hastie",
+    "goodfellow",
+    "arnold",
+    "marsden",
+    "folland",
+    "royden",
+    "hungerford",
+    "do carmo",
+    "nocedal",
+    "trefethen",
+    "halmos",
+    "hoffman",
+    "kunze",
+    "artin",
+    "dummit",
+    "foote",
+    "hatcher",
+    "lee",
+    "milnor",
+    "spivak",
+    "stein",
+    "shakarchi",
+    "evans",
+    "brezis",
+    "conway",
+    "kreyszig",
+    "berger",
+    "ahlfors",
+    "serre",
+    "atiyah",
+    "macdonald",
+    "hartshorne",
+    "griffiths",
+    "karatzas",
+    "shreve",
+    "oksendal",
+    "billingsley",
+    "kolmogorov",
+    "shiryaev",
+    "vapnik",
+    "tibshirani",
+    "gelman",
+    "wasserman",
+    "casella",
+    "berger",
+    "bertsekas",
+    "tsitsiklis",
+    "koller",
+    "friedman",
+    "jurafsky",
+    "manning",
+    "bengio",
+    "lecun",
+    "cover",
+    "thomas",
+    "haykin",
+    "shalev-shwartz",
+    "rockafellar",
+    "bertsekas",
+    "luenberger",
+    "hamilton",
+    "enders",
+    "wooldridge",
+    "angrist",
+    "pischke",
+    "pearl",
+    "imbens",
+    "chernozhukov",
+    "meyer",
+    "moler",
+    "burden",
+    "faires",
+    "feynman",
+    "landau",
+    "lifshitz",
+    "jackson",
+    "griffiths",
+    "sakurai",
+    "weinberg",
+    "peskin",
+    "schroeder",
+    "goldstein",
+    "poole",
+    "safko",
+    "cohen-tannoudji",
+    "shankar",
 ]
 
 
@@ -336,17 +662,13 @@ _RE_AUTHOR_TITLE = re.compile(
 )
 
 # Pattern: Title (Year)
-_RE_TITLE_YEAR = re.compile(
-    r"^(?P<title>.+?)\s*\((?P<year>\d{4})\)"
-)
+_RE_TITLE_YEAR = re.compile(r"^(?P<title>.+?)\s*\((?P<year>\d{4})\)")
 
 # Year anywhere
 _RE_YEAR_ANYWHERE = re.compile(r"\b(19[5-9]\d|20[0-3]\d)\b")
 
 # Edition
-_RE_EDITION = re.compile(
-    r"(\d+)(?:st|nd|rd|th)\s*(?:ed(?:ition)?)", re.I
-)
+_RE_EDITION = re.compile(r"(\d+)(?:st|nd|rd|th)\s*(?:ed(?:ition)?)", re.I)
 _RE_EDITION_WORD = re.compile(r"\bedition\b", re.I)
 
 # Series in parentheses
@@ -453,6 +775,7 @@ def _parse_authors(raw: str) -> list[str]:
 # PDF metadata extraction
 # ---------------------------------------------------------------------------
 
+
 def extract_pdf_metadata(filepath: str) -> dict[str, str | None]:
     """Extract metadata from PDF file using pypdf.
 
@@ -473,6 +796,7 @@ def extract_pdf_metadata(filepath: str) -> dict[str, str | None]:
     }
     try:
         from pypdf import PdfReader
+
         # Suppress all pypdf warnings (corrupt PDFs are extremely noisy)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -503,6 +827,7 @@ def _safe_str(val: Any) -> str | None:
 # SHA256 hashing
 # ---------------------------------------------------------------------------
 
+
 def compute_sha256(filepath: str) -> str:
     """Compute SHA256 hash of a file. Reads in 64KB chunks."""
     h = hashlib.sha256()
@@ -521,6 +846,7 @@ def compute_sha256(filepath: str) -> str:
 # ---------------------------------------------------------------------------
 # Domain classification
 # ---------------------------------------------------------------------------
+
 
 def classify_domain(title: str, filename: str, pdf_meta: dict[str, str | None]) -> tuple[str, str]:
     """Classify a document into a domain based on title/filename/metadata.
@@ -578,6 +904,7 @@ def classify_domain(title: str, filename: str, pdf_meta: dict[str, str | None]) 
 # ---------------------------------------------------------------------------
 # Priority scoring
 # ---------------------------------------------------------------------------
+
 
 def compute_priority_score(
     entry: dict[str, Any],
@@ -648,7 +975,11 @@ def compute_priority_score(
         reasons.append("size>5MB")
 
     # Edition signal (+10)
-    if entry.get("edition") or _RE_EDITION.search(filename_lower) or _RE_EDITION_WORD.search(filename_lower):
+    if (
+        entry.get("edition")
+        or _RE_EDITION.search(filename_lower)
+        or _RE_EDITION_WORD.search(filename_lower)
+    ):
         score += 10
         reasons.append("has_edition")
 
@@ -687,6 +1018,7 @@ def compute_priority_score(
 # Book vs non-book classification
 # ---------------------------------------------------------------------------
 
+
 def classify_is_book(
     filename: str,
     size_mb: float,
@@ -706,8 +1038,8 @@ def classify_is_book(
             return False, f"filename_pattern:{pat.pattern}"
 
     # PDF metadata checks
-    for field in ["title", "subject"]:
-        val = pdf_meta.get(field)
+    for meta_field in ["title", "subject"]:
+        val = pdf_meta.get(meta_field)
         if val:
             for pat in NON_BOOK_METADATA_PATTERNS:
                 if pat.search(val):
@@ -723,6 +1055,7 @@ def classify_is_book(
 # ---------------------------------------------------------------------------
 # Duplicate detection
 # ---------------------------------------------------------------------------
+
 
 def detect_duplicates(entries: list[dict[str, Any]]) -> None:
     """Detect duplicates by SHA256 hash and assign duplicate_group IDs.
@@ -747,7 +1080,7 @@ def detect_duplicates(entries: list[dict[str, Any]]) -> None:
                 entries[idx]["duplicate_group"] = group_id
                 if "possible_duplicate" not in entries[idx].get("flags", []):
                     entries[idx].setdefault("flags", []).append("possible_duplicate")
-                entries[idx]["_is_preferred_duplicate"] = (idx == best_idx)
+                entries[idx]["_is_preferred_duplicate"] = idx == best_idx
 
     # Fuzzy title duplicates (within same domain, different hash)
     domain_title_groups: dict[str, list[int]] = defaultdict(list)
@@ -771,7 +1104,7 @@ def detect_duplicates(entries: list[dict[str, Any]]) -> None:
                 entries[idx]["duplicate_group"] = group_id
                 if "possible_duplicate" not in entries[idx].get("flags", []):
                     entries[idx].setdefault("flags", []).append("possible_duplicate")
-                entries[idx]["_is_preferred_duplicate"] = (idx == best_idx)
+                entries[idx]["_is_preferred_duplicate"] = idx == best_idx
 
 
 def _normalize_title(title: str) -> str:
@@ -788,6 +1121,7 @@ def _normalize_title(title: str) -> str:
 # ---------------------------------------------------------------------------
 # Catalog entry dataclass
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class CatalogEntry:
@@ -837,6 +1171,7 @@ class CatalogEntry:
 # Worker functions for parallel execution
 # ---------------------------------------------------------------------------
 
+
 def _worker_extract_metadata(filepath: str) -> tuple[str, dict[str, str | None]]:
     """Worker: extract PDF metadata for a single file."""
     return filepath, extract_pdf_metadata(filepath)
@@ -850,6 +1185,7 @@ def _worker_hash_file(filepath: str) -> tuple[str, str]:
 # ---------------------------------------------------------------------------
 # Main pipeline
 # ---------------------------------------------------------------------------
+
 
 def run_pipeline(input_dir: Path, output_dir: Path, workers: int = 8) -> None:
     """Execute the full catalog pipeline."""
@@ -887,8 +1223,12 @@ def run_pipeline(input_dir: Path, output_dir: Path, workers: int = 8) -> None:
             except Exception:
                 errors += 1
                 pdf_meta_map[futures[fut]] = {
-                    "title": None, "author": None, "subject": None,
-                    "creator": None, "producer": None, "pages": None,
+                    "title": None,
+                    "author": None,
+                    "subject": None,
+                    "creator": None,
+                    "producer": None,
+                    "pages": None,
                 }
     print(f"  Metadata extracted in {time.time() - t2:.1f}s ({errors} errors)")
 
@@ -932,21 +1272,23 @@ def run_pipeline(input_dir: Path, output_dir: Path, workers: int = 8) -> None:
             pdf_title_clean = pdf_title.strip()
             # Reject generic/useless PDF titles
             _generic_pdf_titles = {
-                "untitled", "microsoft word", "doc000", "print.indd",
-                "djvu document", "djvu postscript", "unknown",
+                "untitled",
+                "microsoft word",
+                "doc000",
+                "print.indd",
+                "djvu document",
+                "djvu postscript",
+                "unknown",
             }
             is_generic_pdf = any(g in pdf_title_clean.lower() for g in _generic_pdf_titles)
 
             if not is_generic_pdf:
                 # Use PDF title if filename is cryptic/hash-like/too short
-                if (len(title) < 10
-                        or re.match(r"^[a-f0-9]+$", title.lower())
-                        or title == "Unknown"):
+                if len(title) < 10 or re.match(r"^[a-f0-9]+$", title.lower()) or title == "Unknown":
                     title = pdf_title_clean
                     title_source = "pdf_metadata"
                 # Prefer PDF title when it's much cleaner (shorter, no author bleed)
-                elif (len(pdf_title_clean) < len(title) * 0.7
-                        and len(pdf_title_clean) > 10):
+                elif len(pdf_title_clean) < len(title) * 0.7 and len(pdf_title_clean) > 10:
                     title = pdf_title_clean
                     title_source = "pdf_metadata"
                 else:
@@ -1050,9 +1392,19 @@ def run_pipeline(input_dir: Path, output_dir: Path, workers: int = 8) -> None:
 
     # CSV files
     csv_fields = [
-        "filename", "size_mb", "domain", "confidence", "is_book",
-        "title", "authors_str", "year", "priority_score",
-        "duplicate_group", "flags_str", "sha256", "pages",
+        "filename",
+        "size_mb",
+        "domain",
+        "confidence",
+        "is_book",
+        "title",
+        "authors_str",
+        "year",
+        "priority_score",
+        "duplicate_group",
+        "flags_str",
+        "sha256",
+        "pages",
     ]
     _write_csv(output_dir / "catalog_books.csv", books, csv_fields)
     _write_csv(output_dir / "catalog_other.csv", other, csv_fields)
@@ -1154,6 +1506,7 @@ def _build_summary(
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(

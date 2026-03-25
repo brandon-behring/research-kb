@@ -76,20 +76,25 @@ CI cadence labels, stale golden_dataset refs, MRR threshold correction, README t
 
 ---
 
-## 3. What NOT to do (updated 2026-03-23)
+## 3. What NOT to do (updated 2026-03-25)
 
 - No more coverage gate raises (70% is sufficient)
 - No more doc alignment phases (audit_docs.py exists)
 - No more test fortification phases (2,700+ tests is enough)
-- No more mypy/black/ruff phases (all at zero baseline)
-- No more ingestion until KG is restored (997 sources is sufficient corpus)
+- No more mypy/black/ruff phases (enforced via pre-commit hooks)
 - No more eval test case writing without running eval first (validate patterns against real results)
+- Defer KG re-extraction until ingestion stabilizes. Ingestion continues for cross-disciplinary coverage
 
 ---
 
 ## 4. The Test
 
-> Can you sit down, ask "What assumptions does a DML estimator require for valid inference in a time-series setting?", get a synthesized answer with source citations and a graph-traced explanation chain, and learn something you didn't know?
+> Can you ask a cross-disciplinary question — spanning two or more domains — and get a synthesized answer with source citations from each domain?
+>
+> Examples:
+> - "How do IV assumptions differ in time-series vs cross-sectional settings?"
+> - "What connects causal forests to reinforcement learning exploration?"
+> - "Which optimization methods apply to both portfolio construction and experiment design?"
 
 Until that works, the platform is not serving its purpose.
 
@@ -111,49 +116,51 @@ Until that works, the platform is not serving its purpose.
 
 | AJ | 2026-03-06 | Docling migration — LaTeX-preserving PDF extraction |
 | Sprint 1 | 2026-03-09 | output_format on get_source + cross_domain_concepts, research-agent friction fixes |
-| RAG Opt | 2026-03-21 | 100% embeddings (was 67%), 41K citation edges (was 5K), 3-way search defaults |
+| RAG Opt | 2026-03-21 | 100% embeddings at time of sprint (was 67%), 41K citation edges (was 5K), 3-way search defaults |
 | Cleanup | 2026-03-21 | Removed 22 interview_prep code_repos, retagged ML Interviews to machine_learning |
 | Catalog | 2026-03-22 | 552 books ingested (Tier 1+2), 12 new domains, 211 new sources |
-| Citations | 2026-03-23 | Full citation rebuild: 41,852 edges, 997/997 sources with authority |
+| Citations | 2026-03-23 | Full citation rebuild, all sources with authority |
+| Batch 1 | 2026-03-24 | Gap-fill ingestion + SE/Python + 66 arXiv papers |
+| Batch 2 | 2026-03-25 | Cleanup + 25 remaining books + paper ingestion bug fix |
+| Audit | 2026-03-25 | Contradictions audit — unified graph defaults, fixed narrative, reference-only metrics |
 
-All 5 original tiers + RAG optimization + catalog ingestion complete. 1,198 sources, 1,012K chunks, 36 domains. Next unlock: KG re-extraction (~$250-300).
+All 5 original tiers complete. Ingestion ongoing for cross-disciplinary coverage. Next unlock: KG re-extraction (deferred until ingestion stabilizes).
 
 ---
 
 ## 6. Execution Roadmap
 
-Updated 2026-03-23. All $0 sprints complete. KG re-extraction remains the next major unlock.
+Updated 2026-03-25. Run `python scripts/generate_status.py` for current DB metrics.
 
-### Current State (2026-03-23)
+### Current State
 
-| Metric | Value |
-|--------|-------|
-| Sources | 997 (~771 textbooks, 226 papers) |
-| Chunks | 857,024 (100% embedded, 0 null) |
-| Citation edges | 41,852 (all 997 sources have authority) |
-| Concepts | 310K (stale chunk IDs — KG disabled, 0/997 sources linked) |
-| Eval | 107 test cases, 35 domains, MRR 0.771, Hit Rate 94.4% |
-| Search mode | 3-way default (FTS + vector + citation). Graph OFF |
+**Do not hardcode metrics here.** See `docs/status/CURRENT_STATUS.md` (auto-generated) for live numbers.
+
+Qualitative status:
+- **Embeddings**: Incomplete — post-catalog chunks need backfill (ingested with --no-embed)
+- **KG**: Fully disconnected (chunk_concepts = 0). Deferred until ingestion stabilizes
+- **Citations**: Active, PageRank-scored
+- **Search**: 3-way default (FTS + vector + citation). Graph OFF (all surfaces unified 2026-03-25)
+- **Ingestion**: Ongoing — cross-disciplinary coverage is the goal
 
 ### Sprint History
 
 | Sprint | Status | Cost | Description |
 |--------|--------|------|-------------|
 | 1. Friction fixes | ✅ Done | $0 | MCP output_format, research-agent venv/stats fixes |
-| 2. RAG optimization | ✅ Done | $0 | 100% embeddings, 41K citation edges, 3-way defaults |
+| 2. RAG optimization | ✅ Done | $0 | 100% embeddings at time of sprint, 41K citation edges, 3-way defaults |
 | 3. Interview prep cleanup | ✅ Done | $0 | Removed 22 derivative code_repo sources |
 | 4. Catalog ingestion | ✅ Done | $0 | 552 books (Tier 1+2), 12 new domains, 107 eval cases |
 | 5. Weight optimization | Blocked | $0 | Script runs 18s/query (40h total). Needs precompute refactor |
 | 6. Live validation | Pending | ~$5 | North Star: research-agent DML query |
 
-### Knowledge Graph: Deferred (~$250-300)
+### Knowledge Graph: Deferred (until ingestion stabilizes)
 
 The single biggest remaining capability gap:
-- 310K concepts, 744K relationships exist but reference stale chunk IDs
-- 0/997 sources have working concept→chunk links
-- Graph search, concept neighborhood, and graph-traced synthesis all degraded
-- Re-extraction: Haiku 4.5 on 857K chunks (~$250-300)
-- Revisit when budget allows
+- 310K concepts, 744K relationships exist but `chunk_concepts = 0` (fully disconnected)
+- Graph search, concept neighborhood, and graph-traced synthesis return empty results
+- Re-extraction cost depends on final corpus size (Haiku 4.5)
+- Revisit after ingestion stabilizes and cross-disciplinary coverage is sufficient
 
 ### Prioritized Roadmap
 
@@ -161,7 +168,7 @@ The single biggest remaining capability gap:
 |----------|------|------|------------|
 | 1 | Refactor `optimize_weights.py` (precompute scores) | $0 | None |
 | 2 | Live validation: North Star DML query | ~$5 | None |
-| 3 | KG re-extraction (Haiku 4.5, 857K chunks) | ~$250-300 | Depends on #2 results |
+| 3 | KG re-extraction (Haiku 4.5, all chunks) | TBD (depends on final corpus size) | Depends on #2 results + ingestion stabilization |
 | 4 | Research-agent: wire `literature_review` tool | $0 | None |
 | 5 | Interactive citation network (Streamlit/D3.js) | $0 | Low priority |
 | 6 | Multi-hop reasoning chains | $0 | Blocked by #3 |

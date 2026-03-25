@@ -53,9 +53,7 @@ def find_latest_golden_file() -> Path:
     """
     candidates = sorted(FIXTURES_DIR.glob("golden_candidates_*.json"))
     if not candidates:
-        raise FileNotFoundError(
-            f"No golden_candidates_*.json files found in {FIXTURES_DIR}"
-        )
+        raise FileNotFoundError(f"No golden_candidates_*.json files found in {FIXTURES_DIR}")
     return candidates[-1]
 
 

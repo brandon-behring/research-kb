@@ -147,7 +147,7 @@ def queue_page():
     st.info(
         "**Note:** Per-source extraction status requires a dedicated API endpoint. "
         "The current API provides overall stats but not per-source chunk/extraction counts. "
-        "Use the CLI for detailed per-source status: `research-kb extraction-status`"
+        "Use the CLI for detailed per-source status: `research-kb sources extraction-status`"
     )
 
     # Source list (without chunk counts)

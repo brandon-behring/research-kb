@@ -8,6 +8,7 @@ Usage:
     python scripts/catalog_library/merge_llm_batches.py
     python scripts/catalog_library/merge_llm_batches.py --check  # Check completion status only
 """
+
 from __future__ import annotations
 
 import argparse
@@ -17,16 +18,39 @@ from collections import Counter
 from pathlib import Path
 
 CANONICAL_DOMAINS = {
-    "algebra", "analysis", "topology_geometry", "linear_algebra",
-    "probability_theory", "mathematics",
-    "dynamical_systems", "numerical_methods", "optimization",
-    "statistics", "causal_inference", "econometrics", "time_series",
-    "algorithms", "software_engineering", "functional_programming", "sql",
-    "machine_learning", "deep_learning", "reinforcement_learning",
-    "rag_llm", "ml_engineering", "data_science", "recommender_systems",
-    "physics", "biology_neuroscience", "signal_processing",
-    "finance", "portfolio_management", "actuarial_insurance", "adtech",
-    "interview_prep", "fitness",
+    "algebra",
+    "analysis",
+    "topology_geometry",
+    "linear_algebra",
+    "probability_theory",
+    "mathematics",
+    "dynamical_systems",
+    "numerical_methods",
+    "optimization",
+    "statistics",
+    "causal_inference",
+    "econometrics",
+    "time_series",
+    "algorithms",
+    "software_engineering",
+    "functional_programming",
+    "sql",
+    "machine_learning",
+    "deep_learning",
+    "reinforcement_learning",
+    "rag_llm",
+    "ml_engineering",
+    "data_science",
+    "recommender_systems",
+    "physics",
+    "biology_neuroscience",
+    "signal_processing",
+    "finance",
+    "portfolio_management",
+    "actuarial_insurance",
+    "adtech",
+    "interview_prep",
+    "fitness",
     "skip",
 }
 

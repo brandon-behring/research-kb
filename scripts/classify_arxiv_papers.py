@@ -36,33 +36,143 @@ logger = get_logger(__name__)
 DOMAIN_RULES = [
     # (keywords in title/abstract, s2_fields, assigned_domain)
     # More specific rules first
-    ({"causal inference", "causal effect", "treatment effect", "instrumental variable",
-      "double machine learning", "propensity score", "counterfactual", "do-calculus",
-      "potential outcomes", "average treatment effect"}, None, "causal_inference"),
-    ({"reinforcement learning", "policy gradient", "q-learning", "reward shaping",
-      "multi-armed bandit", "markov decision"}, None, "reinforcement_learning"),
+    (
+        {
+            "causal inference",
+            "causal effect",
+            "treatment effect",
+            "instrumental variable",
+            "double machine learning",
+            "propensity score",
+            "counterfactual",
+            "do-calculus",
+            "potential outcomes",
+            "average treatment effect",
+        },
+        None,
+        "causal_inference",
+    ),
+    (
+        {
+            "reinforcement learning",
+            "policy gradient",
+            "q-learning",
+            "reward shaping",
+            "multi-armed bandit",
+            "markov decision",
+        },
+        None,
+        "reinforcement_learning",
+    ),
     ({"time series", "temporal", "forecasting", "autoregressive"}, None, "time_series"),
-    ({"retrieval augmented", "RAG", "knowledge graph", "vector database",
-      "semantic search", "document retrieval", "embedding model"}, None, "rag_llm"),
-    ({"large language model", "LLM", "GPT", "BERT", "transformer",
-      "prompt engineering", "chain-of-thought", "instruction tuning",
-      "fine-tuning", "RLHF", "language model", "foundation model",
-      "text generation", "in-context learning"}, None, "rag_llm"),
-    ({"attention mechanism", "self-attention", "neural network architecture",
-      "deep neural", "convolutional neural", "recurrent neural",
-      "generative adversarial", "variational autoencoder", "diffusion model",
-      "vision transformer"}, None, "deep_learning"),
-    ({"machine learning", "classification", "regression", "random forest",
-      "gradient boosting", "feature selection", "model selection",
-      "supervised learning", "unsupervised learning"}, None, "machine_learning"),
-    ({"econometric", "panel data", "difference-in-difference", "regression discontinuity",
-      "synthetic control"}, None, "econometrics"),
-    ({"embedding", "word2vec", "sentence embedding", "contrastive learning",
-      "representation learning"}, None, "deep_learning"),
-    ({"statistical", "hypothesis testing", "bayesian", "posterior",
-      "likelihood", "nonparametric"}, None, "statistics"),
-    ({"recommender", "collaborative filtering", "matrix factorization"}, None, "recommender_systems"),
-    ({"software engineering", "code generation", "program synthesis"}, None, "software_engineering"),
+    (
+        {
+            "retrieval augmented",
+            "RAG",
+            "knowledge graph",
+            "vector database",
+            "semantic search",
+            "document retrieval",
+            "embedding model",
+        },
+        None,
+        "rag_llm",
+    ),
+    (
+        {
+            "large language model",
+            "LLM",
+            "GPT",
+            "BERT",
+            "transformer",
+            "prompt engineering",
+            "chain-of-thought",
+            "instruction tuning",
+            "fine-tuning",
+            "RLHF",
+            "language model",
+            "foundation model",
+            "text generation",
+            "in-context learning",
+        },
+        None,
+        "rag_llm",
+    ),
+    (
+        {
+            "attention mechanism",
+            "self-attention",
+            "neural network architecture",
+            "deep neural",
+            "convolutional neural",
+            "recurrent neural",
+            "generative adversarial",
+            "variational autoencoder",
+            "diffusion model",
+            "vision transformer",
+        },
+        None,
+        "deep_learning",
+    ),
+    (
+        {
+            "machine learning",
+            "classification",
+            "regression",
+            "random forest",
+            "gradient boosting",
+            "feature selection",
+            "model selection",
+            "supervised learning",
+            "unsupervised learning",
+        },
+        None,
+        "machine_learning",
+    ),
+    (
+        {
+            "econometric",
+            "panel data",
+            "difference-in-difference",
+            "regression discontinuity",
+            "synthetic control",
+        },
+        None,
+        "econometrics",
+    ),
+    (
+        {
+            "embedding",
+            "word2vec",
+            "sentence embedding",
+            "contrastive learning",
+            "representation learning",
+        },
+        None,
+        "deep_learning",
+    ),
+    (
+        {
+            "statistical",
+            "hypothesis testing",
+            "bayesian",
+            "posterior",
+            "likelihood",
+            "nonparametric",
+        },
+        None,
+        "statistics",
+    ),
+    (
+        {"recommender", "collaborative filtering", "matrix factorization"},
+        None,
+        "recommender_systems",
+    ),
+    (
+        {"software engineering", "code generation", "program synthesis"},
+        None,
+        "software_engineering",
+    ),
 ]
 
 # Fallback: map S2 fields of study to domains
@@ -142,7 +252,9 @@ async def fetch_and_classify(
                     print(f"  S2 API failed after {max_retries} attempts: {e}")
                     raise
                 wait = 2**attempt
-                print(f"  S2 API error (attempt {attempt}/{max_retries}): {e}. Retrying in {wait}s...")
+                print(
+                    f"  S2 API error (attempt {attempt}/{max_retries}): {e}. Retrying in {wait}s..."
+                )
                 await asyncio.sleep(wait)
 
     # Build lookup by arXiv ID
@@ -161,11 +273,14 @@ async def fetch_and_classify(
     for arxiv_id, pdf_path in arxiv_ids:
         paper = paper_by_arxiv.get(arxiv_id)
         if paper:
-            domain = classify_paper(
-                paper.title or "",
-                paper.abstract,
-                paper.s2_fields_of_study,
-            ) or default_domain
+            domain = (
+                classify_paper(
+                    paper.title or "",
+                    paper.abstract,
+                    paper.s2_fields_of_study,
+                )
+                or default_domain
+            )
             sidecar = {
                 "title": paper.title,
                 "authors": [a.name for a in (paper.authors or [])],
@@ -238,7 +353,9 @@ async def fetch_and_classify(
 def main():
     parser = argparse.ArgumentParser(description="Classify arXiv papers via S2 and create sidecars")
     parser.add_argument("--source-dir", type=Path, required=True, help="Directory with arXiv PDFs")
-    parser.add_argument("--dest-dir", type=Path, required=True, help="Destination for copies + sidecars")
+    parser.add_argument(
+        "--dest-dir", type=Path, required=True, help="Destination for copies + sidecars"
+    )
     parser.add_argument("--dry-run", action="store_true", help="Preview without copying")
     parser.add_argument("--force", action="store_true", help="Overwrite existing sidecar files")
     parser.add_argument(

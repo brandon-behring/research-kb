@@ -8,11 +8,11 @@ Replaces PyMuPDF extraction pipeline. GROBID remains for citation metadata only.
 """
 
 import threading
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 from research_kb_common import get_logger
-from research_kb_pdf.chunker import BGE_MODEL, BGE_REVISION, TextChunk, count_tokens, get_tokenizer
+from research_kb_pdf.chunker import TextChunk, count_tokens, get_tokenizer
 
 logger = get_logger(__name__)
 
@@ -142,9 +142,7 @@ def extract_and_chunk(
         result = converter.convert(str(pdf_path))
         doc = result.document
     except Exception as e:
-        raise ValueError(
-            f"Docling extraction failed (corrupted or unsupported PDF?): {e}"
-        ) from e
+        raise ValueError(f"Docling extraction failed (corrupted or unsupported PDF?): {e}") from e
 
     # Use BGE tokenizer for consistent token counts with embedding model
     hf_tokenizer = get_tokenizer()
@@ -183,9 +181,7 @@ def extract_and_chunk(
         start_page, end_page = _get_page_from_prov(dc)
 
         # Sanitize heading strings (Docling can extract \x00 from corrupted PDFs)
-        safe_headings = [
-            h.replace("\x00", "").replace("\ufffd", "") for h in headings
-        ]
+        safe_headings = [h.replace("\x00", "").replace("\ufffd", "") for h in headings]
 
         text_chunks.append(
             TextChunk(
