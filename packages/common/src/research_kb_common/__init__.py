@@ -25,6 +25,12 @@ from research_kb_common.instrumentation import (
     instrument_function,
 )
 from research_kb_common.logging_config import configure_logging, get_logger
+from research_kb_common.gpu_guard import (
+    check_vram_available,
+    clear_gpu_cache,
+    get_safe_batch_size,
+    set_vram_ceiling,
+)
 from research_kb_common.retry import retry_on_exception, with_exponential_backoff
 
 __version__ = "1.0.0"
@@ -43,6 +49,11 @@ __all__ = [
     "init_telemetry",
     "get_tracer",
     "instrument_function",
+    # GPU
+    "set_vram_ceiling",
+    "get_safe_batch_size",
+    "check_vram_available",
+    "clear_gpu_cache",
     # Errors
     "IngestionError",
     "ChunkExtractionError",

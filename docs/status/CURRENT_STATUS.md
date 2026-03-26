@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-03-25 14:53:51
+**Auto-generated**: 2026-03-26 12:08:10
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,12 +9,12 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 1,265 |
-| chunks | 1,020,736 |
+| sources | 1,309 |
+| chunks | 1,023,473 |
 | concepts | 310,063 |
 | concept_relationships | 743,984 |
 | chunk_concepts | 0 |
-| citations | 42,340 |
+| citations | 45,218 |
 | methods | 15,505 |
 | assumptions | 9,468 |
 
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 853,201 | 1,020,736 | 83.6% |
+| Chunks | 855,118 | 1,023,473 | 83.6% |
 | Concepts | 283,521 | 310,063 | 91.4% |
 
 ---
@@ -42,8 +42,8 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 990 |
-| paper | 275 |
+| textbook | 992 |
+| paper | 317 |
 
 ---
 
@@ -55,7 +55,7 @@
 | causal_inference | 119 |
 | rag_llm | 102 |
 | machine_learning | 87 |
-| deep_learning | 71 |
+| deep_learning | 78 |
 | time_series | 68 |
 | numerical_methods | 52 |
 | mathematics | 49 |
@@ -63,6 +63,7 @@
 | econometrics | 44 |
 | finance | 43 |
 | statistics | 37 |
+| healthcare | 35 |
 | algorithms | 28 |
 | data_science | 28 |
 | ml_engineering | 27 |
@@ -70,12 +71,12 @@
 | functional_programming | 25 |
 | dynamical_systems | 23 |
 | biology_neuroscience | 21 |
+| probability_theory | 21 |
 | interview_prep | 20 |
 | portfolio_management | 20 |
 | reinforcement_learning | 19 |
-| probability_theory | 19 |
-| fitness | 18 |
 | optimization | 18 |
+| fitness | 18 |
 | analysis | 18 |
 | algebra | 18 |
 | physics | 16 |
@@ -127,7 +128,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 1,265 sources, 1,020,736 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 1,309 sources, 1,023,473 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 310,063 concepts, 743,984 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |

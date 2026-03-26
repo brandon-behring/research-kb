@@ -272,10 +272,24 @@ async def main():
 
     embed_client = EmbeddingClient()
 
+    # GPU guard: adaptive batch sizing per source
+    try:
+        from research_kb_common.gpu_guard import get_safe_batch_size
+        has_gpu_guard = True
+    except ImportError:
+        has_gpu_guard = False
+
     results = []
     start_time = time.time()
 
     for i, source in enumerate(sources):
+        # Adapt batch size to current VRAM availability
+        effective_batch_size = args.batch_size
+        if has_gpu_guard:
+            effective_batch_size = get_safe_batch_size(args.batch_size)
+            if effective_batch_size != args.batch_size and not args.quiet and not args.json_output:
+                print(f"  [GPU guard: batch_size {args.batch_size} -> {effective_batch_size}]")
+
         if not args.quiet and not args.json_output:
             eta = format_eta(time.time() - start_time, i, len(sources)) if i > 0 else ""
             eta_suffix = f"  ({eta})" if eta else ""
@@ -285,7 +299,7 @@ async def main():
                 flush=True,
             )
 
-        result = await backfill_source(pool, source, embed_client, batch_size=args.batch_size)
+        result = await backfill_source(pool, source, embed_client, batch_size=effective_batch_size)
         results.append(result)
 
         if args.json_output:

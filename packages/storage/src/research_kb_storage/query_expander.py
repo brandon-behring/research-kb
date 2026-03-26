@@ -429,7 +429,7 @@ Example: ["term1", "term2", "term3"]
         self,
         query: str,
         use_synonyms: bool = True,
-        use_graph: bool = True,
+        use_graph: bool = False,
         use_llm: bool = False,
     ) -> ExpandedQuery:
         """Expand query using configured strategies.
@@ -525,7 +525,7 @@ Example: ["term1", "term2", "term3"]
 async def expand_query(
     query: str,
     use_synonyms: bool = True,
-    use_graph: bool = True,
+    use_graph: bool = False,
     use_llm: bool = False,
     synonym_map_path: Optional[Path] = None,
 ) -> ExpandedQuery:

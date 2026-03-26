@@ -6,14 +6,14 @@
 
 Graph-boosted semantic search for research literature.
 
-Combines full-text search (BM25), vector similarity (BGE-large 1024d), knowledge graph traversal (KuzuDB), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 22-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
+Combines full-text search (BM25), vector similarity (BGE-large 1024d), and citation authority scoring (PageRank) into a single ranked result set. Knowledge graph traversal (KuzuDB, 310K concepts) is available but disabled by default while chunk-concept links are being rebuilt. Ships as a 22-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
 
 ## Features
 
-- **4-signal hybrid search** -- BM25 + vector + knowledge graph + citation authority, with context-aware weight profiles
+- **3-signal hybrid search** -- BM25 + vector + citation authority, with context-aware weight profiles (knowledge graph available via `--graph` flag, disabled by default pending KG re-extraction)
 - **22-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, assumption auditing, and concept synthesis
 - **Knowledge graph** -- 310K concepts and 744K relationships extracted from research literature, served by KuzuDB
-- **Citation authority** -- PageRank-style scoring over 41K+ citation links; bibliographic coupling for related-work discovery
+- **Citation authority** -- PageRank-style scoring over 45K+ citation links; bibliographic coupling for related-work discovery
 - **Multi-domain** -- 35 corpus domains, 20 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
 - **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
@@ -174,15 +174,9 @@ Citation (15%) signals are **enabled by default**. Graph is **disabled by defaul
 
 ### Retrieval Quality
 
-Evaluated on 98 YAML test cases across 20 domains with known-relevant chunks (`fixtures/eval/retrieval_test_cases.yaml`):
+108 YAML test cases across 35 domains with known-relevant chunks (`fixtures/eval/retrieval_test_cases.yaml`). Run `python scripts/eval_retrieval.py --per-domain` for current metrics.
 
-| Metric | Full Corpus (98 cases) |
-|--------|------------------------|
-| Hit Rate@K | 91.8% |
-| MRR | 0.729 |
-| NDCG@5 | 0.714 |
-
-The full-corpus MRR reflects the inclusion of 15 interview_prep cases (Phase AE) and thin domains (finance, sql, machine_learning) with few test cases. Core domains with 5+ test cases (causal_inference, econometrics, statistics, interview_prep) average higher MRR individually.
+Core domains with 5+ test cases (causal_inference, econometrics, statistics) average MRR > 0.85 individually. Thin domains with few test cases pull down aggregate metrics.
 
 > CI gate: `--fail-below 0.85` scoped to core domains via `--gate-domains` in `weekly-full-rebuild.yml`. A deprecated 177-query JSON benchmark exists in `fixtures/eval/` for historical reference.
 
@@ -221,7 +215,7 @@ Run `python scripts/generate_status.py` for current metrics. See [`docs/status/C
 
 - **~2,700+ test functions** across 111 test files
 - **Tiered CI/CD**: PR checks (<10 min, pytest-cov 70% gate) -> Manual integration (15 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
-- **Retrieval eval**: 98 YAML test cases across 20 domains with per-domain reporting (`--per-domain` flag, MRR >= 0.85 CI gate on core domains)
+- **Retrieval eval**: 108 YAML test cases across 35 domains with per-domain reporting (`--per-domain` flag, MRR >= 0.85 CI gate on core domains)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
 ```bash

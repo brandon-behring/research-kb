@@ -273,7 +273,7 @@ class DaemonClient:
         limit : int
             Maximum results (default: 10)
         use_graph : bool
-            Enable knowledge graph boost (default: True)
+            Enable knowledge graph boost (default: False, disabled while KG chunk links are stale)
         use_citations : bool
             Enable citation authority boost (default: True)
         context_type : str

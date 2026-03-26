@@ -907,7 +907,7 @@ async def search_vector_only(query: SearchQuery) -> list[SearchResult]:
 async def search_with_expansion(
     query: SearchQuery,
     use_synonyms: bool = True,
-    use_graph_expansion: bool = True,
+    use_graph_expansion: bool = False,
     use_llm_expansion: bool = False,
     use_rerank: bool = True,
     rerank_top_k: int = 10,

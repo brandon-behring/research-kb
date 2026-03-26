@@ -1,3 +1,7 @@
 # False positives: ANSI color codes in test assertions for BibTeX citation keys
 60611597b06734fb83b45eeb0a069ed11a02cea9:packages/pdf-tools/tests/test_bibtex_generator.py:generic-api-key:64
 60611597b06734fb83b45eeb0a069ed11a02cea9:packages/pdf-tools/tests/test_bibtex_generator.py:generic-api-key:71
+
+# False positives: healthcare reference cache bib_key fields (bibliographic keys, not secrets)
+data/healthcare/reference_cache/html/amcp-emerging-trends-2025.md:generic-api-key:2
+data/healthcare/reference_cache/index.json:generic-api-key:40

@@ -33,7 +33,7 @@ MODEL_NAME = "BAAI/bge-large-en-v1.5"
 MODEL_REVISION = "d4aa6901d3a41ba39fb536a557fa166f842b0e09"  # Pin for reproducibility
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BUFFER_SIZE = 131072  # 128KB for larger batch requests
-MAX_BATCH_SIZE = 32  # Recommended batch size for BGE
+MAX_BATCH_SIZE = 8  # BGE-large plateaus at batch_size=3-5; higher wastes VRAM for zero throughput gain
 
 # BGE query instruction for asymmetric retrieval
 # See: https://huggingface.co/BAAI/bge-large-en-v1.5
@@ -59,6 +59,13 @@ class EmbeddingServer:
             device: 'cuda' or 'cpu'
             revision: Model revision/commit hash for reproducibility
         """
+        # Layer 2: Set VRAM ceiling before any CUDA allocations.
+        # Converts OOM into catchable RuntimeError instead of system freeze.
+        if device == "cuda":
+            from research_kb_common.gpu_guard import set_vram_ceiling
+
+            set_vram_ceiling(fraction=0.35)
+
         logger.info("loading_model", model=model_name, device=device, revision=revision)
         self.model = SentenceTransformer(
             model_name,
@@ -148,6 +155,11 @@ class EmbeddingServer:
                 batch = texts[i : i + batch_size]
                 batch_embeddings = self.model.encode(batch, convert_to_numpy=True)
                 all_embeddings.extend(batch_embeddings.tolist())
+                # Layer 4: Clear CUDA cache periodically to prevent VRAM fragmentation
+                if (i // batch_size) % 50 == 49:
+                    from research_kb_common.gpu_guard import clear_gpu_cache
+
+                    clear_gpu_cache()
             return all_embeddings
         else:
             embeddings = self.model.encode(texts, convert_to_numpy=True)

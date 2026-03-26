@@ -83,6 +83,11 @@ async def db_pool():
 
     await close_connection_pool()
 
+    # Reset process-global caches that leak between tests
+    from research_kb_storage.assumption_audit import MethodAssumptionAuditor
+
+    MethodAssumptionAuditor._kg_stale_cache = None
+
 
 # ---------------------------------------------------------------------------
 # Synthetic embedding helpers

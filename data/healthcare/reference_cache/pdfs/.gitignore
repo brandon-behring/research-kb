@@ -1,0 +1,2 @@
+# PDFs are too large for git — copy from precision_aq/reference_cache/pdfs/ or re-download via URLs in index.json
+*.pdf
