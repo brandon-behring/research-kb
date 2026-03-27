@@ -375,6 +375,13 @@ def parse_args():
         action="store_true",
         help="Enable embedding during ingestion (single-phase, unsafe on shared GPU).",
     )
+    parser.add_argument(
+        "--directory",
+        type=str,
+        default=None,
+        help="Custom PDF directory to scan (default: fixtures/textbooks/). "
+        "Use for library_books or other collections with sidecar JSONs.",
+    )
     return parser.parse_args()
 
 
@@ -402,7 +409,10 @@ async def main():
     if quiet:
         configure_logging(level="ERROR")
 
-    textbooks_dir = Path(__file__).parent.parent / "fixtures" / "textbooks"
+    if args.directory:
+        textbooks_dir = Path(args.directory)
+    else:
+        textbooks_dir = Path(__file__).parent.parent / "fixtures" / "textbooks"
 
     if not textbooks_dir.exists():
         if json_output:
