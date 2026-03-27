@@ -384,7 +384,13 @@ async def main() -> None:
     parser.add_argument(
         "--no-embed",
         action="store_true",
-        help="Skip embeddings (two-phase GPU workflow)",
+        default=True,
+        help="Skip embeddings (default: True). Use backfill_embeddings.py after.",
+    )
+    parser.add_argument(
+        "--with-embed",
+        action="store_true",
+        help="Enable embedding during ingestion (single-phase, unsafe on shared GPU).",
     )
     parser.add_argument(
         "--dry-run",

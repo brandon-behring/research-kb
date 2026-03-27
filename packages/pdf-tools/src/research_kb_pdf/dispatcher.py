@@ -208,6 +208,20 @@ class PDFDispatcher:
                     in existing.metadata.get("extraction_method", ""),
                 )
 
+        # VRAM safety: warn if both Docling and embed_server will use GPU
+        if not skip_embedding:
+            try:
+                from research_kb_common.gpu_guard import check_embed_server_running
+
+                if check_embed_server_running() is not None:
+                    logger.warning(
+                        "vram_contention_risk: embed_server is running while Docling extraction "
+                        "will also use GPU. Risk of OOM on consumer GPUs (<16GB). "
+                        "Consider skip_embedding=True + backfill_embeddings.py afterward."
+                    )
+            except ImportError:
+                pass
+
         logger.info(
             "ingestion_started",
             path=str(pdf_path),

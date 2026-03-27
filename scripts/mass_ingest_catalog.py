@@ -193,7 +193,8 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Local directory containing copied PDFs",
     )
-    parser.add_argument("--no-embed", action="store_true", help="Skip embeddings (two-phase GPU)")
+    parser.add_argument("--no-embed", action="store_true", default=True, help="Skip embeddings (default: True)")
+    parser.add_argument("--with-embed", action="store_true", help="Enable embedding (unsafe on shared GPU)")
     parser.add_argument("--domain", type=str, help="Ingest only this domain")
     parser.add_argument("--min-priority", type=int, help="Min priority_score filter")
     parser.add_argument("--max-per-domain", type=int, help="Cap N books per domain")

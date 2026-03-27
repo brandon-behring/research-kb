@@ -276,9 +276,21 @@ async def main():
     parser.add_argument(
         "--no-embed",
         action="store_true",
-        help="Skip embeddings (two-phase GPU workflow, use backfill_embeddings.py later)",
+        default=True,
+        help="Skip embeddings (default: True). Use backfill_embeddings.py after.",
+    )
+    parser.add_argument(
+        "--with-embed",
+        action="store_true",
+        help="Enable embedding during ingestion (single-phase, unsafe on shared GPU).",
     )
     args = parser.parse_args()
+    # --with-embed overrides --no-embed
+    if args.with_embed:
+        args.no_embed = False
+        from research_kb_common.gpu_guard import abort_if_embed_server_running
+
+        abort_if_embed_server_running()
     domain_id = args.domain
 
     papers_dir = Path(__file__).parent.parent / "fixtures" / "papers"

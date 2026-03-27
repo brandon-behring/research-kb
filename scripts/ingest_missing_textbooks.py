@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """Ingest missing textbooks from fixtures/textbooks/ not in database.
 
-This script:
-1. Scans fixtures/textbooks/ for all PDFs
-2. Checks which ones are already ingested (by file hash)
-3. Ingests the missing ones with auto-extracted metadata
+Three-phase GPU workflow (RTX 2070, 8GB VRAM):
+  Phase 1: python scripts/ingest_missing_textbooks.py          # Extract only (Docling on GPU)
+  Phase 2: python scripts/backfill_embeddings.py --batch-size 8 # Embed only (embed_server on GPU)
+  Phase 3: python scripts/build_citation_graph.py               # Citation graph (CPU only)
+
+Phases 1 and 2 CANNOT share the GPU. This script defaults to --no-embed
+(extraction only). Use --with-embed only if embed_server is NOT running.
 
 Usage:
-    python scripts/ingest_missing_textbooks.py          # Normal output
+    python scripts/ingest_missing_textbooks.py          # Extract only (default)
     python scripts/ingest_missing_textbooks.py --quiet  # Errors + summary only
+    python scripts/ingest_missing_textbooks.py --with-embed  # Single-phase (unsafe on shared GPU)
 """
 
 import argparse
@@ -362,7 +366,13 @@ def parse_args():
     parser.add_argument(
         "--no-embed",
         action="store_true",
-        help="Skip embedding generation (use backfill_embeddings.py later)",
+        default=True,
+        help="Skip embedding generation (default: True). Use backfill_embeddings.py after.",
+    )
+    parser.add_argument(
+        "--with-embed",
+        action="store_true",
+        help="Enable embedding during ingestion (single-phase, unsafe on shared GPU).",
     )
     return parser.parse_args()
 
@@ -375,8 +385,17 @@ async def main():
     from research_kb_common import EmbeddingError, StorageError, configure_logging
 
     args = parse_args()
+
+    # Resolve embed mode: --with-embed overrides --no-embed
+    no_embed = not args.with_embed
     quiet = args.quiet
     json_output = args.json
+
+    # Safety check: abort if embed_server is running during extraction
+    if not no_embed:
+        from research_kb_common.gpu_guard import abort_if_embed_server_running
+
+        abort_if_embed_server_running()
 
     # Configure logging based on quiet mode
     if quiet:
@@ -470,7 +489,7 @@ async def main():
                 domain_id=domain_id,
                 metadata={"auto_ingested": True, "source": "missing_textbooks_script"},
                 quiet=quiet,
-                no_embed=args.no_embed,
+                no_embed=no_embed,
             )
 
             elapsed = time.time() - start_time

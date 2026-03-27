@@ -11,7 +11,10 @@ from research_kb_common import gpu_guard
 from research_kb_common.gpu_guard import (
     CRITICAL_FREE_MB,
     DEFAULT_MIN_FREE_MB,
+    EMBED_SERVER_SOCKET,
     VRAMMonitor,
+    abort_if_embed_server_running,
+    check_embed_server_running,
     check_vram_available,
     clear_gpu_cache,
     get_safe_batch_size,
@@ -255,3 +258,36 @@ class TestVRAMMonitor:
                 result = monitor.before_task("cpu book")
         assert result is True
         assert monitor._wait_count == 0
+
+
+@pytest.mark.unit
+class TestCheckEmbedServerRunning:
+    """Tests for check_embed_server_running()."""
+
+    def test_returns_none_when_no_socket(self, tmp_path):
+        with patch.object(gpu_guard, "EMBED_SERVER_SOCKET", str(tmp_path / "nonexistent.sock")):
+            assert check_embed_server_running() is None
+
+    def test_returns_pid_when_socket_exists(self, tmp_path):
+        sock = tmp_path / "embed.sock"
+        sock.touch()
+        with patch.object(gpu_guard, "EMBED_SERVER_SOCKET", str(sock)):
+            result = check_embed_server_running()
+        # Returns -1 (socket exists, PID unknown) or an int
+        assert result is not None
+
+
+@pytest.mark.unit
+class TestAbortIfEmbedServerRunning:
+    """Tests for abort_if_embed_server_running()."""
+
+    def test_no_abort_when_no_server(self, tmp_path):
+        with patch.object(gpu_guard, "EMBED_SERVER_SOCKET", str(tmp_path / "nonexistent.sock")):
+            abort_if_embed_server_running()  # Should not raise
+
+    def test_aborts_when_server_detected(self, tmp_path):
+        sock = tmp_path / "embed.sock"
+        sock.touch()
+        with patch.object(gpu_guard, "EMBED_SERVER_SOCKET", str(sock)):
+            with pytest.raises(SystemExit):
+                abort_if_embed_server_running()

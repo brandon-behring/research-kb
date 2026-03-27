@@ -84,21 +84,41 @@ python scripts/eval_retrieval.py --use-citations # Validate with citation signal
 python scripts/run_quality_checks.py             # Quality metrics
 ```
 
-## Ingestion Best Practices
+## Ingestion: Three-Phase GPU Workflow
+
+**CRITICAL: Docling and embed_server CANNOT share the RTX 2070 GPU simultaneously.**
+Combined VRAM (~6GB) exceeds available memory and causes OOM/system freeze.
+
+All ingestion scripts default to `--no-embed` (extraction only). Use the three-phase workflow:
 
 ```bash
-# Recommended: quiet mode for Claude Code monitoring (minimal output)
-python scripts/ingest_missing_textbooks.py --quiet
+# Phase 1: EXTRACT (Docling on GPU, embed_server OFF)
+kill $(pgrep -f embed_server)              # Free GPU for Docling
+python scripts/ingest_missing_textbooks.py  # --no-embed is default
 
-# JSON output for programmatic parsing
-python scripts/ingest_missing_textbooks.py --quiet --json > ingestion_report.json
+# Phase 2: EMBED (embed_server on GPU, Docling done)
+python -m research_kb_pdf.embed_server &    # Start embed_server
+python scripts/backfill_embeddings.py --batch-size 8
+
+# Phase 3: CITATIONS (CPU only)
+python scripts/build_citation_graph.py      # Match citations + PageRank
 ```
 
+**Scripts with `--no-embed` default (safe):**
+- `ingest_missing_textbooks.py` — textbooks from fixtures/textbooks/
+- `ingest_missing_papers.py` — papers from fixtures/papers/
+- `ingest_healthcare_reference_cache.py` — healthcare markdown/PDFs
+- `rechunk_corpus.py` — re-extract existing sources
+- `mass_ingest_catalog.py` — bulk catalog ingestion
+
+**To override (dangerous):** Pass `--with-embed` — script will abort if embed_server is detected.
+
+**GPU guard:** `gpu_guard.py` provides VRAM ceiling (0.35), adaptive batch sizing, and VRAMMonitor.
+
 **Error Recovery:**
-- Failed files with `recoverable: true` can be re-ingested later
-- Memory errors indicate PDF too large (contact maintainer)
-- Embedding service errors: ensure embed_server is running
+- Failed files logged to `data/dlq/failed_pdfs.jsonl`
 - Database errors: check PostgreSQL connection and disk space
+- OOM during extraction: embed_server was likely running — kill it and retry
 
 ## Extraction Profiles
 

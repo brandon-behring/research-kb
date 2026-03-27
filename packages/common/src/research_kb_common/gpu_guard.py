@@ -165,6 +165,74 @@ def check_vram_available(min_free_mb: int = DEFAULT_MODEL_VRAM_MB) -> bool:
     return available
 
 
+EMBED_SERVER_SOCKET = "/tmp/research_kb_embed.sock"
+
+
+def check_embed_server_running() -> Optional[int]:
+    """Check if the embedding server is running by looking for its socket.
+
+    Returns:
+        PID of the embed_server process, or None if not running.
+    """
+    import os
+
+    if not os.path.exists(EMBED_SERVER_SOCKET):
+        return None
+
+    # Socket exists — find the PID
+    try:
+        import subprocess
+
+        result = subprocess.run(
+            ["lsof", "-t", EMBED_SERVER_SOCKET],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return int(result.stdout.strip().split("\n")[0])
+    except (FileNotFoundError, ValueError, subprocess.TimeoutExpired):
+        pass
+
+    # Socket exists but can't find PID — likely stale socket or lsof not available
+    return -1  # Signal "socket exists, PID unknown"
+
+
+def abort_if_embed_server_running() -> None:
+    """Hard abort if embed_server is running.
+
+    Call at the start of ingestion scripts that use Docling on GPU.
+    Prevents Docling + embed_server from competing for VRAM.
+
+    Raises:
+        SystemExit: If embed_server is detected.
+    """
+    pid = check_embed_server_running()
+    if pid is None:
+        return  # Not running, safe to proceed
+
+    if pid == -1:
+        msg = (
+            f"ERROR: embed_server socket found at {EMBED_SERVER_SOCKET} "
+            f"(PID unknown).\n"
+        )
+    else:
+        msg = (
+            f"ERROR: embed_server is running (PID {pid}, ~2.3GB VRAM).\n"
+        )
+
+    msg += (
+        "Docling extraction requires GPU and cannot safely share VRAM with embed_server.\n"
+        "\n"
+        "Three-phase workflow:\n"
+        f"  1. Kill embed_server:  kill {pid if pid > 0 else '$(pgrep -f embed_server)'}\n"
+        "  2. Run extraction:     python scripts/ingest_missing_textbooks.py  (uses --no-embed by default)\n"
+        "  3. Start embed_server + backfill:  python scripts/backfill_embeddings.py --batch-size 8\n"
+    )
+    print(msg, file=__import__("sys").stderr)
+    raise SystemExit(1)
+
+
 def clear_gpu_cache() -> None:
     """Clear PyTorch CUDA cache to prevent VRAM fragmentation.
 

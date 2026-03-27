@@ -27,6 +27,8 @@ from research_kb_common.instrumentation import (
 from research_kb_common.logging_config import configure_logging, get_logger
 from research_kb_common.gpu_guard import (
     VRAMMonitor,
+    abort_if_embed_server_running,
+    check_embed_server_running,
     check_vram_available,
     clear_gpu_cache,
     get_safe_batch_size,
@@ -56,6 +58,8 @@ __all__ = [
     "get_safe_batch_size",
     "get_vram_stats",
     "check_vram_available",
+    "check_embed_server_running",
+    "abort_if_embed_server_running",
     "clear_gpu_cache",
     "VRAMMonitor",
     # Errors

@@ -390,8 +390,14 @@ def parse_args():
     parser.add_argument(
         "--no-embed",
         action="store_true",
-        help="Extract and chunk only, store with NULL embeddings. "
+        default=True,
+        help="Extract and chunk only, store with NULL embeddings (default: True). "
         "Use backfill_embeddings.py afterward to fill embeddings.",
+    )
+    parser.add_argument(
+        "--with-embed",
+        action="store_true",
+        help="Enable embedding during rechunking (single-phase, unsafe on shared GPU).",
     )
     parser.add_argument(
         "--force",
