@@ -33,7 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 
 from research_kb_common import get_logger
 from research_kb_pdf import EmbeddingClient
-from research_kb_storage import DatabaseConfig, get_connection_pool
+from research_kb_storage import DatabaseConfig, close_connection_pool, get_connection_pool
 
 logger = get_logger(__name__)
 
@@ -351,6 +351,8 @@ async def main():
             print("\nFailed sources:")
             for r in failed:
                 print(f"  - {r['title'][:50]}: {r['reason']}")
+
+    await close_connection_pool()
 
 
 if __name__ == "__main__":

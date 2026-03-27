@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 from research_kb_common import get_logger
 from research_kb_contracts import Source, SourceType
 from research_kb_pdf import GrobidClient
-from research_kb_storage import CitationStore, DatabaseConfig, get_connection_pool
+from research_kb_storage import CitationStore, DatabaseConfig, close_connection_pool, get_connection_pool
 
 logger = get_logger(__name__)
 
@@ -250,11 +250,19 @@ async def main():
     for i, source in enumerate(sources, 1):
         print(f"\n[{i}/{len(sources)}] {source.source_type.value}: {source.title[:60]}...")
 
-        result = await extract_citations_for_source(
-            source=source,
-            grobid_client=grobid_client,
-            dry_run=args.dry_run,
-        )
+        try:
+            result = await asyncio.wait_for(
+                extract_citations_for_source(
+                    source=source,
+                    grobid_client=grobid_client,
+                    dry_run=args.dry_run,
+                ),
+                timeout=120,  # 2 minutes per source (GROBID can hang on malformed PDFs)
+            )
+        except asyncio.TimeoutError:
+            stats["errors"] += 1
+            print(f"  TIMEOUT: Source took >120s, skipping")
+            continue
 
         if result["error"]:
             stats["errors"] += 1
@@ -293,6 +301,8 @@ async def main():
     async with pool.acquire() as conn:
         total = await conn.fetchval("SELECT COUNT(*) FROM citations")
         print(f"\nTotal citations in database: {total}")
+
+    await close_connection_pool()
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 from research_kb_common import get_logger
 from research_kb_storage import (
     DatabaseConfig,
+    close_connection_pool,
     get_connection_pool,
     build_citation_graph,
     compute_pagerank_authority,
@@ -119,6 +120,8 @@ async def main():
         print(
             f"    Cited by: {source['cited_by_count']} | Authority: {source['citation_authority']:.4f}"
         )
+
+    await close_connection_pool()
 
 
 if __name__ == "__main__":

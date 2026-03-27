@@ -38,6 +38,7 @@ from research_kb_storage import (
     ChunkStore,
     DatabaseConfig,
     SourceStore,
+    close_connection_pool,
     get_connection_pool,
 )
 
@@ -620,6 +621,8 @@ async def main():
             for r in results["failed"]:
                 status = "(recoverable)" if r.get("recoverable", False) else "(not recoverable)"
                 print(f"  - {r['file']}: {r['error'][:60]} {status}")
+
+    await close_connection_pool()
 
 
 if __name__ == "__main__":

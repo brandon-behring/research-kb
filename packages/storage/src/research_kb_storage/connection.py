@@ -4,9 +4,11 @@ Provides:
 - Connection pool configuration
 - Pool lifecycle management
 - Health checks
+- Automatic cleanup via atexit (prevents script hangs)
 """
 
 import asyncio
+import atexit
 import os
 from dataclasses import dataclass
 from typing import Optional
@@ -165,6 +167,32 @@ async def close_connection_pool() -> None:
         finally:
             _connection_pool = None
             logger.info("connection_pool_closed")
+
+
+def _atexit_cleanup_pool() -> None:
+    """Synchronous atexit handler to close the connection pool.
+
+    Prevents scripts from hanging after asyncio.run() completes.
+    Without this, the asyncpg pool holds connections open and the
+    process blocks indefinitely waiting for them to drain.
+
+    This handler runs automatically when the Python process exits
+    normally (including after asyncio.run() returns). It creates a
+    temporary event loop to run the async close operation.
+    """
+    global _connection_pool
+    if _connection_pool is not None:
+        try:
+            loop = asyncio.new_event_loop()
+            loop.run_until_complete(_connection_pool.close())
+            loop.close()
+        except Exception:
+            pass  # Best-effort cleanup on exit
+        finally:
+            _connection_pool = None
+
+
+atexit.register(_atexit_cleanup_pool)
 
 
 async def check_connection_health() -> bool:

@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-03-26 21:23:01
+**Auto-generated**: 2026-03-27 14:30:53
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,12 +9,12 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 1,311 |
-| chunks | 1,025,117 |
+| sources | 1,348 |
+| chunks | 1,053,351 |
 | concepts | 310,063 |
 | concept_relationships | 743,984 |
 | chunk_concepts | 0 |
-| citations | 45,218 |
+| citations | 45,433 |
 | methods | 15,505 |
 | assumptions | 9,468 |
 
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 1,025,117 | 1,025,117 | 100.0% |
+| Chunks | 1,053,351 | 1,053,351 | 100.0% |
 | Concepts | 283,521 | 310,063 | 91.4% |
 
 ---
@@ -42,7 +42,7 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 994 |
+| textbook | 1,031 |
 | paper | 317 |
 
 ---
@@ -51,11 +51,11 @@
 
 | Domain | Sources |
 |--------|--------:|
-| software_engineering | 148 |
+| software_engineering | 159 |
 | causal_inference | 119 |
-| rag_llm | 102 |
-| machine_learning | 87 |
-| deep_learning | 78 |
+| rag_llm | 110 |
+| machine_learning | 93 |
+| deep_learning | 84 |
 | time_series | 68 |
 | numerical_methods | 52 |
 | mathematics | 49 |
@@ -64,9 +64,9 @@
 | finance | 43 |
 | statistics | 38 |
 | healthcare | 35 |
-| algorithms | 28 |
-| data_science | 28 |
-| ml_engineering | 27 |
+| ml_engineering | 30 |
+| algorithms | 30 |
+| data_science | 29 |
 | actuarial_insurance | 25 |
 | functional_programming | 25 |
 | dynamical_systems | 23 |
@@ -128,7 +128,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 1,311 sources, 1,025,117 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 1,348 sources, 1,053,351 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 310,063 concepts, 743,984 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
