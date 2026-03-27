@@ -176,3 +176,168 @@ def clear_gpu_cache() -> None:
             torch.cuda.empty_cache()
         except RuntimeError:
             pass
+
+
+def get_vram_stats() -> dict:
+    """Get current VRAM statistics.
+
+    Returns:
+        Dict with used_mb, free_mb, total_mb, utilization_pct.
+        All values are 0 if CUDA unavailable.
+    """
+    if not _HAS_TORCH or not torch.cuda.is_available():
+        return {"used_mb": 0, "free_mb": 0, "total_mb": 0, "utilization_pct": 0.0}
+    try:
+        free_bytes, total_bytes = torch.cuda.mem_get_info()
+        used_bytes = total_bytes - free_bytes
+        return {
+            "used_mb": int(used_bytes / (1024 * 1024)),
+            "free_mb": int(free_bytes / (1024 * 1024)),
+            "total_mb": int(total_bytes / (1024 * 1024)),
+            "utilization_pct": round(used_bytes / total_bytes * 100, 1) if total_bytes else 0.0,
+        }
+    except RuntimeError:
+        return {"used_mb": 0, "free_mb": 0, "total_mb": 0, "utilization_pct": 0.0}
+
+
+class VRAMMonitor:
+    """Active VRAM monitor for long-running GPU jobs.
+
+    Provides pause-and-wait behavior when VRAM is tight, plus structured
+    logging for forensics. Integrates with existing gpu_guard primitives.
+
+    Usage:
+        monitor = VRAMMonitor(min_free_mb=500)
+
+        for book in books:
+            if not monitor.before_task(book.title):
+                logger.warning("Skipping %s — VRAM not available", book.title)
+                continue
+            process(book)
+
+        monitor.summary()
+    """
+
+    def __init__(
+        self,
+        min_free_mb: int = 500,
+        wait_s: int = 30,
+        max_retries: int = 3,
+    ):
+        """Initialize VRAM monitor.
+
+        Args:
+            min_free_mb: Minimum free VRAM (MB) before proceeding.
+            wait_s: Seconds to wait between retries when VRAM is low.
+            max_retries: Maximum retries before proceeding anyway.
+        """
+        self.min_free_mb = min_free_mb
+        self.wait_s = wait_s
+        self.max_retries = max_retries
+        self._task_count = 0
+        self._wait_count = 0
+        self._forced_count = 0
+
+    def log_vram(self, label: str = "") -> dict:
+        """Log current VRAM state and return stats.
+
+        Args:
+            label: Optional context label (e.g., book title).
+
+        Returns:
+            Dict with used_mb, free_mb, total_mb, utilization_pct.
+        """
+        stats = get_vram_stats()
+        prefix = f"[{label}] " if label else ""
+        logger.info(
+            "%svram_status: used=%dMB free=%dMB total=%dMB (%.1f%% utilized)",
+            prefix,
+            stats["used_mb"],
+            stats["free_mb"],
+            stats["total_mb"],
+            stats["utilization_pct"],
+        )
+        return stats
+
+    def wait_for_vram(self) -> bool:
+        """Block until min_free_mb is available.
+
+        Clears GPU cache and waits in intervals. Returns True if VRAM
+        became available, False if retries exhausted (proceeds anyway
+        since the VRAM ceiling catches OOM as RuntimeError).
+        """
+        import time
+
+        free = _get_free_vram_mb()
+        if free is None or free >= self.min_free_mb:
+            return True
+
+        for attempt in range(1, self.max_retries + 1):
+            clear_gpu_cache()
+            free_after = _get_free_vram_mb() or 0
+            logger.warning(
+                "vram_wait: free=%dMB (need %dMB), attempt %d/%d, "
+                "cleared cache (now %dMB free), waiting %ds",
+                free,
+                self.min_free_mb,
+                attempt,
+                self.max_retries,
+                free_after,
+                self.wait_s,
+            )
+            if free_after >= self.min_free_mb:
+                return True
+            time.sleep(self.wait_s)
+            free = _get_free_vram_mb() or 0
+            if free >= self.min_free_mb:
+                return True
+
+        self._forced_count += 1
+        logger.warning(
+            "vram_force_proceed: free=%dMB after %d retries (need %dMB). "
+            "Proceeding — VRAM ceiling will catch OOM as RuntimeError.",
+            _get_free_vram_mb() or 0,
+            self.max_retries,
+            self.min_free_mb,
+        )
+        return False
+
+    def before_task(self, label: str = "") -> bool:
+        """Call before processing each book/source.
+
+        Logs VRAM, waits if needed, clears cache if tight.
+
+        Args:
+            label: Task label for logging (e.g., book title).
+
+        Returns:
+            True if VRAM is available (or forced after retries).
+            Always returns True — never blocks indefinitely.
+        """
+        self._task_count += 1
+        stats = self.log_vram(label)
+
+        if stats["free_mb"] < self.min_free_mb and stats["free_mb"] > 0:
+            self._wait_count += 1
+            self.wait_for_vram()
+
+        return True
+
+    def summary(self) -> dict:
+        """Log and return session summary.
+
+        Returns:
+            Dict with tasks_processed, waits_triggered, forced_proceeds.
+        """
+        result = {
+            "tasks_processed": self._task_count,
+            "waits_triggered": self._wait_count,
+            "forced_proceeds": self._forced_count,
+        }
+        logger.info(
+            "vram_monitor_summary: %d tasks, %d waits, %d forced",
+            result["tasks_processed"],
+            result["waits_triggered"],
+            result["forced_proceeds"],
+        )
+        return result

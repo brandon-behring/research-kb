@@ -11,9 +11,11 @@ from research_kb_common import gpu_guard
 from research_kb_common.gpu_guard import (
     CRITICAL_FREE_MB,
     DEFAULT_MIN_FREE_MB,
+    VRAMMonitor,
     check_vram_available,
     clear_gpu_cache,
     get_safe_batch_size,
+    get_vram_stats,
     set_vram_ceiling,
 )
 
@@ -162,3 +164,94 @@ class TestGetFreeVramMb:
 
             result = _get_free_vram_mb()
         assert result == 3072
+
+
+@pytest.mark.unit
+class TestGetVramStats:
+    """Tests for get_vram_stats()."""
+
+    def test_returns_zeros_when_no_cuda(self):
+        with patch.object(gpu_guard, "_HAS_TORCH", False):
+            stats = get_vram_stats()
+        assert stats == {"used_mb": 0, "free_mb": 0, "total_mb": 0, "utilization_pct": 0.0}
+
+    def test_returns_correct_stats(self):
+        mock = _mock_torch_cuda(free_gb=3.0, total_gb=8.0)
+        with patch.object(gpu_guard, "torch", mock), patch.object(gpu_guard, "_HAS_TORCH", True):
+            stats = get_vram_stats()
+        assert stats["free_mb"] == 3072
+        assert stats["total_mb"] == 8192
+        assert stats["used_mb"] == 5120
+        assert stats["utilization_pct"] == pytest.approx(62.5, rel=0.01)
+
+
+@pytest.mark.unit
+class TestVRAMMonitor:
+    """Tests for VRAMMonitor class."""
+
+    def _mock_vram(self, free_mb=3000):
+        """Patch both _get_free_vram_mb and get_vram_stats consistently."""
+        stats = {"used_mb": 8192 - free_mb, "free_mb": free_mb, "total_mb": 8192, "utilization_pct": round((8192 - free_mb) / 8192 * 100, 1)}
+        return patch.object(gpu_guard, "_get_free_vram_mb", return_value=free_mb), patch.object(gpu_guard, "get_vram_stats", return_value=stats)
+
+    def test_before_task_returns_true_when_vram_ok(self):
+        """Should proceed immediately when VRAM is sufficient."""
+        monitor = VRAMMonitor(min_free_mb=500)
+        p1, p2 = self._mock_vram(3000)
+        with p1, p2:
+            result = monitor.before_task("test book")
+        assert result is True
+        assert monitor._task_count == 1
+        assert monitor._wait_count == 0
+
+    def test_before_task_waits_when_vram_low(self):
+        """Should wait and retry when VRAM is below threshold."""
+        monitor = VRAMMonitor(min_free_mb=500, wait_s=0, max_retries=2)
+        call_count = 0
+
+        def mock_free():
+            nonlocal call_count
+            call_count += 1
+            return 200 if call_count <= 2 else 600
+
+        low_stats = {"used_mb": 7992, "free_mb": 200, "total_mb": 8192, "utilization_pct": 97.6}
+        with patch.object(gpu_guard, "_get_free_vram_mb", side_effect=mock_free):
+            with patch.object(gpu_guard, "get_vram_stats", return_value=low_stats):
+                with patch.object(gpu_guard, "clear_gpu_cache"):
+                    result = monitor.before_task("test book")
+        assert result is True
+        assert monitor._wait_count == 1
+
+    def test_before_task_force_proceeds_after_retries(self):
+        """Should force proceed after exhausting retries."""
+        monitor = VRAMMonitor(min_free_mb=500, wait_s=0, max_retries=1)
+        low_stats = {"used_mb": 8092, "free_mb": 100, "total_mb": 8192, "utilization_pct": 98.8}
+        with patch.object(gpu_guard, "_get_free_vram_mb", return_value=100):
+            with patch.object(gpu_guard, "get_vram_stats", return_value=low_stats):
+                with patch.object(gpu_guard, "clear_gpu_cache"):
+                    result = monitor.before_task("stuck book")
+        assert result is True
+        assert monitor._forced_count == 1
+
+    def test_summary_tracks_counts(self):
+        """Summary should reflect all task processing."""
+        monitor = VRAMMonitor(min_free_mb=500)
+        p1, p2 = self._mock_vram(3000)
+        with p1, p2:
+            monitor.before_task("book 1")
+            monitor.before_task("book 2")
+            monitor.before_task("book 3")
+        summary = monitor.summary()
+        assert summary["tasks_processed"] == 3
+        assert summary["waits_triggered"] == 0
+        assert summary["forced_proceeds"] == 0
+
+    def test_no_cuda_proceeds_without_waiting(self):
+        """Should proceed immediately when CUDA unavailable."""
+        monitor = VRAMMonitor(min_free_mb=500)
+        none_stats = {"used_mb": 0, "free_mb": 0, "total_mb": 0, "utilization_pct": 0.0}
+        with patch.object(gpu_guard, "_get_free_vram_mb", return_value=None):
+            with patch.object(gpu_guard, "get_vram_stats", return_value=none_stats):
+                result = monitor.before_task("cpu book")
+        assert result is True
+        assert monitor._wait_count == 0

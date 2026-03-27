@@ -26,9 +26,11 @@ from research_kb_common.instrumentation import (
 )
 from research_kb_common.logging_config import configure_logging, get_logger
 from research_kb_common.gpu_guard import (
+    VRAMMonitor,
     check_vram_available,
     clear_gpu_cache,
     get_safe_batch_size,
+    get_vram_stats,
     set_vram_ceiling,
 )
 from research_kb_common.retry import retry_on_exception, with_exponential_backoff
@@ -52,8 +54,10 @@ __all__ = [
     # GPU
     "set_vram_ceiling",
     "get_safe_batch_size",
+    "get_vram_stats",
     "check_vram_available",
     "clear_gpu_cache",
+    "VRAMMonitor",
     # Errors
     "IngestionError",
     "ChunkExtractionError",

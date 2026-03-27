@@ -25,7 +25,17 @@ import socket
 import torch
 from sentence_transformers import SentenceTransformer
 
+from prometheus_client import Gauge, start_http_server
+
 from research_kb_common import get_logger
+from research_kb_common.gpu_guard import get_vram_stats
+
+# Prometheus metrics (scraped on port 9002; daemon uses 9001)
+VRAM_USED = Gauge("embed_gpu_vram_used_mb", "GPU VRAM in use (MB)")
+VRAM_FREE = Gauge("embed_gpu_vram_free_mb", "GPU VRAM free (MB)")
+VRAM_UTIL = Gauge("embed_gpu_vram_utilization_pct", "GPU VRAM utilization percentage")
+EMBED_REQUESTS = Gauge("embed_requests_total", "Total embedding requests served")
+PROMETHEUS_PORT = 9002
 
 # Configuration
 SOCKET_PATH = "/tmp/research_kb_embed.sock"
@@ -88,6 +98,16 @@ class EmbeddingServer:
             dim=self.model.get_sentence_embedding_dimension(),
             device=device,
         )
+        self._request_count = 0
+
+    def _update_vram_metrics(self) -> None:
+        """Update Prometheus VRAM gauges."""
+        stats = get_vram_stats()
+        VRAM_USED.set(stats["used_mb"])
+        VRAM_FREE.set(stats["free_mb"])
+        VRAM_UTIL.set(stats["utilization_pct"])
+        self._request_count += 1
+        EMBED_REQUESTS.set(self._request_count)
 
     def embed(self, text: str) -> list[float]:
         """Embed a single text string (for documents/passages).
@@ -204,6 +224,9 @@ class EmbeddingServer:
         Returns:
             Response dictionary
         """
+        # Update VRAM metrics on every request
+        self._update_vram_metrics()
+
         try:
             action = data.get("action", "embed")
 
@@ -273,6 +296,14 @@ class EmbeddingServer:
         Note:
             Runs indefinitely until shutdown request or interrupt
         """
+        # Start Prometheus metrics server
+        try:
+            start_http_server(PROMETHEUS_PORT)
+            logger.info("prometheus_started", port=PROMETHEUS_PORT)
+            self._update_vram_metrics()  # Initial reading
+        except OSError as e:
+            logger.warning("prometheus_start_failed: %s (port %d may be in use)", e, PROMETHEUS_PORT)
+
         # Remove existing socket
         if os.path.exists(socket_path):
             os.remove(socket_path)

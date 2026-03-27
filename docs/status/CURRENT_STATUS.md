@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-03-26 12:08:10
+**Auto-generated**: 2026-03-26 21:23:01
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,8 +9,8 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 1,309 |
-| chunks | 1,023,473 |
+| sources | 1,311 |
+| chunks | 1,025,117 |
 | concepts | 310,063 |
 | concept_relationships | 743,984 |
 | chunk_concepts | 0 |
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 855,118 | 1,023,473 | 83.6% |
+| Chunks | 1,025,117 | 1,025,117 | 100.0% |
 | Concepts | 283,521 | 310,063 | 91.4% |
 
 ---
@@ -42,7 +42,7 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 992 |
+| textbook | 994 |
 | paper | 317 |
 
 ---
@@ -51,7 +51,7 @@
 
 | Domain | Sources |
 |--------|--------:|
-| software_engineering | 147 |
+| software_engineering | 148 |
 | causal_inference | 119 |
 | rag_llm | 102 |
 | machine_learning | 87 |
@@ -62,7 +62,7 @@
 | linear_algebra | 47 |
 | econometrics | 44 |
 | finance | 43 |
-| statistics | 37 |
+| statistics | 38 |
 | healthcare | 35 |
 | algorithms | 28 |
 | data_science | 28 |
@@ -128,7 +128,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 1,309 sources, 1,023,473 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 1,311 sources, 1,025,117 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 310,063 concepts, 743,984 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
