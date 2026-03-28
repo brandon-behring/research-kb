@@ -26,13 +26,29 @@ Run `python scripts/generate_status.py` for current DB metrics.
 
 ---
 
-## Already Acquired (This Session)
+## Already Acquired or On Disk (This Session)
 
 | Title | Domain | Source | Status |
 |-------|--------|--------|--------|
-| Feedback Systems (Astrom & Murray, 2nd ed) | dynamical_systems | fbswiki.org | Downloaded |
-| Mathematical Control Theory (Sontag, 2nd ed) | dynamical_systems | sontaglab.org | Downloaded |
-| S2 auto-discovery papers | sql, adtech, recommender_systems, economics, forecasting | Semantic Scholar | Running |
+| Feedback Systems (Astrom & Murray, 2nd ed) | dynamical_systems | fbswiki.org | **Downloaded** (free) |
+| Mathematical Control Theory (Sontag, 2nd ed) | dynamical_systems | sontaglab.org | **Downloaded** (free) |
+| Data-Driven Science & Engineering (Brunton, Kutz) | machine_learning | databookuw.com | **Downloaded** (free, 72MB) |
+| Wittgenstein — Tractatus Logico-Philosophicus | philosophy | Project Gutenberg | **Downloaded** (free, 173pp) |
+| Bishop — Pattern Recognition & ML | machine_learning | microsoft.com | **BLOCKED** (CDN, need manual download) |
+| Hamilton — Time Series Analysis | time_series | Already on disk | **On disk** (2 copies in fixtures/textbooks/) — NOT in DB, needs ingestion |
+| Value at Risk (Jorion) | finance | — | **Already in DB** — REMOVE from buy list |
+| Elements of Programming Interviews | algorithms | — | **Already in DB** — REMOVE from buy list |
+| Hull's Options, Futures, Derivatives | finance | — | **Already in DB** — REMOVE from buy list |
+| Fluent Python | software_engineering | — | **Already in DB** — REMOVE from buy list |
+| Trustworthy Online Controlled Experiments | statistics | — | **Already in DB** — REMOVE from buy list |
+| Computational Algebraic Number Theory (Cohen) | mathematics | — | **Already in DB** — REMOVE from buy list |
+| S2 auto-discovery papers | sql, adtech, recommender_systems, etc. | Semantic Scholar | Running |
+
+### Corrections to Buy List
+
+**REMOVE** (already in DB): Items #33, #44, #20 (Hull), #27 (Trustworthy Experiments), #52 (Fluent Python), #5 (Cohen Number Theory)
+**MOVE to ingest** (on disk, not in DB): Hamilton Time Series (#58), Quantitative Risk Management (#29 — verify on disk)
+**ADD free downloads**: Bishop PRML (manual), Brunton (done), Tractatus (done)
 
 ---
 
