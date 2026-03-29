@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-03-27 14:30:53
+**Auto-generated**: 2026-03-29 18:12:58
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,12 +9,12 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 1,348 |
-| chunks | 1,053,351 |
+| sources | 1,756 |
+| chunks | 1,395,596 |
 | concepts | 310,063 |
 | concept_relationships | 743,984 |
 | chunk_concepts | 0 |
-| citations | 45,433 |
+| citations | 49,174 |
 | methods | 15,505 |
 | assumptions | 9,468 |
 
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 1,053,351 | 1,053,351 | 100.0% |
+| Chunks | 1,395,596 | 1,395,596 | 100.0% |
 | Concepts | 283,521 | 310,063 | 91.4% |
 
 ---
@@ -42,8 +42,8 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 1,031 |
-| paper | 317 |
+| textbook | 1,361 |
+| paper | 395 |
 
 ---
 
@@ -51,40 +51,40 @@
 
 | Domain | Sources |
 |--------|--------:|
-| software_engineering | 159 |
-| causal_inference | 119 |
-| rag_llm | 110 |
-| machine_learning | 93 |
-| deep_learning | 84 |
-| time_series | 68 |
+| machine_learning | 352 |
+| software_engineering | 164 |
+| deep_learning | 152 |
+| causal_inference | 131 |
+| rag_llm | 113 |
+| time_series | 72 |
+| mathematics | 69 |
+| finance | 65 |
 | numerical_methods | 52 |
-| mathematics | 49 |
 | linear_algebra | 47 |
 | econometrics | 44 |
-| finance | 43 |
-| statistics | 38 |
+| statistics | 40 |
+| data_science | 36 |
 | healthcare | 35 |
+| algorithms | 32 |
 | ml_engineering | 30 |
-| algorithms | 30 |
-| data_science | 29 |
 | actuarial_insurance | 25 |
 | functional_programming | 25 |
 | dynamical_systems | 23 |
+| fitness | 22 |
 | biology_neuroscience | 21 |
 | probability_theory | 21 |
 | interview_prep | 20 |
 | portfolio_management | 20 |
 | reinforcement_learning | 19 |
-| optimization | 18 |
-| fitness | 18 |
 | analysis | 18 |
+| optimization | 18 |
 | algebra | 18 |
 | physics | 16 |
 | topology_geometry | 16 |
 | sql | 14 |
 | signal_processing | 11 |
-| forecasting | 5 |
 | recommender_systems | 5 |
+| forecasting | 5 |
 | adtech | 3 |
 | economics | 2 |
 
@@ -128,7 +128,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 1,348 sources, 1,053,351 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 1,756 sources, 1,395,596 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 310,063 concepts, 743,984 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
