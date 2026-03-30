@@ -25,7 +25,24 @@ docker-compose up -d               # PostgreSQL + GROBID
 black packages/                    # Format (100-char lines)
 ruff check packages/               # Lint
 mypy packages/                     # Type check
+
+# CLI (sub-app structure)
+research-kb search query "..."     # Hybrid search
+research-kb search audit-assumptions "DML"  # Assumption audit
+research-kb sources list           # List sources
+research-kb sources stats          # Database stats
+research-kb graph concepts "IV"    # Concept search
+research-kb graph neighborhood "DML"  # Graph exploration
+research-kb graph path "A" "B"     # Shortest path
+research-kb graph explain "A" "B"  # Explain with evidence
+research-kb citations list <id>    # Citation network
+research-kb citations stats        # Citation statistics
+research-kb review generate "..."  # Literature review
+research-kb discover search "..."  # Semantic Scholar
+research-kb enrich citations       # Enrich with S2 metadata
 ```
+
+See `.claude/rules/cli-and-scripts.md` for full CLI reference with flags and examples.
 
 ## Architecture
 
@@ -135,7 +152,7 @@ When modifying code, update docs accordingly:
 
 | Change Type | Required Doc Updates |
 |-------------|---------------------|
-| New CLI command | CLAUDE.md, README.md |
+| New CLI command | CLAUDE.md, README.md, `.claude/rules/cli-and-scripts.md` |
 | New package | Create README.md, add to architecture above |
 | New extraction backend | packages/extraction/README.md comparison table |
 | External path change | docs/INTEGRATION.md |

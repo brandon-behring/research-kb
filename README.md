@@ -14,7 +14,7 @@ Combines full-text search (BM25), vector similarity (BGE-large 1024d), and citat
 - **22-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, assumption auditing, and concept synthesis
 - **Knowledge graph** -- 310K concepts and 744K relationships extracted from research literature, served by KuzuDB
 - **Citation authority** -- PageRank-style scoring over 45K+ citation links; bibliographic coupling for related-work discovery
-- **Multi-domain** -- 35 corpus domains, 20 extraction prompt configs, extensible to new domains
+- **Multi-domain** -- 36 corpus domains, 20 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
 - **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
 
@@ -144,20 +144,20 @@ Citation (15%) signals are **enabled by default**. Graph is **disabled by defaul
 <!-- AUTO-GEN:packages:START -->
 ### Packages
 
-| Package | Purpose | Key Technology |
-|---------|---------|----------------|
-| `contracts` | Shared data models | Pydantic |
-| `common` | Logging, retry, instrumentation | structlog, tenacity |
-| `storage` | Database + search orchestration | asyncpg, pgvector, KuzuDB |
-| `pdf-tools` | PDF extraction + embedding | Docling, GROBID, BGE-large |
-| `extraction` | Concept extraction from text | Ollama LLM |
-| `cli` | Command-line interface | Typer |
-| `api` | REST endpoints + health checks | FastAPI |
-| `daemon` | Low-latency query service (JSON-RPC 2.0) | asyncio, Unix socket |
-| `mcp-server` | MCP tool server for Claude Code | MCP SDK |
-| `dashboard` | Visual search + graph explorer | Streamlit |
-| `s2-client` | Semantic Scholar API client | httpx, rate limiting |
-| `client` | DaemonClient SDK (JSON-RPC 2.0) | Unix socket |
+| Package | Purpose |
+|---------|---------|
+| `api` | FastAPI REST API for research-kb semantic search |
+| `cli` | CLI for querying the research knowledge base |
+| `client` | Python client SDK for research-kb daemon and CLI |
+| `common` | Common utilities for research-kb system (logging, retry, instrumentation) |
+| `contracts` | Pure Pydantic schemas for research-kb system |
+| `daemon` | Low-latency daemon for research-kb queries via Unix socket |
+| `dashboard` | Streamlit visualization dashboard for research-kb |
+| `extraction` | Concept extraction for research knowledge base using Ollama LLM |
+| `mcp-server` | MCP server exposing research-kb knowledge base to Claude Code |
+| `pdf-tools` | PDF extraction and chunking for research-kb system |
+| `s2-client` | Semantic Scholar API client for research-kb (async, rate-limited, cached) |
+| `storage` | PostgreSQL storage layer for research-kb system |
 <!-- AUTO-GEN:packages:END -->
 
 ### Key Design Decisions
@@ -174,7 +174,7 @@ Citation (15%) signals are **enabled by default**. Graph is **disabled by defaul
 
 ### Retrieval Quality
 
-108 YAML test cases across 35 domains with known-relevant chunks (`fixtures/eval/retrieval_test_cases.yaml`). Run `python scripts/eval_retrieval.py --per-domain` for current metrics.
+108 YAML test cases across 36 domains with known-relevant chunks (`fixtures/eval/retrieval_test_cases.yaml`). Run `python scripts/eval_retrieval.py --per-domain` for current metrics.
 
 Core domains with 5+ test cases (causal_inference, econometrics, statistics) average MRR > 0.85 individually. Thin domains with few test cases pull down aggregate metrics.
 
@@ -200,22 +200,37 @@ Run `python scripts/generate_status.py` for current metrics. See [`docs/status/C
 
 22 tools organized by function, designed for conversational use in Claude Code:
 
-| Category | Tools | Description |
-|----------|-------|-------------|
-| **Search** | `research_kb_search`, `research_kb_fast_search` | Hybrid search with domain filtering and context profiles |
-| **Sources** | `research_kb_list_sources`, `research_kb_get_source`, `research_kb_get_source_citations`, `research_kb_get_citing_sources`, `research_kb_get_cited_sources` | Browse corpus and citation links |
-| **Concepts** | `research_kb_list_concepts`, `research_kb_get_concept`, `research_kb_chunk_concepts`, `research_kb_find_similar_concepts` | Search and inspect knowledge graph nodes |
-| **Graph** | `research_kb_graph_neighborhood`, `research_kb_graph_path`, `research_kb_cross_domain_concepts` | Traverse concept relationships |
-| **Citations** | `research_kb_citation_network`, `research_kb_biblio_coupling` | Upstream/downstream influence, bibliographic coupling |
-| **Health** | `research_kb_health`, `research_kb_stats`, `research_kb_list_domains` | System status and corpus metrics |
-| **Advanced** | `research_kb_audit_assumptions`, `research_kb_explain_connection`, `research_kb_literature_review` | Assumption audit with gap reporting; concept connection synthesis (graph + evidence + LLM); structured literature review generation |
+| Tool | Description |
+|------|-------------|
+| `research_kb_audit_assumptions` | Get required assumptions for a statistical/ML method. |
+| `research_kb_citation_network` | Get bidirectional citation network for a source. |
+| `research_kb_biblio_coupling` | Find sources similar by bibliographic coupling. |
+| `research_kb_list_concepts` | List or search concepts in the knowledge graph. |
+| `research_kb_get_concept` | Get detailed information about a specific concept. |
+| `research_kb_chunk_concepts` | Get all concepts linked to a specific chunk. |
+| `research_kb_find_similar_concepts` | Find concepts semantically similar to a given concept. |
+| `research_kb_graph_neighborhood` | Explore the neighborhood of a concept in the knowledge graph. |
+| `research_kb_graph_path` | Find the shortest path between two concepts. |
+| `research_kb_cross_domain_concepts` | Find equivalent or related concepts across knowledge domains. |
+| `research_kb_explain_connection` | Explain how two concepts connect through the knowledge graph with evidence. |
+| `research_kb_stats` | Get statistics about the research knowledge base. |
+| `research_kb_health` | Check the health of the research-kb system. |
+| `research_kb_list_domains` | List available knowledge domains and their statistics. |
+| `research_kb_literature_review` | Generate a structured literature review for a topic from the knowledge base. |
+| `research_kb_search` | Search the research knowledge base across multiple domains. |
+| `research_kb_fast_search` | Fast vector-only search (~200ms). Skips FTS, graph, citation, reranking. |
+| `research_kb_list_sources` | List sources (papers and textbooks) in the knowledge base. |
+| `research_kb_get_source` | Get detailed information about a specific source. |
+| `research_kb_get_source_citations` | Get citation relationships for a source. |
+| `research_kb_get_citing_sources` | Find all sources that cite a given source. |
+| `research_kb_get_cited_sources` | Find all sources that a given source cites. |
 <!-- AUTO-GEN:mcp-tools:END -->
 
 ## Testing
 
 - **~2,700+ test functions** across 111 test files
 - **Tiered CI/CD**: PR checks (<10 min, pytest-cov 70% gate) -> Manual integration (15 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
-- **Retrieval eval**: 108 YAML test cases across 35 domains with per-domain reporting (`--per-domain` flag, MRR >= 0.85 CI gate on core domains)
+- **Retrieval eval**: 108 YAML test cases across 36 domains with per-domain reporting (`--per-domain` flag, MRR >= 0.85 CI gate on core domains)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
 ```bash
@@ -238,85 +253,76 @@ Full command reference with examples: [`docs/CLI.md`](docs/CLI.md)
 Quick reference:
 
 ```bash
-# Search and retrieval
-research-kb search query "instrumental variables"        # Hybrid search (all 4 signals)
-research-kb search query "IV" --no-graph                 # Disable graph signal
-research-kb search query "IV" --no-citations             # Disable citation authority
+research-kb search audit-assumptions                   # Get required assumptions for a statistical/ML method.
+research-kb search query                               # Search the research knowledge base with hybrid search and reranking.
 
-# Source management
-research-kb sources list                                 # List sources
-research-kb sources stats                                # Database statistics
-research-kb sources extraction-status                    # Extraction pipeline stats
+research-kb graph concepts                             # Search for concepts in the knowledge graph.
+research-kb graph neighborhood                         # Visualize concept neighborhood in the knowledge graph.
+research-kb graph path                                 # Find shortest path between two concepts in the knowledge graph.
+research-kb graph explain                              # Explain how two concepts are connected with evidence and synthesis.
 
-# Knowledge graph
-research-kb graph concepts "IV"                          # Concept search
-research-kb graph neighborhood "double machine learning" # Graph exploration
-research-kb graph path "IV" "unconfoundedness"           # Shortest path
-research-kb graph explain "DML" "cross-fitting"          # Explain connection with evidence + synthesis
+research-kb citations list                             # List citations extracted from a source.
+research-kb citations cited-by                         # Find sources that cite a given source.
+research-kb citations cites                            # Find sources that a given source cites.
+research-kb citations stats                            # Show corpus-wide citation graph statistics.
+research-kb citations similar                          # Find sources with similar research focus via bibliographic coupling.
 
-# Citation network
-research-kb citations list <source>                      # List citations from a source
-research-kb citations cited-by <source>                  # Find sources citing this one
-research-kb citations cites <source>                     # Find sources this one cites
-research-kb citations stats                              # Corpus citation statistics
-research-kb citations similar <source>                   # Find similar sources (shared refs)
+research-kb sources list                               # List all ingested sources in the knowledge base.
+research-kb sources extraction-status                  # Show extraction pipeline statistics.
+research-kb sources stats                              # Show knowledge base statistics.
 
-# Assumption auditing (North Star feature)
-research-kb search audit-assumptions "IV"                              # Get required assumptions
-research-kb search audit-assumptions "IV" --no-ollama                  # Graph-only (no LLM fallback)
-research-kb search audit-assumptions "DML" --format json               # JSON output
-research-kb search audit-assumptions "RDD" --domain time_series        # Domain-scoped audit
-research-kb search audit-assumptions "RDD" --domain time_series --scope applied  # Domain-contextual LLM prompt
+research-kb discover search                            # Search for papers on Semantic Scholar.
+research-kb discover topics                            # Discover papers for all pre-configured research topics.
+research-kb discover author                            # Get recent papers by a specific author.
 
-# Semantic Scholar discovery
-research-kb discover search "causal inference"           # Search S2 for papers
-research-kb discover topics                              # Browse by topic
-research-kb discover author "Chernozhukov"               # Find by author
-research-kb enrich citations                             # Enrich with S2 metadata
-research-kb enrich status                                # Show enrichment status
-research-kb enrich job-status                            # Check enrichment job status
+research-kb enrich citations                           # Enrich citations with Semantic Scholar metadata.
+research-kb enrich status                              # Show citation enrichment status.
+research-kb enrich job-status                          # Check status of enrichment jobs (running or completed).
+
+research-kb review generate                            # Generate a structured literature review for a topic.
 ```
 <!-- AUTO-GEN:cli-commands:END -->
 
 ## Multi-Domain Support
 
-research-kb supports 35 corpus domains with 20 extraction prompt configurations:
+research-kb supports 36 corpus domains with 20 extraction prompt configurations:
 
 | Domain | Sources | Description |
 |--------|---------|-------------|
-| `software_engineering` | 147 | Design patterns, testing, architecture, DevOps |
-| `causal_inference` | 102 | Causal inference, structural models, treatment effects |
-| `rag_llm` | 91 | Retrieval-augmented generation, language models |
-| `machine_learning` | 76 | General ML algorithms and theory |
-| `time_series` | 67 | Time series analysis, forecasting, temporal methods |
-| `numerical_methods` | 53 | Numerical analysis and computational methods |
-| `deep_learning` | 53 | Neural networks, transformers, optimization |
-| `mathematics` | 49 | Pure and applied mathematics |
-| `linear_algebra` | 48 | Linear algebra and matrix theory |
+| `machine_learning` | 352 | General ML algorithms and theory |
+| `software_engineering` | 164 | Design patterns, testing, architecture, DevOps |
+| `deep_learning` | 152 | Neural networks, transformers, optimization |
+| `causal_inference` | 131 | Causal inference, structural models, treatment effects |
+| `rag_llm` | 113 | Retrieval-augmented generation, language models |
+| `time_series` | 72 | Time series analysis, forecasting, temporal methods |
+| `mathematics` | 69 | Pure and applied mathematics |
+| `finance` | 65 | Quantitative finance and risk |
+| `numerical_methods` | 52 | Numerical analysis and computational methods |
+| `linear_algebra` | 47 | Linear algebra and matrix theory |
 | `econometrics` | 44 | Econometric theory and estimation |
-| `finance` | 43 | Quantitative finance and risk |
-| `statistics` | 37 | Statistical theory and methods |
-| `data_science` | 29 | Data analysis and visualization |
-| `algorithms` | 28 | Algorithm design and analysis |
-| `ml_engineering` | 28 | ML systems, MLOps, production ML |
+| `statistics` | 40 | Statistical theory and methods |
+| `data_science` | 36 | Data analysis and visualization |
+| `healthcare` | 35 | Healthcare analytics and clinical data |
+| `algorithms` | 32 | Algorithm design and analysis |
+| `ml_engineering` | 30 | ML systems, MLOps, production ML |
 | `actuarial_insurance` | 25 | Actuarial science and insurance modeling |
 | `functional_programming` | 25 | FP concepts and languages |
-| `portfolio_management` | 21 | Portfolio theory and optimization |
+| `dynamical_systems` | 23 | Dynamical systems and control theory |
+| `fitness` | 22 | Exercise science and training |
 | `biology_neuroscience` | 21 | Biology, neuroscience, computational models |
+| `probability_theory` | 21 | Probability theory and stochastic processes |
 | `interview_prep` | 20 | Technical interview preparation |
-| `dynamical_systems` | 20 | Dynamical systems and control theory |
-| `probability_theory` | 20 | Probability theory and stochastic processes |
-| `optimization` | 18 | Mathematical optimization and operations research |
-| `fitness` | 18 | Exercise science and training |
-| `reinforcement_learning` | 18 | Reinforcement learning and decision processes |
+| `portfolio_management` | 20 | Portfolio theory and optimization |
+| `reinforcement_learning` | 19 | Reinforcement learning and decision processes |
 | `analysis` | 18 | Real and functional analysis |
+| `optimization` | 18 | Mathematical optimization and operations research |
 | `algebra` | 18 | Abstract algebra and algebraic structures |
 | `physics` | 16 | Physics and mathematical physics |
 | `topology_geometry` | 16 | Topology, geometry, and manifolds |
-| `sql` | 15 | SQL, databases, query optimization |
+| `sql` | 14 | SQL, databases, query optimization |
 | `signal_processing` | 11 | Signal processing and spectral methods |
-| `forecasting` | 5 | Forecasting methods and evaluation |
 | `recommender_systems` | 5 | Recommender systems, collaborative filtering |
+| `forecasting` | 5 | Forecasting methods and evaluation |
 | `adtech` | 3 | Advertising technology, auction mechanisms |
 | `economics` | 2 | Economic theory |
 

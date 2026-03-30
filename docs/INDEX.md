@@ -5,7 +5,7 @@
 - **Phase**: All core phases ✅ Complete | Catalog ingestion ✅ Complete (2026-03-23)
 - **Status**: [→ Full Status (auto-generated)](status/CURRENT_STATUS.md)
 - **Corpus**: See [CURRENT_STATUS.md](status/CURRENT_STATUS.md) for live metrics (run `scripts/generate_status.py` to refresh)
-- **Domains**: 35 tagged across causal_inference, rag_llm, time_series, finance, mathematics, physics, algebra, optimization, and 27 more
+- **Domains**: 36 tagged across machine_learning, software_engineering, deep_learning, causal_inference, rag_llm, time_series, finance, mathematics, and 28 more
 - **Search**: 3-way hybrid (FTS + vector + citation). Run `scripts/eval_retrieval.py --per-domain` for current metrics (108 eval test cases)
 - **MCP Server**: 22 tools available (9 with JSON output_format)
 - **KuzuDB**: 310K concepts, 744K relationships (stale chunk IDs — graph search disabled, re-extraction deferred)

@@ -54,26 +54,50 @@ def extract_cli_commands() -> list[tuple[str, str]]:
         group_var = group_match.group(1)
         group_name = group_match.group(2)
 
-        # Find import to locate module file
+        # Find import to locate module file (supports both flat and commands/ subpackage)
         import_match = re.search(
-            rf"from\s+research_kb_cli\.(\w+)\s+import\s+\w+\s+as\s+{re.escape(group_var)}",
+            rf"from\s+research_kb_cli\.(?:commands\.)?(\w+)\s+import\s+\w+\s+as\s+{re.escape(group_var)}",
             content,
         )
         if import_match:
             module_name = import_match.group(1)
-            group_file = REPO_ROOT / f"packages/cli/src/research_kb_cli/{module_name}.py"
+            # Check commands/ subdirectory first, then flat
+            group_file = REPO_ROOT / f"packages/cli/src/research_kb_cli/commands/{module_name}.py"
+            if not group_file.exists():
+                group_file = REPO_ROOT / f"packages/cli/src/research_kb_cli/{module_name}.py"
             if group_file.exists():
                 group_content = group_file.read_text()
+                # Match @app.command("name") with explicit name
+                # Two-pass to handle multi-line function signatures
                 for cmd_match in re.finditer(
                     r'@\w+\.command\(\s*(?:name\s*=\s*)?["\']([^"\']+)["\']\s*\)\s*\n'
                     r"(?:@[^\n]+\n)*"
-                    r"\s*(?:async\s+)?def\s+\w+\([^)]*\)(?:\s*->\s*[^:]+)?:\s*\n"
-                    r'\s*"""([^"]*?)"""',
+                    r"\s*(?:async\s+)?def\s+\w+\(",
                     group_content,
-                    re.MULTILINE,
                 ):
                     cmd_name = cmd_match.group(1)
-                    docstring = cmd_match.group(2).strip().split("\n")[0]
+                    rest = group_content[cmd_match.end() :]
+                    doc_match = re.search(r'"""(.+?)"""', rest, re.DOTALL)
+                    if doc_match:
+                        docstring = doc_match.group(1).strip().split("\n")[0]
+                    else:
+                        docstring = ""
+                    commands.append((f"research-kb {group_name} {cmd_name}", docstring))
+                # Match @app.command() without name (uses function name)
+                # Two-pass: find function name, then find its docstring
+                for cmd_match in re.finditer(
+                    r"@\w+\.command\(\s*\)\s*\n" r"(?:@[^\n]+\n)*" r"\s*(?:async\s+)?def\s+(\w+)\(",
+                    group_content,
+                ):
+                    func_name = cmd_match.group(1)
+                    # Find the docstring after the function signature
+                    rest = group_content[cmd_match.end() :]
+                    doc_match = re.search(r'"""(.+?)"""', rest, re.DOTALL)
+                    if doc_match:
+                        docstring = doc_match.group(1).strip().split("\n")[0]
+                    else:
+                        docstring = ""
+                    cmd_name = func_name.replace("_", "-")
                     commands.append((f"research-kb {group_name} {cmd_name}", docstring))
 
     return commands
@@ -95,15 +119,18 @@ def extract_mcp_tools() -> list[tuple[str, str]]:
             continue
         content = py_file.read_text()
 
+        # Two-pass: find tool name, then find its docstring
         for match in re.finditer(
-            r"@mcp\.tool\(\)\s*\n"
-            r"\s*async\s+def\s+(\w+)\([^)]*\)(?:\s*->\s*[^:]+)?:\s*\n"
-            r'\s*"""([^"]*?)"""',
+            r"@mcp\.tool\(\)\s*\n" r"\s*async\s+def\s+(\w+)\(",
             content,
-            re.MULTILINE,
         ):
             tool_name = match.group(1)
-            docstring = match.group(2).strip().split("\n")[0]
+            rest = content[match.end() :]
+            doc_match = re.search(r'"""(.+?)"""', rest, re.DOTALL)
+            if doc_match:
+                docstring = doc_match.group(1).strip().split("\n")[0]
+            else:
+                docstring = ""
             tools.append((tool_name, docstring))
 
     return tools

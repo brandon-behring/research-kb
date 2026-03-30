@@ -1,73 +1,56 @@
-# Migration: Graph Search as Default
+# Migration: Graph Search Defaults
 
-**Status**: Complete
-
-Graph-boosted search has been the default CLI behavior since Phase D. The `--no-graph` flag disables it.
+**Status**: Complete (graph disabled by default since 2026-03-25)
 
 ---
 
 ## Summary
 
-The `research-kb query` command uses 4-signal hybrid search by default:
+Graph-boosted search is **disabled by default** across all surfaces (CLI, MCP, API, dashboard, daemon, client SDK). The `--graph` flag enables it when KG data is current.
+
+Default search uses 3 signals:
 - **FTS** (BM25 keyword matching)
 - **Vector** (BGE-large cosine similarity)
-- **Graph** (KuzuDB concept traversal)
 - **Citation** (PageRank authority)
 
-Graph and citation signals are opt-in via `--graph` / `--citations` flags (graph is enabled by default).
+Graph signal is opt-in via `--graph` flag. Currently returns empty results because `chunk_concepts = 0` (KG re-extraction deferred -- see `docs/STRATEGIC_ASSESSMENT.md` Section 7).
 
 ---
 
 ## CLI Flags
 
 ```bash
-# Default: FTS + vector + graph
-research-kb query "instrumental variables"
+# Default: FTS + vector + citation (3-way)
+research-kb search query "instrumental variables"
 
-# Disable graph signal
-research-kb query "instrumental variables" --no-graph
+# Enable graph signal (returns empty until KG re-extracted)
+research-kb search query "instrumental variables" --graph
 
-# Customize graph weight
-research-kb query "instrumental variables" --graph-weight 0.3
+# Customize citation weight
+research-kb search query "instrumental variables" --citation-weight 0.25
+
+# Disable citation signal
+research-kb search query "instrumental variables" --no-citations
 ```
 
 ---
 
 ## Graceful Fallback
 
-When no concepts are extracted (fresh database), graph search silently falls back to FTS + vector. No error, no configuration change needed.
+When graph is enabled but no chunk_concepts exist, graph search silently returns 0 graph scores. The other signals (FTS, vector, citation) still produce results. No error, no configuration change needed.
+
+---
+
+## History
+
+- **Phase D** (2025-12): Graph search enabled by default via KuzuDB
+- **2026-03-25**: Graph defaults flipped OFF across all 7 surfaces after North Star validation revealed `chunk_concepts = 0` (stale KG produces cross-contaminated results)
+- **Deferred**: KG re-extraction blocked by Anthropic API credit exhaustion. See `docs/STRATEGIC_ASSESSMENT.md` Section 7 for cost estimates and trigger conditions
 
 ---
 
 ## CI Validation
 
-Both CI workflows validate the search pipeline:
-
-- **`integration-test.yml`** (manual trigger): Tests search code paths with mocked data
-- **`weekly-full-rebuild.yml`** (manual trigger): End-to-end validation with real embeddings and golden dataset eval (MRR >= 0.5 gate)
-
----
-
-## Performance
-
-| Path | Latency |
-|------|---------|
-| KuzuDB graph scoring (warm) | ~150ms |
-| PostgreSQL CTE fallback | max 2s (timeout) |
-| FTS + vector only | ~200ms |
-| Full 4-signal (warm) | ~2.1s |
-
-KuzuDB pre-warming runs on daemon startup to avoid cold-start latency.
-
----
-
-## References
-
-- CLI implementation: `packages/cli/src/research_kb_cli/main.py`
-- Graph scoring: `packages/storage/src/research_kb_storage/graph_queries.py`
-- KuzuDB store: `packages/storage/src/research_kb_storage/kuzu_store.py`
-- Full pipeline CI: `.github/workflows/weekly-full-rebuild.yml`
-
----
-
-**Last Updated**: 2026-02-20
+- **PR checks** (automated): Unit + integration tests, coverage gate 70%, doc freshness
+- **Integration test** (manual, `workflow_dispatch`): Search pipeline with mocked data
+- **Weekly full rebuild** (manual, `workflow_dispatch`): End-to-end with real embeddings, retrieval eval (MRR >= 0.85 gate on core domains)

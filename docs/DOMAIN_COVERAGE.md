@@ -1,86 +1,62 @@
-# Domain Coverage Gap Report
+# Domain Coverage Report
 
-> Cross-references research-kb corpus domains against interview preparation volumes and identifies strategic gaps.
->
-> Last updated: 2026-02-26 (Phase X: Domain Identity Fix)
-
----
-
-## Coverage Matrix
-
-Maps interview preparation topic areas to research-kb domains, with source counts and qualitative coverage assessments.
-
-| Interview Topic | KB Domain | Sources | Coverage | Notes |
-|----------------|-----------|---------|----------|-------|
-| Causal Inference | `causal_inference` | 89 | Good | Pearl, Imbens/Rubin, DML + papers (econometrics split out) |
-| GenAI / LLM | `rag_llm` | 76 | Excellent | RAG pipelines, prompt engineering, evaluation, KG |
-| Time Series | `time_series` | 48 | Excellent | Hamilton, Hyndman, Box-Jenkins + domain papers |
-| Econometrics | `econometrics` | 35 | Good | Angrist/Pischke, Wooldridge, panel data, IV methods |
-| Deep Learning | `deep_learning` | 35 | Good | Neural nets, transformers, optimization |
-| Software Engineering | `software_engineering` | 30 | Good | Design patterns, testing, architecture, DevOps |
-| Mathematics | `mathematics` | 28 | Good | Linear algebra, calculus, physics, optimization |
-| Interview Prep | `interview_prep` | 23 | Good | Multi-domain interview preparation |
-| Finance / Credit Risk | `finance` | 23 | Good | Quantitative finance, CFA, risk management |
-| Statistics | `statistics` | 18 | Good | Theory and methods (Wasserman, Efron, Bayesian) |
-| MLOps / ML Engineering | `ml_engineering` | 17 | Good | ML systems, production ML |
-| ML Foundations | `machine_learning` | 14 | Moderate | Core algorithms and theory |
-| Python / Algorithms | `algorithms` | 12 | Moderate | Roughgarden 1-3, Grokking, Wengrow, Kochenderfer |
-| Product Analytics | `data_science` | 12 | Moderate | Data analysis, A/B testing overlap |
-| Portfolio Management | `portfolio_management` | 11 | Moderate | MPT, CAPM, factor models, risk management |
-| Functional Programming | `functional_programming` | 8 | Moderate | Haskell, Scala, FP patterns |
-| Forecasting | `forecasting` | 5 | Partial | Overlaps time_series but distinct methods |
-| Recommender Systems | `recommender_systems` | 3 | Partial | Collaborative filtering, recsys (Phase T arXiv) |
-| SQL | `sql` | 2 | Partial | SQL databases, query optimization (Phase T arXiv) |
-| Ads / AdTech | `adtech` | 2 | Partial | Advertising technology, auction mechanisms (Phase T arXiv) |
-| Fitness | `fitness` | 2 | Partial | Strength training |
-| Economics | `economics` | 2 | Partial | Quantitative economics |
-
-**Note**: Source counts updated in Phase X after fixing `sources.domain_id` to match canonical metadata domains (209 sources retagged). Key changes: `causal_inference` 272 -> 89 (econometrics, rag_llm, deep_learning, etc. split out), `finance` 28 -> 23 (portfolio_management split out).
+**Auto-generated**: 2026-03-30 09:20:28
+**DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
 
-## Phase N Changes (2026-02-25)
+## Coverage Matrix (36 domains)
 
-### New Domains Registered
-- `sql` — SQL & Databases (domain + extraction prompt config)
-- `recommender_systems` — Recommender Systems (domain + extraction prompt config)
-- `adtech` — Ads & AdTech (domain + extraction prompt config)
-
-### New Extraction Prompt Configs
-- `algorithms` — Algorithm design, complexity analysis, data structures
-- `forecasting` — Time-series forecasting methods, evaluation, uncertainty
-
-### Sidecar Audit
-- 97 out of 98 migrated/ sidecar JSONs corrected (legacy labels → valid domains)
-- Legacy labels eliminated: `other`, `programming`, `ml_stats`, `math`, `nlp`, `causal`
-
-### DB Retagging
-- 88 sources retagged from `causal_inference` fallback to correct domains
-- 27,965 chunks domain_id propagated via `sync_chunk_domains.py`
+| Domain | Sources | Chunks | Concepts | Coverage |
+|--------|--------:|-------:|---------:|----------|
+| `machine_learning` | 352 | 332,843 | 0 | Excellent |
+| `software_engineering` | 164 | 145,302 | 0 | Excellent |
+| `deep_learning` | 152 | 46,246 | 0 | Excellent |
+| `causal_inference` | 131 | 66,201 | 271,267 | Excellent |
+| `rag_llm` | 113 | 56,762 | 21,544 | Excellent |
+| `time_series` | 72 | 37,116 | 17,252 | Good |
+| `mathematics` | 69 | 90,802 | 0 | Good |
+| `finance` | 65 | 72,102 | 0 | Good |
+| `numerical_methods` | 52 | 45,502 | 0 | Good |
+| `linear_algebra` | 47 | 29,701 | 0 | Good |
+| `econometrics` | 44 | 24,457 | 0 | Good |
+| `statistics` | 40 | 52,170 | 0 | Good |
+| `data_science` | 36 | 39,078 | 0 | Good |
+| `healthcare` | 35 | 1,006 | 0 | Good |
+| `algorithms` | 32 | 31,201 | 0 | Good |
+| `ml_engineering` | 30 | 24,244 | 0 | Good |
+| `actuarial_insurance` | 25 | 16,855 | 0 | Moderate |
+| `functional_programming` | 25 | 25,275 | 0 | Moderate |
+| `dynamical_systems` | 23 | 22,213 | 0 | Moderate |
+| `fitness` | 22 | 19,988 | 0 | Moderate |
+| `biology_neuroscience` | 21 | 18,892 | 0 | Moderate |
+| `probability_theory` | 21 | 20,339 | 0 | Moderate |
+| `interview_prep` | 20 | 20,039 | 0 | Moderate |
+| `portfolio_management` | 20 | 20,714 | 0 | Moderate |
+| `reinforcement_learning` | 19 | 9,610 | 0 | Moderate |
+| `analysis` | 18 | 15,632 | 0 | Moderate |
+| `optimization` | 18 | 16,087 | 0 | Moderate |
+| `algebra` | 18 | 19,149 | 0 | Moderate |
+| `physics` | 16 | 25,954 | 0 | Moderate |
+| `topology_geometry` | 16 | 20,568 | 0 | Moderate |
+| `sql` | 14 | 9,223 | 0 | Moderate |
+| `signal_processing` | 11 | 11,012 | 0 | Moderate |
+| `recommender_systems` | 5 | 2,498 | 0 | Thin |
+| `forecasting` | 5 | 872 | 0 | Thin |
+| `adtech` | 3 | 2,655 | 0 | Thin |
+| `economics` | 2 | 3,288 | 0 | Thin |
 
 ---
 
-## Remaining Gaps
+## Coverage Summary
 
-### Thin Domains (need expansion)
-
-| Domain | Sources | Target | Strategy |
-|--------|---------|--------|----------|
-| `economics` | 2 | 5+ | Macroeconomics, microeconomics textbooks |
-| `sql` | 2 | 5+ | Acquire SQL textbooks (window functions, query optimization, database internals) |
-| `adtech` | 2 | 5+ | Acquire adtech/auction theory sources; overlap with causal_inference for incrementality |
-| `fitness` | 2 | 5+ | Exercise science, nutrition, programming textbooks |
-| `recommender_systems` | 3 | 5+ | Acquire recsys textbooks (Aggarwal, Ricci) or papers |
-| `forecasting` | 5 | 5+ | At threshold; consider demand forecasting, energy forecasting sources |
+- **Total**: 1,756 sources across 36 domains (1,395,596 chunks)
+- **Excellent** (100+ sources): 5 domains
+- **Good** (30-99 sources): 11 domains
+- **Moderate** (10-29 sources): 16 domains
+- **Thin** (<10 sources): 4 domains
+- **Concept extraction**: 3/36 domains have KG concepts
 
 ---
 
-## How to Add a Missing Domain
-
-See [`docs/tutorial_new_domain.md`](tutorial_new_domain.md) for the full 5-step process:
-
-1. Register domain in PostgreSQL (`scripts/add_missing_domains.py`)
-2. Configure extraction prompts (`domain_prompts.py`)
-3. Ingest source documents
-4. Extract concepts + sync KuzuDB
-5. Verify with search + build golden eval queries
+*Generated by `scripts/generate_status.py` - database is the source of truth*
