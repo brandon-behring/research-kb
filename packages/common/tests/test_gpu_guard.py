@@ -11,7 +11,6 @@ from research_kb_common import gpu_guard
 from research_kb_common.gpu_guard import (
     CRITICAL_FREE_MB,
     DEFAULT_MIN_FREE_MB,
-    EMBED_SERVER_SOCKET,
     VRAMMonitor,
     abort_if_embed_server_running,
     check_embed_server_running,
@@ -194,8 +193,15 @@ class TestVRAMMonitor:
 
     def _mock_vram(self, free_mb=3000):
         """Patch both _get_free_vram_mb and get_vram_stats consistently."""
-        stats = {"used_mb": 8192 - free_mb, "free_mb": free_mb, "total_mb": 8192, "utilization_pct": round((8192 - free_mb) / 8192 * 100, 1)}
-        return patch.object(gpu_guard, "_get_free_vram_mb", return_value=free_mb), patch.object(gpu_guard, "get_vram_stats", return_value=stats)
+        stats = {
+            "used_mb": 8192 - free_mb,
+            "free_mb": free_mb,
+            "total_mb": 8192,
+            "utilization_pct": round((8192 - free_mb) / 8192 * 100, 1),
+        }
+        return patch.object(gpu_guard, "_get_free_vram_mb", return_value=free_mb), patch.object(
+            gpu_guard, "get_vram_stats", return_value=stats
+        )
 
     def test_before_task_returns_true_when_vram_ok(self):
         """Should proceed immediately when VRAM is sufficient."""

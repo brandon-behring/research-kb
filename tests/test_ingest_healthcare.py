@@ -56,7 +56,7 @@ class TestParseFrontmatter:
 
     def test_url_with_colons(self):
         """URLs contain multiple colons — only split on first."""
-        text = '---\nurl: https://www.cms.gov/path?key=value\n---\nBody.'
+        text = "---\nurl: https://www.cms.gov/path?key=value\n---\nBody."
         meta, body = parse_frontmatter(text)
 
         assert meta["url"] == "https://www.cms.gov/path?key=value"
@@ -102,17 +102,17 @@ class TestParseFrontmatter:
     def test_real_pmc_frontmatter(self):
         """Parse frontmatter matching actual PMC fulltext files."""
         text = (
-            '---\n'
+            "---\n"
             'bib_key: "R10:dodda-pie-best-practices"\n'
             'title: "Best Practices in Designing PIE for US HCDMs"\n'
             'url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10387941/"\n'
             'fetched_date: "2026-03-26"\n'
             'content_type: "pmc_fulltext"\n'
-            '---\n'
-            '\n'
-            '## Abstract\n'
-            '\n'
-            'Background: ...\n'
+            "---\n"
+            "\n"
+            "## Abstract\n"
+            "\n"
+            "Background: ...\n"
         )
         meta, body = parse_frontmatter(text)
 

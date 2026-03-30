@@ -106,7 +106,9 @@ class DaemonMetrics:
             for q, label in [(0.5, "0.5"), (0.95, "0.95"), (0.99, "0.99")]:
                 value = self.get_quantile(action, q)
                 if value is not None:
-                    lines.append(f'daemon_request_duration_ms{{action="{action}",quantile="{label}"}} {value:.2f}')
+                    lines.append(
+                        f'daemon_request_duration_ms{{action="{action}",quantile="{label}"}} {value:.2f}'
+                    )
         lines.append("")
 
         # Cache metrics
@@ -138,9 +140,11 @@ class DaemonMetrics:
             "cache": {
                 "hits": self.cache_hits,
                 "misses": self.cache_misses,
-                "hit_rate": self.cache_hits / (self.cache_hits + self.cache_misses)
-                if (self.cache_hits + self.cache_misses) > 0
-                else 0,
+                "hit_rate": (
+                    self.cache_hits / (self.cache_hits + self.cache_misses)
+                    if (self.cache_hits + self.cache_misses) > 0
+                    else 0
+                ),
             },
             "latency": {
                 action: {

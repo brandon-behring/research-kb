@@ -78,15 +78,17 @@ class DaemonClient:
         DaemonError
             If daemon is unavailable or returns an error
         """
-        response = self._send_request({
-            "action": "search",
-            "query": query,
-            "limit": limit,
-            "context_type": context_type,
-            "use_graph": use_graph,
-            "use_rerank": use_rerank,
-            "use_expand": use_expand,
-        })
+        response = self._send_request(
+            {
+                "action": "search",
+                "query": query,
+                "limit": limit,
+                "context_type": context_type,
+                "use_graph": use_graph,
+                "use_rerank": use_rerank,
+                "use_expand": use_expand,
+            }
+        )
         return self._handle_response(response)
 
     def concepts(self, query: str | None = None, limit: int = 10) -> dict[str, Any]:
@@ -109,11 +111,13 @@ class DaemonClient:
         DaemonError
             If daemon is unavailable or returns an error
         """
-        response = self._send_request({
-            "action": "concepts",
-            "query": query,
-            "limit": limit,
-        })
+        response = self._send_request(
+            {
+                "action": "concepts",
+                "query": query,
+                "limit": limit,
+            }
+        )
         return self._handle_response(response)
 
     def graph(self, concept: str, hops: int = 2) -> dict[str, Any]:
@@ -136,11 +140,13 @@ class DaemonClient:
         DaemonError
             If daemon is unavailable or returns an error
         """
-        response = self._send_request({
-            "action": "graph",
-            "concept": concept,
-            "hops": hops,
-        })
+        response = self._send_request(
+            {
+                "action": "graph",
+                "concept": concept,
+                "hops": hops,
+            }
+        )
         return self._handle_response(response)
 
     def shutdown(self) -> None:

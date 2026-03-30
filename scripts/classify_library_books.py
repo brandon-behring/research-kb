@@ -36,22 +36,22 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 # Stage 3: JUNK FILTER — filename patterns that are never books
 # ============================================================
 JUNK_FILENAME_PATTERNS = [
-    r"^iso[\s._-]?\d+",             # ISO specification documents
-    r"^DLD_tile",                    # Overleaf image artifacts
-    r"^0_\d{10,}",                   # Scanner output (numeric IDs)
-    r"^<[0-9A-Fa-f]+>",             # Hex-named files
-    r"^BTH\d+",                      # Product brochures
-    r"guitar|flamenco",              # Music (not CS/math)
-    r"german.grammar",               # Language learning
+    r"^iso[\s._-]?\d+",  # ISO specification documents
+    r"^DLD_tile",  # Overleaf image artifacts
+    r"^0_\d{10,}",  # Scanner output (numeric IDs)
+    r"^<[0-9A-Fa-f]+>",  # Hex-named files
+    r"^BTH\d+",  # Product brochures
+    r"guitar|flamenco",  # Music (not CS/math)
+    r"german.grammar",  # Language learning
     r"home.inspect|subaru|impreza",  # Personal documents
-    r"consumer.report",              # Magazine
-    r"eps-converted",                # Image conversion artifacts
-    r"conflicted.copy",             # Sync conflict duplicates
-    r"homeowner|brochure",           # Marketing materials
-    r"^Formula.Sheet",              # Cheat sheets
-    r"^Lecture_\d+",                 # Lecture slides (authored)
-    r"^\d{1,3}\.pdf$",              # Bare numbers
-    r"Notebook.PDF",                 # Jupyter notebook exports
+    r"consumer.report",  # Magazine
+    r"eps-converted",  # Image conversion artifacts
+    r"conflicted.copy",  # Sync conflict duplicates
+    r"homeowner|brochure",  # Marketing materials
+    r"^Formula.Sheet",  # Cheat sheets
+    r"^Lecture_\d+",  # Lecture slides (authored)
+    r"^\d{1,3}\.pdf$",  # Bare numbers
+    r"Notebook.PDF",  # Jupyter notebook exports
 ]
 
 # ============================================================
@@ -60,14 +60,14 @@ JUNK_FILENAME_PATTERNS = [
 AUTHOR_FILENAME_PATTERNS = [
     r"^Brandon",
     r"^brandon",
-    r"^main \d+",                    # Research paper drafts ("main 11.pdf" etc.)
+    r"^main \d+",  # Research paper drafts ("main 11.pdf" etc.)
     r"^main\.pdf$",
-    r"Proposal",                     # Grant proposals
+    r"Proposal",  # Grant proposals
     r"Research.Statement",
     r"Teaching.Statement",
     r"escape_of_vortex",
     r"Leap.Frog",
-    r"project\d{4}nsf",             # NSF proposals
+    r"project\d{4}nsf",  # NSF proposals
 ]
 
 AUTHOR_TEXT_PATTERNS = [
@@ -85,112 +85,357 @@ AUTHOR_TEXT_PATTERNS = [
 # ============================================================
 DOMAIN_RULES = [
     # --- Skip: not primary textbooks ---
-    ("SKIP", ["homework", "solutions manual", "exam answer", "quiz solution",
-              "student chapter report"]),
-
+    (
+        "SKIP",
+        ["homework", "solutions manual", "exam answer", "quiz solution", "student chapter report"],
+    ),
     # --- High-specificity domains ---
-    ("causal_inference", ["causal inference", "treatment effect", "instrumental variable",
-                          "counterfactual", "propensity score", "average treatment effect",
-                          "regression discontinuity"]),
-    ("econometrics", ["econometrics", "panel data", "heteroskedasticity", "endogeneity",
-                      "two.stage least squares"]),
-    ("reinforcement_learning", ["reinforcement learning", "markov decision process",
-                                 "q.learning", "policy gradient", "temporal difference"]),
-    ("deep_learning", ["deep learning", "convolutional neural", "recurrent neural",
-                       "generative adversarial", "backpropagation",
-                       "neural network architecture"]),
-    ("machine_learning", ["machine learning", "supervised learning", "unsupervised learning",
-                          "gradient descent", "support vector", "random forest",
-                          "cross.validation", "bias.variance"]),
-    ("rag_llm", ["language model", "retrieval.augmented", "information retrieval",
-                 "natural language processing", "word embedding",
-                 "large language model", "prompt engineering"]),
-
+    (
+        "causal_inference",
+        [
+            "causal inference",
+            "treatment effect",
+            "instrumental variable",
+            "counterfactual",
+            "propensity score",
+            "average treatment effect",
+            "regression discontinuity",
+        ],
+    ),
+    (
+        "econometrics",
+        [
+            "econometrics",
+            "panel data",
+            "heteroskedasticity",
+            "endogeneity",
+            "two.stage least squares",
+        ],
+    ),
+    (
+        "reinforcement_learning",
+        [
+            "reinforcement learning",
+            "markov decision process",
+            "q.learning",
+            "policy gradient",
+            "temporal difference",
+        ],
+    ),
+    (
+        "deep_learning",
+        [
+            "deep learning",
+            "convolutional neural",
+            "recurrent neural",
+            "generative adversarial",
+            "backpropagation",
+            "neural network architecture",
+        ],
+    ),
+    (
+        "machine_learning",
+        [
+            "machine learning",
+            "supervised learning",
+            "unsupervised learning",
+            "gradient descent",
+            "support vector",
+            "random forest",
+            "cross.validation",
+            "bias.variance",
+        ],
+    ),
+    (
+        "rag_llm",
+        [
+            "language model",
+            "retrieval.augmented",
+            "information retrieval",
+            "natural language processing",
+            "word embedding",
+            "large language model",
+            "prompt engineering",
+        ],
+    ),
     # --- Quantitative ---
-    ("time_series", ["time series analysis", "time series forecast", "arima", "garch",
-                     "autoregressive", "state space model"]),
-    ("statistics", ["mathematical statistics", "statistical inference", "hypothesis testing",
-                    "confidence interval", "maximum likelihood", "bootstrap",
-                    "bayesian statistics", "probability distribution",
-                    "regression analysis"]),
-    ("finance", ["financial", "portfolio", "option pricing", "black.scholes",
-                 "risk management", "actuarial", "insurance", "annuity",
-                 "cfa program", "cfa curriculum", "derivatives", "fixed income",
-                 "credit risk", "asset pricing", "valuation"]),
-
+    (
+        "time_series",
+        [
+            "time series analysis",
+            "time series forecast",
+            "arima",
+            "garch",
+            "autoregressive",
+            "state space model",
+        ],
+    ),
+    (
+        "statistics",
+        [
+            "mathematical statistics",
+            "statistical inference",
+            "hypothesis testing",
+            "confidence interval",
+            "maximum likelihood",
+            "bootstrap",
+            "bayesian statistics",
+            "probability distribution",
+            "regression analysis",
+        ],
+    ),
+    (
+        "finance",
+        [
+            "financial",
+            "portfolio",
+            "option pricing",
+            "black.scholes",
+            "risk management",
+            "actuarial",
+            "insurance",
+            "annuity",
+            "cfa program",
+            "cfa curriculum",
+            "derivatives",
+            "fixed income",
+            "credit risk",
+            "asset pricing",
+            "valuation",
+        ],
+    ),
     # --- CS/Engineering ---
-    ("software_engineering", ["programming language", "software engineering",
-                              "design patterns", "clean code", "refactoring",
-                              "web development", "microservice", "docker",
-                              "kubernetes", "cloud computing", "aws certified",
-                              "devops", "api design"]),
-    ("algorithms", ["algorithm design", "computational complexity", "graph algorithm",
-                    "data structures and algorithms", "dynamic programming"]),
-    ("sql", ["sql ", "database systems", "relational database", "query optimization",
-             "apache spark"]),
-    ("data_science", ["data science", "data analysis", "pandas", "data visualization",
-                      "exploratory data", "feature engineering"]),
-    ("ml_engineering", ["mlops", "ml system", "model deployment", "production ml",
-                        "ml pipeline", "model serving"]),
-
+    (
+        "software_engineering",
+        [
+            "programming language",
+            "software engineering",
+            "design patterns",
+            "clean code",
+            "refactoring",
+            "web development",
+            "microservice",
+            "docker",
+            "kubernetes",
+            "cloud computing",
+            "aws certified",
+            "devops",
+            "api design",
+        ],
+    ),
+    (
+        "algorithms",
+        [
+            "algorithm design",
+            "computational complexity",
+            "graph algorithm",
+            "data structures and algorithms",
+            "dynamic programming",
+        ],
+    ),
+    (
+        "sql",
+        ["sql ", "database systems", "relational database", "query optimization", "apache spark"],
+    ),
+    (
+        "data_science",
+        [
+            "data science",
+            "data analysis",
+            "pandas",
+            "data visualization",
+            "exploratory data",
+            "feature engineering",
+        ],
+    ),
+    (
+        "ml_engineering",
+        ["mlops", "ml system", "model deployment", "production ml", "ml pipeline", "model serving"],
+    ),
     # --- Science (BEFORE math — more specific) ---
-    ("biology_neuroscience", ["neuroscience", "brain", "genetics", "genomics",
-                              "molecular biology", "infant brain"]),
-    ("physics", ["quantum mechanics", "classical mechanics", "thermodynamics",
-                 "electrodynamics", "optics", "general relativity", "particle physics",
-                 "condensed matter", "astrophysics", "cosmology", "astronomy",
-                 "statistical mechanics", "quantum field theory",
-                 "feynman", "sakurai", "griffiths electrodynamics",
-                 "conformal field theory", "nonlinear optics"]),
-    ("signal_processing", ["signal processing", "fourier transform", "wavelet",
-                           "spectral analysis", "discrete fourier"]),
-
+    (
+        "biology_neuroscience",
+        ["neuroscience", "brain", "genetics", "genomics", "molecular biology", "infant brain"],
+    ),
+    (
+        "physics",
+        [
+            "quantum mechanics",
+            "classical mechanics",
+            "thermodynamics",
+            "electrodynamics",
+            "optics",
+            "general relativity",
+            "particle physics",
+            "condensed matter",
+            "astrophysics",
+            "cosmology",
+            "astronomy",
+            "statistical mechanics",
+            "quantum field theory",
+            "feynman",
+            "sakurai",
+            "griffiths electrodynamics",
+            "conformal field theory",
+            "nonlinear optics",
+        ],
+    ),
+    (
+        "signal_processing",
+        [
+            "signal processing",
+            "fourier transform",
+            "wavelet",
+            "spectral analysis",
+            "discrete fourier",
+        ],
+    ),
     # --- Pure math (specific → general ordering) ---
     # Topology/geometry FIRST — catches homotopy, manifold before algebra grabs them
-    ("topology_geometry", ["algebraic topology", "differential geometry",
-                           "topology", "manifold", "homology", "cohomology",
-                           "riemannian", "homotopy theory", "homotopy type",
-                           "hyperbolic manifold", "fiber bundle", "knot theory",
-                           "geometric group"]),
+    (
+        "topology_geometry",
+        [
+            "algebraic topology",
+            "differential geometry",
+            "topology",
+            "manifold",
+            "homology",
+            "cohomology",
+            "riemannian",
+            "homotopy theory",
+            "homotopy type",
+            "hyperbolic manifold",
+            "fiber bundle",
+            "knot theory",
+            "geometric group",
+        ],
+    ),
     # Analysis BEFORE algebra — catches Sobolev/Banach/Hilbert before "algebra" in series names
-    ("analysis", ["real analysis", "complex analysis", "functional analysis",
-                  "measure theory", "harmonic analysis", "lebesgue",
-                  "hilbert space", "banach space", "sobolev space",
-                  "operator theory", "semigroup", "spectral theory"]),
+    (
+        "analysis",
+        [
+            "real analysis",
+            "complex analysis",
+            "functional analysis",
+            "measure theory",
+            "harmonic analysis",
+            "lebesgue",
+            "hilbert space",
+            "banach space",
+            "sobolev space",
+            "operator theory",
+            "semigroup",
+            "spectral theory",
+        ],
+    ),
     # Statistics — catches probability before algebra grabs "probability" books
-    ("probability_theory", ["probability theory", "probability and measure",
-                            "stochastic", "random variable", "martingale",
-                            "probability distribution"]),
+    (
+        "probability_theory",
+        [
+            "probability theory",
+            "probability and measure",
+            "stochastic",
+            "random variable",
+            "martingale",
+            "probability distribution",
+        ],
+    ),
     # Dynamical systems
-    ("dynamical_systems", ["dynamical systems", "chaos theory", "bifurcation theory",
-                           "ordinary differential equations", "partial differential equations",
-                           "nonlinear dynamics", "ergodic theory", "hamiltonian system",
-                           "lyapunov", "strange attractor", "celestial mechanics",
-                           "phase space", "differential equation"]),
+    (
+        "dynamical_systems",
+        [
+            "dynamical systems",
+            "chaos theory",
+            "bifurcation theory",
+            "ordinary differential equations",
+            "partial differential equations",
+            "nonlinear dynamics",
+            "ergodic theory",
+            "hamiltonian system",
+            "lyapunov",
+            "strange attractor",
+            "celestial mechanics",
+            "phase space",
+            "differential equation",
+        ],
+    ),
     # Numerical
-    ("numerical_methods", ["numerical methods", "finite element", "finite difference",
-                           "numerical analysis", "pseudospectral",
-                           "computational mathematics"]),
+    (
+        "numerical_methods",
+        [
+            "numerical methods",
+            "finite element",
+            "finite difference",
+            "numerical analysis",
+            "pseudospectral",
+            "computational mathematics",
+        ],
+    ),
     # Optimization
-    ("optimization", ["convex optimization", "linear programming", "variational method",
-                      "optimal control", "optimization algorithm"]),
+    (
+        "optimization",
+        [
+            "convex optimization",
+            "linear programming",
+            "variational method",
+            "optimal control",
+            "optimization algorithm",
+        ],
+    ),
     # Algebra AFTER topology/analysis/probability — avoids false positives
-    ("algebra", ["abstract algebra", "linear algebra", "group theory",
-                 "ring theory", "galois theory", "commutative algebra",
-                 "module theory", "representation theory"]),
+    (
+        "algebra",
+        [
+            "abstract algebra",
+            "linear algebra",
+            "group theory",
+            "ring theory",
+            "galois theory",
+            "commutative algebra",
+            "module theory",
+            "representation theory",
+        ],
+    ),
     # General math (last resort for math books)
-    ("mathematics", ["number theory", "mathematical logic", "discrete mathematics",
-                     "advanced engineering mathematics", "mathematical methods",
-                     "mathematical physics"]),
+    (
+        "mathematics",
+        [
+            "number theory",
+            "mathematical logic",
+            "discrete mathematics",
+            "advanced engineering mathematics",
+            "mathematical methods",
+            "mathematical physics",
+        ],
+    ),
     # Calculus textbooks — only match "calculus" in the TITLE, not body text
-    ("analysis", ["^calculus", "thomas.* calculus", "stewart.* calculus",
-                  "calculus.*early transcendental", "calculus.*several variable"]),
-
+    (
+        "analysis",
+        [
+            "^calculus",
+            "thomas.* calculus",
+            "stewart.* calculus",
+            "calculus.*early transcendental",
+            "calculus.*several variable",
+        ],
+    ),
     # --- Other ---
-    ("functional_programming", ["haskell", "functional programming", "category theory",
-                                "monad", "lambda calculus"]),
-    ("fitness", ["strength training", "bodybuilding", "nutrition",
-                 "muscle", "workout", "exercise science", "flexibility"]),
+    (
+        "functional_programming",
+        ["haskell", "functional programming", "category theory", "monad", "lambda calculus"],
+    ),
+    (
+        "fitness",
+        [
+            "strength training",
+            "bodybuilding",
+            "nutrition",
+            "muscle",
+            "workout",
+            "exercise science",
+            "flexibility",
+        ],
+    ),
     ("recommender_systems", ["recommender system", "collaborative filtering"]),
     ("economics", ["microeconomics", "macroeconomics", "game theory"]),
 ]
@@ -199,6 +444,7 @@ DOMAIN_RULES = [
 # ============================================================
 # Utility functions
 # ============================================================
+
 
 def compute_hash(path: Path) -> str:
     h = hashlib.sha256()
@@ -213,7 +459,9 @@ def extract_text(path: Path, pages: int = 3) -> str:
     try:
         result = subprocess.run(
             ["pdftotext", "-f", "1", "-l", str(pages), str(path), "-"],
-            capture_output=True, text=True, timeout=15,
+            capture_output=True,
+            text=True,
+            timeout=15,
         )
         return result.stdout[:3000]
     except (subprocess.TimeoutExpired, Exception):
@@ -224,9 +472,7 @@ def extract_metadata(path: Path) -> dict:
     """Extract PDF metadata via pdfinfo."""
     info = {"title": "", "author": "", "pages": 0}
     try:
-        result = subprocess.run(
-            ["pdfinfo", str(path)], capture_output=True, text=True, timeout=10
-        )
+        result = subprocess.run(["pdfinfo", str(path)], capture_output=True, text=True, timeout=10)
         for line in result.stdout.splitlines():
             if line.startswith("Title:"):
                 info["title"] = line.split(":", 1)[1].strip()
@@ -302,19 +548,31 @@ def classify_domain(title: str, text: str) -> str:
 # Main pipeline
 # ============================================================
 
+
 async def main():
     parser = argparse.ArgumentParser(description="Classify library_books PDFs by domain")
     parser.add_argument("--dry-run", action="store_true", help="Show stage counts only")
-    parser.add_argument("--organize", action="store_true",
-                        help="Move into domain dirs + write sidecar JSONs")
-    parser.add_argument("--min-size-mb", type=float, default=1.0,
-                        help="Minimum PDF size in MB (default: 1)")
-    parser.add_argument("--min-pages", type=int, default=50,
-                        help="Minimum pages to be considered a book (default: 50)")
-    parser.add_argument("--output", type=str, default=None,
-                        help="Output CSV path (default: stdout)")
-    parser.add_argument("--directory", type=str, default=None,
-                        help="Directory to scan (default: fixtures/library_books)")
+    parser.add_argument(
+        "--organize", action="store_true", help="Move into domain dirs + write sidecar JSONs"
+    )
+    parser.add_argument(
+        "--min-size-mb", type=float, default=1.0, help="Minimum PDF size in MB (default: 1)"
+    )
+    parser.add_argument(
+        "--min-pages",
+        type=int,
+        default=50,
+        help="Minimum pages to be considered a book (default: 50)",
+    )
+    parser.add_argument(
+        "--output", type=str, default=None, help="Output CSV path (default: stdout)"
+    )
+    parser.add_argument(
+        "--directory",
+        type=str,
+        default=None,
+        help="Directory to scan (default: fixtures/library_books)",
+    )
     args = parser.parse_args()
 
     if args.directory:
@@ -324,6 +582,7 @@ async def main():
 
     # Stage 1: HASH DEDUP — get existing hashes from DB
     from research_kb_storage import DatabaseConfig, get_connection_pool, close_connection_pool
+
     pool = await get_connection_pool(DatabaseConfig())
     async with pool.acquire() as conn:
         rows = await conn.fetch("SELECT file_hash, title FROM sources WHERE file_hash IS NOT NULL")
@@ -407,17 +666,24 @@ async def main():
             size_mb = pdf.stat().st_size / 1_000_000
             if size_mb > prev["size_mb"]:
                 seen_titles[norm_key] = {
-                    "path": str(pdf), "title": title, "size_mb": size_mb,
-                    "pages": pages, "author": meta["author"],
-                    "file_hash": file_hash, "text": text,
+                    "path": str(pdf),
+                    "title": title,
+                    "size_mb": size_mb,
+                    "pages": pages,
+                    "author": meta["author"],
+                    "file_hash": file_hash,
+                    "text": text,
                 }
             stats["meap_dedup"] += 1
             continue
         seen_titles[norm_key] = {
-            "path": str(pdf), "title": title,
+            "path": str(pdf),
+            "title": title,
             "size_mb": round(pdf.stat().st_size / 1_000_000, 1),
-            "pages": pages, "author": meta["author"],
-            "file_hash": file_hash, "text": text,
+            "pages": pages,
+            "author": meta["author"],
+            "file_hash": file_hash,
+            "text": text,
         }
 
         if (i + 1) % 200 == 0:
@@ -452,7 +718,10 @@ async def main():
     print(f"  Skip (not textbook):    {stats['skip']:5d}", file=sys.stderr)
 
     from collections import Counter
-    domain_counts = Counter(r["domain"] for r in results if r["domain"] not in ("SKIP", "uncategorized"))
+
+    domain_counts = Counter(
+        r["domain"] for r in results if r["domain"] not in ("SKIP", "uncategorized")
+    )
     print(f"\nDomain distribution:", file=sys.stderr)
     for domain, count in domain_counts.most_common():
         print(f"  {domain:30s} {count:5d}", file=sys.stderr)
@@ -466,8 +735,9 @@ async def main():
 
     if args.output or not args.organize:
         out = open(args.output, "w", newline="") if args.output else sys.stdout
-        writer = csv.DictWriter(out, fieldnames=["domain", "title", "author", "pages",
-                                                   "size_mb", "path"])
+        writer = csv.DictWriter(
+            out, fieldnames=["domain", "title", "author", "pages", "size_mb", "path"]
+        )
         writer.writeheader()
         for r in classified:
             writer.writerow({k: r.get(k, "") for k in writer.fieldnames})

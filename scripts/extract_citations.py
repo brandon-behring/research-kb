@@ -26,7 +26,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 from research_kb_common import get_logger
 from research_kb_contracts import Source, SourceType
 from research_kb_pdf import GrobidClient
-from research_kb_storage import CitationStore, DatabaseConfig, close_connection_pool, get_connection_pool
+from research_kb_storage import (
+    CitationStore,
+    DatabaseConfig,
+    close_connection_pool,
+    get_connection_pool,
+)
 
 logger = get_logger(__name__)
 

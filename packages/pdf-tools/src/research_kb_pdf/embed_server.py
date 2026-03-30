@@ -43,7 +43,9 @@ MODEL_NAME = "BAAI/bge-large-en-v1.5"
 MODEL_REVISION = "d4aa6901d3a41ba39fb536a557fa166f842b0e09"  # Pin for reproducibility
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BUFFER_SIZE = 131072  # 128KB for larger batch requests
-MAX_BATCH_SIZE = 8  # BGE-large plateaus at batch_size=3-5; higher wastes VRAM for zero throughput gain
+MAX_BATCH_SIZE = (
+    8  # BGE-large plateaus at batch_size=3-5; higher wastes VRAM for zero throughput gain
+)
 
 # BGE query instruction for asymmetric retrieval
 # See: https://huggingface.co/BAAI/bge-large-en-v1.5
@@ -302,7 +304,9 @@ class EmbeddingServer:
             logger.info("prometheus_started", port=PROMETHEUS_PORT)
             self._update_vram_metrics()  # Initial reading
         except OSError as e:
-            logger.warning("prometheus_start_failed: %s (port %d may be in use)", e, PROMETHEUS_PORT)
+            logger.warning(
+                "prometheus_start_failed: %s (port %d may be in use)", e, PROMETHEUS_PORT
+            )
 
         # Remove existing socket
         if os.path.exists(socket_path):

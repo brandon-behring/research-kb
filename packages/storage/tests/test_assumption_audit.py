@@ -812,6 +812,17 @@ class TestCacheAssumptions:
 class TestAuditAssumptions:
     """Tests for the main audit_assumptions orchestration flow."""
 
+    @pytest.fixture(autouse=True)
+    def reset_kg_cache(self):
+        """Reset the KG staleness cache before each test.
+
+        Without this, the first test that checks staleness caches True
+        (because chunk_concepts=0 in test DB) and poisons all subsequent tests.
+        """
+        MethodAssumptionAuditor._kg_stale_cache = None
+        yield
+        MethodAssumptionAuditor._kg_stale_cache = None
+
     async def test_method_not_found(self, db_pool):
         """Non-existent method returns source='not_found'."""
         result = await MethodAssumptionAuditor.audit_assumptions(
@@ -824,14 +835,45 @@ class TestAuditAssumptions:
         assert result.assumptions == []
         assert "not found" in result.code_docstring_snippet.lower()
 
+    async def test_kg_staleness_guard_skips_graph(self, method_with_assumptions):
+        """When chunk_concepts is empty (KG stale), graph query is skipped entirely.
+
+        The production guard bypasses graph assumptions when chunk_concepts=0,
+        falling through to cache/LLM fallback paths. This prevents returning
+        cross-contaminated or empty graph results.
+        """
+        method, _ = method_with_assumptions
+
+        with patch.object(
+            MethodAssumptionAuditor,
+            "_check_kg_staleness",
+            new_callable=AsyncMock,
+            return_value=True,  # Simulate stale KG
+        ):
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                use_llm_fallback=False,
+            )
+
+        # With stale KG and no LLM fallback, we get empty or cache-only results
+        assert result.source != "graph"
+        # Graph assumptions should NOT be present (guard skipped them)
+        assert result.method_id == method.id
+
     async def test_method_with_sufficient_graph_assumptions(self, method_with_assumptions):
         """Method with >=3 graph assumptions: no Ollama fallback triggered."""
         method, _ = method_with_assumptions
 
-        result = await MethodAssumptionAuditor.audit_assumptions(
-            method.name,
-            use_ollama_fallback=False,
-        )
+        with patch.object(
+            MethodAssumptionAuditor,
+            "_check_kg_staleness",
+            new_callable=AsyncMock,
+            return_value=False,
+        ):
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                use_ollama_fallback=False,
+            )
 
         assert result.method_id == method.id
         assert result.source == "graph"
@@ -878,6 +920,12 @@ class TestAuditAssumptions:
         mock_client.__aexit__ = AsyncMock(return_value=False)
 
         with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "_check_kg_staleness",
+                new_callable=AsyncMock,
+                return_value=False,
+            ),
             patch("httpx.AsyncClient", return_value=mock_client),
             patch("httpx.Timeout", return_value=MagicMock()),
         ):
@@ -896,10 +944,16 @@ class TestAuditAssumptions:
         """When use_ollama_fallback=False, sparse results are returned as-is."""
         method, _ = method_sparse
 
-        result = await MethodAssumptionAuditor.audit_assumptions(
-            method.name,
-            use_ollama_fallback=False,
-        )
+        with patch.object(
+            MethodAssumptionAuditor,
+            "_check_kg_staleness",
+            new_callable=AsyncMock,
+            return_value=False,
+        ):
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                use_ollama_fallback=False,
+            )
 
         assert len(result.assumptions) == 1
         assert result.source == "graph"
@@ -1257,6 +1311,13 @@ class TestAuditAssumptionsBackendDispatch:
     the llm_backend parameter ("ollama" vs "anthropic").
     """
 
+    @pytest.fixture(autouse=True)
+    def reset_kg_cache(self):
+        """Reset KG staleness cache before each test."""
+        MethodAssumptionAuditor._kg_stale_cache = None
+        yield
+        MethodAssumptionAuditor._kg_stale_cache = None
+
     async def test_anthropic_backend_calls_anthropic_extractor(self, method_sparse):
         """llm_backend='anthropic' dispatches to extract_assumptions_with_anthropic."""
         method, _ = method_sparse
@@ -1283,6 +1344,12 @@ class TestAuditAssumptionsBackendDispatch:
         ]
 
         with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "_check_kg_staleness",
+                new_callable=AsyncMock,
+                return_value=False,
+            ),
             patch.object(
                 MethodAssumptionAuditor,
                 "extract_assumptions_with_anthropic",
@@ -1339,6 +1406,12 @@ class TestAuditAssumptionsBackendDispatch:
         with (
             patch.object(
                 MethodAssumptionAuditor,
+                "_check_kg_staleness",
+                new_callable=AsyncMock,
+                return_value=False,
+            ),
+            patch.object(
+                MethodAssumptionAuditor,
                 "extract_assumptions_with_ollama",
                 new_callable=AsyncMock,
                 return_value=ollama_response,
@@ -1372,6 +1445,12 @@ class TestAuditAssumptionsBackendDispatch:
         with (
             patch.object(
                 MethodAssumptionAuditor,
+                "_check_kg_staleness",
+                new_callable=AsyncMock,
+                return_value=False,
+            ),
+            patch.object(
+                MethodAssumptionAuditor,
                 "extract_assumptions_with_anthropic",
                 new_callable=AsyncMock,
             ) as mock_anthropic,
@@ -1396,6 +1475,12 @@ class TestAuditAssumptionsBackendDispatch:
         method, _ = method_sparse
 
         with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "_check_kg_staleness",
+                new_callable=AsyncMock,
+                return_value=False,
+            ),
             patch.object(
                 MethodAssumptionAuditor,
                 "extract_assumptions_with_ollama",
@@ -1427,6 +1512,12 @@ class TestAuditAssumptionsBackendDispatch:
         method, _ = method_with_assumptions
 
         with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "_check_kg_staleness",
+                new_callable=AsyncMock,
+                return_value=False,
+            ),
             patch.object(
                 MethodAssumptionAuditor,
                 "extract_assumptions_with_anthropic",

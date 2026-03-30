@@ -110,16 +110,15 @@ def query(
         help="Show query expansion details",
     ),
 ):
-    """Search the research knowledge base with graph-boosted search and reranking.
+    """Search the research knowledge base with hybrid search and reranking.
 
-    Graph-boosted search, query expansion, citation authority, and cross-encoder
-    reranking are enabled by default:
+    3-way hybrid search with query expansion and cross-encoder reranking:
     - Full-text search (keyword matching)
     - Vector similarity (semantic matching)
-    - Knowledge graph signals (concept relationships)
     - Citation authority (boost highly-cited sources)
-    - Query expansion (synonyms + graph neighbors, improves recall)
-    - Cross-encoder reranking (Phase 3, improves precision)
+    - Query expansion (synonyms, improves recall)
+    - Cross-encoder reranking (improves precision)
+    - Knowledge graph signals (opt-in via --graph, disabled by default)
 
     Examples:
 

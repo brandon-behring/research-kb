@@ -83,38 +83,40 @@ class HealthServer:
 
     async def _handle_health(self, writer: asyncio.StreamWriter) -> None:
         """Handle /health - liveness probe."""
-        body = json.dumps({
-            "status": "ok",
-            "uptime_seconds": metrics.uptime_seconds(),
-        })
+        body = json.dumps(
+            {
+                "status": "ok",
+                "uptime_seconds": metrics.uptime_seconds(),
+            }
+        )
         await self._send_json(writer, 200, body)
 
     async def _handle_ready(self, writer: asyncio.StreamWriter) -> None:
         """Handle /health/ready - readiness probe."""
         if self.is_ready():
-            body = json.dumps({
-                "status": "ready",
-                "uptime_seconds": metrics.uptime_seconds(),
-                "requests_served": metrics.total_requests(),
-            })
+            body = json.dumps(
+                {
+                    "status": "ready",
+                    "uptime_seconds": metrics.uptime_seconds(),
+                    "requests_served": metrics.total_requests(),
+                }
+            )
             await self._send_json(writer, 200, body)
         else:
-            body = json.dumps({
-                "status": "not_ready",
-                "message": "Warming up embedding model",
-            })
+            body = json.dumps(
+                {
+                    "status": "not_ready",
+                    "message": "Warming up embedding model",
+                }
+            )
             await self._send_json(writer, 503, body)
 
     async def _handle_metrics(self, writer: asyncio.StreamWriter) -> None:
         """Handle /metrics - Prometheus metrics."""
         body = metrics.to_prometheus()
-        await self._send_response(
-            writer, 200, body, content_type="text/plain; version=0.0.4"
-        )
+        await self._send_response(writer, 200, body, content_type="text/plain; version=0.0.4")
 
-    async def _send_json(
-        self, writer: asyncio.StreamWriter, status: int, body: str
-    ) -> None:
+    async def _send_json(self, writer: asyncio.StreamWriter, status: int, body: str) -> None:
         """Send JSON response."""
         await self._send_response(writer, status, body, "application/json")
 

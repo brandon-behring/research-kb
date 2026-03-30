@@ -212,14 +212,9 @@ def abort_if_embed_server_running() -> None:
         return  # Not running, safe to proceed
 
     if pid == -1:
-        msg = (
-            f"ERROR: embed_server socket found at {EMBED_SERVER_SOCKET} "
-            f"(PID unknown).\n"
-        )
+        msg = f"ERROR: embed_server socket found at {EMBED_SERVER_SOCKET} " f"(PID unknown).\n"
     else:
-        msg = (
-            f"ERROR: embed_server is running (PID {pid}, ~2.3GB VRAM).\n"
-        )
+        msg = f"ERROR: embed_server is running (PID {pid}, ~2.3GB VRAM).\n"
 
     msg += (
         "Docling extraction requires GPU and cannot safely share VRAM with embed_server.\n"

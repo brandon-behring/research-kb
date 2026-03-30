@@ -234,26 +234,28 @@ class DaemonServer:
         # Convert to serializable format
         results = []
         for r in response.results:
-            results.append({
-                "source": {
-                    "id": r.source.id,
-                    "title": r.source.title,
-                    "authors": r.source.authors,
-                    "year": r.source.year,
-                },
-                "chunk": {
-                    "id": r.chunk.id,
-                    "content": r.chunk.content[:500],  # Truncate for socket response
-                    "page_start": r.chunk.page_start,
-                    "section": r.chunk.section,
-                },
-                "scores": {
-                    "fts": r.scores.fts,
-                    "vector": r.scores.vector,
-                    "graph": r.scores.graph,
-                    "combined": r.scores.combined,
-                },
-            })
+            results.append(
+                {
+                    "source": {
+                        "id": r.source.id,
+                        "title": r.source.title,
+                        "authors": r.source.authors,
+                        "year": r.source.year,
+                    },
+                    "chunk": {
+                        "id": r.chunk.id,
+                        "content": r.chunk.content[:500],  # Truncate for socket response
+                        "page_start": r.chunk.page_start,
+                        "section": r.chunk.section,
+                    },
+                    "scores": {
+                        "fts": r.scores.fts,
+                        "vector": r.scores.vector,
+                        "graph": r.scores.graph,
+                        "combined": r.scores.combined,
+                    },
+                }
+            )
 
         return {
             "status": "ok",
@@ -307,26 +309,28 @@ class DaemonServer:
         results = []
         for r in raw_results:
             chunk_metadata = r.chunk.metadata if r.chunk else {}
-            results.append({
-                "source": {
-                    "id": str(r.source.id) if r.source else None,
-                    "title": r.source.title if r.source else None,
-                    "authors": r.source.authors if r.source else [],
-                    "year": r.source.year if r.source else None,
-                },
-                "chunk": {
-                    "id": str(r.chunk.id) if r.chunk else None,
-                    "content": r.chunk.content[:500] if r.chunk else "",
-                    "page_start": r.chunk.page_start if r.chunk else None,
-                    "section": chunk_metadata.get("section_header") if chunk_metadata else None,
-                },
-                "scores": {
-                    "fts": r.fts_score or 0.0,
-                    "vector": r.vector_score or 0.0,
-                    "graph": 0.0,  # Skipped
-                    "combined": r.vector_score or 0.0,  # Vector-only
-                },
-            })
+            results.append(
+                {
+                    "source": {
+                        "id": str(r.source.id) if r.source else None,
+                        "title": r.source.title if r.source else None,
+                        "authors": r.source.authors if r.source else [],
+                        "year": r.source.year if r.source else None,
+                    },
+                    "chunk": {
+                        "id": str(r.chunk.id) if r.chunk else None,
+                        "content": r.chunk.content[:500] if r.chunk else "",
+                        "page_start": r.chunk.page_start if r.chunk else None,
+                        "section": chunk_metadata.get("section_header") if chunk_metadata else None,
+                    },
+                    "scores": {
+                        "fts": r.fts_score or 0.0,
+                        "vector": r.vector_score or 0.0,
+                        "graph": 0.0,  # Skipped
+                        "combined": r.vector_score or 0.0,  # Vector-only
+                    },
+                }
+            )
 
         execution_time_ms = (time_module.perf_counter() - start_time) * 1000
 
@@ -391,9 +395,7 @@ class DaemonServer:
         self._warmup_done = False
         logger.info("daemon_reloaded_via_signal")
 
-    async def _send_response(
-        self, writer: asyncio.StreamWriter, response: dict[str, Any]
-    ) -> None:
+    async def _send_response(self, writer: asyncio.StreamWriter, response: dict[str, Any]) -> None:
         """Send JSON response with newline delimiter."""
         data = json.dumps(response) + "\n"
         writer.write(data.encode("utf-8"))

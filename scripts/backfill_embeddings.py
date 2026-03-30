@@ -275,6 +275,7 @@ async def main():
     # GPU guard: adaptive batch sizing per source
     try:
         from research_kb_common.gpu_guard import get_safe_batch_size
+
         has_gpu_guard = True
     except ImportError:
         has_gpu_guard = False
