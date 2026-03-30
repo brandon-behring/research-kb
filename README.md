@@ -144,20 +144,20 @@ Citation (15%) signals are **enabled by default**. Graph is **disabled by defaul
 <!-- AUTO-GEN:packages:START -->
 ### Packages
 
-| Package | Purpose | Key Technology |
-|---------|---------|----------------|
-| `contracts` | Shared data models | Pydantic |
-| `common` | Logging, retry, instrumentation | structlog, tenacity |
-| `storage` | Database + search orchestration | asyncpg, pgvector, KuzuDB |
-| `pdf-tools` | PDF extraction + embedding | Docling, GROBID, BGE-large |
-| `extraction` | Concept extraction from text | Ollama LLM |
-| `cli` | Command-line interface | Typer |
-| `api` | REST endpoints + health checks | FastAPI |
-| `daemon` | Low-latency query service (JSON-RPC 2.0) | asyncio, Unix socket |
-| `mcp-server` | MCP tool server for Claude Code | MCP SDK |
-| `dashboard` | Visual search + graph explorer | Streamlit |
-| `s2-client` | Semantic Scholar API client | httpx, rate limiting |
-| `client` | DaemonClient SDK (JSON-RPC 2.0) | Unix socket |
+| Package | Purpose |
+|---------|---------|
+| `api` | FastAPI REST API for research-kb semantic search |
+| `cli` | CLI for querying the research knowledge base |
+| `client` | Python client SDK for research-kb daemon and CLI |
+| `common` | Common utilities for research-kb system (logging, retry, instrumentation) |
+| `contracts` | Pure Pydantic schemas for research-kb system |
+| `daemon` | Low-latency daemon for research-kb queries via Unix socket |
+| `dashboard` | Streamlit visualization dashboard for research-kb |
+| `extraction` | Concept extraction for research knowledge base using Ollama LLM |
+| `mcp-server` | MCP server exposing research-kb knowledge base to Claude Code |
+| `pdf-tools` | PDF extraction and chunking for research-kb system |
+| `s2-client` | Semantic Scholar API client for research-kb (async, rate-limited, cached) |
+| `storage` | PostgreSQL storage layer for research-kb system |
 <!-- AUTO-GEN:packages:END -->
 
 ### Key Design Decisions
@@ -198,17 +198,18 @@ Run `python scripts/generate_status.py` for current metrics. See [`docs/status/C
 <!-- AUTO-GEN:mcp-tools:START -->
 ## MCP Server
 
-22 tools organized by function, designed for conversational use in Claude Code:
+8 tools organized by function, designed for conversational use in Claude Code:
 
-| Category | Tools | Description |
-|----------|-------|-------------|
-| **Search** | `research_kb_search`, `research_kb_fast_search` | Hybrid search with domain filtering and context profiles |
-| **Sources** | `research_kb_list_sources`, `research_kb_get_source`, `research_kb_get_source_citations`, `research_kb_get_citing_sources`, `research_kb_get_cited_sources` | Browse corpus and citation links |
-| **Concepts** | `research_kb_list_concepts`, `research_kb_get_concept`, `research_kb_chunk_concepts`, `research_kb_find_similar_concepts` | Search and inspect knowledge graph nodes |
-| **Graph** | `research_kb_graph_neighborhood`, `research_kb_graph_path`, `research_kb_cross_domain_concepts` | Traverse concept relationships |
-| **Citations** | `research_kb_citation_network`, `research_kb_biblio_coupling` | Upstream/downstream influence, bibliographic coupling |
-| **Health** | `research_kb_health`, `research_kb_stats`, `research_kb_list_domains` | System status and corpus metrics |
-| **Advanced** | `research_kb_audit_assumptions`, `research_kb_explain_connection`, `research_kb_literature_review` | Assumption audit with gap reporting; concept connection synthesis (graph + evidence + LLM); structured literature review generation |
+| Tool | Description |
+|------|-------------|
+| `research_kb_chunk_concepts` | Get all concepts linked to a specific chunk. |
+| `research_kb_find_similar_concepts` | Find concepts semantically similar to a given concept. |
+| `research_kb_stats` | Get statistics about the research knowledge base. |
+| `research_kb_health` | Check the health of the research-kb system. |
+| `research_kb_list_domains` | List available knowledge domains and their statistics. |
+| `research_kb_get_source_citations` | Get citation relationships for a source. |
+| `research_kb_get_citing_sources` | Find all sources that cite a given source. |
+| `research_kb_get_cited_sources` | Find all sources that a given source cites. |
 <!-- AUTO-GEN:mcp-tools:END -->
 
 ## Testing
@@ -238,43 +239,7 @@ Full command reference with examples: [`docs/CLI.md`](docs/CLI.md)
 Quick reference:
 
 ```bash
-# Search and retrieval
-research-kb search query "instrumental variables"        # Hybrid search (all 4 signals)
-research-kb search query "IV" --no-graph                 # Disable graph signal
-research-kb search query "IV" --no-citations             # Disable citation authority
-
-# Source management
-research-kb sources list                                 # List sources
-research-kb sources stats                                # Database statistics
-research-kb sources extraction-status                    # Extraction pipeline stats
-
-# Knowledge graph
-research-kb graph concepts "IV"                          # Concept search
-research-kb graph neighborhood "double machine learning" # Graph exploration
-research-kb graph path "IV" "unconfoundedness"           # Shortest path
-research-kb graph explain "DML" "cross-fitting"          # Explain connection with evidence + synthesis
-
-# Citation network
-research-kb citations list <source>                      # List citations from a source
-research-kb citations cited-by <source>                  # Find sources citing this one
-research-kb citations cites <source>                     # Find sources this one cites
-research-kb citations stats                              # Corpus citation statistics
-research-kb citations similar <source>                   # Find similar sources (shared refs)
-
-# Assumption auditing (North Star feature)
-research-kb search audit-assumptions "IV"                              # Get required assumptions
-research-kb search audit-assumptions "IV" --no-ollama                  # Graph-only (no LLM fallback)
-research-kb search audit-assumptions "DML" --format json               # JSON output
-research-kb search audit-assumptions "RDD" --domain time_series        # Domain-scoped audit
-research-kb search audit-assumptions "RDD" --domain time_series --scope applied  # Domain-contextual LLM prompt
-
-# Semantic Scholar discovery
-research-kb discover search "causal inference"           # Search S2 for papers
-research-kb discover topics                              # Browse by topic
-research-kb discover author "Chernozhukov"               # Find by author
-research-kb enrich citations                             # Enrich with S2 metadata
-research-kb enrich status                                # Show enrichment status
-research-kb enrich job-status                            # Check enrichment job status
+research-kb enrich status                              # Show citation enrichment status.
 ```
 <!-- AUTO-GEN:cli-commands:END -->
 
