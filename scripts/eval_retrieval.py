@@ -51,6 +51,7 @@ from research_kb_storage import (
     get_connection_pool,
     search_hybrid,
     search_hybrid_v2,
+    search_with_rerank,
 )
 
 
@@ -61,6 +62,7 @@ class TestCase:
     query: str
     expected_source_pattern: str
     expected_in_top_k: int
+    expected_source_id: Optional[str] = None  # UUID — preferred over pattern when present
     expected_page_range: Optional[tuple[int, int]] = None
     expect_mixed_sources: bool = False
     expected_concepts: list[str] = field(default_factory=list)  # Phase 2: concept recall
@@ -138,6 +140,7 @@ def load_test_cases(yaml_path: Path, tag_filter: Optional[str] = None) -> list[T
                 query=tc["query"],
                 expected_source_pattern=tc["expected_source_pattern"],
                 expected_in_top_k=tc.get("expected_in_top_k", 5),
+                expected_source_id=tc.get("expected_source_id"),
                 expected_page_range=(
                     tuple(tc["expected_page_range"]) if tc.get("expected_page_range") else None
                 ),
@@ -160,6 +163,7 @@ async def run_test_case(
     scoring_method: str = "weighted",
     use_citations: bool = False,
     citation_weight: float = 0.15,
+    use_reranking: bool = False,
 ) -> TestResult:
     """Run a single test case.
 
@@ -189,8 +193,10 @@ async def run_test_case(
             citation_weight=citation_weight if use_citations else 0.0,
         )
 
-        # Use v2 when citation signal is active, base search otherwise
-        if use_citations:
+        # Use reranking > v2 (citations) > base search
+        if use_reranking:
+            results = await search_with_rerank(query, rerank_top_k=test_case.expected_in_top_k)
+        elif use_citations:
             results = await search_hybrid_v2(query)
         else:
             results = await search_hybrid(query)
@@ -221,19 +227,42 @@ async def run_test_case(
             concept_recall = matched / len(expected_lower) if expected_lower else 1.0
 
         # Check if expected source appears in top-K
+        # Strategy: UUID match first (precise), then pattern fallback (lenient)
+        def _check_page_range(chunk_page_start: Optional[int]) -> bool:
+            if not test_case.expected_page_range:
+                return True
+            page = chunk_page_start or 0
+            min_page, max_page = test_case.expected_page_range
+            return min_page <= page <= max_page
+
+        # 1. Try UUID match (preferred — deterministic)
+        if test_case.expected_source_id:
+            for result in results:
+                if str(result.source.id) == test_case.expected_source_id:
+                    page_valid = _check_page_range(result.chunk.page_start)
+                    return TestResult(
+                        test_case=test_case,
+                        passed=page_valid,
+                        matched_rank=result.rank,
+                        matched_source=result.source.title,
+                        matched_page=result.chunk.page_start,
+                        concept_recall=concept_recall,
+                        found_concepts=found_concepts[:10],
+                        error=(
+                            None
+                            if page_valid
+                            else f"Page {result.chunk.page_start} outside expected range {test_case.expected_page_range}"
+                        ),
+                    )
+
+        # 2. Fall back to pattern match (legacy — kept for backward compatibility)
         pattern = re.compile(test_case.expected_source_pattern, re.IGNORECASE)
 
         for result in results:
             source_title = result.source.title.lower()
 
             if pattern.search(source_title):
-                # Check page range if specified
-                page_valid = True
-                if test_case.expected_page_range:
-                    page = result.chunk.page_start or 0
-                    min_page, max_page = test_case.expected_page_range
-                    page_valid = min_page <= page <= max_page
-
+                page_valid = _check_page_range(result.chunk.page_start)
                 return TestResult(
                     test_case=test_case,
                     passed=page_valid,
@@ -241,7 +270,7 @@ async def run_test_case(
                     matched_source=result.source.title,
                     matched_page=result.chunk.page_start,
                     concept_recall=concept_recall,
-                    found_concepts=found_concepts[:10],  # Limit for display
+                    found_concepts=found_concepts[:10],
                     error=(
                         None
                         if page_valid
@@ -251,12 +280,13 @@ async def run_test_case(
 
         # No match found
         top_sources = [r.source.title for r in results[:3]]
+        match_method = "UUID" if test_case.expected_source_id else "pattern"
         return TestResult(
             test_case=test_case,
             passed=False,
             concept_recall=concept_recall,
             found_concepts=found_concepts[:10],
-            error=f"Pattern '{test_case.expected_source_pattern}' not found. Top sources: {top_sources}",
+            error=f"No {match_method} match in top-{test_case.expected_in_top_k}. Top: {top_sources}",
         )
 
     except Exception as e:
@@ -274,6 +304,7 @@ async def run_eval(
     scoring_method: str = "weighted",
     use_citations: bool = False,
     citation_weight: float = 0.15,
+    use_reranking: bool = False,
 ) -> tuple[list[TestResult], dict]:
     """Run full evaluation suite.
 
@@ -314,6 +345,7 @@ async def run_eval(
             scoring_method=scoring_method,
             use_citations=use_citations,
             citation_weight=citation_weight,
+            use_reranking=use_reranking,
         )
         results.append(result)
 
@@ -369,7 +401,9 @@ def compute_metrics_for_results(results: list[TestResult]) -> dict:
         for r in results:
             if r.passed and r.matched_rank and r.matched_rank <= k:
                 y_true = np.zeros(k)
-                y_true[r.matched_rank - 1] = 1.0
+                # Use relevance_grade (0-3) instead of binary 1.0
+                grade = r.test_case.relevance_grade if r.test_case.relevance_grade > 0 else 1.0
+                y_true[r.matched_rank - 1] = float(grade)
                 y_score = np.arange(k, 0, -1, dtype=float)
                 ndcg_scores.append(ndcg_score([y_true], [y_score], k=k))
             else:
@@ -795,6 +829,11 @@ async def main():
         default=0.15,
         help="Weight for citation authority signal (default: 0.15)",
     )
+    parser.add_argument(
+        "--use-reranking",
+        action="store_true",
+        help="Enable cross-encoder reranking (requires rerank server running)",
+    )
     args = parser.parse_args()
 
     print(f"Scoring method: {args.scoring}")
@@ -802,6 +841,8 @@ async def main():
         print("Domain filter: ENABLED (passing domain_id to search)")
     if args.use_citations:
         print(f"Citation signal: ENABLED (weight={args.citation_weight})")
+    if args.use_reranking:
+        print("Reranking: ENABLED (cross-encoder)")
 
     # Choose evaluation mode: golden dataset JSON or YAML test cases
     if args.dataset:
@@ -830,6 +871,7 @@ async def main():
             scoring_method=args.scoring,
             use_citations=args.use_citations,
             citation_weight=args.citation_weight,
+            use_reranking=args.use_reranking,
         )
 
     print_summary(results, metrics)

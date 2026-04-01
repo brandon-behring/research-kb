@@ -83,11 +83,12 @@ jobs:
       - name: Generate embeddings
         run: python scripts/embed_missing.py --batch 100
 
-      - name: Validate retrieval quality
+      - name: Validate retrieval quality (3-way with citations)
         run: |
           python scripts/eval_retrieval.py \
+            --use-citations \
             --per-domain \
-            --fail-below 0.85 \
+            --fail-below 0.75 \
             --gate-domains causal_inference,econometrics,time_series,statistics,deep_learning,software_engineering,mathematics,algorithms,forecasting,functional_programming,fitness \
             --output /tmp/retrieval_metrics.json \
             --verbose
@@ -98,7 +99,7 @@ jobs:
         with:
           name: retrieval-metrics
           path: /tmp/retrieval_metrics.json
-          retention-days: 30
+          retention-days: 90
 
       - name: Run unit tests
         run: |

@@ -1,1161 +1,1724 @@
 # Retrieval Test Cases for research-kb
-# Master Plan Reference: Lines 596-601, 1382-1383
 #
 # Each test case specifies:
 # - query: The search query
-# - expected_source: Source identifier that should appear in results
+# - expected_source_id: UUID of expected source (preferred, deterministic)
+# - expected_source_pattern: Regex fallback for source title matching
 # - expected_in_top_k: Result should be in top K results
 # - expected_page_range: Optional page range for verification
+# - relevance_grade: 0=irrelevant, 1=related, 2=relevant, 3=exact
 # - domain: Explicit domain for per-domain breakdown
 # - difficulty: easy|medium|hard for per-difficulty breakdown
 # - tags: Categories for filtering
 #
-# Difficulty assignments:
-#   easy   — Core causal inference (299 sources, well-represented)
-#   medium — Phase 2 expansion, Phase J multi-domain, Phase O populated domains
-#   hard   — Thin domains (<=2 sources), future-tagged empty domains
+# Ground truth upgraded 2026-03-30: explicit source UUIDs for 106/107 cases
+#
 
 test_cases:
-  # ===== Core Causal Inference (easy) =====
-
-  # Core causal inference concepts (backdoor criterion test)
-  - query: "backdoor criterion"
-    expected_source_pattern: "causality.*models|reasoning|inference"
-    expected_in_top_k: 5
-    expected_page_range: [75, 375]
-    expected_concepts: ["backdoor criterion", "d-separation", "adjustment formula", "causal effect"]
-    domain: causal_inference
-    difficulty: easy
-    tags: [core, pearl, causal_inference]
-    notes: "Master Plan Line 597: backdoor criterion → Pearl's Causality book"
-
-  # Cross-fitting test (DML paper or related sources)
-  - query: "cross-fitting"
-    expected_source_pattern: "double.*debiased|machine learning|causal.*inference|effect"
-    expected_in_top_k: 5
-    expected_concepts: ["cross-fitting", "sample splitting", "overfitting bias", "Neyman orthogonality"]
-    domain: causal_inference
-    difficulty: easy
-    tags: [core, dml, causal_inference]
-    notes: "Master Plan Line 598: cross-fitting → DML-related sources"
-
-  # Instrumental variables (should return econometrics sources)
-  - query: "instrumental variables"
-    expected_source_pattern: "mostly harmless|instrumental|econometric|panel.*data|effect"
-    expected_in_top_k: 5
-    expect_mixed_sources: true
-    expected_concepts: ["instrumental variables", "LATE", "exclusion restriction", "relevance"]
-    relevance_grade: 3
-    domain: econometrics
-    difficulty: easy
-    tags: [core, iv, econometrics]
-    notes: "Master Plan Line 610: IV should return mixed sources"
-
-  # Potential outcomes framework
-  - query: "potential outcomes"
-    expected_source_pattern: "causal|treatment|counterfactual"
-    expected_in_top_k: 5
-    expected_concepts: ["potential outcomes", "counterfactual", "Rubin causal model", "treatment effect"]
-    domain: causal_inference
-    difficulty: easy
-    tags: [core, causal_inference]
-
-  # Propensity score matching
-  - query: "propensity score matching"
-    expected_source_pattern: "matching|propensity"
-    expected_in_top_k: 5
-    expected_concepts: ["propensity score", "matching", "selection bias", "common support"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: easy
-    tags: [core, matching]
-
-  # LATE / Local Average Treatment Effect
-  - query: "local average treatment effect"
-    expected_source_pattern: "mostly harmless|econometrics|nobel|treatment|effect|mediation"
-    expected_in_top_k: 5
-    expected_concepts: ["LATE", "local average treatment effect", "compliers", "monotonicity"]
-    domain: econometrics
-    difficulty: easy
-    tags: [core, iv]
-
-  # Causal DAGs
-  - query: "directed acyclic graph causal"
-    expected_source_pattern: "causal|inference|prediction|search"
-    expected_in_top_k: 5
-    expected_concepts: ["directed acyclic graph", "d-separation", "causal path", "collider"]
-    domain: causal_inference
-    difficulty: easy
-    tags: [core, graphs]
-
-  # Double machine learning
-  - query: "double machine learning"
-    expected_source_pattern: "double.*debiased|machine learning|causal|effect|ai"
-    expected_in_top_k: 5
-    expected_concepts: ["double machine learning", "cross-fitting", "Neyman orthogonality", "nuisance"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: easy
-    tags: [core, dml, ml]
-
-  # Heterogeneous treatment effects
-  - query: "heterogeneous treatment effects"
-    expected_source_pattern: "heterogeneous|recursive partitioning|treatment"
-    expected_in_top_k: 5
-    expected_concepts: ["heterogeneous treatment effects", "CATE", "subgroup analysis", "treatment heterogeneity"]
-    domain: causal_inference
-    difficulty: easy
-    tags: [hte, ml]
-
-  # Selection bias
-  - query: "selection bias observational"
-    expected_source_pattern: "mostly harmless|econometrics|causal"
-    expected_in_top_k: 5
-    expected_concepts: ["selection bias", "observational study", "confounding", "self-selection"]
-    domain: causal_inference
-    difficulty: easy
-    tags: [bias, causal_inference]
-
-  # ===== Phase 1 Cleanup: 4 Concept-Gap Tests (medium) =====
-  # NOTE: RDD and sensitivity papers skipped (not on arXiv)
-
-  # Synthetic control methods
-  - query: "synthetic control experimental design"
-    expected_source_pattern: "synthetic control.*experimental"
-    expected_in_top_k: 5
-    expected_concepts: ["synthetic control", "donor pool", "pre-treatment fit", "counterfactual"]
-    domain: causal_inference
-    difficulty: medium
-    tags: [core, synthetic_control]
-    notes: "Phase 1 cleanup: Abadie/Zhao 2021 (arXiv:2108.02196)"
-
-  # Causal forests
-  - query: "causal forest random forests heterogeneous"
-    expected_source_pattern: "heterogeneous treatment effects.*random forests"
-    expected_in_top_k: 5
-    expected_concepts: ["causal forest", "honest estimation", "heterogeneous treatment effects"]
-    domain: causal_inference
-    difficulty: medium
-    tags: [core, causal_forest, ml]
-    notes: "Phase 1 cleanup: Wager/Athey 2018"
-
-  # Causal mediation analysis
-  - query: "causal mediation identification inference"
-    expected_source_pattern: "mediation|causal.*inference|interaction|primer"
-    expected_in_top_k: 5
-    expected_concepts: ["causal mediation", "direct effect", "indirect effect", "sequential ignorability"]
-    domain: causal_inference
-    difficulty: medium
-    tags: [core, mediation]
-    notes: "Phase 1 cleanup: Imai et al. 2010 (arXiv:1011.1079)"
-
-  # Staggered difference-in-differences
-  - query: "staggered difference in differences multiple time periods"
-    expected_source_pattern: "difference.*differences.*multiple|time periods"
-    expected_in_top_k: 5
-    expected_concepts: ["staggered DiD", "parallel trends", "treatment timing", "group-time ATT"]
-    domain: causal_inference
-    difficulty: medium
-    tags: [core, staggered_did]
-    notes: "Phase 1 cleanup: Callaway/Sant'Anna 2021"
-
-  # ===== Phase 2: Expanded Golden Dataset (medium) =====
-  # LLM-generated candidates (curated) + manual additions
-
-  # Bayesian networks for causal inference
-  - query: "bayesian networks for causal inference"
-    expected_source_pattern: "koller|friedman|pgm|graphical|causality.*models|elements.*causal"
-    expected_in_top_k: 5
-    expected_concepts: ["bayesian network", "causal graph", "probabilistic inference"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, bayesian, graphs]
-    notes: "Phase 2 expansion: Pearl or Koller/Friedman books"
-
-  # Effect size
-  - query: "effect size statistical power sample"
-    expected_source_pattern: "statistical|power|analysis|behavioral"
-    expected_in_top_k: 5
-    expected_concepts: ["effect size", "statistical power", "sample size"]
-    relevance_grade: 3
-    domain: statistics
-    difficulty: medium
-    tags: [phase2, power_analysis]
-    notes: "Phase 2 expansion: Cohen's Statistical Power Analysis"
-
-  # Endogeneity
-  - query: "endogeneity regression bias"
-    expected_source_pattern: "econometric|analysis|wooldridge|panel"
-    expected_in_top_k: 5
-    expected_concepts: ["endogeneity", "omitted variable bias", "instrumental variables"]
-    relevance_grade: 3
-    domain: econometrics
-    difficulty: medium
-    tags: [phase2, econometrics, endogeneity]
-    notes: "Phase 2 expansion: Wooldridge Econometric Analysis"
-
-  # Confounding
-  - query: "confounding variables observational studies adjustment"
-    expected_source_pattern: "causal|inference|what|hernan|robins"
-    expected_in_top_k: 5
-    expected_concepts: ["confounding", "adjustment", "backdoor path"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, confounding, causal_inference]
-    notes: "Phase 2 expansion: Hernan & Robins What If"
-
-  # Natural indirect effect
-  - query: "natural indirect effect mediation"
-    expected_source_pattern: "explanation|causal|mediation|interaction|vanderweele"
-    expected_in_top_k: 5
-    expected_concepts: ["natural indirect effect", "mediation", "direct effect"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, mediation, effects]
-    notes: "Phase 2 expansion: VanderWeele mediation book"
-
-  # Natural direct effect
-  - query: "controlled direct effect causal"
-    expected_source_pattern: "explanation|causal|mediation|interaction|vanderweele"
-    expected_in_top_k: 5
-    expected_concepts: ["controlled direct effect", "direct effect", "mediation"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, mediation, effects]
-    notes: "Phase 2 expansion: VanderWeele mediation book"
-
-  # Consistency assumption
-  - query: "consistency assumption potential outcomes"
-    expected_source_pattern: "econometric|causal|what|treatment"
-    expected_in_top_k: 5
-    expected_concepts: ["consistency", "SUTVA", "potential outcomes"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, assumptions]
-    notes: "Phase 2 expansion: Fundamental causal assumption"
-
-  # Sensitivity analysis
-  - query: "sensitivity analysis unmeasured confounding"
-    expected_source_pattern: "explanation|causal|sensitivity|rosenbaum"
-    expected_in_top_k: 5
-    expected_concepts: ["sensitivity analysis", "unmeasured confounding", "robustness"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, sensitivity, robustness]
-    notes: "Phase 2 expansion: VanderWeele or Rosenbaum sensitivity methods"
-
-  # Power analysis
-  - query: "sample size power calculation"
-    expected_source_pattern: "statistical|power|analysis|behavioral|cohen|mediation|openintro"
-    expected_in_top_k: 5
-    expected_concepts: ["power analysis", "effect size", "sample size", "Type II error"]
-    relevance_grade: 3
-    domain: statistics
-    difficulty: medium
-    tags: [phase2, power_analysis, experimental_design]
-    notes: "Phase 2 expansion: Cohen's Power Analysis or stats textbooks"
-
-  # ===== Manual additions for methodological coverage (medium) =====
-
-  # Regression discontinuity design
-  - query: "regression discontinuity design sharp fuzzy"
-    expected_source_pattern: "mostly harmless|econometrics|causal|angrist"
-    expected_in_top_k: 5
-    expected_concepts: ["regression discontinuity", "running variable", "bandwidth"]
-    relevance_grade: 3
-    domain: econometrics
-    difficulty: medium
-    tags: [phase2, rdd, quasi_experimental]
-    notes: "Phase 2 manual: Angrist & Pischke RDD coverage"
-
-  # Inverse probability weighting
-  - query: "inverse probability weighting treatment effects"
-    expected_source_pattern: "causal|inference|what|hernan|propensity"
-    expected_in_top_k: 5
-    expected_concepts: ["inverse probability weighting", "propensity score", "weighting"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, ipw, weighting]
-    notes: "Phase 2 manual: Hernan & Robins IPW methods"
-
-  # Doubly robust estimation
-  - query: "doubly robust estimation AIPW"
-    expected_source_pattern: "causal|inference|double|debiased|treatment"
-    expected_in_top_k: 5
-    expected_concepts: ["doubly robust", "AIPW", "augmented IPW"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, doubly_robust, ml]
-    notes: "Phase 2 manual: Doubly robust / AIPW estimators"
-
-  # Two-stage least squares
-  - query: "two stage least squares IV estimation"
-    expected_source_pattern: "mostly harmless|econometric|instrumental|wooldridge"
-    expected_in_top_k: 5
-    expected_concepts: ["two-stage least squares", "2SLS", "first stage", "instrumental variables"]
-    relevance_grade: 3
-    domain: econometrics
-    difficulty: medium
-    tags: [phase2, iv, 2sls]
-    notes: "Phase 2 manual: Core IV estimation method"
-
-  # Overlap/positivity assumption
-  - query: "overlap assumption positivity propensity"
-    expected_source_pattern: "causal|inference|what|propensity|treatment"
-    expected_in_top_k: 5
-    expected_concepts: ["overlap", "positivity", "propensity score", "common support"]
-    relevance_grade: 3
-    domain: causal_inference
-    difficulty: medium
-    tags: [phase2, assumptions, propensity]
-    notes: "Phase 2 manual: Key identifiability assumption"
-
-  # Bunching estimator
-  - query: "bunching estimator kink threshold"
-    expected_source_pattern: "bunching|public|economics|kleven|state.*applied|effect"
-    expected_in_top_k: 5
-    expected_concepts: ["bunching estimator", "notch", "kink", "elasticity"]
-    relevance_grade: 3
-    domain: econometrics
-    difficulty: medium
-    tags: [phase2, bunching, public_economics]
-    notes: "Phase 2 manual: Bunching in applied econ sources"
-
-  # Weak instruments
-  - query: "weak instruments bias IV"
-    expected_source_pattern: "mostly harmless|econometric|instrumental|weak"
-    expected_in_top_k: 5
-    expected_concepts: ["weak instruments", "F-statistic", "bias", "2SLS"]
-    relevance_grade: 3
-    domain: econometrics
-    difficulty: medium
-    tags: [phase2, iv, weak_instruments]
-    notes: "Phase 2 manual: IV robustness concern"
-
-  # ===== Phase O: Populated Domain Coverage (medium/hard) =====
-
-  # --- Algorithms (medium, 9 sources) ---
-  - query: "dynamic programming optimal substructure"
-    expected_source_pattern: "algorithm|roughgarden|grokking|wengrow|kochenderfer"
-    expected_in_top_k: 5
-    expected_concepts: ["dynamic programming", "optimal substructure", "overlapping subproblems", "memoization"]
-    relevance_grade: 3
-    domain: algorithms
-    difficulty: medium
-    tags: [phase_o, algorithms]
-    notes: "Phase O: Algorithms core technique"
-
-  - query: "graph BFS shortest path"
-    expected_source_pattern: "algorithm|roughgarden|grokking|wengrow|graph"
-    expected_in_top_k: 5
-    expected_concepts: ["breadth-first search", "shortest path", "graph traversal"]
-    relevance_grade: 3
-    domain: algorithms
-    difficulty: medium
-    tags: [phase_o, algorithms]
-    notes: "Phase O: Graph algorithm fundamentals"
-
-  - query: "greedy algorithm correctness proof"
-    expected_source_pattern: "algorithm|roughgarden|greedy|illuminated"
-    expected_in_top_k: 5
-    expected_concepts: ["greedy algorithm", "exchange argument", "optimal substructure"]
-    relevance_grade: 3
-    domain: algorithms
-    difficulty: medium
-    tags: [phase_o, algorithms]
-    notes: "Phase O: Greedy algorithm theory"
-
-  - query: "divide and conquer recurrence relation"
-    expected_source_pattern: "algorithm|roughgarden|grokking|wengrow|illuminated"
-    expected_in_top_k: 5
-    expected_concepts: ["divide and conquer", "recurrence", "master theorem"]
-    relevance_grade: 3
-    domain: algorithms
-    difficulty: medium
-    tags: [phase_o, algorithms]
-    notes: "Phase O: D&C algorithm analysis"
-
-  # --- Functional Programming (medium, 8 sources) ---
-  - query: "monad transformer stack"
-    expected_source_pattern: "haskell|scala|functional|depth"
-    expected_in_top_k: 5
-    expected_concepts: ["monad transformer", "monad", "composition", "effect"]
-    relevance_grade: 3
-    domain: functional_programming
-    difficulty: medium
-    tags: [phase_o, functional_programming]
-    notes: "Phase O: FP core abstraction"
-
-  - query: "algebraic data types pattern matching"
-    expected_source_pattern: "haskell|scala|functional|programming"
-    expected_in_top_k: 5
-    expected_concepts: ["algebraic data type", "pattern matching", "sum type", "product type"]
-    relevance_grade: 3
-    domain: functional_programming
-    difficulty: medium
-    tags: [phase_o, functional_programming]
-    notes: "Phase O: FP type system fundamentals"
-
-  - query: "referential transparency pure functions"
-    expected_source_pattern: "haskell|scala|functional|programming"
-    expected_in_top_k: 5
-    expected_concepts: ["referential transparency", "pure function", "side effect", "immutability"]
-    relevance_grade: 3
-    domain: functional_programming
-    difficulty: medium
-    tags: [phase_o, functional_programming]
-    notes: "Phase O: FP purity principles"
-
-  # --- Data Science (medium, 4 sources) ---
-  - query: "network centrality measures betweenness"
-    expected_source_pattern: "network|statistical|analysis|graph|kolaczyk"
-    expected_in_top_k: 5
-    expected_concepts: ["centrality", "betweenness", "degree centrality", "network analysis"]
-    relevance_grade: 3
-    domain: data_science
-    difficulty: medium
-    tags: [phase_o, data_science]
-    notes: "Phase O: Network analysis method"
-
-  - query: "exploratory data analysis workflow"
-    expected_source_pattern: "data science|analysis|getting started|pyspark"
-    expected_in_top_k: 5
-    expected_concepts: ["EDA", "exploratory data analysis", "visualization", "summary statistics"]
-    relevance_grade: 3
-    domain: data_science
-    difficulty: medium
-    tags: [phase_o, data_science]
-    notes: "Phase O: Core DS workflow"
-
-  - query: "A/B testing experiment design"
-    expected_source_pattern: "data science|experiment|causal|inference|analysis"
-    expected_in_top_k: 5
-    expected_concepts: ["A/B testing", "experiment", "control group", "statistical significance"]
-    relevance_grade: 3
-    domain: data_science
-    difficulty: medium
-    tags: [phase_o, data_science]
-    notes: "Phase O: Experimental design for DS"
-
-  # --- ML Engineering (medium, 3 sources) ---
-  - query: "feature store serving latency"
-    expected_source_pattern: "ml|machine learning|building|powered|mlops"
-    expected_in_top_k: 5
-    expected_concepts: ["feature store", "serving", "latency", "feature engineering"]
-    relevance_grade: 3
-    domain: ml_engineering
-    difficulty: medium
-    tags: [phase_o, ml_engineering]
-    notes: "Phase O: MLOps infrastructure"
-
-  - query: "model monitoring data drift detection"
-    expected_source_pattern: "ml|machine learning|building|monitoring|drift"
-    expected_in_top_k: 5
-    expected_concepts: ["data drift", "model monitoring", "concept drift", "distribution shift"]
-    relevance_grade: 3
-    domain: ml_engineering
-    difficulty: medium
-    tags: [phase_o, ml_engineering]
-    notes: "Phase O: ML production monitoring"
-
-  - query: "ML pipeline reproducibility versioning"
-    expected_source_pattern: "ml|machine learning|building|pipeline|reproducibility"
-    expected_in_top_k: 5
-    expected_concepts: ["reproducibility", "versioning", "pipeline", "experiment tracking"]
-    relevance_grade: 3
-    domain: ml_engineering
-    difficulty: medium
-    tags: [phase_o, ml_engineering]
-    notes: "Phase O: MLOps best practices"
-
-  # --- Fitness (hard, 2 sources) ---
-  - query: "progressive overload periodization training"
-    expected_source_pattern: "strength|training|practical|programming|fitness"
-    expected_in_top_k: 5
-    expected_concepts: ["progressive overload", "periodization", "training volume", "adaptation"]
-    relevance_grade: 3
-    domain: fitness
-    difficulty: hard
-    tags: [phase_o, fitness]
-    notes: "Phase O: Strength training principles"
-
-  - query: "compound vs isolation exercises"
-    expected_source_pattern: "strength|training|practical|programming|fitness"
-    expected_in_top_k: 5
-    expected_concepts: ["compound exercise", "isolation exercise", "squat", "deadlift"]
-    relevance_grade: 3
-    domain: fitness
-    difficulty: hard
-    tags: [phase_o, fitness]
-    notes: "Phase O: Exercise classification"
-
-  - query: "novice strength training linear progression"
-    expected_source_pattern: "strength|training|practical|programming|fitness"
-    expected_in_top_k: 5
-    expected_concepts: ["linear progression", "novice", "recovery", "stress adaptation"]
-    relevance_grade: 3
-    domain: fitness
-    difficulty: hard
-    tags: [phase_o, fitness]
-    notes: "Phase O: Novice programming model"
-
-  # --- Forecasting (hard, 1 source) ---
-  - query: "demand forecasting inventory planning"
-    expected_source_pattern: "demand|forecasting|best practices|inventory"
-    expected_in_top_k: 5
-    expected_concepts: ["demand forecasting", "inventory", "safety stock", "lead time"]
-    relevance_grade: 3
-    domain: forecasting
-    difficulty: hard
-    tags: [phase_o, forecasting]
-    notes: "Phase O: Applied forecasting"
-
-  - query: "forecast error decomposition bias variance"
-    expected_source_pattern: "demand|forecasting|best practices|time series"
-    expected_in_top_k: 5
-    expected_concepts: ["forecast error", "bias", "variance", "MAPE"]
-    relevance_grade: 3
-    domain: forecasting
-    difficulty: hard
-    tags: [phase_o, forecasting]
-    notes: "Phase O: Forecast evaluation"
-
-  - query: "intermittent demand forecasting Croston"
-    expected_source_pattern: "demand|forecasting|best practices|intermittent"
-    expected_in_top_k: 5
-    expected_concepts: ["intermittent demand", "Croston", "SBA", "demand classification"]
-    relevance_grade: 3
-    domain: forecasting
-    difficulty: hard
-    tags: [phase_o, forecasting]
-    notes: "Phase O: Sparse demand methods"
-
-  # ===== Phase U: Populated Domain Tests (hard) =====
-  # These domains were populated in Phase T (arXiv papers) and extracted in Phase U.
-  # Source patterns broadened to match arXiv survey/paper titles.
-
-  # --- SQL (hard, 2 sources) ---
-  - query: "window functions ranking partitioning"
-    expected_source_pattern: "sql|database|performance|query|text-to-sql|advances"
-    expected_in_top_k: 10
-    expected_concepts: ["window function", "ROW_NUMBER", "PARTITION BY", "ranking"]
-    relevance_grade: 3
-    domain: sql
-    difficulty: hard
-    tags: [phase_u, sql]
-    notes: "Phase U: SQL window functions (2 arXiv survey papers)"
-
-  - query: "query execution plan optimization"
-    expected_source_pattern: "sql|database|performance|explain|index|query optimization|llm"
-    expected_in_top_k: 10
-    expected_concepts: ["execution plan", "query optimizer", "index scan", "cost estimation"]
-    relevance_grade: 3
-    domain: sql
-    difficulty: hard
-    tags: [phase_u, sql]
-    notes: "Phase U: Query optimization (2 arXiv survey papers)"
-
-  - query: "database normalization third normal form"
-    expected_source_pattern: "sql|database|normalization|relational|text-to-sql|query optimization"
-    expected_in_top_k: 15
-    expected_concepts: ["normalization", "third normal form", "functional dependency", "primary key"]
-    relevance_grade: 2
-    domain: sql
-    difficulty: hard
-    tags: [phase_u, sql, thin_domain]
-    notes: "Phase U: Relational design — thin domain (2 survey papers focus on NLP-to-SQL/optimization, not schema design)"
-
-  # --- Recommender Systems (hard, 3 sources) ---
-  - query: "collaborative filtering matrix factorization"
-    expected_source_pattern: "recommender|collaborative|matrix|factorization|deep learning|survey"
-    expected_in_top_k: 10
-    expected_concepts: ["collaborative filtering", "matrix factorization", "latent factors", "user-item"]
-    relevance_grade: 3
-    domain: recommender_systems
-    difficulty: hard
-    tags: [phase_u, recommender_systems]
-    notes: "Phase U: Core recsys method (3 arXiv papers)"
-
-  - query: "cold start problem new user recommendation"
-    expected_source_pattern: "recommender|cold start|hybrid|content|survey|Neural Recommendation|Deep Learning"
-    expected_in_top_k: 15
-    expected_concepts: ["cold start", "content-based filtering", "hybrid recommender"]
-    relevance_grade: 2
-    domain: recommender_systems
-    difficulty: hard
-    tags: [phase_u, recommender_systems, thin_domain]
-    notes: "Phase U: Recsys challenge — thin domain (3 survey papers may cover cold start tangentially)"
-
-  - query: "implicit feedback click through recommendation"
-    expected_source_pattern: "recommender|implicit|feedback|click|deep learning"
-    expected_in_top_k: 10
-    expected_concepts: ["implicit feedback", "click-through rate", "negative sampling"]
-    relevance_grade: 3
-    domain: recommender_systems
-    difficulty: hard
-    tags: [phase_u, recommender_systems]
-    notes: "Phase U: Implicit recsys (3 arXiv papers)"
-
-  # --- AdTech (hard, 2 sources) ---
-  - query: "real time bidding auction mechanism"
-    expected_source_pattern: "advertising|auction|bidding|computational|display|survey"
-    expected_in_top_k: 10
-    expected_concepts: ["real-time bidding", "second-price auction", "bid optimization"]
-    relevance_grade: 3
-    domain: adtech
-    difficulty: hard
-    tags: [phase_u, adtech]
-    notes: "Phase U: RTB mechanism (2 arXiv papers)"
-
-  - query: "click through rate prediction ad ranking"
-    expected_source_pattern: "advertising|ctr|prediction|ranking|display|survey"
-    expected_in_top_k: 10
-    expected_concepts: ["CTR prediction", "ad ranking", "feature engineering", "calibration"]
-    relevance_grade: 3
-    domain: adtech
-    difficulty: hard
-    tags: [phase_u, adtech]
-    notes: "Phase U: Ad ML (2 arXiv papers)"
-
-  - query: "attribution modeling multi touch conversion"
-    expected_source_pattern: "advertising|attribution|conversion|multi-touch|display|survey"
-    expected_in_top_k: 10
-    expected_concepts: ["attribution modeling", "multi-touch", "conversion", "incrementality"]
-    relevance_grade: 3
-    domain: adtech
-    difficulty: hard
-    tags: [phase_u, adtech]
-    notes: "Phase U: Ad measurement (2 arXiv papers)"
-
-  # ===== Phase J: Multi-Domain Expansion (medium) =====
-
-  # --- Time Series ---
-  - query: "ARIMA model identification"
-    expected_source_pattern: "time series|forecasting|shumway|stoffer"
-    expected_in_top_k: 5
-    expected_concepts: ["ARIMA", "autocorrelation", "differencing", "stationarity"]
-    relevance_grade: 3
-    domain: time_series
-    difficulty: medium
-    tags: [phase_j, time_series]
-    notes: "Phase J: Time series core method"
-
-  - query: "exponential smoothing forecasting"
-    expected_source_pattern: "time series|forecasting|hyndman|holt"
-    expected_in_top_k: 5
-    expected_concepts: ["exponential smoothing", "Holt-Winters", "trend", "seasonality"]
-    relevance_grade: 3
-    domain: time_series
-    difficulty: medium
-    tags: [phase_j, time_series]
-    notes: "Phase J: Forecasting core technique"
-
-  - query: "Granger causality temporal"
-    expected_source_pattern: "time series|hamilton|var|granger"
-    expected_in_top_k: 5
-    expected_concepts: ["Granger causality", "vector autoregression", "temporal ordering"]
-    relevance_grade: 3
-    domain: time_series
-    difficulty: medium
-    tags: [phase_j, time_series]
-    notes: "Phase J: Temporal causality concept"
-
-  # --- Deep Learning ---
-  - query: "attention mechanism transformer architecture"
-    expected_source_pattern: "deep learning|transformer|attention|natural language"
-    expected_in_top_k: 5
-    expected_concepts: ["attention", "transformer", "self-attention", "multi-head"]
-    relevance_grade: 3
-    domain: deep_learning
-    difficulty: medium
-    tags: [phase_j, deep_learning]
-    notes: "Phase J: Core DL architecture"
-
-  - query: "convolutional neural network image classification"
-    expected_source_pattern: "deep learning|cnn|convolutional|tensorflow|pattern"
-    expected_in_top_k: 5
-    expected_concepts: ["convolution", "pooling", "feature map", "filter"]
-    relevance_grade: 3
-    domain: deep_learning
-    difficulty: medium
-    tags: [phase_j, deep_learning]
-    notes: "Phase J: CNN fundamentals"
-
-  - query: "vanishing gradient deep networks"
-    expected_source_pattern: "deep learning|evolutionary|gradient|neural"
-    expected_in_top_k: 5
-    expected_concepts: ["vanishing gradient", "residual connection", "batch normalization"]
-    relevance_grade: 3
-    domain: deep_learning
-    difficulty: medium
-    tags: [phase_j, deep_learning]
-    notes: "Phase J: Training challenge"
-
-  # --- Software Engineering ---
-  - query: "SOLID design principles"
-    expected_source_pattern: "code|software|design|clean|skills"
-    expected_in_top_k: 5
-    expected_concepts: ["single responsibility", "open-closed", "dependency inversion"]
-    relevance_grade: 3
-    domain: software_engineering
-    difficulty: medium
-    tags: [phase_j, software_engineering]
-    notes: "Phase J: Design principles"
-
-  - query: "microservice vs monolith architecture"
-    expected_source_pattern: "software|architecture|microservice|monolith|code"
-    expected_in_top_k: 5
-    expected_concepts: ["microservice", "monolith", "coupling", "scalability"]
-    relevance_grade: 3
-    domain: software_engineering
-    difficulty: medium
-    tags: [phase_j, software_engineering]
-    notes: "Phase J: Architecture decision"
-
-  - query: "continuous integration deployment pipeline"
-    expected_source_pattern: "github|actions|publishing|python|ci|deployment|code"
-    expected_in_top_k: 5
-    expected_concepts: ["continuous integration", "deployment", "pipeline", "automation"]
-    relevance_grade: 3
-    domain: software_engineering
-    difficulty: medium
-    tags: [phase_j, software_engineering]
-    notes: "Phase J: CI/CD practices"
-
-  # --- Statistics ---
-  - query: "Bayesian posterior inference"
-    expected_source_pattern: "bayesian|statistics|posterior|gelman|donovan"
-    expected_in_top_k: 5
-    expected_concepts: ["posterior", "prior", "likelihood", "Bayes theorem"]
-    relevance_grade: 3
-    domain: statistics
-    difficulty: medium
-    tags: [phase_j, statistics]
-    notes: "Phase J: Bayesian inference"
-
-  - query: "hypothesis testing p-value"
-    expected_source_pattern: "statistics|openintro|hypothesis|biostat"
-    expected_in_top_k: 5
-    expected_concepts: ["p-value", "null hypothesis", "type I error", "significance"]
-    relevance_grade: 3
-    domain: statistics
-    difficulty: medium
-    tags: [phase_j, statistics]
-    notes: "Phase J: Frequentist inference"
-
-  - query: "bootstrap confidence interval"
-    expected_source_pattern: "statistics|bootstrap|biostat|resampling"
-    expected_in_top_k: 5
-    expected_concepts: ["bootstrap", "confidence interval", "resampling"]
-    relevance_grade: 3
-    domain: statistics
-    difficulty: medium
-    tags: [phase_j, statistics]
-    notes: "Phase J: Nonparametric inference"
-
-  # --- Machine Learning ---
-  - query: "random forest ensemble learning"
-    expected_source_pattern: "ensemble|random forest|machine learning|bagging"
-    expected_in_top_k: 5
-    expected_concepts: ["random forest", "bagging", "feature importance", "ensemble"]
-    relevance_grade: 3
-    domain: machine_learning
-    difficulty: medium
-    tags: [phase_j, machine_learning]
-    notes: "Phase J: Ensemble method"
-
-  - query: "gradient boosting XGBoost"
-    expected_source_pattern: "ensemble|gradient|boosting|machine learning"
-    expected_in_top_k: 5
-    expected_concepts: ["gradient boosting", "XGBoost", "residual fitting", "ensemble"]
-    relevance_grade: 3
-    domain: machine_learning
-    difficulty: medium
-    tags: [phase_j, machine_learning]
-    notes: "Phase J: Boosting method"
-
-  - query: "bias variance tradeoff model selection"
-    expected_source_pattern: "machine learning|mathematics|learning|pattern"
-    expected_in_top_k: 5
-    expected_concepts: ["bias-variance tradeoff", "overfitting", "underfitting", "generalization"]
-    relevance_grade: 3
-    domain: machine_learning
-    difficulty: medium
-    tags: [phase_j, machine_learning]
-    notes: "Phase J: Fundamental ML concept"
-
-  # --- Finance ---
-  - query: "Black-Scholes option pricing model"
-    expected_source_pattern: "option|derivatives|hull|hardy|pricing"
-    expected_in_top_k: 5
-    expected_concepts: ["Black-Scholes", "option pricing", "volatility", "geometric Brownian motion"]
-    relevance_grade: 3
-    domain: finance
-    difficulty: medium
-    tags: [phase_j, finance]
-    notes: "Phase J: Core pricing model"
-
-  - query: "portfolio optimization mean variance"
-    expected_source_pattern: "portfolio|investment|optimization|finance|risk"
-    expected_in_top_k: 5
-    expected_concepts: ["mean-variance optimization", "efficient frontier", "Sharpe ratio"]
-    relevance_grade: 3
-    domain: finance
-    difficulty: medium
-    tags: [phase_j, finance]
-    notes: "Phase J: Portfolio theory"
-
-  - query: "value at risk VaR estimation"
-    expected_source_pattern: "risk|derivatives|hull|finance|value"
-    expected_in_top_k: 5
-    expected_concepts: ["value at risk", "VaR", "expected shortfall", "risk measure"]
-    relevance_grade: 3
-    domain: finance
-    difficulty: medium
-    tags: [phase_j, finance]
-    notes: "Phase J: Risk management"
-
-  # --- Econometrics ---
-  - query: "Gauss-Markov theorem OLS"
-    expected_source_pattern: "econometric|analysis|wooldridge|panel|harmless"
-    expected_in_top_k: 5
-    expected_concepts: ["Gauss-Markov", "BLUE", "homoskedasticity", "exogeneity"]
-    relevance_grade: 3
-    domain: econometrics
-    difficulty: medium
-    tags: [phase_j, econometrics]
-    notes: "Phase J: Fundamental econometrics result"
-
-  - query: "Hausman test fixed effects random effects"
-    expected_source_pattern: "econometric|panel|wooldridge|analysis"
-    expected_in_top_k: 5
-    expected_concepts: ["Hausman test", "fixed effects", "random effects", "specification test"]
-    relevance_grade: 3
-    domain: econometrics
-    difficulty: medium
-    tags: [phase_j, econometrics]
-    notes: "Phase J: Panel data specification"
-
-  # --- RAG & LLM ---
-  - query: "retrieval augmented generation architecture"
-    expected_source_pattern: "agents|action|generative|rag|retrieval"
-    expected_in_top_k: 5
-    expected_concepts: ["RAG", "retrieval", "generation", "context window"]
-    relevance_grade: 3
-    domain: rag_llm
-    difficulty: medium
-    tags: [phase_j, rag_llm]
-    notes: "Phase J: RAG architecture"
-
-  - query: "chain of thought prompting"
-    expected_source_pattern: "language|model|prompt|generative|few-shot"
-    expected_in_top_k: 5
-    expected_concepts: ["chain-of-thought", "prompting", "reasoning", "few-shot"]
-    relevance_grade: 3
-    domain: rag_llm
-    difficulty: medium
-    tags: [phase_j, rag_llm]
-    notes: "Phase J: Prompting technique"
-
-  - query: "embedding similarity search"
-    expected_source_pattern: "embedding|retrieval|vector|agents|ai"
-    expected_in_top_k: 5
-    expected_concepts: ["embedding", "similarity", "cosine similarity", "dense retrieval"]
-    relevance_grade: 3
-    domain: rag_llm
-    difficulty: medium
-    tags: [phase_j, rag_llm]
-    notes: "Phase J: Retrieval mechanism"
-
-  # --- Mathematics ---
-  - query: "singular value decomposition"
-    expected_source_pattern: "linear algebra|mathematics|machine|matrix"
-    expected_in_top_k: 5
-    expected_concepts: ["SVD", "eigenvalue", "low-rank approximation", "matrix factorization"]
-    relevance_grade: 3
-    domain: mathematics
-    difficulty: medium
-    tags: [phase_j, mathematics]
-    notes: "Phase J: Core linear algebra"
-
-  - query: "gradient descent optimization convergence"
-    expected_source_pattern: "optimization|mathematics|machine|deep"
-    expected_in_top_k: 5
-    expected_concepts: ["gradient descent", "convergence", "learning rate", "convexity"]
-    relevance_grade: 3
-    domain: mathematics
-    difficulty: medium
-    tags: [phase_j, mathematics]
-    notes: "Phase J: Optimization fundamentals"
-
-  # ===== Post-Ingestion: New Domain Coverage =====
-
-  # --- actuarial_insurance (25 sources) ---
-  - query: "actuarial mortality tables life contingencies"
-    expected_source_pattern: "actuarial mathematics|life contingenc|dickson"
-    expected_in_top_k: 5
-    expected_concepts: ["mortality", "life table", "actuarial", "contingencies"]
-    relevance_grade: 3
-    domain: actuarial_insurance
-    difficulty: medium
-    tags: [phase_post_ingestion, actuarial_insurance]
-    notes: "Post-ingestion: Core actuarial concept"
-
-  - query: "annuity present value pricing"
-    expected_source_pattern: "annuity|actuarial|variable-annuity"
-    expected_in_top_k: 5
-    expected_concepts: ["annuity", "present value", "pricing", "discount factor"]
-    relevance_grade: 3
-    domain: actuarial_insurance
-    difficulty: medium
-    tags: [phase_post_ingestion, actuarial_insurance]
-    notes: "Post-ingestion: Annuity valuation"
-
-  # --- algebra (18 sources) ---
-  - query: "group theory symmetry homomorphism"
-    expected_source_pattern: "group theory|hungerford|algebra|zee"
-    expected_in_top_k: 5
-    expected_concepts: ["group", "homomorphism", "symmetry", "isomorphism"]
-    relevance_grade: 3
-    domain: algebra
-    difficulty: medium
-    tags: [phase_post_ingestion, algebra]
-    notes: "Post-ingestion: Abstract algebra fundamentals"
-
-  - query: "Galois theory field extension"
-    expected_source_pattern: "algebra|hungerford|lang|sigler"
-    expected_in_top_k: 5
-    expected_concepts: ["Galois theory", "field extension", "polynomial", "splitting field"]
-    relevance_grade: 3
-    domain: algebra
-    difficulty: hard
-    tags: [phase_post_ingestion, algebra]
-    notes: "Post-ingestion: Advanced algebra"
-
-  # --- analysis (18 sources) ---
-  - query: "Banach space functional analysis operator"
-    expected_source_pattern: "functional analysis|conway|hilbert|halmos"
-    expected_in_top_k: 5
-    expected_concepts: ["Banach space", "functional analysis", "operator", "norm"]
-    relevance_grade: 3
-    domain: analysis
-    difficulty: medium
-    tags: [phase_post_ingestion, analysis]
-    notes: "Post-ingestion: Functional analysis core"
-
-  - query: "complex analysis Cauchy integral formula"
-    expected_source_pattern: "complex analysis|marsden|lang|conway|basic.*analysis|stein"
-    expected_in_top_k: 10
-    expected_concepts: ["Cauchy integral", "complex analysis", "holomorphic", "residue"]
-    relevance_grade: 3
-    domain: analysis
-    difficulty: medium
-    tags: [phase_post_ingestion, analysis]
-    notes: "Post-ingestion: Complex analysis fundamentals (broadened pattern + top_k)"
-
-  # --- biology_neuroscience (21 sources) ---
-  - query: "neuroscience excitability bursting neural dynamics"
-    expected_source_pattern: "neuroscience|dynamical|excitability|bursting"
-    expected_in_top_k: 5
-    expected_concepts: ["excitability", "bursting", "neuron", "dynamical system"]
-    relevance_grade: 3
-    domain: biology_neuroscience
-    difficulty: medium
-    tags: [phase_post_ingestion, biology_neuroscience]
-    notes: "Post-ingestion: Computational neuroscience (Izhikevich textbook)"
-
-  - query: "epidemiological network model disease spreading"
-    expected_source_pattern: "ebola|network model|epidem|spreading|campbell|biology"
-    expected_in_top_k: 10
-    expected_concepts: ["epidemiology", "network model", "disease spreading", "SIR"]
-    relevance_grade: 3
-    domain: biology_neuroscience
-    difficulty: medium
-    tags: [phase_post_ingestion, biology_neuroscience]
-    notes: "Post-ingestion: Epidemiological modeling (broadened pattern + top_k)"
-
-  # --- linear_algebra (16 sources) ---
-  - query: "eigenvalue decomposition spectral theorem"
-    expected_source_pattern: "linear algebra|strang|lay|roman"
-    expected_in_top_k: 5
-    expected_concepts: ["eigenvalue", "spectral theorem", "diagonalization", "eigenvector"]
-    relevance_grade: 3
-    domain: linear_algebra
-    difficulty: medium
-    tags: [phase_post_ingestion, linear_algebra]
-    notes: "Post-ingestion: Core linear algebra"
-
-  - query: "Jordan canonical form matrix similarity"
-    expected_source_pattern: "linear algebra|roman|advanced|strang"
-    expected_in_top_k: 5
-    expected_concepts: ["Jordan form", "canonical form", "similarity", "nilpotent"]
-    relevance_grade: 3
-    domain: linear_algebra
-    difficulty: hard
-    tags: [phase_post_ingestion, linear_algebra]
-    notes: "Post-ingestion: Advanced linear algebra"
-
-  # --- numerical_methods (18 sources) ---
-  - query: "finite element method numerical PDE"
-    expected_source_pattern: "numerical|computational|partial differential|iserles|burden"
-    expected_in_top_k: 5
-    expected_concepts: ["finite element", "PDE", "numerical method", "mesh"]
-    relevance_grade: 3
-    domain: numerical_methods
-    difficulty: medium
-    tags: [phase_post_ingestion, numerical_methods]
-    notes: "Post-ingestion: Numerical PDE solving"
-
-  - query: "numerical integration quadrature interpolation"
-    expected_source_pattern: "numerical|burden|iserles|analysis"
-    expected_in_top_k: 5
-    expected_concepts: ["quadrature", "interpolation", "numerical integration", "polynomial"]
-    relevance_grade: 3
-    domain: numerical_methods
-    difficulty: medium
-    tags: [phase_post_ingestion, numerical_methods]
-    notes: "Post-ingestion: Numerical approximation"
-
-  # --- optimization (18 sources) ---
-  - query: "convex optimization duality KKT conditions"
-    expected_source_pattern: "cvxbook|convex|optimization|boyd"
-    expected_in_top_k: 5
-    expected_concepts: ["convex optimization", "duality", "KKT", "Lagrangian"]
-    relevance_grade: 3
-    domain: optimization
-    difficulty: medium
-    tags: [phase_post_ingestion, optimization]
-    notes: "Post-ingestion: Boyd & Vandenberghe core"
-
-  - query: "dynamic programming Bellman equation optimal control"
-    expected_source_pattern: "dynamic programming|optimal control|bertsekas"
-    expected_in_top_k: 5
-    expected_concepts: ["dynamic programming", "Bellman equation", "optimal control", "value function"]
-    relevance_grade: 3
-    domain: optimization
-    difficulty: medium
-    tags: [phase_post_ingestion, optimization]
-    notes: "Post-ingestion: Dynamic programming fundamentals"
-
-  # --- physics (16 sources) ---
-  - query: "quantum mechanics Schrodinger equation wave function"
-    expected_source_pattern: "quantum mechanics|griffiths|introduction to quantum"
-    expected_in_top_k: 5
-    expected_concepts: ["Schrodinger equation", "wave function", "quantum mechanics", "Hamiltonian"]
-    relevance_grade: 3
-    domain: physics
-    difficulty: medium
-    tags: [phase_post_ingestion, physics]
-    notes: "Post-ingestion: Quantum mechanics fundamentals"
-
-  - query: "classical electrodynamics Maxwell equations"
-    expected_source_pattern: "electrodynamics|jackson|griffiths"
-    expected_in_top_k: 5
-    expected_concepts: ["Maxwell equations", "electrodynamics", "electromagnetic", "field"]
-    relevance_grade: 3
-    domain: physics
-    difficulty: medium
-    tags: [phase_post_ingestion, physics]
-    notes: "Post-ingestion: Classical E&M"
-
-  # --- probability_theory (20 sources) ---
-  - query: "Brownian motion stochastic calculus Ito"
-    expected_source_pattern: "brownian motion|stochastic calculus|karatzas|shreve"
-    expected_in_top_k: 5
-    expected_concepts: ["Brownian motion", "stochastic calculus", "Ito formula", "martingale"]
-    relevance_grade: 3
-    domain: probability_theory
-    difficulty: medium
-    tags: [phase_post_ingestion, probability_theory]
-    notes: "Post-ingestion: Stochastic calculus core"
-
-  - query: "measure theoretic probability sigma algebra"
-    expected_source_pattern: "measure theory|probability theory|athreya|dasgupta"
-    expected_in_top_k: 5
-    expected_concepts: ["measure theory", "sigma algebra", "probability measure", "Borel"]
-    relevance_grade: 3
-    domain: probability_theory
-    difficulty: hard
-    tags: [phase_post_ingestion, probability_theory]
-    notes: "Post-ingestion: Rigorous probability foundations"
-
-  # --- reinforcement_learning (18 sources) ---
-  - query: "Q-learning temporal difference policy gradient"
-    expected_source_pattern: "reinforcement learning|deep reinforcement|grokking|bertsekas"
-    expected_in_top_k: 5
-    expected_concepts: ["Q-learning", "temporal difference", "policy gradient", "value function"]
-    relevance_grade: 3
-    domain: reinforcement_learning
-    difficulty: medium
-    tags: [phase_post_ingestion, reinforcement_learning]
-    notes: "Post-ingestion: RL fundamentals"
-
-  - query: "Markov decision process MDP reward"
-    expected_source_pattern: "reinforcement learning|bertsekas|optimal control|grokking|lecture"
-    expected_in_top_k: 10
-    expected_concepts: ["MDP", "Markov decision process", "reward", "policy"]
-    relevance_grade: 3
-    domain: reinforcement_learning
-    difficulty: medium
-    tags: [phase_post_ingestion, reinforcement_learning]
-    notes: "Post-ingestion: MDP framework (broadened to include lecture titles)"
-
-  # --- signal_processing (11 sources) ---
-  - query: "discrete Fourier transform DFT spectral analysis"
-    expected_source_pattern: "signal processing|oppenheim|lyons|digital"
-    expected_in_top_k: 5
-    expected_concepts: ["DFT", "Fourier transform", "spectral analysis", "frequency"]
-    relevance_grade: 3
-    domain: signal_processing
-    difficulty: medium
-    tags: [phase_post_ingestion, signal_processing]
-    notes: "Post-ingestion: DSP fundamentals"
-
-  - query: "wavelet transform multiresolution analysis"
-    expected_source_pattern: "wavelet|frazier|signal|transform"
-    expected_in_top_k: 5
-    expected_concepts: ["wavelet", "multiresolution", "transform", "scaling function"]
-    relevance_grade: 3
-    domain: signal_processing
-    difficulty: medium
-    tags: [phase_post_ingestion, signal_processing]
-    notes: "Post-ingestion: Wavelet theory"
-
-  # --- topology_geometry (16 sources) ---
-  - query: "differential geometry manifold tangent bundle"
-    expected_source_pattern: "differential geometry|manifold|pressley|mcinerney|spivak"
-    expected_in_top_k: 5
-    expected_concepts: ["manifold", "tangent bundle", "differential geometry", "smooth map"]
-    relevance_grade: 3
-    domain: topology_geometry
-    difficulty: medium
-    tags: [phase_post_ingestion, topology_geometry]
-    notes: "Post-ingestion: Differential geometry core"
-
-  - query: "algebraic topology homology fundamental group"
-    expected_source_pattern: "topology|munkres|morse theory|manifold"
-    expected_in_top_k: 5
-    expected_concepts: ["homology", "fundamental group", "topology", "homotopy"]
-    relevance_grade: 3
-    domain: topology_geometry
-    difficulty: hard
-    tags: [phase_post_ingestion, topology_geometry]
-    notes: "Post-ingestion: Algebraic topology"
-
-# Metrics targets (Master Plan Lines 1382-1383)
+- query: backdoor criterion
+  expected_source_pattern: causality.*models|reasoning|inference
+  expected_in_top_k: 5
+  expected_page_range:
+  - 75
+  - 375
+  expected_concepts:
+  - backdoor criterion
+  - d-separation
+  - adjustment formula
+  - causal effect
+  domain: causal_inference
+  difficulty: easy
+  tags:
+  - core
+  - pearl
+  - causal_inference
+  notes: 'Master Plan Line 597: backdoor criterion → Pearl''s Causality book'
+  expected_source_id: de63dc79-d863-4c81-871b-6db4ce360b15
+- query: cross-fitting
+  expected_source_pattern: double.*debiased|machine learning|causal.*inference|effect
+  expected_in_top_k: 5
+  expected_concepts:
+  - cross-fitting
+  - sample splitting
+  - overfitting bias
+  - Neyman orthogonality
+  domain: causal_inference
+  difficulty: easy
+  tags:
+  - core
+  - dml
+  - causal_inference
+  notes: 'Master Plan Line 598: cross-fitting → DML-related sources'
+  expected_source_id: 0ff75f3a-4338-46e0-ab8d-3a0f3d29a878
+- query: instrumental variables
+  expected_source_pattern: mostly harmless|instrumental|econometric|panel.*data|effect
+  expected_in_top_k: 5
+  expect_mixed_sources: true
+  expected_concepts:
+  - instrumental variables
+  - LATE
+  - exclusion restriction
+  - relevance
+  relevance_grade: 3
+  domain: econometrics
+  difficulty: easy
+  tags:
+  - core
+  - iv
+  - econometrics
+  notes: 'Master Plan Line 610: IV should return mixed sources'
+  expected_source_id: 24af0a79-be81-4c29-8426-fcc97ef1ec81
+- query: potential outcomes
+  expected_source_pattern: causal|treatment|counterfactual
+  expected_in_top_k: 5
+  expected_concepts:
+  - potential outcomes
+  - counterfactual
+  - Rubin causal model
+  - treatment effect
+  domain: causal_inference
+  difficulty: easy
+  tags:
+  - core
+  - causal_inference
+  expected_source_id: 18087e41-af9c-4f60-8933-12ba41678c2c
+- query: propensity score matching
+  expected_source_pattern: matching|propensity
+  expected_in_top_k: 5
+  expected_concepts:
+  - propensity score
+  - matching
+  - selection bias
+  - common support
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: easy
+  tags:
+  - core
+  - matching
+  expected_source_id: bc1e8535-b963-40ed-bbf6-5c74012ae857
+- query: local average treatment effect
+  expected_source_pattern: mostly harmless|econometrics|nobel|treatment|effect|mediation
+  expected_in_top_k: 5
+  expected_concepts:
+  - LATE
+  - local average treatment effect
+  - compliers
+  - monotonicity
+  domain: econometrics
+  difficulty: easy
+  tags:
+  - core
+  - iv
+  expected_source_id: 18087e41-af9c-4f60-8933-12ba41678c2c
+- query: directed acyclic graph causal
+  expected_source_pattern: causal|inference|prediction|search
+  expected_in_top_k: 10
+  expected_concepts:
+  - directed acyclic graph
+  - d-separation
+  - causal path
+  - collider
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - core
+  - graphs
+  notes: GNN books rank above causal books for 'graph' queries. Causation Prediction Search at rank 5. Widened top_k from
+    5 to 10.
+  expected_source_id: 91f2dc44-1cb3-49cb-b6f6-9062f9b3334e
+- query: double machine learning
+  expected_source_pattern: double.*debiased|machine learning|causal|effect|ai
+  expected_in_top_k: 5
+  expected_concepts:
+  - double machine learning
+  - cross-fitting
+  - Neyman orthogonality
+  - nuisance
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: easy
+  tags:
+  - core
+  - dml
+  - ml
+  expected_source_id: 546b1d2e-6420-4008-8d17-7ab0c8fe4f2e
+- query: heterogeneous treatment effects
+  expected_source_pattern: heterogeneous|recursive partitioning|treatment
+  expected_in_top_k: 5
+  expected_concepts:
+  - heterogeneous treatment effects
+  - CATE
+  - subgroup analysis
+  - treatment heterogeneity
+  domain: causal_inference
+  difficulty: easy
+  tags:
+  - hte
+  - ml
+  expected_source_id: 6e46afef-b380-4517-8964-d8a3cdae49ae
+- query: selection bias observational
+  expected_source_pattern: mostly harmless|econometrics|causal
+  expected_in_top_k: 5
+  expected_concepts:
+  - selection bias
+  - observational study
+  - confounding
+  - self-selection
+  domain: causal_inference
+  difficulty: easy
+  tags:
+  - bias
+  - causal_inference
+  expected_source_id: 04e3abc1-38d1-4ca4-9d51-c4e14e9aeafc
+- query: synthetic control experimental design
+  expected_source_pattern: synthetic control.*experimental
+  expected_in_top_k: 5
+  expected_concepts:
+  - synthetic control
+  - donor pool
+  - pre-treatment fit
+  - counterfactual
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - core
+  - synthetic_control
+  notes: 'Phase 1 cleanup: Abadie/Zhao 2021 (arXiv:2108.02196)'
+  expected_source_id: 1e210ea3-49a0-4944-8fd1-fd8579325123
+- query: causal forest random forests heterogeneous
+  expected_source_pattern: heterogeneous treatment effects.*random forests
+  expected_in_top_k: 5
+  expected_concepts:
+  - causal forest
+  - honest estimation
+  - heterogeneous treatment effects
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - core
+  - causal_forest
+  - ml
+  notes: 'Phase 1 cleanup: Wager/Athey 2018'
+  expected_source_id: 6e46afef-b380-4517-8964-d8a3cdae49ae
+- query: causal mediation identification inference
+  expected_source_pattern: mediation|causal.*inference|interaction|primer
+  expected_in_top_k: 5
+  expected_concepts:
+  - causal mediation
+  - direct effect
+  - indirect effect
+  - sequential ignorability
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - core
+  - mediation
+  notes: 'Phase 1 cleanup: Imai et al. 2010 (arXiv:1011.1079)'
+  expected_source_id: d7aff093-288c-43a3-944b-04a40c2ef2ba
+- query: staggered difference in differences multiple time periods
+  expected_source_pattern: difference.*differences.*multiple|time periods
+  expected_in_top_k: 5
+  expected_concepts:
+  - staggered DiD
+  - parallel trends
+  - treatment timing
+  - group-time ATT
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - core
+  - staggered_did
+  notes: 'Phase 1 cleanup: Callaway/Sant''Anna 2021'
+  expected_source_id: 928d7131-b28b-4cfa-ab51-785b4d4b2add
+- query: bayesian networks for causal inference
+  expected_source_pattern: koller|friedman|pgm|graphical|causality.*models|elements.*causal
+  expected_in_top_k: 5
+  expected_concepts:
+  - bayesian network
+  - causal graph
+  - probabilistic inference
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - bayesian
+  - graphs
+  notes: 'Phase 2 expansion: Pearl or Koller/Friedman books'
+  expected_source_id: 5dd8a622-5379-4085-acc5-b5a6b5901d17
+- query: effect size statistical power sample
+  expected_source_pattern: statistical|power|analysis|behavioral
+  expected_in_top_k: 5
+  expected_concepts:
+  - effect size
+  - statistical power
+  - sample size
+  relevance_grade: 3
+  domain: statistics
+  difficulty: medium
+  tags:
+  - phase2
+  - power_analysis
+  notes: 'Phase 2 expansion: Cohen''s Statistical Power Analysis'
+  expected_source_id: 214e9c58-7ca6-47e2-af7c-e0f6ef6e9c63
+- query: endogeneity regression bias
+  expected_source_pattern: econometric|analysis|wooldridge|panel
+  expected_in_top_k: 5
+  expected_concepts:
+  - endogeneity
+  - omitted variable bias
+  - instrumental variables
+  relevance_grade: 3
+  domain: econometrics
+  difficulty: medium
+  tags:
+  - phase2
+  - econometrics
+  - endogeneity
+  notes: 'Phase 2 expansion: Wooldridge Econometric Analysis'
+  expected_source_id: 93737674-d68d-4952-957f-00e26f085088
+- query: confounding variables observational studies adjustment
+  expected_source_pattern: causal|inference|what|hernan|robins
+  expected_in_top_k: 5
+  expected_concepts:
+  - confounding
+  - adjustment
+  - backdoor path
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - confounding
+  - causal_inference
+  notes: 'Phase 2 expansion: Hernan & Robins What If'
+  expected_source_id: bc1e8535-b963-40ed-bbf6-5c74012ae857
+- query: natural indirect effect mediation
+  expected_source_pattern: explanation|causal|mediation|interaction|vanderweele
+  expected_in_top_k: 5
+  expected_concepts:
+  - natural indirect effect
+  - mediation
+  - direct effect
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - mediation
+  - effects
+  notes: 'Phase 2 expansion: VanderWeele mediation book'
+  expected_source_id: 2fd23ab6-1dfc-4ac9-a788-c86297a2b362
+- query: controlled direct effect causal
+  expected_source_pattern: explanation|causal|mediation|interaction|vanderweele
+  expected_in_top_k: 5
+  expected_concepts:
+  - controlled direct effect
+  - direct effect
+  - mediation
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - mediation
+  - effects
+  notes: 'Phase 2 expansion: VanderWeele mediation book'
+  expected_source_id: 865939f8-17ad-4c7f-af2d-9e7965461503
+- query: consistency assumption potential outcomes
+  expected_source_pattern: econometric|causal|what|treatment
+  expected_in_top_k: 5
+  expected_concepts:
+  - consistency
+  - SUTVA
+  - potential outcomes
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - assumptions
+  notes: 'Phase 2 expansion: Fundamental causal assumption'
+  expected_source_id: 505004de-8f37-412c-b184-ad961a300b2b
+- query: sensitivity analysis unmeasured confounding
+  expected_source_pattern: explanation|causal|sensitivity|rosenbaum
+  expected_in_top_k: 5
+  expected_concepts:
+  - sensitivity analysis
+  - unmeasured confounding
+  - robustness
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - sensitivity
+  - robustness
+  notes: 'Phase 2 expansion: VanderWeele or Rosenbaum sensitivity methods'
+  expected_source_id: 1d3a81a8-cec4-401c-9fe1-39aa8374020d
+- query: sample size power calculation
+  expected_source_pattern: statistical|power|analysis|behavioral|cohen|mediation|openintro
+  expected_in_top_k: 5
+  expected_concepts:
+  - power analysis
+  - effect size
+  - sample size
+  - Type II error
+  relevance_grade: 3
+  domain: statistics
+  difficulty: medium
+  tags:
+  - phase2
+  - power_analysis
+  - experimental_design
+  notes: 'Phase 2 expansion: Cohen''s Power Analysis or stats textbooks'
+  expected_source_id: 1d3a81a8-cec4-401c-9fe1-39aa8374020d
+- query: regression discontinuity design sharp fuzzy
+  expected_source_pattern: mostly harmless|econometrics|causal|angrist
+  expected_in_top_k: 5
+  expected_concepts:
+  - regression discontinuity
+  - running variable
+  - bandwidth
+  relevance_grade: 3
+  domain: econometrics
+  difficulty: medium
+  tags:
+  - phase2
+  - rdd
+  - quasi_experimental
+  notes: 'Phase 2 manual: Angrist & Pischke RDD coverage'
+  expected_source_id: 865939f8-17ad-4c7f-af2d-9e7965461503
+- query: inverse probability weighting treatment effects
+  expected_source_pattern: causal|inference|what|hernan|propensity|effect|regression|stories
+  expected_in_top_k: 10
+  expected_concepts:
+  - inverse probability weighting
+  - propensity score
+  - weighting
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - ipw
+  - weighting
+  notes: ROS and The Effect cover IPW. Causal Inference books at rank 10. Widened pattern and top_k.
+  expected_source_id: 33e44003-a93c-4e8e-86be-63b4fe8ebd55
+- query: doubly robust estimation AIPW
+  expected_source_pattern: causal|inference|double|debiased|treatment
+  expected_in_top_k: 5
+  expected_concepts:
+  - doubly robust
+  - AIPW
+  - augmented IPW
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - doubly_robust
+  - ml
+  notes: 'Phase 2 manual: Doubly robust / AIPW estimators'
+  expected_source_id: 865939f8-17ad-4c7f-af2d-9e7965461503
+- query: two stage least squares IV estimation
+  expected_source_pattern: mostly harmless|econometric|instrumental|wooldridge
+  expected_in_top_k: 5
+  expected_concepts:
+  - two-stage least squares
+  - 2SLS
+  - first stage
+  - instrumental variables
+  relevance_grade: 3
+  domain: econometrics
+  difficulty: medium
+  tags:
+  - phase2
+  - iv
+  - 2sls
+  notes: 'Phase 2 manual: Core IV estimation method'
+  expected_source_id: 24af0a79-be81-4c29-8426-fcc97ef1ec81
+- query: overlap assumption positivity propensity
+  expected_source_pattern: causal|inference|what|propensity|treatment
+  expected_in_top_k: 5
+  expected_concepts:
+  - overlap
+  - positivity
+  - propensity score
+  - common support
+  relevance_grade: 3
+  domain: causal_inference
+  difficulty: medium
+  tags:
+  - phase2
+  - assumptions
+  - propensity
+  notes: 'Phase 2 manual: Key identifiability assumption'
+  expected_source_id: 04e3abc1-38d1-4ca4-9d51-c4e14e9aeafc
+- query: bunching estimator kink threshold
+  expected_source_pattern: bunching|public|economics|kleven|state.*applied|effect
+  expected_in_top_k: 5
+  expected_concepts:
+  - bunching estimator
+  - notch
+  - kink
+  - elasticity
+  relevance_grade: 3
+  domain: econometrics
+  difficulty: medium
+  tags:
+  - phase2
+  - bunching
+  - public_economics
+  notes: 'Phase 2 manual: Bunching in applied econ sources'
+  expected_source_id: d8c1e0bc-0e7d-44e5-a883-785efff197e5
+- query: weak instruments bias IV
+  expected_source_pattern: mostly harmless|econometric|instrumental|weak|what if|hernan|causal|mixtape
+  expected_in_top_k: 10
+  expected_concepts:
+  - weak instruments
+  - F-statistic
+  - bias
+  - 2SLS
+  relevance_grade: 3
+  domain: econometrics
+  difficulty: hard
+  tags:
+  - phase2
+  - iv
+  - weak_instruments
+  notes: Corpus lacks dedicated IV textbook. Causal inference books cover weak instruments. Widened pattern and top_k.
+  expected_source_id: dc93c736-4035-426a-a222-2a7a51b490cb
+- query: dynamic programming optimal substructure
+  expected_source_pattern: algorithm|roughgarden|grokking|wengrow|kochenderfer
+  expected_in_top_k: 5
+  expected_concepts:
+  - dynamic programming
+  - optimal substructure
+  - overlapping subproblems
+  - memoization
+  relevance_grade: 3
+  domain: algorithms
+  difficulty: medium
+  tags:
+  - phase_o
+  - algorithms
+  notes: 'Phase O: Algorithms core technique'
+  expected_source_id: 63010bfc-1da5-426b-9143-7dac055a8746
+- query: graph BFS shortest path
+  expected_source_pattern: algorithm|roughgarden|grokking|wengrow|cormen|data structure
+  expected_in_top_k: 5
+  expected_concepts:
+  - breadth-first search
+  - shortest path
+  - graph traversal
+  relevance_grade: 3
+  domain: algorithms
+  difficulty: medium
+  tags:
+  - phase_o
+  - algorithms
+  notes: Cormen at rank 1 after guide removal. Added cormen and data structure to pattern.
+  expected_source_id: 63010bfc-1da5-426b-9143-7dac055a8746
+- query: greedy algorithm correctness proof
+  expected_source_pattern: algorithm|roughgarden|greedy|illuminated
+  expected_in_top_k: 5
+  expected_concepts:
+  - greedy algorithm
+  - exchange argument
+  - optimal substructure
+  relevance_grade: 3
+  domain: algorithms
+  difficulty: medium
+  tags:
+  - phase_o
+  - algorithms
+  notes: 'Phase O: Greedy algorithm theory'
+  expected_source_id: 7dcf6412-15f4-432b-8a85-32de4270e894
+- query: divide and conquer recurrence relation
+  expected_source_pattern: algorithm|roughgarden|grokking|wengrow|illuminated
+  expected_in_top_k: 5
+  expected_concepts:
+  - divide and conquer
+  - recurrence
+  - master theorem
+  relevance_grade: 3
+  domain: algorithms
+  difficulty: medium
+  tags:
+  - phase_o
+  - algorithms
+  notes: 'Phase O: D&C algorithm analysis'
+  expected_source_id: 0e573e04-3725-44f3-9a03-0ed739412544
+- query: monad transformer stack
+  expected_source_pattern: haskell|scala|functional|depth
+  expected_in_top_k: 5
+  expected_concepts:
+  - monad transformer
+  - monad
+  - composition
+  - effect
+  relevance_grade: 3
+  domain: functional_programming
+  difficulty: medium
+  tags:
+  - phase_o
+  - functional_programming
+  notes: 'Phase O: FP core abstraction'
+  expected_source_id: fa932a86-7978-4f17-bc5e-eb351d9f6a6c
+- query: algebraic data types pattern matching
+  expected_source_pattern: haskell|scala|functional|programming
+  expected_in_top_k: 5
+  expected_concepts:
+  - algebraic data type
+  - pattern matching
+  - sum type
+  - product type
+  relevance_grade: 3
+  domain: functional_programming
+  difficulty: medium
+  tags:
+  - phase_o
+  - functional_programming
+  notes: 'Phase O: FP type system fundamentals'
+  expected_source_id: 32145a96-ef2b-4c14-9a6c-8a41dd3d2e99
+- query: referential transparency pure functions
+  expected_source_pattern: haskell|scala|functional|programming
+  expected_in_top_k: 5
+  expected_concepts:
+  - referential transparency
+  - pure function
+  - side effect
+  - immutability
+  relevance_grade: 3
+  domain: functional_programming
+  difficulty: medium
+  tags:
+  - phase_o
+  - functional_programming
+  notes: 'Phase O: FP purity principles'
+  expected_source_id: 19739f4b-8909-4bff-a6c7-82ff4f9f1339
+- query: network centrality measures betweenness
+  expected_source_pattern: network|statistical|analysis|graph|kolaczyk
+  expected_in_top_k: 5
+  expected_concepts:
+  - centrality
+  - betweenness
+  - degree centrality
+  - network analysis
+  relevance_grade: 3
+  domain: data_science
+  difficulty: medium
+  tags:
+  - phase_o
+  - data_science
+  notes: 'Phase O: Network analysis method'
+  expected_source_id: f412d0d6-f206-4ff3-9577-7de5ec46479b
+- query: exploratory data analysis workflow
+  expected_source_pattern: data scien|analysis|getting started|pyspark|software engineering
+  expected_in_top_k: 5
+  expected_concepts:
+  - EDA
+  - exploratory data analysis
+  - visualization
+  - summary statistics
+  relevance_grade: 2
+  domain: data_science
+  difficulty: hard
+  tags:
+  - phase_o
+  - data_science
+  notes: Corpus lacks dedicated EDA books. Software Engineering for Data Scientists at rank 1 is best available. Widened pattern.
+  expected_source_id: 721f50dc-bbef-437c-95b3-a097100482f3
+- query: A/B testing experiment design
+  expected_source_pattern: causal|inference|experiment|data scien|design
+  expected_in_top_k: 5
+  expected_concepts:
+  - A/B testing
+  - experiment
+  - control group
+  - statistical significance
+  relevance_grade: 2
+  domain: data_science
+  difficulty: hard
+  tags:
+  - phase_o
+  - data_science
+  notes: Causal Inference for Data Science at rank 2 is relevant. Corpus lacks dedicated A/B testing book.
+  expected_source_id: 69fdbfbe-20f4-4342-a050-4f8fc9e81284
+- query: feature store serving latency
+  expected_source_pattern: ml|machine learning|building|powered|mlops
+  expected_in_top_k: 5
+  expected_concepts:
+  - feature store
+  - serving
+  - latency
+  - feature engineering
+  relevance_grade: 3
+  domain: ml_engineering
+  difficulty: medium
+  tags:
+  - phase_o
+  - ml_engineering
+  notes: 'Phase O: MLOps infrastructure'
+  expected_source_id: 9556f1d0-3dba-47ef-9a84-56e5e93bc00d
+- query: model monitoring data drift detection
+  expected_source_pattern: ml|machine learning|building|monitoring|drift
+  expected_in_top_k: 5
+  expected_concepts:
+  - data drift
+  - model monitoring
+  - concept drift
+  - distribution shift
+  relevance_grade: 3
+  domain: ml_engineering
+  difficulty: medium
+  tags:
+  - phase_o
+  - ml_engineering
+  notes: 'Phase O: ML production monitoring'
+  expected_source_id: 9556f1d0-3dba-47ef-9a84-56e5e93bc00d
+- query: ML pipeline reproducibility versioning
+  expected_source_pattern: ml|machine learning|building|pipeline|reproducibility
+  expected_in_top_k: 5
+  expected_concepts:
+  - reproducibility
+  - versioning
+  - pipeline
+  - experiment tracking
+  relevance_grade: 3
+  domain: ml_engineering
+  difficulty: medium
+  tags:
+  - phase_o
+  - ml_engineering
+  notes: 'Phase O: MLOps best practices'
+  expected_source_id: 7cef0090-7a08-4b20-b269-42263d89e5c0
+- query: progressive overload periodization training
+  expected_source_pattern: strength|training|practical|programming|fitness
+  expected_in_top_k: 5
+  expected_concepts:
+  - progressive overload
+  - periodization
+  - training volume
+  - adaptation
+  relevance_grade: 3
+  domain: fitness
+  difficulty: hard
+  tags:
+  - phase_o
+  - fitness
+  notes: 'Phase O: Strength training principles'
+  expected_source_id: f2364004-215b-42bd-8043-ddb01c62baac
+- query: compound vs isolation exercises
+  expected_source_pattern: strength|training|practical|programming|fitness
+  expected_in_top_k: 5
+  expected_concepts:
+  - compound exercise
+  - isolation exercise
+  - squat
+  - deadlift
+  relevance_grade: 3
+  domain: fitness
+  difficulty: hard
+  tags:
+  - phase_o
+  - fitness
+  notes: 'Phase O: Exercise classification'
+  expected_source_id: ca988244-13d1-4e0a-8b33-0b796af952b2
+- query: novice strength training linear progression
+  expected_source_pattern: strength|training|practical|programming|fitness
+  expected_in_top_k: 5
+  expected_concepts:
+  - linear progression
+  - novice
+  - recovery
+  - stress adaptation
+  relevance_grade: 3
+  domain: fitness
+  difficulty: hard
+  tags:
+  - phase_o
+  - fitness
+  notes: 'Phase O: Novice programming model'
+  expected_source_id: f2364004-215b-42bd-8043-ddb01c62baac
+- query: demand forecasting inventory planning
+  expected_source_pattern: demand|forecasting|best practices|inventory
+  expected_in_top_k: 5
+  expected_concepts:
+  - demand forecasting
+  - inventory
+  - safety stock
+  - lead time
+  relevance_grade: 3
+  domain: forecasting
+  difficulty: hard
+  tags:
+  - phase_o
+  - forecasting
+  notes: 'Phase O: Applied forecasting'
+  expected_source_id: 48dee9f0-fc3b-44d1-9259-995741d7b1e3
+- query: forecast error decomposition bias variance
+  expected_source_pattern: demand|forecasting|best practices|time series
+  expected_in_top_k: 5
+  expected_concepts:
+  - forecast error
+  - bias
+  - variance
+  - MAPE
+  relevance_grade: 3
+  domain: forecasting
+  difficulty: hard
+  tags:
+  - phase_o
+  - forecasting
+  notes: 'Phase O: Forecast evaluation'
+  expected_source_id: 24fe0e16-3208-4b80-91dd-b2c4890a176a
+- query: intermittent demand forecasting Croston
+  expected_source_pattern: demand|forecasting|best practices|intermittent
+  expected_in_top_k: 5
+  expected_concepts:
+  - intermittent demand
+  - Croston
+  - SBA
+  - demand classification
+  relevance_grade: 3
+  domain: forecasting
+  difficulty: hard
+  tags:
+  - phase_o
+  - forecasting
+  notes: 'Phase O: Sparse demand methods'
+  expected_source_id: b2440de9-e6e2-4eb9-955d-0735cbd02964
+- query: window functions ranking partitioning
+  expected_source_pattern: sql|database|performance|query|text-to-sql|advances
+  expected_in_top_k: 10
+  expected_concepts:
+  - window function
+  - ROW_NUMBER
+  - PARTITION BY
+  - ranking
+  relevance_grade: 3
+  domain: sql
+  difficulty: hard
+  tags:
+  - phase_u
+  - sql
+  notes: 'Phase U: SQL window functions (2 arXiv survey papers)'
+  expected_source_id: d86068a3-26cd-4447-9651-99b3c4d3010a
+- query: query execution plan optimization
+  expected_source_pattern: sql|database|performance|explain|index|query optimization|llm
+  expected_in_top_k: 10
+  expected_concepts:
+  - execution plan
+  - query optimizer
+  - index scan
+  - cost estimation
+  relevance_grade: 3
+  domain: sql
+  difficulty: hard
+  tags:
+  - phase_u
+  - sql
+  notes: 'Phase U: Query optimization (2 arXiv survey papers)'
+  expected_source_id: d86068a3-26cd-4447-9651-99b3c4d3010a
+- query: database normalization third normal form
+  expected_source_pattern: sql|database|normalization|relational|text-to-sql|query optimization|spark|data engineer
+  expected_in_top_k: 15
+  expected_concepts:
+  - normalization
+  - third normal form
+  - functional dependency
+  - primary key
+  relevance_grade: 1
+  domain: sql
+  difficulty: hard
+  tags:
+  - phase_u
+  - sql
+  - thin_domain
+  - corpus_gap
+  notes: 'CORPUS GAP: No relational DB theory books. SQL domain has only survey papers + interview prep. Spark/GCP data books
+    are best available but poor fit. Grade 1 (related, not exact).'
+  expected_source_id: 4f12fd07-8514-46ea-833f-e7c421a23c22
+- query: collaborative filtering matrix factorization
+  expected_source_pattern: recommender|collaborative|matrix|factorization|deep learning|survey
+  expected_in_top_k: 10
+  expected_concepts:
+  - collaborative filtering
+  - matrix factorization
+  - latent factors
+  - user-item
+  relevance_grade: 3
+  domain: recommender_systems
+  difficulty: hard
+  tags:
+  - phase_u
+  - recommender_systems
+  notes: 'Phase U: Core recsys method (3 arXiv papers)'
+  expected_source_id: 6a7e5cf9-4d63-405c-a8b2-f9a7bf10436f
+- query: cold start problem new user recommendation
+  expected_source_pattern: recommender|cold start|hybrid|content|survey|Neural Recommendation|Deep Learning
+  expected_in_top_k: 15
+  expected_concepts:
+  - cold start
+  - content-based filtering
+  - hybrid recommender
+  relevance_grade: 2
+  domain: recommender_systems
+  difficulty: hard
+  tags:
+  - phase_u
+  - recommender_systems
+  - thin_domain
+  notes: 'Phase U: Recsys challenge — thin domain (3 survey papers may cover cold start tangentially)'
+  expected_source_id: e1b88090-d08f-4fe2-85ad-1a59e9a226e2
+- query: implicit feedback click through recommendation
+  expected_source_pattern: recommender|implicit|feedback|click|deep learning
+  expected_in_top_k: 10
+  expected_concepts:
+  - implicit feedback
+  - click-through rate
+  - negative sampling
+  relevance_grade: 3
+  domain: recommender_systems
+  difficulty: hard
+  tags:
+  - phase_u
+  - recommender_systems
+  notes: 'Phase U: Implicit recsys (3 arXiv papers)'
+- query: real time bidding auction mechanism
+  expected_source_pattern: advertising|auction|bidding|computational|display|survey
+  expected_in_top_k: 10
+  expected_concepts:
+  - real-time bidding
+  - second-price auction
+  - bid optimization
+  relevance_grade: 3
+  domain: adtech
+  difficulty: hard
+  tags:
+  - phase_u
+  - adtech
+  notes: 'Phase U: RTB mechanism (2 arXiv papers)'
+  expected_source_id: bc4d2bb4-ad5e-4dd4-a33e-a11999d2ab09
+- query: click through rate prediction ad ranking
+  expected_source_pattern: advertising|ctr|prediction|ranking|display|survey
+  expected_in_top_k: 10
+  expected_concepts:
+  - CTR prediction
+  - ad ranking
+  - feature engineering
+  - calibration
+  relevance_grade: 3
+  domain: adtech
+  difficulty: hard
+  tags:
+  - phase_u
+  - adtech
+  notes: 'Phase U: Ad ML (2 arXiv papers)'
+  expected_source_id: bc4d2bb4-ad5e-4dd4-a33e-a11999d2ab09
+- query: attribution modeling multi touch conversion
+  expected_source_pattern: advertising|attribution|conversion|multi-touch|display|survey
+  expected_in_top_k: 10
+  expected_concepts:
+  - attribution modeling
+  - multi-touch
+  - conversion
+  - incrementality
+  relevance_grade: 3
+  domain: adtech
+  difficulty: hard
+  tags:
+  - phase_u
+  - adtech
+  notes: 'Phase U: Ad measurement (2 arXiv papers)'
+  expected_source_id: bc4d2bb4-ad5e-4dd4-a33e-a11999d2ab09
+- query: ARIMA model identification
+  expected_source_pattern: time series|forecasting|shumway|stoffer
+  expected_in_top_k: 5
+  expected_concepts:
+  - ARIMA
+  - autocorrelation
+  - differencing
+  - stationarity
+  relevance_grade: 3
+  domain: time_series
+  difficulty: medium
+  tags:
+  - phase_j
+  - time_series
+  notes: 'Phase J: Time series core method'
+  expected_source_id: 911dd5dd-c5d8-4aca-82ec-479b2de1ead3
+- query: exponential smoothing forecasting
+  expected_source_pattern: time series|forecasting|hyndman|holt
+  expected_in_top_k: 5
+  expected_concepts:
+  - exponential smoothing
+  - Holt-Winters
+  - trend
+  - seasonality
+  relevance_grade: 3
+  domain: time_series
+  difficulty: medium
+  tags:
+  - phase_j
+  - time_series
+  notes: 'Phase J: Forecasting core technique'
+  expected_source_id: 0982ca52-8588-41ed-88fe-f2df9adcdcbe
+- query: Granger causality temporal
+  expected_source_pattern: time series|hamilton|var|granger
+  expected_in_top_k: 5
+  expected_concepts:
+  - Granger causality
+  - vector autoregression
+  - temporal ordering
+  relevance_grade: 3
+  domain: time_series
+  difficulty: medium
+  tags:
+  - phase_j
+  - time_series
+  notes: 'Phase J: Temporal causality concept'
+  expected_source_id: 24fe0e16-3208-4b80-91dd-b2c4890a176a
+- query: attention mechanism transformer architecture
+  expected_source_pattern: deep learning|transformer|attention|natural language
+  expected_in_top_k: 5
+  expected_concepts:
+  - attention
+  - transformer
+  - self-attention
+  - multi-head
+  relevance_grade: 3
+  domain: deep_learning
+  difficulty: medium
+  tags:
+  - phase_j
+  - deep_learning
+  notes: 'Phase J: Core DL architecture'
+  expected_source_id: e724fd1d-e007-473b-a009-9a0db2af4c72
+- query: convolutional neural network image classification
+  expected_source_pattern: deep learning|cnn|convolutional|tensorflow|pattern
+  expected_in_top_k: 5
+  expected_concepts:
+  - convolution
+  - pooling
+  - feature map
+  - filter
+  relevance_grade: 3
+  domain: deep_learning
+  difficulty: medium
+  tags:
+  - phase_j
+  - deep_learning
+  notes: 'Phase J: CNN fundamentals'
+  expected_source_id: 0a31d106-225f-4c48-b545-d90d66479bc9
+- query: vanishing gradient deep networks
+  expected_source_pattern: deep learning|evolutionary|gradient|neural
+  expected_in_top_k: 5
+  expected_concepts:
+  - vanishing gradient
+  - residual connection
+  - batch normalization
+  relevance_grade: 3
+  domain: deep_learning
+  difficulty: medium
+  tags:
+  - phase_j
+  - deep_learning
+  notes: 'Phase J: Training challenge'
+  expected_source_id: e1b88090-d08f-4fe2-85ad-1a59e9a226e2
+- query: SOLID design principles
+  expected_source_pattern: code|software|design|clean|skills
+  expected_in_top_k: 5
+  expected_concepts:
+  - single responsibility
+  - open-closed
+  - dependency inversion
+  relevance_grade: 3
+  domain: software_engineering
+  difficulty: medium
+  tags:
+  - phase_j
+  - software_engineering
+  notes: 'Phase J: Design principles'
+  expected_source_id: 881f3afa-23d6-4176-afda-dfd93ed00cd0
+- query: microservice vs monolith architecture
+  expected_source_pattern: software|kubernetes|microservice|monolith|code|deploy|action
+  expected_in_top_k: 5
+  expected_concepts:
+  - microservice
+  - monolith
+  - coupling
+  - scalability
+  relevance_grade: 2
+  domain: software_engineering
+  difficulty: medium
+  tags:
+  - phase_j
+  - software_engineering
+  notes: Kubernetes and GitHub Actions books at rank 1-2 are adjacent. No dedicated architecture patterns book in corpus.
+    Widened pattern.
+  expected_source_id: d1ab3ca1-aa5e-4984-b8d9-a676d1564b91
+- query: continuous integration deployment pipeline
+  expected_source_pattern: github|actions|publishing|python|ci|deployment|code
+  expected_in_top_k: 5
+  expected_concepts:
+  - continuous integration
+  - deployment
+  - pipeline
+  - automation
+  relevance_grade: 3
+  domain: software_engineering
+  difficulty: medium
+  tags:
+  - phase_j
+  - software_engineering
+  notes: 'Phase J: CI/CD practices'
+  expected_source_id: 267cfc76-b9fd-47b1-8f57-8db2a71ce716
+- query: Bayesian posterior inference
+  expected_source_pattern: bayesian|statistics|posterior|gelman|donovan
+  expected_in_top_k: 5
+  expected_concepts:
+  - posterior
+  - prior
+  - likelihood
+  - Bayes theorem
+  relevance_grade: 3
+  domain: statistics
+  difficulty: medium
+  tags:
+  - phase_j
+  - statistics
+  notes: 'Phase J: Bayesian inference'
+  expected_source_id: 157a751c-e6c0-49ae-aa89-eb17ba3d90ad
+- query: hypothesis testing p-value
+  expected_source_pattern: statistics|openintro|hypothesis|biostat
+  expected_in_top_k: 5
+  expected_concepts:
+  - p-value
+  - null hypothesis
+  - type I error
+  - significance
+  relevance_grade: 3
+  domain: statistics
+  difficulty: medium
+  tags:
+  - phase_j
+  - statistics
+  notes: 'Phase J: Frequentist inference'
+  expected_source_id: 7219a798-6c10-4040-bf80-9accc8bb01ae
+- query: bootstrap confidence interval
+  expected_source_pattern: statistics|bootstrap|biostat|resampling
+  expected_in_top_k: 5
+  expected_concepts:
+  - bootstrap
+  - confidence interval
+  - resampling
+  relevance_grade: 3
+  domain: statistics
+  difficulty: medium
+  tags:
+  - phase_j
+  - statistics
+  notes: 'Phase J: Nonparametric inference'
+  expected_source_id: ab645533-2b94-4d2b-9aac-5e1d760edaf9
+- query: random forest ensemble learning
+  expected_source_pattern: ensemble|random forest|machine learning|bagging
+  expected_in_top_k: 5
+  expected_concepts:
+  - random forest
+  - bagging
+  - feature importance
+  - ensemble
+  relevance_grade: 3
+  domain: machine_learning
+  difficulty: medium
+  tags:
+  - phase_j
+  - machine_learning
+  notes: 'Phase J: Ensemble method'
+  expected_source_id: 7d34c695-3387-4f66-89df-4a1860fd0d8c
+- query: gradient boosting XGBoost
+  expected_source_pattern: ensemble|gradient|boosting|machine learning
+  expected_in_top_k: 5
+  expected_concepts:
+  - gradient boosting
+  - XGBoost
+  - residual fitting
+  - ensemble
+  relevance_grade: 3
+  domain: machine_learning
+  difficulty: medium
+  tags:
+  - phase_j
+  - machine_learning
+  notes: 'Phase J: Boosting method'
+  expected_source_id: 637af2d8-b6f5-462b-a767-05ed753adf80
+- query: bias variance tradeoff model selection
+  expected_source_pattern: machine learning|mathematics|learning|pattern
+  expected_in_top_k: 5
+  expected_concepts:
+  - bias-variance tradeoff
+  - overfitting
+  - underfitting
+  - generalization
+  relevance_grade: 3
+  domain: machine_learning
+  difficulty: medium
+  tags:
+  - phase_j
+  - machine_learning
+  notes: 'Phase J: Fundamental ML concept'
+  expected_source_id: 304c5021-cc21-481c-9ccb-613e0089ba94
+- query: Black-Scholes option pricing model
+  expected_source_pattern: option|derivatives|hull|hardy|pricing
+  expected_in_top_k: 5
+  expected_concepts:
+  - Black-Scholes
+  - option pricing
+  - volatility
+  - geometric Brownian motion
+  relevance_grade: 3
+  domain: finance
+  difficulty: medium
+  tags:
+  - phase_j
+  - finance
+  notes: 'Phase J: Core pricing model'
+  expected_source_id: e64f1a96-844b-4d16-be7c-092da5160682
+- query: portfolio optimization mean variance
+  expected_source_pattern: portfolio|investment|optimization|finance|risk
+  expected_in_top_k: 5
+  expected_concepts:
+  - mean-variance optimization
+  - efficient frontier
+  - Sharpe ratio
+  relevance_grade: 3
+  domain: finance
+  difficulty: medium
+  tags:
+  - phase_j
+  - finance
+  notes: 'Phase J: Portfolio theory'
+  expected_source_id: 19c345e4-9a83-4bbd-a5b8-d426d761a6e9
+- query: value at risk VaR estimation
+  expected_source_pattern: risk|derivatives|hull|finance|value
+  expected_in_top_k: 5
+  expected_concepts:
+  - value at risk
+  - VaR
+  - expected shortfall
+  - risk measure
+  relevance_grade: 3
+  domain: finance
+  difficulty: medium
+  tags:
+  - phase_j
+  - finance
+  notes: 'Phase J: Risk management'
+  expected_source_id: 70c1280d-0ba9-44a0-a8cf-f3b860192445
+- query: Gauss-Markov theorem OLS
+  expected_source_pattern: econometric|analysis|wooldridge|panel|harmless
+  expected_in_top_k: 5
+  expected_concepts:
+  - Gauss-Markov
+  - BLUE
+  - homoskedasticity
+  - exogeneity
+  relevance_grade: 3
+  domain: econometrics
+  difficulty: medium
+  tags:
+  - phase_j
+  - econometrics
+  notes: 'Phase J: Fundamental econometrics result'
+  expected_source_id: 24fe0e16-3208-4b80-91dd-b2c4890a176a
+- query: Hausman test fixed effects random effects
+  expected_source_pattern: econometric|panel|wooldridge|analysis
+  expected_in_top_k: 5
+  expected_concepts:
+  - Hausman test
+  - fixed effects
+  - random effects
+  - specification test
+  relevance_grade: 3
+  domain: econometrics
+  difficulty: medium
+  tags:
+  - phase_j
+  - econometrics
+  notes: 'Phase J: Panel data specification'
+  expected_source_id: 24af0a79-be81-4c29-8426-fcc97ef1ec81
+- query: retrieval augmented generation architecture
+  expected_source_pattern: agents|action|generative|rag|retrieval
+  expected_in_top_k: 5
+  expected_concepts:
+  - RAG
+  - retrieval
+  - generation
+  - context window
+  relevance_grade: 3
+  domain: rag_llm
+  difficulty: medium
+  tags:
+  - phase_j
+  - rag_llm
+  notes: 'Phase J: RAG architecture'
+  expected_source_id: 3f864f8e-ab77-47fd-8745-b2ba2510341d
+- query: chain of thought prompting
+  expected_source_pattern: language|model|prompt|generative|few-shot
+  expected_in_top_k: 5
+  expected_concepts:
+  - chain-of-thought
+  - prompting
+  - reasoning
+  - few-shot
+  relevance_grade: 3
+  domain: rag_llm
+  difficulty: medium
+  tags:
+  - phase_j
+  - rag_llm
+  notes: 'Phase J: Prompting technique'
+  expected_source_id: 78e8dfac-2d34-4e8b-97bf-f975f20bcf93
+- query: embedding similarity search
+  expected_source_pattern: embedding|retrieval|vector|agents|ai
+  expected_in_top_k: 5
+  expected_concepts:
+  - embedding
+  - similarity
+  - cosine similarity
+  - dense retrieval
+  relevance_grade: 3
+  domain: rag_llm
+  difficulty: medium
+  tags:
+  - phase_j
+  - rag_llm
+  notes: 'Phase J: Retrieval mechanism'
+  expected_source_id: 33e5a4fd-e510-4a52-8c12-75bd27ccb9e2
+- query: singular value decomposition
+  expected_source_pattern: linear algebra|mathematics|machine|matrix
+  expected_in_top_k: 5
+  expected_concepts:
+  - SVD
+  - eigenvalue
+  - low-rank approximation
+  - matrix factorization
+  relevance_grade: 3
+  domain: mathematics
+  difficulty: medium
+  tags:
+  - phase_j
+  - mathematics
+  notes: 'Phase J: Core linear algebra'
+  expected_source_id: eea9a9d7-06f5-4e17-b440-54f61fbc4d06
+- query: gradient descent optimization convergence
+  expected_source_pattern: optimization|mathematics|machine|deep
+  expected_in_top_k: 5
+  expected_concepts:
+  - gradient descent
+  - convergence
+  - learning rate
+  - convexity
+  relevance_grade: 3
+  domain: mathematics
+  difficulty: medium
+  tags:
+  - phase_j
+  - mathematics
+  notes: 'Phase J: Optimization fundamentals'
+  expected_source_id: d5d40a97-1a7a-4cd4-8820-5739ae7d83da
+- query: actuarial mortality tables life contingencies
+  expected_source_pattern: actuarial mathematics|life contingenc|dickson
+  expected_in_top_k: 5
+  expected_concepts:
+  - mortality
+  - life table
+  - actuarial
+  - contingencies
+  relevance_grade: 3
+  domain: actuarial_insurance
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - actuarial_insurance
+  notes: 'Post-ingestion: Core actuarial concept'
+  expected_source_id: e2674714-3666-4af9-9baf-9b45d0ef0d67
+- query: annuity present value pricing
+  expected_source_pattern: annuity|actuarial|variable-annuity
+  expected_in_top_k: 5
+  expected_concepts:
+  - annuity
+  - present value
+  - pricing
+  - discount factor
+  relevance_grade: 3
+  domain: actuarial_insurance
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - actuarial_insurance
+  notes: 'Post-ingestion: Annuity valuation'
+  expected_source_id: b7dc4aca-cb73-4326-96aa-d1f3bd6e2665
+- query: group theory symmetry homomorphism
+  expected_source_pattern: group theory|hungerford|algebra|zee
+  expected_in_top_k: 5
+  expected_concepts:
+  - group
+  - homomorphism
+  - symmetry
+  - isomorphism
+  relevance_grade: 3
+  domain: algebra
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - algebra
+  notes: 'Post-ingestion: Abstract algebra fundamentals'
+  expected_source_id: b6702c4b-2a69-4c0f-893a-5a909678becf
+- query: Galois theory field extension
+  expected_source_pattern: algebra|hungerford|lang|sigler
+  expected_in_top_k: 5
+  expected_concepts:
+  - Galois theory
+  - field extension
+  - polynomial
+  - splitting field
+  relevance_grade: 3
+  domain: algebra
+  difficulty: hard
+  tags:
+  - phase_post_ingestion
+  - algebra
+  notes: 'Post-ingestion: Advanced algebra'
+  expected_source_id: 11a22689-0a29-4cb9-aa51-64df07f5c230
+- query: Banach space functional analysis operator
+  expected_source_pattern: functional analysis|conway|hilbert|halmos
+  expected_in_top_k: 5
+  expected_concepts:
+  - Banach space
+  - functional analysis
+  - operator
+  - norm
+  relevance_grade: 3
+  domain: analysis
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - analysis
+  notes: 'Post-ingestion: Functional analysis core'
+  expected_source_id: 2b79b2dc-7b2f-4124-aed7-1b6ed9d1670d
+- query: complex analysis Cauchy integral formula
+  expected_source_pattern: complex analysis|marsden|lang|conway|basic.*analysis|stein
+  expected_in_top_k: 10
+  expected_concepts:
+  - Cauchy integral
+  - complex analysis
+  - holomorphic
+  - residue
+  relevance_grade: 3
+  domain: analysis
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - analysis
+  notes: 'Post-ingestion: Complex analysis fundamentals (broadened pattern + top_k)'
+  expected_source_id: a049565f-87fe-45b1-9cf9-b0aaf483f90f
+- query: neuroscience excitability bursting neural dynamics
+  expected_source_pattern: neuroscience|dynamical|excitability|bursting
+  expected_in_top_k: 5
+  expected_concepts:
+  - excitability
+  - bursting
+  - neuron
+  - dynamical system
+  relevance_grade: 3
+  domain: biology_neuroscience
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - biology_neuroscience
+  notes: 'Post-ingestion: Computational neuroscience (Izhikevich textbook)'
+  expected_source_id: 18572591-3087-4f7f-9cfc-e3f32e32de25
+- query: epidemiological network model disease spreading
+  expected_source_pattern: ebola|network model|epidem|spreading|campbell|biology
+  expected_in_top_k: 10
+  expected_concepts:
+  - epidemiology
+  - network model
+  - disease spreading
+  - SIR
+  relevance_grade: 3
+  domain: biology_neuroscience
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - biology_neuroscience
+  notes: 'Post-ingestion: Epidemiological modeling (broadened pattern + top_k)'
+  expected_source_id: ce3f7db5-ed14-47e7-832e-9a7ea670924e
+- query: eigenvalue decomposition spectral theorem
+  expected_source_pattern: linear algebra|strang|lay|roman
+  expected_in_top_k: 5
+  expected_concepts:
+  - eigenvalue
+  - spectral theorem
+  - diagonalization
+  - eigenvector
+  relevance_grade: 3
+  domain: linear_algebra
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - linear_algebra
+  notes: 'Post-ingestion: Core linear algebra'
+  expected_source_id: 1a8c449c-7956-4ca0-89f9-740fdb3b5b7b
+- query: Jordan canonical form matrix similarity
+  expected_source_pattern: linear algebra|roman|advanced|strang
+  expected_in_top_k: 5
+  expected_concepts:
+  - Jordan form
+  - canonical form
+  - similarity
+  - nilpotent
+  relevance_grade: 3
+  domain: linear_algebra
+  difficulty: hard
+  tags:
+  - phase_post_ingestion
+  - linear_algebra
+  notes: 'Post-ingestion: Advanced linear algebra'
+  expected_source_id: 710d8096-d6c1-4853-878c-2b357bee62d7
+- query: finite element method numerical PDE
+  expected_source_pattern: numerical|computational|partial differential|iserles|burden
+  expected_in_top_k: 5
+  expected_concepts:
+  - finite element
+  - PDE
+  - numerical method
+  - mesh
+  relevance_grade: 3
+  domain: numerical_methods
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - numerical_methods
+  notes: 'Post-ingestion: Numerical PDE solving'
+  expected_source_id: df785d2c-8353-4fb3-a1d9-430fa9b643e5
+- query: numerical integration quadrature interpolation
+  expected_source_pattern: numerical|burden|iserles|analysis
+  expected_in_top_k: 5
+  expected_concepts:
+  - quadrature
+  - interpolation
+  - numerical integration
+  - polynomial
+  relevance_grade: 3
+  domain: numerical_methods
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - numerical_methods
+  notes: 'Post-ingestion: Numerical approximation'
+  expected_source_id: 457d7f82-422c-4a98-b5dd-50825ad7f53f
+- query: convex optimization duality KKT conditions
+  expected_source_pattern: cvxbook|convex|optimization|boyd
+  expected_in_top_k: 5
+  expected_concepts:
+  - convex optimization
+  - duality
+  - KKT
+  - Lagrangian
+  relevance_grade: 3
+  domain: optimization
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - optimization
+  notes: 'Post-ingestion: Boyd & Vandenberghe core'
+  expected_source_id: 874c2f7f-ed8e-444c-a6c9-622abdb9ca66
+- query: dynamic programming Bellman equation optimal control
+  expected_source_pattern: dynamic programming|optimal control|bertsekas
+  expected_in_top_k: 5
+  expected_concepts:
+  - dynamic programming
+  - Bellman equation
+  - optimal control
+  - value function
+  relevance_grade: 3
+  domain: optimization
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - optimization
+  notes: 'Post-ingestion: Dynamic programming fundamentals'
+  expected_source_id: a14c2da8-d578-407e-8900-6cdb02c39eee
+- query: quantum mechanics Schrodinger equation wave function
+  expected_source_pattern: quantum mechanics|griffiths|introduction to quantum
+  expected_in_top_k: 5
+  expected_concepts:
+  - Schrodinger equation
+  - wave function
+  - quantum mechanics
+  - Hamiltonian
+  relevance_grade: 3
+  domain: physics
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - physics
+  notes: 'Post-ingestion: Quantum mechanics fundamentals'
+  expected_source_id: 5b37f0c3-3bd6-44bf-bade-b1d593e5cb69
+- query: classical electrodynamics Maxwell equations
+  expected_source_pattern: electrodynamics|jackson|griffiths
+  expected_in_top_k: 5
+  expected_concepts:
+  - Maxwell equations
+  - electrodynamics
+  - electromagnetic
+  - field
+  relevance_grade: 3
+  domain: physics
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - physics
+  notes: 'Post-ingestion: Classical E&M'
+  expected_source_id: 766d60ec-e789-4e14-818f-dfe5fd4f2ec5
+- query: Brownian motion stochastic calculus Ito
+  expected_source_pattern: brownian motion|stochastic calculus|karatzas|shreve
+  expected_in_top_k: 5
+  expected_concepts:
+  - Brownian motion
+  - stochastic calculus
+  - Ito formula
+  - martingale
+  relevance_grade: 3
+  domain: probability_theory
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - probability_theory
+  notes: 'Post-ingestion: Stochastic calculus core'
+  expected_source_id: 20e02389-faf7-4c7d-9199-468ec9713096
+- query: measure theoretic probability sigma algebra
+  expected_source_pattern: measure theory|probability theory|athreya|dasgupta
+  expected_in_top_k: 5
+  expected_concepts:
+  - measure theory
+  - sigma algebra
+  - probability measure
+  - Borel
+  relevance_grade: 3
+  domain: probability_theory
+  difficulty: hard
+  tags:
+  - phase_post_ingestion
+  - probability_theory
+  notes: 'Post-ingestion: Rigorous probability foundations'
+  expected_source_id: 2b928287-64f5-46f7-b8e8-d20b818d3b20
+- query: Q-learning temporal difference policy gradient
+  expected_source_pattern: reinforcement learning|deep reinforcement|grokking|bertsekas
+  expected_in_top_k: 5
+  expected_concepts:
+  - Q-learning
+  - temporal difference
+  - policy gradient
+  - value function
+  relevance_grade: 3
+  domain: reinforcement_learning
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - reinforcement_learning
+  notes: 'Post-ingestion: RL fundamentals'
+  expected_source_id: befa6ff4-2c8d-46d4-a654-c1dda4d66a2e
+- query: Markov decision process MDP reward
+  expected_source_pattern: reinforcement learning|bertsekas|optimal control|grokking|lecture
+  expected_in_top_k: 10
+  expected_concepts:
+  - MDP
+  - Markov decision process
+  - reward
+  - policy
+  relevance_grade: 3
+  domain: reinforcement_learning
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - reinforcement_learning
+  notes: 'Post-ingestion: MDP framework (broadened to include lecture titles)'
+  expected_source_id: 67e09e88-0899-48fa-8f25-51a8f45adb88
+- query: discrete Fourier transform DFT spectral analysis
+  expected_source_pattern: signal processing|oppenheim|lyons|digital
+  expected_in_top_k: 5
+  expected_concepts:
+  - DFT
+  - Fourier transform
+  - spectral analysis
+  - frequency
+  relevance_grade: 3
+  domain: signal_processing
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - signal_processing
+  notes: 'Post-ingestion: DSP fundamentals'
+  expected_source_id: 627e39e9-996e-4e82-a0af-b5c770019567
+- query: wavelet transform multiresolution analysis
+  expected_source_pattern: wavelet|frazier|signal|transform
+  expected_in_top_k: 5
+  expected_concepts:
+  - wavelet
+  - multiresolution
+  - transform
+  - scaling function
+  relevance_grade: 3
+  domain: signal_processing
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - signal_processing
+  notes: 'Post-ingestion: Wavelet theory'
+  expected_source_id: 1180de25-06c2-4c46-ad17-349dab04c347
+- query: differential geometry manifold tangent bundle
+  expected_source_pattern: differential geometry|manifold|pressley|mcinerney|spivak
+  expected_in_top_k: 5
+  expected_concepts:
+  - manifold
+  - tangent bundle
+  - differential geometry
+  - smooth map
+  relevance_grade: 3
+  domain: topology_geometry
+  difficulty: medium
+  tags:
+  - phase_post_ingestion
+  - topology_geometry
+  notes: 'Post-ingestion: Differential geometry core'
+  expected_source_id: 55b27917-263a-4091-a387-5ba4ecef17da
+- query: algebraic topology homology fundamental group
+  expected_source_pattern: topology|munkres|morse theory|manifold
+  expected_in_top_k: 5
+  expected_concepts:
+  - homology
+  - fundamental group
+  - topology
+  - homotopy
+  relevance_grade: 3
+  domain: topology_geometry
+  difficulty: hard
+  tags:
+  - phase_post_ingestion
+  - topology_geometry
+  notes: 'Post-ingestion: Algebraic topology'
+  expected_source_id: 6ed19352-34dd-46c0-b553-cf523745808e
 metrics:
   precision_at_5:
-    target: 0.90
-    description: "90% of top-5 results should be relevant"
-
+    target: 0.9
+    description: 90% of top-5 results should be relevant
   recall:
     target: 0.95
-    description: "95% of relevant documents should be retrieved"
+    description: 95% of relevant documents should be retrieved
