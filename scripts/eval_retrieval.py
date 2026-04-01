@@ -164,6 +164,7 @@ async def run_test_case(
     use_citations: bool = False,
     citation_weight: float = 0.15,
     use_reranking: bool = False,
+    fetch_limit: int = 100,
 ) -> TestResult:
     """Run a single test case.
 
@@ -173,6 +174,9 @@ async def run_test_case(
         scoring_method: Score combination method - "weighted" or "rrf"
         use_citations: Enable citation authority signal
         citation_weight: Weight for citation signal (0-1)
+        use_reranking: Enable cross-encoder reranking
+        fetch_limit: Number of results to fetch from search (default 100).
+            Decoupled from expected_in_top_k which controls the evaluation window.
 
     Returns:
         TestResult with pass/fail and details
@@ -187,7 +191,7 @@ async def run_test_case(
             embedding=query_embedding,
             fts_weight=0.3,
             vector_weight=0.7,
-            limit=test_case.expected_in_top_k,
+            limit=fetch_limit,
             scoring_method=scoring_method,
             use_citations=use_citations,
             citation_weight=citation_weight if use_citations else 0.0,
@@ -195,7 +199,7 @@ async def run_test_case(
 
         # Use reranking > v2 (citations) > base search
         if use_reranking:
-            results = await search_with_rerank(query, rerank_top_k=test_case.expected_in_top_k)
+            results = await search_with_rerank(query, rerank_top_k=fetch_limit)
         elif use_citations:
             results = await search_hybrid_v2(query)
         else:
@@ -236,23 +240,29 @@ async def run_test_case(
             return min_page <= page <= max_page
 
         # 1. Try UUID match (preferred — deterministic)
+        top_k = test_case.expected_in_top_k
         if test_case.expected_source_id:
             for result in results:
                 if str(result.source.id) == test_case.expected_source_id:
                     page_valid = _check_page_range(result.chunk.page_start)
+                    in_top_k = result.rank <= top_k
+                    passed = page_valid and in_top_k
+                    if not passed:
+                        if not in_top_k:
+                            err = f"Found at rank {result.rank} (outside top-{top_k})"
+                        else:
+                            err = f"Page {result.chunk.page_start} outside expected range {test_case.expected_page_range}"
+                    else:
+                        err = None
                     return TestResult(
                         test_case=test_case,
-                        passed=page_valid,
+                        passed=passed,
                         matched_rank=result.rank,
                         matched_source=result.source.title,
                         matched_page=result.chunk.page_start,
                         concept_recall=concept_recall,
                         found_concepts=found_concepts[:10],
-                        error=(
-                            None
-                            if page_valid
-                            else f"Page {result.chunk.page_start} outside expected range {test_case.expected_page_range}"
-                        ),
+                        error=err,
                     )
 
         # 2. Fall back to pattern match (legacy — kept for backward compatibility)
@@ -263,22 +273,27 @@ async def run_test_case(
 
             if pattern.search(source_title):
                 page_valid = _check_page_range(result.chunk.page_start)
+                in_top_k = result.rank <= top_k
+                passed = page_valid and in_top_k
+                if not passed:
+                    if not in_top_k:
+                        err = f"Found at rank {result.rank} (outside top-{top_k})"
+                    else:
+                        err = f"Page {result.chunk.page_start} outside expected range {test_case.expected_page_range}"
+                else:
+                    err = None
                 return TestResult(
                     test_case=test_case,
-                    passed=page_valid,
+                    passed=passed,
                     matched_rank=result.rank,
                     matched_source=result.source.title,
                     matched_page=result.chunk.page_start,
                     concept_recall=concept_recall,
                     found_concepts=found_concepts[:10],
-                    error=(
-                        None
-                        if page_valid
-                        else f"Page {result.chunk.page_start} outside expected range {test_case.expected_page_range}"
-                    ),
+                    error=err,
                 )
 
-        # No match found
+        # No match found in any of the fetched results
         top_sources = [r.source.title for r in results[:3]]
         match_method = "UUID" if test_case.expected_source_id else "pattern"
         return TestResult(
@@ -286,7 +301,7 @@ async def run_test_case(
             passed=False,
             concept_recall=concept_recall,
             found_concepts=found_concepts[:10],
-            error=f"No {match_method} match in top-{test_case.expected_in_top_k}. Top: {top_sources}",
+            error=f"No {match_method} match in top-{fetch_limit}. Top: {top_sources}",
         )
 
     except Exception as e:
@@ -305,6 +320,7 @@ async def run_eval(
     use_citations: bool = False,
     citation_weight: float = 0.15,
     use_reranking: bool = False,
+    fetch_limit: int = 100,
 ) -> tuple[list[TestResult], dict]:
     """Run full evaluation suite.
 
@@ -315,6 +331,8 @@ async def run_eval(
         scoring_method: Score combination method - "weighted" or "rrf"
         use_citations: Enable citation authority signal
         citation_weight: Weight for citation signal (0-1)
+        use_reranking: Enable cross-encoder reranking
+        fetch_limit: Number of results to fetch from search (default 100)
 
     Returns:
         Tuple of (results list, metrics dict)
@@ -346,6 +364,7 @@ async def run_eval(
             use_citations=use_citations,
             citation_weight=citation_weight,
             use_reranking=use_reranking,
+            fetch_limit=fetch_limit,
         )
         results.append(result)
 
@@ -834,6 +853,15 @@ async def main():
         action="store_true",
         help="Enable cross-encoder reranking (requires rerank server running)",
     )
+    parser.add_argument(
+        "--fetch-limit",
+        type=int,
+        default=100,
+        help="Number of results to fetch from search (default: 100). "
+        "Decoupled from expected_in_top_k which controls the evaluation window. "
+        "Previous behavior used expected_in_top_k as both, which artificially "
+        "constrained the result pool.",
+    )
     args = parser.parse_args()
 
     print(f"Scoring method: {args.scoring}")
@@ -843,6 +871,8 @@ async def main():
         print(f"Citation signal: ENABLED (weight={args.citation_weight})")
     if args.use_reranking:
         print("Reranking: ENABLED (cross-encoder)")
+    if args.fetch_limit != 100:
+        print(f"Fetch limit: {args.fetch_limit} (non-default)")
 
     # Choose evaluation mode: golden dataset JSON or YAML test cases
     if args.dataset:
@@ -872,6 +902,7 @@ async def main():
             use_citations=args.use_citations,
             citation_weight=args.citation_weight,
             use_reranking=args.use_reranking,
+            fetch_limit=args.fetch_limit,
         )
 
     print_summary(results, metrics)
@@ -924,9 +955,8 @@ async def main():
             else:
                 print(f"\nPASS: MRR {mrr:.3f} >= threshold {args.fail_below}")
 
-    # Exit with error code if tests failed
-    if metrics.get("failed", 0) > 0:
-        sys.exit(1)
+    # Note: test failures are data, not errors. Use --fail-below for CI quality gates.
+    # Removed unconditional sys.exit(1) on failures — ablation runs expect failures as results.
 
 
 if __name__ == "__main__":

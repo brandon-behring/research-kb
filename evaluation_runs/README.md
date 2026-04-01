@@ -23,14 +23,24 @@ python scripts/eval_compare.py evaluation_runs/baseline.json evaluation_runs/can
 
 ## Run Index
 
-| Date | File | Description | MRR | Hit@K |
-|------|------|-------------|-----|-------|
-| 2026-03-30 | baseline_2026-03-30.json | First baseline (pre-guide-removal, regex patterns) | 0.787 | 92.5% |
-| 2026-03-30 | post_guide_removal_2026-03-30.json | After removing 29 self-written guides | 0.800 | 92.5% |
-| 2026-03-30 | post_fixes_2026-03-30.json | After pattern fixes + guide removal | 0.793 | 98.1% |
-| 2026-03-31 | ablation_citations_off_2026-03-31.json | 2-way search (FTS+vector only) | 0.684 | 97.2% |
-| 2026-03-31 | ablation_citations_on_2026-03-31.json | 3-way search (FTS+vector+citation) | 0.781 | 98.1% |
-| 2026-04-01 | ablation_rerank_on_2026-04-01.json | 3-way + cross-encoder reranking | 0.667 | 91.6% |
+| Date | File | Description | MRR | Hit@K | Methodology |
+|------|------|-------------|-----|-------|-------------|
+| 2026-03-30 | baseline_2026-03-30.json | First baseline (pre-guide-removal, regex patterns) | 0.787 | 92.5% | v1 (limit=K) |
+| 2026-03-30 | post_guide_removal_2026-03-30.json | After removing 29 self-written guides | 0.800 | 92.5% | v1 (limit=K) |
+| 2026-03-30 | post_fixes_2026-03-30.json | After pattern fixes + guide removal | 0.793 | 98.1% | v1 (limit=K) |
+| 2026-03-31 | ablation_citations_off_2026-03-31.json | 2-way search (FTS+vector only) | 0.684 | 97.2% | v1 (limit=K) |
+| 2026-03-31 | ablation_citations_on_2026-03-31.json | 3-way search (FTS+vector+citation) | 0.781 | 98.1% | v1 (limit=K) |
+| 2026-04-01 | ablation_rerank_on_2026-04-01.json | 3-way + reranking (BUGGY: limit=K) | 0.667 | 91.6% | v1 (limit=K) |
+| 2026-04-01 | ablation_rerank_corrected_2026-04-01.json | 3-way + reranking (corrected: limit=100) | 0.685 | 62.6% | v1.1 (limit=100) |
+
+### Methodology Note
+
+**v1 (limit=K)**: Search fetched only `expected_in_top_k` results. All retrieved results were
+within top-K by construction, inflating Hit@K and masking rank degradation from reranking.
+
+**v1.1 (limit=100)**: Search fetches 100 results, evaluates whether expected result appears
+within top-K. Reranker gets a fair 500→100 pool. This corrects the evaluation window bug
+but retains the v1 MRR inflation (divides by successful queries, not total).
 
 ## Ablation Results
 
@@ -61,3 +71,30 @@ Baseline: citations ON, no reranking. Candidate: citations ON + cross-encoder re
 **Conclusion:** Cross-encoder reranking HURTS retrieval quality. 16/31 domains regressed.
 The reranker reorders results in ways that push expected sources out of top-K.
 **Do NOT enable reranking.** Investigate root cause before reconsidering.
+
+### Reranking Signal — Corrected (2026-04-01)
+
+Corrected methodology: `--fetch-limit 100` (reranker gets 500→100 pool instead of K→K).
+Baseline: citations ON, no reranking. Candidate: citations ON + cross-encoder reranking.
+
+| Metric | Rerank OFF | Rerank ON (corrected) | Delta | Change |
+|--------|-----------|----------------------|-------|--------|
+| Hit@K | 98.1% | 62.6% | -35.5% | **-36.2%** |
+| MRR | 0.781 | 0.685 | -0.096 | **-12.3%** |
+| NDCG@5 | 0.814 | 0.474 | -0.340 | **-41.8%** |
+| NDCG@10 | 0.819 | 0.477 | -0.342 | **-41.8%** |
+
+19/31 domains regressed. Only 6 improved (algebra, biology_neuroscience, physics, rag_llm,
+reinforcement_learning, software_engineering).
+
+**Corrected conclusion:** Reranking is WORSE than previously measured. The v1 limit=K bug
+actually MASKED the full severity — with a fair pool, reranking pushes expected sources
+to ranks 20-53 in many cases. The bge-reranker-v2-m3 cross-encoder optimizes for
+semantic similarity but destroys the citation-authority ranking signal.
+
+**Root cause hypothesis:** The cross-encoder reranker scores by query-chunk textual relevance,
+ignoring the citation authority and FTS signals that hybrid search uses. Sources with high
+PageRank but moderate text overlap get demoted. This is a fundamental mismatch between
+the two-stage retrieval paradigm and our multi-signal hybrid approach.
+
+**Verdict: CONFIRMED — do NOT enable reranking.** Investigation closed.
