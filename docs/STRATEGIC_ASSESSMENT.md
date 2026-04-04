@@ -1,6 +1,6 @@
 # Strategic Assessment: Research-KB Value Delivery
 
-**Date**: 2026-02-27 (original) | **Last updated**: 2026-03-30
+**Date**: 2026-02-27 (original) | **Last updated**: 2026-04-03
 **Context**: Post-bulk-ingestion (1,756 sources across 36 domains)
 
 ---
@@ -109,6 +109,8 @@ Features from original plans, Gemini audit, or ROADMAP "Future Work":
 | Validation | 2026-03-25 | Cross-disciplinary validation (3-way pass, KG broken) |
 | Bulk Ingest | 2026-03-29 | 408 new sources, 1.4M chunks, 100% embedded |
 | Full Audit | 2026-03-30 | Dual-audit remediation, ROADMAP consolidated, test contract fix |
+| Eval P1 | 2026-04-01 | Fix v1 limit bug, reranking confirmed harmful (-44% true MRR) |
+| Eval P2-3 | 2026-04-03 | 3 eval scripts, 71-query set, TREC pooling (3138 candidates), pre-labeling |
 
 ---
 
@@ -122,7 +124,7 @@ Qualitative status:
 - **KG**: Fully disconnected (chunk_concepts = 0). See Section 7
 - **Citations**: Active, PageRank-scored (49K+ edges)
 - **Search**: 3-way default (FTS + vector + citation). Graph OFF (all surfaces unified 2026-03-25)
-- **Ingestion**: Stabilized at 1,756 sources across 36 domains. Further expansion possible but not urgent
+- **Ingestion**: 1,756 sources ingested, but only 785/3,697 catalog books (21%) completed. 2,284 actionable books remain. See `.mass_ingest_checkpoint.json`
 - **CI**: PR checks automated (black, ruff, mypy, unit+integration tests, doc freshness). Integration and weekly rebuild workflows are **manual** (`workflow_dispatch`), not scheduled
 
 ### Sprint History
@@ -136,6 +138,7 @@ Qualitative status:
 | 5. Weight optimization | Done | $0 | Disk cache + parallel precompute (~2s cached) |
 | 6. Bulk ingestion | Done | $0 | 408 new sources, 1.4M chunks, 100% embedded |
 | 7. Full audit | Done | $0 | Dual-audit remediation, doc consolidation, test contract fix |
+| 8. Eval overhaul P1-3 | Done | $0 | v2 eval infrastructure: 71 queries, TREC pooling, pre-labeling |
 
 ---
 
@@ -186,10 +189,11 @@ Re-evaluate when ALL of:
 |----------|------|------|------------|--------|
 | ~~1~~ | ~~Weight optimizer refactor~~ | ~~$0~~ | | Done (Sprint 5) |
 | ~~2~~ | ~~Embedding backfill~~ | ~~$0~~ | | Done (Sprint 6) |
-| 1 | KG re-extraction (phased, top 5 domains first) | $50-80 | Anthropic credits | Deferred (Section 7) |
-| 2 | North Star validation: cross-disciplinary synthesis | ~$5 | Working Anthropic key | Blocked |
-| 3 | Wire `literature_review` to research-agent | $0 | None | Not started |
-| 4 | Full-corpus KG re-extraction | $150-300 | Priority 1 validated | Deferred |
-| 5 | Multi-hop reasoning chains | $0 | Priority 1+4 | Blocked |
-| 6 | Interactive citation network (D3.js) | $0 | None | Low priority |
-| 7 | Temporal reasoning / contradiction detection | $0 | Priority 4 | Not started |
+| 1 | **Eval v2: annotate + baseline** | $0 | Phases 1-3 done | In progress — Phase 4-5 next |
+| 2 | **Eval v2: citation ablation + CI** | $0 | Priority 1 | Phases 6-8 |
+| 3 | KG re-extraction (phased, top 5 domains first) | $50-80 | Anthropic credits | Deferred (Section 7) |
+| 4 | Wire `literature_review` to research-agent | $0 | None | Not started |
+| 5 | Full-corpus KG re-extraction | $150-300 | Priority 3 validated | Deferred |
+| 6 | Multi-hop reasoning chains | $0 | Priority 3+5 | Blocked |
+| 7 | Interactive citation network (D3.js) | $0 | None | Low priority |
+| 8 | Temporal reasoning / contradiction detection | $0 | Priority 5 | Not started |

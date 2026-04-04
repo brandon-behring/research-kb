@@ -1,0 +1,729 @@
+# v2 Evaluation Query Set
+#
+# 71 queries selected via 3-tier protocol (see plan Phase 3a):
+#   Tier 1 (30): All queries from 10 low-MRR domains (MRR < 0.65 in corrected baseline)
+#   Tier 2 (25): 1-4 sampled per healthy domain, prioritizing hard/diagnostic queries
+#   Tier 3 (16): 6 gap-domain + 10 cross-domain (all new)
+#
+# v1_source_id: carried from v1 test cases (null for new queries)
+# v1_top_k: original K value from v1 (null for new queries)
+#
+# Generated: 2026-04-03
+# Baseline reference: evaluation_runs/baseline_corrected_2026-04-03.json
+
+metadata:
+  version: 2
+  total_queries: 71
+  tier_1_count: 30
+  tier_2_count: 25
+  tier_3_count: 16
+  selection_method: "3-tier protocol from eval overhaul plan"
+  baseline_reference: "baseline_corrected_2026-04-03.json"
+
+queries:
+
+  # ============================================================
+  # TIER 1: Low-MRR domains (MRR < 0.65) — all queries kept
+  # ============================================================
+
+  # --- mathematics (MRR=0.000, 2 queries REPLACED) ---
+  - query_id: q_math_001
+    query_text: "analytic number theory prime number theorem Dirichlet"
+    domain: mathematics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "Replacement query targeting Apostol, Newman, Murty number theory textbooks"
+
+  - query_id: q_math_002
+    query_text: "calculus integration techniques fundamental theorem"
+    domain: mathematics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "Replacement query targeting Stewart, Thomas, Salas calculus textbooks"
+
+  # --- reinforcement_learning (MRR=0.225, 2 kept + 1 new) ---
+  - query_id: q_rl_001
+    query_text: "Q-learning temporal difference policy gradient"
+    domain: reinforcement_learning
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: befa6ff4-2c8d-46d4-a654-c1dda4d66a2e
+    v1_top_k: 5
+
+  - query_id: q_rl_002
+    query_text: "Markov decision process MDP reward"
+    domain: reinforcement_learning
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 67e09e88-0899-48fa-8f25-51a8f45adb88
+    v1_top_k: 10
+
+  - query_id: q_rl_003
+    query_text: "policy optimization actor critic advantage function"
+    domain: reinforcement_learning
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "New query to improve RL coverage"
+
+  # --- physics (MRR=0.350, 2 kept + 1 new) ---
+  - query_id: q_phys_001
+    query_text: "quantum mechanics Schrodinger equation wave function"
+    domain: physics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 5b37f0c3-3bd6-44bf-bade-b1d593e5cb69
+    v1_top_k: 5
+
+  - query_id: q_phys_002
+    query_text: "classical electrodynamics Maxwell equations"
+    domain: physics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 766d60ec-e789-4e14-818f-dfe5fd4f2ec5
+    v1_top_k: 5
+
+  - query_id: q_phys_003
+    query_text: "Lagrangian Hamiltonian classical mechanics variational"
+    domain: physics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "New query targeting Goldstein, Jose/Saletan classical mechanics"
+
+  # --- statistics (MRR=0.467, all 5 kept) ---
+  - query_id: q_stat_001
+    query_text: "effect size statistical power sample"
+    domain: statistics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 214e9c58-7ca6-47e2-af7c-e0f6ef6e9c63
+    v1_top_k: 5
+
+  - query_id: q_stat_002
+    query_text: "sample size power calculation"
+    domain: statistics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 1d3a81a8-cec4-401c-9fe1-39aa8374020d
+    v1_top_k: 5
+
+  - query_id: q_stat_003
+    query_text: "Bayesian posterior inference"
+    domain: statistics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 157a751c-e6c0-49ae-aa89-eb17ba3d90ad
+    v1_top_k: 5
+
+  - query_id: q_stat_004
+    query_text: "hypothesis testing p-value"
+    domain: statistics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 7219a798-6c10-4040-bf80-9accc8bb01ae
+    v1_top_k: 5
+
+  - query_id: q_stat_005
+    query_text: "bootstrap confidence interval"
+    domain: statistics
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: ab645533-2b94-4d2b-9aac-5e1d760edaf9
+    v1_top_k: 5
+
+  # --- sql (MRR=0.483, all 3 kept) ---
+  - query_id: q_sql_001
+    query_text: "window functions ranking partitioning"
+    domain: sql
+    difficulty: hard
+    tier: 1
+    type: single_domain
+    v1_source_id: d86068a3-26cd-4447-9651-99b3c4d3010a
+    v1_top_k: 10
+
+  - query_id: q_sql_002
+    query_text: "query execution plan optimization"
+    domain: sql
+    difficulty: hard
+    tier: 1
+    type: single_domain
+    v1_source_id: d86068a3-26cd-4447-9651-99b3c4d3010a
+    v1_top_k: 10
+
+  - query_id: q_sql_003
+    query_text: "database normalization third normal form"
+    domain: sql
+    difficulty: hard
+    tier: 1
+    type: single_domain
+    v1_source_id: 4f12fd07-8514-46ea-833f-e7c421a23c22
+    v1_top_k: 15
+
+  # --- analysis (MRR=0.550, both kept) ---
+  - query_id: q_anal_001
+    query_text: "Banach space functional analysis operator"
+    domain: analysis
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 2b79b2dc-7b2f-4124-aed7-1b6ed9d1670d
+    v1_top_k: 5
+
+  - query_id: q_anal_002
+    query_text: "complex analysis Cauchy integral formula"
+    domain: analysis
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: a049565f-87fe-45b1-9cf9-b0aaf483f90f
+    v1_top_k: 10
+
+  # --- recommender_systems (MRR=0.550, all 3 kept) ---
+  - query_id: q_recsys_001
+    query_text: "collaborative filtering matrix factorization"
+    domain: recommender_systems
+    difficulty: hard
+    tier: 1
+    type: single_domain
+    v1_source_id: 6a7e5cf9-4d63-405c-a8b2-f9a7bf10436f
+    v1_top_k: 10
+
+  - query_id: q_recsys_002
+    query_text: "cold start problem new user recommendation"
+    domain: recommender_systems
+    difficulty: hard
+    tier: 1
+    type: single_domain
+    v1_source_id: e1b88090-d08f-4fe2-85ad-1a59e9a226e2
+    v1_top_k: 15
+
+  - query_id: q_recsys_003
+    query_text: "implicit feedback click through recommendation"
+    domain: recommender_systems
+    difficulty: hard
+    tier: 1
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: 10
+
+  # --- finance (MRR=0.583, all 3 kept) ---
+  - query_id: q_fin_001
+    query_text: "Black-Scholes option pricing model"
+    domain: finance
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: e64f1a96-844b-4d16-be7c-092da5160682
+    v1_top_k: 5
+
+  - query_id: q_fin_002
+    query_text: "portfolio optimization mean variance"
+    domain: finance
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 19c345e4-9a83-4bbd-a5b8-d426d761a6e9
+    v1_top_k: 5
+
+  - query_id: q_fin_003
+    query_text: "value at risk VaR estimation"
+    domain: finance
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 70c1280d-0ba9-44a0-a8cf-f3b860192445
+    v1_top_k: 5
+
+  # --- rag_llm (MRR=0.583, all 3 kept) ---
+  - query_id: q_rag_001
+    query_text: "retrieval augmented generation architecture"
+    domain: rag_llm
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 3f864f8e-ab77-47fd-8745-b2ba2510341d
+    v1_top_k: 5
+
+  - query_id: q_rag_002
+    query_text: "chain of thought prompting"
+    domain: rag_llm
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 78e8dfac-2d34-4e8b-97bf-f975f20bcf93
+    v1_top_k: 5
+
+  - query_id: q_rag_003
+    query_text: "embedding similarity search"
+    domain: rag_llm
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 33e5a4fd-e510-4a52-8c12-75bd27ccb9e2
+    v1_top_k: 5
+
+  # --- deep_learning (MRR=0.611, all 3 kept) ---
+  - query_id: q_dl_001
+    query_text: "attention mechanism transformer architecture"
+    domain: deep_learning
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: e724fd1d-e007-473b-a009-9a0db2af4c72
+    v1_top_k: 5
+
+  - query_id: q_dl_002
+    query_text: "convolutional neural network image classification"
+    domain: deep_learning
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: 0a31d106-225f-4c48-b545-d90d66479bc9
+    v1_top_k: 5
+
+  - query_id: q_dl_003
+    query_text: "vanishing gradient deep networks"
+    domain: deep_learning
+    difficulty: medium
+    tier: 1
+    type: single_domain
+    v1_source_id: e1b88090-d08f-4fe2-85ad-1a59e9a226e2
+    v1_top_k: 5
+
+  # ============================================================
+  # TIER 2: Healthy domains (MRR >= 0.65) — sampled for coverage
+  # ============================================================
+
+  # --- biology_neuroscience (MRR=0.667) ---
+  - query_id: q_bio_001
+    query_text: "neuroscience excitability bursting neural dynamics"
+    domain: biology_neuroscience
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 18572591-3087-4f7f-9cfc-e3f32e32de25
+    v1_top_k: 5
+
+  # --- signal_processing (MRR=0.667) ---
+  - query_id: q_sig_001
+    query_text: "wavelet transform multiresolution analysis"
+    domain: signal_processing
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 1180de25-06c2-4c46-ad17-349dab04c347
+    v1_top_k: 5
+
+  # --- econometrics (MRR=0.688) ---
+  - query_id: q_econ_001
+    query_text: "weak instruments bias IV"
+    domain: econometrics
+    difficulty: hard
+    tier: 2
+    type: single_domain
+    v1_source_id: dc93c736-4035-426a-a222-2a7a51b490cb
+    v1_top_k: 10
+
+  - query_id: q_econ_002
+    query_text: "bunching estimator kink threshold"
+    domain: econometrics
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: d8c1e0bc-0e7d-44e5-a883-785efff197e5
+    v1_top_k: 5
+
+  # --- algebra (MRR=0.750) ---
+  - query_id: q_alg_001
+    query_text: "Galois theory field extension"
+    domain: algebra
+    difficulty: hard
+    tier: 2
+    type: single_domain
+    v1_source_id: 11a22689-0a29-4cb9-aa51-64df07f5c230
+    v1_top_k: 5
+
+  # --- probability_theory (MRR=0.750) ---
+  - query_id: q_prob_001
+    query_text: "measure theoretic probability sigma algebra"
+    domain: probability_theory
+    difficulty: hard
+    tier: 2
+    type: single_domain
+    v1_source_id: 2b928287-64f5-46f7-b8e8-d20b818d3b20
+    v1_top_k: 5
+
+  # --- time_series (MRR=0.750) ---
+  - query_id: q_ts_001
+    query_text: "Granger causality temporal"
+    domain: time_series
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 24fe0e16-3208-4b80-91dd-b2c4890a176a
+    v1_top_k: 5
+
+  # --- data_science (MRR=0.778) ---
+  - query_id: q_ds_001
+    query_text: "A/B testing experiment design"
+    domain: data_science
+    difficulty: hard
+    tier: 2
+    type: single_domain
+    v1_source_id: 69fdbfbe-20f4-4342-a050-4f8fc9e81284
+    v1_top_k: 5
+
+  # --- software_engineering (MRR=0.778) ---
+  - query_id: q_swe_001
+    query_text: "microservice vs monolith architecture"
+    domain: software_engineering
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: d1ab3ca1-aa5e-4984-b8d9-a676d1564b91
+    v1_top_k: 5
+
+  # --- causal_inference (MRR=0.803) ---
+  - query_id: q_ci_001
+    query_text: "directed acyclic graph causal"
+    domain: causal_inference
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 91f2dc44-1cb3-49cb-b6f6-9062f9b3334e
+    v1_top_k: 10
+
+  - query_id: q_ci_002
+    query_text: "sensitivity analysis unmeasured confounding"
+    domain: causal_inference
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 1d3a81a8-cec4-401c-9fe1-39aa8374020d
+    v1_top_k: 5
+
+  - query_id: q_ci_003
+    query_text: "doubly robust estimation AIPW"
+    domain: causal_inference
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 865939f8-17ad-4c7f-af2d-9e7965461503
+    v1_top_k: 5
+
+  - query_id: q_ci_004
+    query_text: "consistency assumption potential outcomes"
+    domain: causal_inference
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 505004de-8f37-412c-b184-ad961a300b2b
+    v1_top_k: 5
+
+  # --- actuarial_insurance (MRR=1.000) ---
+  - query_id: q_act_001
+    query_text: "actuarial mortality tables life contingencies"
+    domain: actuarial_insurance
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: e2674714-3666-4af9-9baf-9b45d0ef0d67
+    v1_top_k: 5
+
+  # --- adtech (MRR=1.000) ---
+  - query_id: q_ad_001
+    query_text: "attribution modeling multi touch conversion"
+    domain: adtech
+    difficulty: hard
+    tier: 2
+    type: single_domain
+    v1_source_id: bc4d2bb4-ad5e-4dd4-a33e-a11999d2ab09
+    v1_top_k: 10
+
+  # --- algorithms (MRR=1.000) ---
+  - query_id: q_algo_001
+    query_text: "dynamic programming optimal substructure"
+    domain: algorithms
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 63010bfc-1da5-426b-9143-7dac055a8746
+    v1_top_k: 5
+
+  # --- fitness (MRR=1.000) ---
+  - query_id: q_fit_001
+    query_text: "progressive overload periodization training"
+    domain: fitness
+    difficulty: hard
+    tier: 2
+    type: single_domain
+    v1_source_id: f2364004-215b-42bd-8043-ddb01c62baac
+    v1_top_k: 5
+
+  # --- forecasting (MRR=1.000) ---
+  - query_id: q_fore_001
+    query_text: "intermittent demand forecasting Croston"
+    domain: forecasting
+    difficulty: hard
+    tier: 2
+    type: single_domain
+    v1_source_id: b2440de9-e6e2-4eb9-955d-0735cbd02964
+    v1_top_k: 5
+
+  # --- functional_programming (MRR=1.000) ---
+  - query_id: q_fp_001
+    query_text: "monad transformer stack"
+    domain: functional_programming
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: fa932a86-7978-4f17-bc5e-eb351d9f6a6c
+    v1_top_k: 5
+
+  # --- linear_algebra (MRR=1.000) ---
+  - query_id: q_la_001
+    query_text: "eigenvalue decomposition spectral theorem"
+    domain: linear_algebra
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 1a8c449c-7956-4ca0-89f9-740fdb3b5b7b
+    v1_top_k: 5
+
+  # --- machine_learning (MRR=1.000) ---
+  - query_id: q_ml_001
+    query_text: "gradient boosting XGBoost"
+    domain: machine_learning
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 637af2d8-b6f5-462b-a767-05ed753adf80
+    v1_top_k: 5
+
+  # --- ml_engineering (MRR=1.000) ---
+  - query_id: q_mle_001
+    query_text: "model monitoring data drift detection"
+    domain: ml_engineering
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 9556f1d0-3dba-47ef-9a84-56e5e93bc00d
+    v1_top_k: 5
+
+  # --- numerical_methods (MRR=1.000) ---
+  - query_id: q_num_001
+    query_text: "finite element method numerical PDE"
+    domain: numerical_methods
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: df785d2c-8353-4fb3-a1d9-430fa9b643e5
+    v1_top_k: 5
+
+  # --- optimization (MRR=1.000) ---
+  - query_id: q_opt_001
+    query_text: "convex optimization duality KKT conditions"
+    domain: optimization
+    difficulty: medium
+    tier: 2
+    type: single_domain
+    v1_source_id: 874c2f7f-ed8e-444c-a6c9-622abdb9ca66
+    v1_top_k: 5
+
+  # --- topology_geometry (MRR=1.000) ---
+  - query_id: q_topo_001
+    query_text: "algebraic topology homology fundamental group"
+    domain: topology_geometry
+    difficulty: hard
+    tier: 2
+    type: single_domain
+    v1_source_id: 6ed19352-34dd-46c0-b553-cf523745808e
+    v1_top_k: 5
+
+  # ============================================================
+  # TIER 3: Gap domains (6) + Cross-domain (10)
+  # ============================================================
+
+  # --- healthcare (gap domain, 35 sources) ---
+  - query_id: q_hc_001
+    query_text: "formulary management pharmacy benefit coverage decisions"
+    domain: healthcare
+    difficulty: medium
+    tier: 3
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "Gap domain — targets AMCP formulary/P&T materials"
+
+  - query_id: q_hc_002
+    query_text: "drug rebate Medicaid pricing 340B program"
+    domain: healthcare
+    difficulty: medium
+    tier: 3
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "Gap domain — targets statutory/regulatory healthcare sources"
+
+  # --- dynamical_systems (gap domain, 23 sources) ---
+  - query_id: q_dyn_001
+    query_text: "Hamiltonian dynamical system canonical transformation"
+    domain: dynamical_systems
+    difficulty: medium
+    tier: 3
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "Gap domain — targets Arnold, Meyer/Offin Hamiltonian dynamics textbooks"
+
+  - query_id: q_dyn_002
+    query_text: "N-body problem celestial mechanics perturbation theory"
+    domain: dynamical_systems
+    difficulty: medium
+    tier: 3
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "Gap domain — targets celestial mechanics and N-body sources"
+
+  # --- portfolio_management (gap domain, 20 sources) ---
+  - query_id: q_pm_001
+    query_text: "asset allocation strategic tactical rebalancing"
+    domain: portfolio_management
+    difficulty: medium
+    tier: 3
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "Gap domain — targets CFA Level III asset allocation volumes"
+
+  - query_id: q_pm_002
+    query_text: "portfolio risk management derivatives hedging"
+    domain: portfolio_management
+    difficulty: medium
+    tier: 3
+    type: single_domain
+    v1_source_id: null
+    v1_top_k: null
+    notes: "Gap domain — targets CFA Level III risk management materials"
+
+  # --- Cross-domain queries (10) ---
+  - query_id: q_xd_001
+    query_text: "causal inference methods for time series data"
+    domain: cross_domain
+    difficulty: medium
+    tier: 3
+    type: cross_domain
+    domains_involved: [causal_inference, time_series, econometrics]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_002
+    query_text: "optimization algorithms for neural network training"
+    domain: cross_domain
+    difficulty: medium
+    tier: 3
+    type: cross_domain
+    domains_involved: [optimization, deep_learning, algorithms]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_003
+    query_text: "Bayesian methods applied to causal inference"
+    domain: cross_domain
+    difficulty: medium
+    tier: 3
+    type: cross_domain
+    domains_involved: [statistics, causal_inference]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_004
+    query_text: "stochastic differential equations in financial modeling"
+    domain: cross_domain
+    difficulty: medium
+    tier: 3
+    type: cross_domain
+    domains_involved: [probability_theory, finance, mathematics]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_005
+    query_text: "graph neural networks for causal discovery"
+    domain: cross_domain
+    difficulty: hard
+    tier: 3
+    type: cross_domain
+    domains_involved: [deep_learning, causal_inference]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_006
+    query_text: "matrix factorization methods in recommendation systems"
+    domain: cross_domain
+    difficulty: medium
+    tier: 3
+    type: cross_domain
+    domains_involved: [linear_algebra, recommender_systems]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_007
+    query_text: "statistical testing for online controlled experiments"
+    domain: cross_domain
+    difficulty: medium
+    tier: 3
+    type: cross_domain
+    domains_involved: [statistics, data_science]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_008
+    query_text: "reinforcement learning for portfolio optimization"
+    domain: cross_domain
+    difficulty: hard
+    tier: 3
+    type: cross_domain
+    domains_involved: [reinforcement_learning, portfolio_management, finance]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_009
+    query_text: "epidemiological modeling with differential equations"
+    domain: cross_domain
+    difficulty: medium
+    tier: 3
+    type: cross_domain
+    domains_involved: [biology_neuroscience, dynamical_systems, mathematics]
+    v1_source_id: null
+    v1_top_k: null
+
+  - query_id: q_xd_010
+    query_text: "neural embedding models for information retrieval"
+    domain: cross_domain
+    difficulty: medium
+    tier: 3
+    type: cross_domain
+    domains_involved: [rag_llm, deep_learning]
+    v1_source_id: null
+    v1_top_k: null

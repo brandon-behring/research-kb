@@ -44,6 +44,8 @@ dev = [
     "black>=24.0",
     "ruff>=0.3",
     "research-kb-extraction[anthropic,instructor]",
+    "rich>=14.3.3",
+    "ranx>=0.3.21",
 ]
 
 [tool.uv.sources]

@@ -1,7 +1,8 @@
 # Evaluation System Design Spec
 
-**Date**: 2026-04-01
-**Status**: Draft — pending framework research results
+**Date**: 2026-04-01 (original) | **Updated**: 2026-04-03
+**Status**: Active — Phases 1-3 complete, Phase 4+ in progress
+**Implementation plan**: `.claude/plans/harmonic-brewing-lollipop.md` (27 decisions locked)
 **Context**: Current eval_retrieval.py has 7 methodology flaws discovered during critical
 review. Decision: start fresh with proper IR evaluation rather than patching.
 
@@ -264,12 +265,48 @@ of re-annotation when chunking changes.
 
 ---
 
-## 8. Open Questions
+## 8. Implementation Progress (2026-04-03)
 
-1. **Annotation effort**: 20 hours for 2,500 judgments. Do incrementally (10 queries/session)?
-2. **Cross-domain queries**: How to define "relevant" for queries spanning two domains?
-3. **Reranking re-validation**: If corrected eval shows reranking helps, that changes defaults.
-4. **Annotation ordering**: Should we annotate BEFORE or AFTER Phase 2 chunking improvements?
-   Annotating before means Layer 1 chunk IDs are immediately stale. Annotating after means
-   we can't measure whether chunking improved. **Recommendation:** Annotate before, use
-   Layer 2+3 to survive re-chunking.
+**Full implementation plan**: `.claude/plans/harmonic-brewing-lollipop.md` (27 decisions)
+
+### Completed
+
+| Phase | Date | Deliverable | Key Finding |
+|-------|------|-------------|-------------|
+| 1 | 2026-04-01 | `--fetch-limit` flag, rank threshold | Reranking confirmed harmful: -44% true MRR |
+| 1.2 | 2026-04-03 | Normalization pool-size verification | Min-max normalization is pool-size-dependent; irrelevant for v2/ranx |
+| 2 | 2026-04-03 | 3 scripts: pool, prelabel, annotate | Smoke tested on 3 queries; all functional |
+| 3a | 2026-04-03 | `fixtures/eval/v2_queries.yaml` (71 queries) | 3-tier protocol: 30 low-MRR + 25 sampled + 16 new |
+| 3b | 2026-04-03 | `fixtures/eval/v2_pool_candidates.yaml` (3138 candidates) | TREC pooling across 4 configs, avg 44.2/query |
+| 3c | 2026-04-03 | `fixtures/eval/v2_pool_prelabeled.yaml` | Percentile grading: 11.5% g3, 19.6% g2, 29.6% g1, 39.4% g0 |
+
+### Remaining
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| 4 | Not started | Build `eval_v2.py` with ranx (NDCG@10 primary metric) |
+| 5 | Not started | Annotate ground truth (~8 hrs, Claude Code pre-labeled) |
+| 6 | Not started | Corrected v2 baseline |
+| 7 | Not started | Citation ablation with statistical significance |
+| 8 | Not started | CI integration (2-4 week parallel period) |
+
+### Key Decisions
+
+- **Primary v2 metric**: NDCG@10 (position-weighted + graded relevance)
+- **Reranking**: DROPPED from Phase 7 — conclusively harmful (-44% true MRR)
+- **ranx doc_id**: chunk_id (system retrieves chunks; source-level derived by aggregation)
+- **Pre-labeling**: Percentile-based per-query with absolute floor safety net
+- **Cross-domain relevance**: "Does this chunk help answer the question as asked?"
+- **Legacy 107 test cases**: Archived, not migrated; v2 ground truth built fresh
+
+---
+
+## 9. Resolved Questions (updated 2026-04-03)
+
+1. ~~**Annotation effort**~~: ~8 hrs with Claude Code pre-labeling + human review (not 20 hrs)
+2. ~~**Cross-domain queries**~~: Grade by helpfulness to the cross-domain question. Single-domain chunks → 1-2. Bridging chunks → 3
+3. ~~**Reranking re-validation**~~: CLOSED. -44% true MRR. Cross-encoder destroys citation authority signal
+4. ~~**Annotation ordering**~~: Annotate now with triple-layer (chunk_id, source+page, evidence_text)
+5. **Framework**: ranx 0.3.21 (installed, Python 3.13 compatible)
+6. **LLM-as-judge**: NO — human judgments only (Soboroff 2025)
+7. **Chunk-level vs source-level**: BOTH — chunk-level primary, source-level derived
