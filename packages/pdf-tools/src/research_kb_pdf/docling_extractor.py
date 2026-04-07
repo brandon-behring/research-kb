@@ -39,14 +39,30 @@ def get_converter():
 
 
 def reset_converter():
-    """Clear the singleton DocumentConverter.
+    """Clear the singleton DocumentConverter and release GPU memory.
 
-    Call before switching GPU/CPU mode (e.g., OOM fallback) to force
-    reinitialization on next get_converter() call.
+    Call before switching to another GPU-heavy extractor (e.g., MinerU) or
+    before OOM fallback. Sets the singleton to None, deletes model tensors,
+    and flushes PyTorch's CUDA memory cache so the OS can reclaim VRAM.
     """
+    import gc
+
     global _converter
     with _converter_lock:
+        if _converter is not None:
+            del _converter
         _converter = None
+
+    gc.collect()
+
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            logger.info("reset_converter_vram_freed")
+    except ImportError:
+        pass
 
 
 @dataclass

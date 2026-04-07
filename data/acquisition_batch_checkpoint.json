@@ -1,0 +1,32 @@
+{
+  "completed": [
+    "adedeji_genai_google_cloud",
+    "albada_ai_agents",
+    "albrecht_multi_agent_rl",
+    "angrist_pischke_mastering_metrics",
+    "baader_nipkow_term_rewriting",
+    "beaulieu_learning_sql",
+    "becker_grobner_bases",
+    "falk_practical_recsys",
+    "fowler_refactoring_2e",
+    "hairer_geometric_numerical_integration",
+    "hairer_solving_odes_i",
+    "hilpisch_rl_finance",
+    "horn_johnson_matrix_analysis_2e",
+    "imbens_rubin_causal_inference",
+    "kumar_vertex_ai",
+    "lapan_deep_rl_3e",
+    "liu_wang_computational_advertising",
+    "molinaro_sql_cookbook_2e",
+    "morgan_winship_counterfactuals",
+    "nelson_se_data_scientists",
+    "petrov_database_internals",
+    "ramalho_fluent_python_2e",
+    "reis_housley_data_engineering",
+    "ricci_recsys_handbook_3e",
+    "rosenbaum_observational_studies",
+    "slatkin_effective_python_3e",
+    "von_zur_gathen_modern_computer_algebra",
+    "winkler_polynomial_algorithms"
+  ]
+}
