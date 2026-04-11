@@ -26,6 +26,7 @@ import argparse
 import asyncio
 import gc
 import json
+import re
 import sys
 import time
 from collections import Counter, defaultdict
@@ -42,7 +43,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "storage" / "
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
+from uuid import UUID
+
 from research_kb_common import EmbeddingError, StorageError, configure_logging, get_logger
+from research_kb_pdf.post_ingest import run_post_ingest_hooks
 from research_kb_storage import DatabaseConfig, SourceStore, get_connection_pool
 
 logger = get_logger(__name__)
@@ -127,12 +131,53 @@ def load_catalog(catalog_path: Path) -> list[dict]:
     return [e for e in entries if e.get("domain") != "skip" and e.get("is_book", False)]
 
 
+def deduplicate_meap(entries: list[dict]) -> list[dict]:
+    """Keep only the highest version of each MEAP title.
+
+    Groups by base title (stripped of _vN_MEAP suffix), keeps the entry
+    with the highest version number. Removes ~182 redundant versions.
+    """
+    meap_groups: dict[str, list[dict]] = defaultdict(list)
+    non_meap = []
+
+    for e in entries:
+        name = e.get("title", e.get("filename", ""))
+        if "_MEAP" in name or "MEAP" in e.get("filename", ""):
+            base = re.sub(r"_v\d+_MEAP.*", "", name).strip()
+            base = re.sub(r"\s*\(\d+\)$", "", base)
+            meap_groups[base].append(e)
+        else:
+            non_meap.append(e)
+
+    # Keep only highest version per group
+    kept = []
+    removed = 0
+    for base, versions in meap_groups.items():
+
+        def _version_key(entry: dict) -> int:
+            name = entry.get("title", entry.get("filename", ""))
+            m = re.search(r"_v(\d+)_MEAP", name)
+            return int(m.group(1)) if m else 0
+
+        versions.sort(key=_version_key, reverse=True)
+        kept.append(versions[0])  # Keep highest version
+        removed += len(versions) - 1
+
+    if removed > 0:
+        logger.info("meap_dedup", kept=len(kept), removed=removed)
+
+    return non_meap + kept
+
+
 def apply_filters(entries: list[dict], args: argparse.Namespace) -> list[dict]:
     """Apply CLI filters and return sorted entries.
 
     Sorting: priority_score DESC within domain, file_size ASC for ties.
     Tier slicing: T1=top 10/domain, T2=next 10, T3=rest.
     """
+    # Deduplicate MEAP versions before other filters
+    entries = deduplicate_meap(entries)
+
     if args.domain:
         entries = [e for e in entries if e["domain"] == args.domain]
 
@@ -173,13 +218,37 @@ def apply_filters(entries: list[dict], args: argparse.Namespace) -> list[dict]:
     return result
 
 
+_CASE_INSENSITIVE_CACHE: dict[str, Path] | None = None
+
+
+def _build_case_cache(base_dir: Path) -> dict[str, Path]:
+    """Build lowercase filename → Path cache for case-insensitive lookup."""
+    global _CASE_INSENSITIVE_CACHE
+    if _CASE_INSENSITIVE_CACHE is None:
+        _CASE_INSENSITIVE_CACHE = {}
+        for f in base_dir.iterdir():
+            if f.is_file():
+                _CASE_INSENSITIVE_CACHE[f.name.lower()] = f
+    return _CASE_INSENSITIVE_CACHE
+
+
 def remap_path(full_path: str, base_dir: Path) -> Path:
     """Remap catalog path to local copy using filename only.
 
     Catalog paths: /media/.../books/SomeBook.pdf
     Local paths:   base_dir/SomeBook.pdf
+
+    Falls back to case-insensitive match for .PDF vs .pdf mismatches.
     """
-    return base_dir / Path(full_path).name
+    target = base_dir / Path(full_path).name
+    if target.exists():
+        return target
+    # Case-insensitive fallback (handles .PDF vs .pdf)
+    cache = _build_case_cache(base_dir)
+    name_lower = Path(full_path).name.lower()
+    if name_lower in cache:
+        return cache[name_lower]
+    return target  # Return original (will fail at open time with clear error)
 
 
 # --- CLI ---
@@ -214,6 +283,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-q", "--quiet", action="store_true", help="Minimal output")
     parser.add_argument("--json", action="store_true", help="JSON summary output")
     parser.add_argument("--catalog", type=Path, default=DEFAULT_CATALOG, help="Catalog JSON path")
+    parser.add_argument(
+        "--no-build-citations",
+        action="store_true",
+        help="Skip the post-ingest citation graph build (default: on)",
+    )
     return parser.parse_args()
 
 
@@ -367,6 +441,7 @@ async def main() -> None:
                     "domain": domain,
                     "chunks": num_chunks,
                     "elapsed_seconds": round(elapsed, 1),
+                    "source_id": source_id,
                 }
             )
 
@@ -493,6 +568,33 @@ async def main() -> None:
             for r in results["failed"]:
                 tag = "recoverable" if r.get("recoverable") else "permanent"
                 print(f"  - {r['file']}: {r['error'][:60]} ({tag})")
+
+    # Post-ingest hook: build citation graph for just the new sources (Issue #5).
+    # Mass ingests can be huge; users can skip with --no-build-citations.
+    new_ids: list[UUID] = []
+    for r in results["success"]:
+        if r.get("source_id") is None:
+            continue
+        try:
+            new_ids.append(UUID(str(r["source_id"])))
+        except (TypeError, ValueError):
+            logger.warning("invalid_source_id", source_id=r.get("source_id"))
+
+    if new_ids and not getattr(args, "no_build_citations", False):
+        try:
+            if not args.json:
+                print(f"\nBuilding citation graph for {len(new_ids)} new sources...")
+            summary = await run_post_ingest_hooks(new_ids)
+            citation_stats = summary.get("citations", {})
+            if not args.json:
+                print(
+                    f"  matched={citation_stats.get('matched', 0)} "
+                    f"unmatched={citation_stats.get('unmatched', 0)}"
+                )
+        except Exception as e:
+            logger.error("post_ingest_hook_failed", error=str(e))
+            if not args.json:
+                print(f"  ⚠ citation graph build failed: {e}")
 
 
 if __name__ == "__main__":

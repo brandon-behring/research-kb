@@ -179,7 +179,9 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
 # ============================================================================
 
 
-async def build_citation_graph() -> dict:
+async def build_citation_graph(
+    source_ids: Optional[list[UUID]] = None,
+) -> dict:
     """Build source_citations edges from extracted citations.
 
     For each citation in the citations table:
@@ -187,7 +189,17 @@ async def build_citation_graph() -> dict:
     2. Create edge in source_citations table
     3. Track statistics by source type
 
-    Returns:
+    Parameters
+    ----------
+    source_ids : list[UUID], optional
+        If provided, restrict processing to citations emitted by these source
+        IDs. Used by the post-ingest hook to incrementally build edges for
+        newly ingested sources without rescanning the whole corpus.
+        Default None processes all citations.
+
+    Returns
+    -------
+    dict
         Statistics dict with keys:
         - total_processed: int
         - matched: int (citations matched to corpus sources)
@@ -212,13 +224,25 @@ async def build_citation_graph() -> dict:
             schema="pg_catalog",
         )
 
-        # Get all citations with their source info
-        citations = await conn.fetch("""
-            SELECT c.*, s.source_type AS citing_source_type
-            FROM citations c
-            JOIN sources s ON c.source_id = s.id
-            ORDER BY c.created_at
-            """)
+        # Get citations with their source info, optionally scoped to source_ids
+        if source_ids:
+            citations = await conn.fetch(
+                """
+                SELECT c.*, s.source_type AS citing_source_type
+                FROM citations c
+                JOIN sources s ON c.source_id = s.id
+                WHERE c.source_id = ANY($1::uuid[])
+                ORDER BY c.created_at
+                """,
+                source_ids,
+            )
+        else:
+            citations = await conn.fetch("""
+                SELECT c.*, s.source_type AS citing_source_type
+                FROM citations c
+                JOIN sources s ON c.source_id = s.id
+                ORDER BY c.created_at
+                """)
 
         logger.info("building_citation_graph", total_citations=len(citations))
 

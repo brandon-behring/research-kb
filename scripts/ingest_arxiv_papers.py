@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 
 from research_kb_common import get_logger
 from research_kb_contracts import SourceType
-from research_kb_pdf import PDFDispatcher
+from research_kb_pdf import PDFDispatcher, run_post_ingest_hooks
 from research_kb_storage import DatabaseConfig, get_connection_pool
 
 logger = get_logger(__name__)
@@ -82,6 +82,11 @@ async def main():
     parser = argparse.ArgumentParser(description="Ingest papers from subdirectories")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be ingested")
     parser.add_argument("--limit", type=int, default=None, help="Max papers to ingest")
+    parser.add_argument(
+        "--no-build-citations",
+        action="store_true",
+        help="Skip the post-ingest citation graph build (default: on)",
+    )
     args = parser.parse_args()
 
     # Find all subdirectories with PDFs
@@ -125,6 +130,7 @@ async def main():
 
     success = 0
     failed = 0
+    new_source_ids: list = []
 
     for pdf, file_hash in missing:
         # Try to get metadata from sidecar
@@ -168,6 +174,8 @@ async def main():
             )
             print(f"✓ {pdf.name}: {result.chunk_count} chunks")
             success += 1
+            if getattr(result, "source", None) is not None:
+                new_source_ids.append(result.source.id)
         except Exception as e:
             print(f"✗ {pdf.name}: {e}")
             failed += 1
@@ -175,6 +183,23 @@ async def main():
     print(f"\n{'='*60}")
     print(f"Summary: {success} success, {failed} failed")
     print(f"{'='*60}")
+
+    # Post-ingest hooks: build the citation graph for just the new sources.
+    # Issue #5: do this automatically so research_kb_citation_network works
+    # immediately after ingest instead of requiring a manual followup run.
+    if new_source_ids and not args.no_build_citations:
+        try:
+            print(f"\nBuilding citation graph for {len(new_source_ids)} new sources...")
+            summary = await run_post_ingest_hooks(new_source_ids)
+            citation_stats = summary.get("citations", {})
+            print(
+                f"  matched={citation_stats.get('matched', 0)} "
+                f"unmatched={citation_stats.get('unmatched', 0)} "
+                f"processed={citation_stats.get('total_processed', 0)}"
+            )
+        except Exception as e:
+            print(f"  ⚠ citation graph build failed: {e}")
+            logger.error("post_ingest_hook_failed", error=str(e))
 
 
 if __name__ == "__main__":
