@@ -1539,3 +1539,217 @@ class TestAuditAssumptionsBackendDispatch:
         mock_ollama.assert_not_called()
         assert len(result.assumptions) >= 4
         assert result.source == "graph"
+
+
+# =============================================================================
+# 11. TestScopeAndDomainPropagation (Issue #2)
+# =============================================================================
+
+
+class TestScopeAndDomainPropagation:
+    """Tests for scope and domain parameter propagation through audit_assumptions.
+
+    Issue #2: Verify that scope=applied + domain selects the APPLIED prompt
+    variant, that scope=general uses the base prompt, and that both params
+    propagate from audit_assumptions() through to the LLM backends.
+    """
+
+    @pytest.fixture(autouse=True)
+    def reset_kg_cache(self):
+        """Reset KG staleness cache before each test."""
+        MethodAssumptionAuditor._kg_stale_cache = None
+        yield
+        MethodAssumptionAuditor._kg_stale_cache = None
+
+    @pytest.mark.unit
+    async def test_anthropic_applied_scope_selects_applied_prompt(self):
+        """scope='applied' + domain uses ASSUMPTION_EXTRACTION_PROMPT_APPLIED."""
+        response_json = json.dumps({"assumptions": []})
+        mock_message = MagicMock()
+        mock_message.content = [MagicMock(text=response_json)]
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_message
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
+            await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="RDD",
+                definition="Regression discontinuity design",
+                domain="time_series",
+                scope="applied",
+            )
+
+        mock_client.messages.create.assert_called_once()
+        call_kwargs = mock_client.messages.create.call_args.kwargs
+        prompt_text = call_kwargs["messages"][0]["content"]
+        # Applied prompt has "time series" domain label (underscore replaced)
+        assert "time series" in prompt_text
+        # Applied prompt's preamble mentions domain expertise
+        assert "expert in time series" in prompt_text
+
+    @pytest.mark.unit
+    async def test_anthropic_general_scope_uses_default_prompt(self):
+        """scope='general' uses default ASSUMPTION_EXTRACTION_PROMPT regardless of domain."""
+        response_json = json.dumps({"assumptions": []})
+        mock_message = MagicMock()
+        mock_message.content = [MagicMock(text=response_json)]
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_message
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
+            await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="DML",
+                definition="Double machine learning",
+                domain="time_series",  # Ignored because scope=general
+                scope="general",
+            )
+
+        mock_client.messages.create.assert_called_once()
+        call_kwargs = mock_client.messages.create.call_args.kwargs
+        prompt_text = call_kwargs["messages"][0]["content"]
+        # Default prompt is for causal inference, does NOT mention "time series"
+        assert "causal inference" in prompt_text
+        assert "expert in time series" not in prompt_text
+
+    @pytest.mark.unit
+    async def test_anthropic_applied_without_domain_falls_back_to_default(self):
+        """scope='applied' without a domain falls back to the default prompt."""
+        response_json = json.dumps({"assumptions": []})
+        mock_message = MagicMock()
+        mock_message.content = [MagicMock(text=response_json)]
+        mock_client = MagicMock()
+        mock_client.messages.create.return_value = mock_message
+        mock_anthropic_module = MagicMock()
+        mock_anthropic_module.Anthropic.return_value = mock_client
+
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}),
+            patch.dict("sys.modules", {"anthropic": mock_anthropic_module}),
+        ):
+            await MethodAssumptionAuditor.extract_assumptions_with_anthropic(
+                method_name="IV",
+                scope="applied",
+                domain=None,
+            )
+
+        call_kwargs = mock_client.messages.create.call_args.kwargs
+        prompt_text = call_kwargs["messages"][0]["content"]
+        assert "causal inference" in prompt_text
+
+    async def test_audit_assumptions_passes_scope_and_domain_to_anthropic(self, method_sparse):
+        """audit_assumptions() forwards scope and domain to the anthropic backend."""
+        method, _ = method_sparse
+
+        with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "_check_kg_staleness",
+                new_callable=AsyncMock,
+                return_value=False,
+            ),
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_anthropic",
+                new_callable=AsyncMock,
+                return_value=[
+                    AssumptionDetail(name="a1", importance="critical", confidence=0.85),
+                    AssumptionDetail(name="a2", importance="standard", confidence=0.85),
+                    AssumptionDetail(name="a3", importance="standard", confidence=0.85),
+                ],
+            ) as mock_anthropic,
+            patch.object(
+                MethodAssumptionAuditor,
+                "cache_assumptions",
+                new_callable=AsyncMock,
+                return_value=3,
+            ),
+        ):
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                llm_backend="anthropic",
+                domain="time_series",
+                scope="applied",
+            )
+
+        mock_anthropic.assert_called_once()
+        call_kwargs = mock_anthropic.call_args.kwargs
+        assert call_kwargs["domain"] == "time_series"
+        assert call_kwargs["scope"] == "applied"
+        # MethodAssumptions result echoes the requested scope/domain
+        assert result.domain == "time_series"
+        assert result.scope == "applied"
+
+    async def test_audit_assumptions_passes_scope_and_domain_to_ollama(self, method_sparse):
+        """audit_assumptions() forwards scope and domain to the ollama backend."""
+        method, _ = method_sparse
+
+        with (
+            patch.object(
+                MethodAssumptionAuditor,
+                "_check_kg_staleness",
+                new_callable=AsyncMock,
+                return_value=False,
+            ),
+            patch.object(
+                MethodAssumptionAuditor,
+                "extract_assumptions_with_ollama",
+                new_callable=AsyncMock,
+                return_value=[
+                    AssumptionDetail(name="b1", importance="critical", confidence=0.7),
+                    AssumptionDetail(name="b2", importance="standard", confidence=0.7),
+                    AssumptionDetail(name="b3", importance="standard", confidence=0.7),
+                ],
+            ) as mock_ollama,
+            patch.object(
+                MethodAssumptionAuditor,
+                "cache_assumptions",
+                new_callable=AsyncMock,
+                return_value=3,
+            ),
+        ):
+            await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                llm_backend="ollama",
+                use_ollama_fallback=True,
+                domain="econometrics",
+                scope="applied",
+            )
+
+        mock_ollama.assert_called_once()
+        call_kwargs = mock_ollama.call_args.kwargs
+        assert call_kwargs["domain"] == "econometrics"
+        assert call_kwargs["scope"] == "applied"
+
+    async def test_audit_assumptions_filters_graph_by_explicit_domain(self, cross_domain_method):
+        """Explicit domain parameter filters graph assumptions regardless of method's own domain."""
+        method, _, _ = cross_domain_method
+
+        with patch.object(
+            MethodAssumptionAuditor,
+            "_check_kg_staleness",
+            new_callable=AsyncMock,
+            return_value=False,
+        ):
+            # The fixture's method is in 'causal_inference'. Explicitly requesting
+            # domain='time_series' should filter the graph to time_series assumptions,
+            # returning only the cross-domain 'other_domain_assumption' (which lives
+            # in time_series per the fixture).
+            result = await MethodAssumptionAuditor.audit_assumptions(
+                method.name,
+                filter_by_domain=True,
+                domain="time_series",
+                use_llm_fallback=False,
+            )
+
+        names = {a.name for a in result.assumptions}
+        assert "other_domain_assumption" in names
+        assert "same_domain_assumption" not in names
