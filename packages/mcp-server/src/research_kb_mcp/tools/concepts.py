@@ -35,6 +35,7 @@ def register_concept_tools(mcp: FastMCP) -> None:
         query: Optional[str] = None,
         limit: int = 50,
         concept_type: Optional[str] = None,
+        domain: Optional[str] = None,
     ) -> str:
         """List or search concepts in the knowledge graph.
 
@@ -46,6 +47,10 @@ def register_concept_tools(mcp: FastMCP) -> None:
             limit: Maximum number of concepts (1-100, default 50)
             concept_type: Filter by type (METHOD, ASSUMPTION, PROBLEM,
                          DEFINITION, THEOREM)
+            domain: Optional knowledge-domain filter (Issue #4). Pass a domain
+                id (e.g., "causal_inference", "time_series") to restrict to
+                concepts that belong to that domain. None returns cross-domain
+                results.
 
         Returns:
             Markdown-formatted list of concepts with:
@@ -66,6 +71,7 @@ def register_concept_tools(mcp: FastMCP) -> None:
             query=query,
             limit=limit,
             concept_type=concept_type,
+            domain_id=domain,
         )
         return format_concept_list(concepts)
 
@@ -160,6 +166,7 @@ def register_concept_tools(mcp: FastMCP) -> None:
         concept_id: str,
         limit: int = 10,
         threshold: float = 0.8,
+        domain: Optional[str] = None,
     ) -> str:
         """Find concepts semantically similar to a given concept.
 
@@ -172,6 +179,9 @@ def register_concept_tools(mcp: FastMCP) -> None:
             limit: Maximum number of similar concepts (1-50, default 10)
             threshold: Minimum similarity score (0.0-1.0, default 0.8)
                       Higher = more similar, 0.85+ for close matches
+            domain: Optional knowledge-domain filter (Issue #4). When set,
+                only returns concepts whose domain_id matches. Useful for
+                within-domain semantic neighborhoods.
 
         Returns:
             Markdown-formatted list of similar concepts with:
@@ -201,6 +211,7 @@ def register_concept_tools(mcp: FastMCP) -> None:
                 embedding=source_concept.embedding,
                 limit=limit + 1,  # +1 to exclude self
                 threshold=threshold,
+                domain_id=domain,
             )
 
             # Filter out the source concept itself

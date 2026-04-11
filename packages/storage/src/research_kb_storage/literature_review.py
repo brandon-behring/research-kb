@@ -276,6 +276,7 @@ def _truncate(text: str, max_chars: int = EVIDENCE_CONTENT_MAX_CHARS) -> str:
 async def _explore_topic_concepts(
     topic: str,
     max_concepts: int = MAX_CONCEPTS_EXPLORED,
+    domain_id: Optional[str] = None,
 ) -> list[dict]:
     """Find concepts related to a topic via graph neighborhood + search.
 
@@ -287,6 +288,9 @@ async def _explore_topic_concepts(
     Args:
         topic: Topic string to explore
         max_concepts: Maximum concepts to return
+        domain_id: Optional knowledge domain filter applied to seed concept
+            search (Issue #4). Neighborhood expansion still traverses cross
+            domain links since the graph itself is the authority on scope.
 
     Returns:
         List of concept dicts with name, type, definition, relevance
@@ -295,13 +299,13 @@ async def _explore_topic_concepts(
     from research_kb_storage.graph_queries import get_neighborhood
 
     # Find seed concepts matching the topic
-    seed_concepts = await ConceptStore.search(topic, limit=5)
+    seed_concepts = await ConceptStore.search(topic, limit=5, domain_id=domain_id)
 
     if not seed_concepts:
         # Try individual words from topic
         for word in topic.split():
             if len(word) >= 3:
-                results = await ConceptStore.search(word, limit=3)
+                results = await ConceptStore.search(word, limit=3, domain_id=domain_id)
                 seed_concepts.extend(results)
         # Deduplicate
         seen_ids = set()
@@ -361,6 +365,7 @@ async def _search_evidence_for_section(
     concepts: list[dict],
     max_evidence: int = MAX_EVIDENCE_PER_SECTION,
     exclude_chunk_ids: set[UUID] | None = None,
+    domain_id: Optional[str] = None,
 ) -> list[ReviewEvidence]:
     """Search for evidence chunks relevant to a review section.
 
@@ -372,6 +377,7 @@ async def _search_evidence_for_section(
         concepts: Related concepts for this section
         max_evidence: Maximum evidence chunks to collect
         exclude_chunk_ids: Chunk IDs already used in other sections (for dedup)
+        domain_id: Optional domain filter for hybrid search (Issue #4)
 
     Returns:
         List of ReviewEvidence, deduplicated by source and cross-section
@@ -399,6 +405,7 @@ async def _search_evidence_for_section(
             fts_weight=0.3,
             vector_weight=0.7,
             limit=max_evidence * 2,  # Fetch extra for diversity filtering
+            domain_id=domain_id,
         )
         results = await search_hybrid(query)
     except Exception as e:
@@ -610,6 +617,7 @@ async def generate_literature_review(
     use_llm: bool = True,
     max_concepts: int = MAX_CONCEPTS_EXPLORED,
     max_evidence_per_section: int = MAX_EVIDENCE_PER_SECTION,
+    domain_id: Optional[str] = None,
 ) -> LiteratureReview:
     """Generate a structured literature review for a topic.
 
@@ -627,6 +635,9 @@ async def generate_literature_review(
         use_llm: Enable LLM synthesis (requires ANTHROPIC_API_KEY)
         max_concepts: Maximum concepts to explore
         max_evidence_per_section: Evidence chunks per section
+        domain_id: Optional knowledge-domain filter (Issue #4). Scopes seed
+            concept discovery and hybrid evidence search to this domain.
+            Neighborhood expansion still follows cross-domain graph edges.
 
     Returns:
         LiteratureReview with sections, evidence, and optional synthesis
@@ -639,15 +650,23 @@ async def generate_literature_review(
         ... )
         >>> print(review.to_markdown())
     """
-    logger.info("literature_review_start", topic=topic, style=style, use_llm=use_llm)
+    logger.info(
+        "literature_review_start",
+        topic=topic,
+        style=style,
+        use_llm=use_llm,
+        domain_id=domain_id,
+    )
 
     # 1. Explore concepts
-    concepts = await _explore_topic_concepts(topic, max_concepts=max_concepts)
+    concepts = await _explore_topic_concepts(topic, max_concepts=max_concepts, domain_id=domain_id)
     logger.info("concepts_explored", topic=topic, count=len(concepts))
 
     if not concepts:
         # Fallback: search-only mode (no graph data)
-        return await _generate_search_only_review(topic, style, use_llm, max_evidence_per_section)
+        return await _generate_search_only_review(
+            topic, style, use_llm, max_evidence_per_section, domain_id=domain_id
+        )
 
     # 2. Organize into sections
     sections: list[ReviewSection] = []
@@ -675,6 +694,7 @@ async def generate_literature_review(
             concepts,
             max_evidence=max_evidence_per_section,
             exclude_chunk_ids=used_chunk_ids,
+            domain_id=domain_id,
         )
         used_chunk_ids.update(e.chunk_id for e in section.evidence)
         logger.debug(
@@ -761,6 +781,7 @@ async def _generate_search_only_review(
     style: str,
     use_llm: bool,
     max_evidence: int,
+    domain_id: Optional[str] = None,
 ) -> LiteratureReview:
     """Fallback: generate review using search only (no graph concepts).
 
@@ -771,11 +792,12 @@ async def _generate_search_only_review(
         style: Writing style
         use_llm: Enable LLM synthesis
         max_evidence: Evidence per section
+        domain_id: Optional knowledge-domain filter propagated to search.
 
     Returns:
         LiteratureReview with search-based evidence
     """
-    logger.info("literature_review_search_only_fallback", topic=topic)
+    logger.info("literature_review_search_only_fallback", topic=topic, domain_id=domain_id)
 
     sections = []
     for section_def in REVIEW_SECTIONS:
@@ -787,7 +809,7 @@ async def _generate_search_only_review(
 
         # Direct search without concept guidance
         section.evidence = await _search_evidence_for_section(
-            topic, section_def, [], max_evidence=max_evidence
+            topic, section_def, [], max_evidence=max_evidence, domain_id=domain_id
         )
 
         if use_llm and section.evidence:

@@ -232,12 +232,15 @@ class BiblioStore:
     async def get_similar_sources(
         source_id: UUID,
         limit: int = 10,
+        domain_id: Optional[str] = None,
     ) -> list[dict]:
         """Get sources most similar to the given source by bibliographic coupling.
 
         Args:
             source_id: Source to find similar sources for
             limit: Maximum number of results
+            domain_id: Optional filter restricting the coupled sources to a
+                knowledge domain (Issue #4). None returns cross-domain results.
 
         Returns:
             List of dicts with: source_id, title, authors, year, coupling_strength
@@ -245,31 +248,60 @@ class BiblioStore:
         pool = await get_connection_pool()
 
         async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT
-                    CASE
+            if domain_id:
+                rows = await conn.fetch(
+                    """
+                    SELECT
+                        CASE
+                            WHEN bc.source_a_id = $1 THEN bc.source_b_id
+                            ELSE bc.source_a_id
+                        END AS similar_source_id,
+                        s.title,
+                        s.authors,
+                        s.year,
+                        s.source_type,
+                        bc.shared_references,
+                        bc.coupling_strength
+                    FROM bibliographic_coupling bc
+                    JOIN sources s ON s.id = CASE
                         WHEN bc.source_a_id = $1 THEN bc.source_b_id
                         ELSE bc.source_a_id
-                    END AS similar_source_id,
-                    s.title,
-                    s.authors,
-                    s.year,
-                    s.source_type,
-                    bc.shared_references,
-                    bc.coupling_strength
-                FROM bibliographic_coupling bc
-                JOIN sources s ON s.id = CASE
-                    WHEN bc.source_a_id = $1 THEN bc.source_b_id
-                    ELSE bc.source_a_id
-                END
-                WHERE bc.source_a_id = $1 OR bc.source_b_id = $1
-                ORDER BY bc.coupling_strength DESC
-                LIMIT $2
-            """,
-                source_id,
-                limit,
-            )
+                    END
+                    WHERE (bc.source_a_id = $1 OR bc.source_b_id = $1)
+                      AND s.domain_id = $3
+                    ORDER BY bc.coupling_strength DESC
+                    LIMIT $2
+                """,
+                    source_id,
+                    limit,
+                    domain_id,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT
+                        CASE
+                            WHEN bc.source_a_id = $1 THEN bc.source_b_id
+                            ELSE bc.source_a_id
+                        END AS similar_source_id,
+                        s.title,
+                        s.authors,
+                        s.year,
+                        s.source_type,
+                        bc.shared_references,
+                        bc.coupling_strength
+                    FROM bibliographic_coupling bc
+                    JOIN sources s ON s.id = CASE
+                        WHEN bc.source_a_id = $1 THEN bc.source_b_id
+                        ELSE bc.source_a_id
+                    END
+                    WHERE bc.source_a_id = $1 OR bc.source_b_id = $1
+                    ORDER BY bc.coupling_strength DESC
+                    LIMIT $2
+                """,
+                    source_id,
+                    limit,
+                )
 
             return [
                 {

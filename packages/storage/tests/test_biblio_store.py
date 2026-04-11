@@ -296,6 +296,24 @@ class TestGetSimilarSources:
         assert call_args[0][1] == source_ids["a"]
         assert call_args[0][2] == 5
 
+    async def test_domain_filter_adds_where_clause_and_param(self, source_ids, mock_pool):
+        """Issue #4: domain_id is passed through as the 4th bound parameter."""
+        pool, conn = mock_pool
+        conn.fetch.return_value = []
+
+        with patch("research_kb_storage.biblio_store.get_connection_pool", make_get_pool(pool)):
+            await BiblioStore.get_similar_sources(
+                source_ids["a"], limit=7, domain_id="causal_inference"
+            )
+
+        call_args = conn.fetch.call_args
+        # (sql, source_id, limit, domain_id)
+        assert call_args[0][1] == source_ids["a"]
+        assert call_args[0][2] == 7
+        assert call_args[0][3] == "causal_inference"
+        # The SQL branch with domain filter includes the JOIN filter on s.domain_id
+        assert "s.domain_id" in call_args[0][0]
+
 
 class TestGetCouplingScore:
     """Tests for get_coupling_score()."""

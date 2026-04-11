@@ -383,15 +383,21 @@ async def get_sources(
     limit: int = 100,
     offset: int = 0,
     source_type: Optional[str] = None,
+    domain_id: Optional[str] = None,
 ) -> list[Source]:
     """Get sources with optional filtering."""
     st = SourceType(source_type.lower()) if source_type else None
-    return await SourceStore.list_all(limit=limit, offset=offset, source_type=st)
+    return await SourceStore.list_all(
+        limit=limit, offset=offset, source_type=st, domain_id=domain_id
+    )
 
 
-async def count_sources(source_type: Optional[str] = None) -> int:
-    """Count sources with optional type filter."""
-    return await SourceStore.count(source_type=source_type)
+async def count_sources(
+    source_type: Optional[str] = None,
+    domain_id: Optional[str] = None,
+) -> int:
+    """Count sources with optional type and domain filters."""
+    return await SourceStore.count(source_type=source_type, domain_id=domain_id)
 
 
 async def get_source_by_id(source_id: str) -> Optional[Source]:
@@ -408,12 +414,20 @@ async def get_concepts(
     query: Optional[str] = None,
     limit: int = 100,
     concept_type: Optional[str] = None,
+    domain_id: Optional[str] = None,
 ) -> list[Concept]:
-    """Get concepts with optional search/filtering."""
+    """Get concepts with optional search/filtering.
+
+    Args:
+        query: Optional fuzzy text query against concept names/aliases.
+        limit: Max results.
+        concept_type: Optional ConceptType filter.
+        domain_id: Optional knowledge-domain filter (Issue #4).
+    """
     ct = ConceptType(concept_type.lower()) if concept_type else None
     if query:
-        return await ConceptStore.search(query, limit=limit, concept_type=ct)
-    return await ConceptStore.list_all(limit=limit, concept_type=ct)
+        return await ConceptStore.search(query, limit=limit, concept_type=ct, domain_id=domain_id)
+    return await ConceptStore.list_all(limit=limit, concept_type=ct, domain_id=domain_id)
 
 
 async def get_concept_by_id(concept_id: str) -> Optional[Concept]:

@@ -36,6 +36,7 @@ def register_source_tools(mcp: FastMCP) -> None:
         limit: int = 50,
         offset: int = 0,
         source_type: Optional[str] = None,
+        domain: Optional[str] = None,
     ) -> str:
         """List sources (papers and textbooks) in the knowledge base.
 
@@ -46,6 +47,8 @@ def register_source_tools(mcp: FastMCP) -> None:
             limit: Maximum number of sources to return (1-100, default 50)
             offset: Pagination offset (default 0)
             source_type: Filter by type ("paper" or "textbook", default all)
+            domain: Optional knowledge-domain filter (Issue #4). Pass a domain
+                id (e.g., "causal_inference", "time_series") to restrict.
 
         Returns:
             Markdown-formatted list of sources with:
@@ -62,6 +65,7 @@ def register_source_tools(mcp: FastMCP) -> None:
             limit=limit,
             offset=offset,
             source_type=source_type,
+            domain_id=domain,
         )
         return format_source_list(sources)
 

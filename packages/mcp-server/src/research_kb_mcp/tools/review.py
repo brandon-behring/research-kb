@@ -5,7 +5,7 @@ Exposes automated literature review generation to Claude Code.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Optional
 
 from fastmcp import FastMCP
 
@@ -22,6 +22,7 @@ def register_review_tools(mcp: FastMCP) -> None:
         use_llm: bool = True,
         max_concepts: int = 30,
         max_evidence_per_section: int = 8,
+        domain: Optional[str] = None,
         output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Generate a structured literature review for a topic from the knowledge base.
@@ -45,6 +46,9 @@ def register_review_tools(mcp: FastMCP) -> None:
                 If False, returns structured evidence without synthesis.
             max_concepts: Maximum concepts to explore from knowledge graph (default 30)
             max_evidence_per_section: Evidence chunks per section (default 8)
+            domain: Optional knowledge-domain filter (Issue #4). Scopes seed
+                concept discovery and evidence search to this domain. Graph
+                traversal still follows cross-domain relationships.
             output_format: Response format - "markdown" (default) or "json"
 
         Returns:
@@ -64,6 +68,7 @@ def register_review_tools(mcp: FastMCP) -> None:
             use_llm=use_llm,
             max_concepts=max_concepts,
             max_evidence_per_section=max_evidence_per_section,
+            domain_id=domain,
         )
 
         if output_format == "json":

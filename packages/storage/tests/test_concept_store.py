@@ -466,3 +466,89 @@ class TestChunkConceptStore:
         assert len(result) == 2
         assert concept.id in result[chunks[0].id]
         assert concept.id in result[chunks[1].id]
+
+
+# =============================================================================
+# Issue #4: domain parameter on concept search / find_similar
+# =============================================================================
+
+
+class TestConceptDomainFilter:
+    """ConceptStore.search and find_similar respect the domain_id parameter."""
+
+    async def test_search_filters_by_domain(self, db_pool):
+        """ConceptStore.search(domain_id=...) returns only same-domain matches."""
+        shared_name = f"double_machine_learning_{uuid4().hex[:6]}"
+        ci_concept = await ConceptStore.create(
+            domain_id="causal_inference",
+            name=shared_name,
+            canonical_name=shared_name,
+            concept_type=ConceptType.METHOD,
+            definition="DML in causal inference",
+        )
+        ts_concept = await ConceptStore.create(
+            domain_id="time_series",
+            name=shared_name,
+            canonical_name=f"{shared_name}_ts",
+            concept_type=ConceptType.METHOD,
+            definition="DML in time series",
+        )
+
+        # Without filter: both surface
+        all_results = await ConceptStore.search(shared_name, limit=20)
+        found_ids = {c.id for c in all_results}
+        assert ci_concept.id in found_ids
+        assert ts_concept.id in found_ids
+
+        # With causal_inference filter: only CI concept
+        ci_results = await ConceptStore.search(shared_name, limit=20, domain_id="causal_inference")
+        ci_ids = {c.id for c in ci_results}
+        assert ci_concept.id in ci_ids
+        assert ts_concept.id not in ci_ids
+
+        # With time_series filter: only TS concept
+        ts_results = await ConceptStore.search(shared_name, limit=20, domain_id="time_series")
+        ts_ids = {c.id for c in ts_results}
+        assert ts_concept.id in ts_ids
+        assert ci_concept.id not in ts_ids
+
+    async def test_find_similar_filters_by_domain(self, db_pool):
+        """ConceptStore.find_similar(domain_id=...) scopes results to one domain."""
+        import numpy as np
+
+        rng = np.random.default_rng(seed=42)
+        shared_embedding = list(rng.random(1024).astype(float))
+
+        ci_concept = await ConceptStore.create(
+            domain_id="causal_inference",
+            name=f"ci_method_{uuid4().hex[:6]}",
+            canonical_name=f"ci_method_{uuid4().hex[:6]}",
+            concept_type=ConceptType.METHOD,
+            embedding=shared_embedding,
+        )
+        ts_concept = await ConceptStore.create(
+            domain_id="time_series",
+            name=f"ts_method_{uuid4().hex[:6]}",
+            canonical_name=f"ts_method_{uuid4().hex[:6]}",
+            concept_type=ConceptType.METHOD,
+            embedding=shared_embedding,
+        )
+
+        # Cross-domain search returns both at the top
+        unfiltered = await ConceptStore.find_similar(
+            embedding=shared_embedding, limit=50, threshold=0.0
+        )
+        unfiltered_ids = {c.id for c, _ in unfiltered}
+        assert ci_concept.id in unfiltered_ids
+        assert ts_concept.id in unfiltered_ids
+
+        # Scoped to causal_inference
+        ci_only = await ConceptStore.find_similar(
+            embedding=shared_embedding,
+            limit=50,
+            threshold=0.0,
+            domain_id="causal_inference",
+        )
+        ci_only_ids = {c.id for c, _ in ci_only}
+        assert ci_concept.id in ci_only_ids
+        assert ts_concept.id not in ci_only_ids

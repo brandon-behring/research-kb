@@ -5,7 +5,7 @@ Exposes citation network and bibliographic coupling functionality.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Optional
 from uuid import UUID
 
 from fastmcp import FastMCP
@@ -70,6 +70,7 @@ def register_citation_tools(mcp: FastMCP) -> None:
         source_id: str,
         limit: int = 10,
         min_coupling: float = 0.1,
+        domain: Optional[str] = None,
         output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
         """Find sources similar by bibliographic coupling.
@@ -85,6 +86,9 @@ def register_citation_tools(mcp: FastMCP) -> None:
             source_id: UUID of the source to find similar sources for
             limit: Maximum similar sources to return (1-50, default 10)
             min_coupling: Minimum coupling strength threshold (0.0-1.0, default 0.1)
+            domain: Optional knowledge-domain filter (Issue #4). Restricts
+                the candidate sources to a single domain, useful for
+                within-domain topical neighborhoods.
             output_format: Response format - "markdown" (default) or "json"
 
         Returns:
@@ -111,6 +115,7 @@ def register_citation_tools(mcp: FastMCP) -> None:
         similar = await BiblioStore.get_similar_sources(
             UUID(source_id),
             limit=limit,
+            domain_id=domain,
         )
 
         # Filter by min_coupling

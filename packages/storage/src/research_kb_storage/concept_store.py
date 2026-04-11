@@ -475,6 +475,7 @@ class ConceptStore:
         query: str,
         limit: int = 50,
         concept_type: Optional[ConceptType] = None,
+        domain_id: Optional[str] = None,
     ) -> list[Concept]:
         """Search concepts by name using fuzzy text matching.
 
@@ -482,6 +483,7 @@ class ConceptStore:
             query: Search query (matches against name, canonical_name, aliases)
             limit: Maximum results to return
             concept_type: Optional filter by concept type
+            domain_id: Optional filter by knowledge domain (Issue #4)
 
         Returns:
             List of matching Concepts ordered by relevance
@@ -496,58 +498,48 @@ class ConceptStore:
                     "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
                 )
 
-                if concept_type:
-                    rows = await conn.fetch(
-                        """
-                        SELECT *,
-                               CASE
-                                   WHEN LOWER(canonical_name) = $1 THEN 1.0
-                                   WHEN LOWER(canonical_name) LIKE $2 THEN 0.9
-                                   WHEN LOWER(name) LIKE $2 THEN 0.8
-                                   ELSE 0.5
-                               END AS relevance
-                        FROM concepts
-                        WHERE concept_type = $3 AND (
-                            LOWER(canonical_name) LIKE $2
-                            OR LOWER(name) LIKE $2
-                            OR EXISTS (
-                                SELECT 1 FROM unnest(aliases) AS alias
-                                WHERE LOWER(alias) LIKE $2
-                            )
-                        )
-                        ORDER BY relevance DESC, canonical_name ASC
-                        LIMIT $4
-                        """,
-                        query.lower(),
-                        query_pattern,
-                        concept_type.value,
-                        limit,
-                    )
-                else:
-                    rows = await conn.fetch(
-                        """
-                        SELECT *,
-                               CASE
-                                   WHEN LOWER(canonical_name) = $1 THEN 1.0
-                                   WHEN LOWER(canonical_name) LIKE $2 THEN 0.9
-                                   WHEN LOWER(name) LIKE $2 THEN 0.8
-                                   ELSE 0.5
-                               END AS relevance
-                        FROM concepts
-                        WHERE LOWER(canonical_name) LIKE $2
-                            OR LOWER(name) LIKE $2
-                            OR EXISTS (
-                                SELECT 1 FROM unnest(aliases) AS alias
-                                WHERE LOWER(alias) LIKE $2
-                            )
-                        ORDER BY relevance DESC, canonical_name ASC
-                        LIMIT $3
-                        """,
-                        query.lower(),
-                        query_pattern,
-                        limit,
-                    )
+                # Build the parameter list and WHERE fragments dynamically so
+                # the domain filter is optional without duplicating queries.
+                params: list = [query.lower(), query_pattern]
+                extra_conditions: list[str] = []
+                param_idx = 3
 
+                if concept_type:
+                    extra_conditions.append(f"concept_type = ${param_idx}")
+                    params.append(concept_type.value)
+                    param_idx += 1
+
+                if domain_id:
+                    extra_conditions.append(f"domain_id = ${param_idx}")
+                    params.append(domain_id)
+                    param_idx += 1
+
+                where_extra = f"{' AND '.join(extra_conditions)} AND " if extra_conditions else ""
+                params.append(limit)
+                limit_placeholder = f"${param_idx}"
+
+                query_sql = f"""
+                    SELECT *,
+                           CASE
+                               WHEN LOWER(canonical_name) = $1 THEN 1.0
+                               WHEN LOWER(canonical_name) LIKE $2 THEN 0.9
+                               WHEN LOWER(name) LIKE $2 THEN 0.8
+                               ELSE 0.5
+                           END AS relevance
+                    FROM concepts
+                    WHERE {where_extra}(
+                        LOWER(canonical_name) LIKE $2
+                        OR LOWER(name) LIKE $2
+                        OR EXISTS (
+                            SELECT 1 FROM unnest(aliases) AS alias
+                            WHERE LOWER(alias) LIKE $2
+                        )
+                    )
+                    ORDER BY relevance DESC, canonical_name ASC
+                    LIMIT {limit_placeholder}
+                """
+
+                rows = await conn.fetch(query_sql, *params)
                 return [_row_to_concept(row) for row in rows]
 
         except Exception as e:
@@ -564,6 +556,7 @@ class ConceptStore:
         embedding: list[float],
         limit: int = 10,
         threshold: float = 0.8,
+        domain_id: Optional[str] = None,
     ) -> list[tuple[Concept, float]]:
         """Find concepts similar to an embedding.
 
@@ -571,6 +564,8 @@ class ConceptStore:
             embedding: 1024-dim query embedding
             limit: Maximum results
             threshold: Minimum similarity (0.0-1.0)
+            domain_id: Optional filter by knowledge domain (Issue #4).
+                None (default) returns results across all domains.
 
         Returns:
             List of (Concept, similarity_score) tuples
@@ -584,21 +579,38 @@ class ConceptStore:
                     "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
                 )
 
-                # Convert distance to similarity
-                rows = await conn.fetch(
-                    """
-                    SELECT *,
-                           1.0 - (embedding <=> $1::vector(1024)) / 2.0 AS similarity
-                    FROM concepts
-                    WHERE embedding IS NOT NULL
-                      AND 1.0 - (embedding <=> $1::vector(1024)) / 2.0 >= $2
-                    ORDER BY embedding <=> $1::vector(1024) ASC
-                    LIMIT $3
-                    """,
-                    embedding,
-                    threshold,
-                    limit,
-                )
+                if domain_id:
+                    rows = await conn.fetch(
+                        """
+                        SELECT *,
+                               1.0 - (embedding <=> $1::vector(1024)) / 2.0 AS similarity
+                        FROM concepts
+                        WHERE embedding IS NOT NULL
+                          AND domain_id = $4
+                          AND 1.0 - (embedding <=> $1::vector(1024)) / 2.0 >= $2
+                        ORDER BY embedding <=> $1::vector(1024) ASC
+                        LIMIT $3
+                        """,
+                        embedding,
+                        threshold,
+                        limit,
+                        domain_id,
+                    )
+                else:
+                    rows = await conn.fetch(
+                        """
+                        SELECT *,
+                               1.0 - (embedding <=> $1::vector(1024)) / 2.0 AS similarity
+                        FROM concepts
+                        WHERE embedding IS NOT NULL
+                          AND 1.0 - (embedding <=> $1::vector(1024)) / 2.0 >= $2
+                        ORDER BY embedding <=> $1::vector(1024) ASC
+                        LIMIT $3
+                        """,
+                        embedding,
+                        threshold,
+                        limit,
+                    )
 
                 return [(_row_to_concept(row), row["similarity"]) for row in rows]
 
