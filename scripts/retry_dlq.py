@@ -29,6 +29,7 @@ Part of: U1 Track B (PDF Improvements)
 
 import argparse
 import asyncio
+import json
 import sys
 from pathlib import Path
 from typing import Optional
@@ -36,13 +37,99 @@ from typing import Optional
 # Add packages to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "pdf-tools" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" / "src"))
 
+from research_kb_contracts import SourceType
 from research_kb_pdf.dlq import DeadLetterQueue, DLQEntry
 from research_kb_common import get_logger
 
 logger = get_logger(__name__)
 
 DEFAULT_DLQ_PATH = Path(__file__).parent.parent / "data" / "dlq" / "failed_pdfs.jsonl"
+
+
+def _read_sidecar(pdf_path: Path) -> dict:
+    """Read a JSON sidecar file alongside a PDF, if present.
+
+    Sidecars live at ``{pdf_path}.json`` or ``{pdf_path.with_suffix('.json')}``
+    and contain metadata such as ``title``, ``authors``, ``year``, ``arxiv_id``,
+    ``domain_id`` and ``source_type``. Returns an empty dict if no sidecar
+    exists or the file can't be parsed.
+
+    Parameters
+    ----------
+    pdf_path : Path
+        PDF path whose sidecar to read.
+
+    Returns
+    -------
+    dict
+        Sidecar metadata or empty dict on missing/invalid sidecar.
+    """
+    candidates = [
+        pdf_path.with_suffix(pdf_path.suffix + ".json"),
+        pdf_path.with_suffix(".json"),
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            try:
+                return json.loads(candidate.read_text())
+            except (OSError, json.JSONDecodeError) as e:
+                logger.warning("sidecar_parse_failed", path=str(candidate), error=str(e))
+                return {}
+    return {}
+
+
+def _resolve_metadata(entry: DLQEntry) -> dict:
+    """Resolve ingest metadata for a DLQ entry with sidecar fallback.
+
+    Priority order for each field (``source_type``, ``title``, ``domain_id``,
+    ``authors``, ``year``):
+
+    1. ``entry.metadata`` (written by the dispatcher at failure time)
+    2. JSON sidecar next to the PDF
+    3. Safe default (``SourceType.PAPER``, the PDF stem, ``"causal_inference"``)
+
+    Parameters
+    ----------
+    entry : DLQEntry
+        DLQ entry to resolve metadata for.
+
+    Returns
+    -------
+    dict
+        Kwargs ready to pass to ``PDFDispatcher.ingest_pdf``.
+    """
+    pdf_path = Path(entry.file_path)
+    sidecar = _read_sidecar(pdf_path)
+    meta = entry.metadata or {}
+
+    def pick(field: str, default=None):
+        if meta.get(field) is not None:
+            return meta[field]
+        if sidecar.get(field) is not None:
+            return sidecar[field]
+        return default
+
+    raw_source_type = pick("source_type", "paper")
+    try:
+        source_type = SourceType(raw_source_type)
+    except ValueError:
+        logger.warning(
+            "invalid_source_type_using_paper",
+            value=raw_source_type,
+            entry_id=entry.id,
+        )
+        source_type = SourceType.PAPER
+
+    return {
+        "pdf_path": pdf_path,
+        "source_type": source_type,
+        "title": pick("title", pdf_path.stem),
+        "domain_id": pick("domain_id", "causal_inference"),
+        "authors": pick("authors"),
+        "year": pick("year"),
+    }
 
 
 def cmd_list(dlq: DeadLetterQueue, error_type: Optional[str] = None) -> int:
@@ -110,7 +197,22 @@ def cmd_show(dlq: DeadLetterQueue, entry_id: str) -> int:
 async def retry_entry(dlq: DeadLetterQueue, entry: DLQEntry) -> bool:
     """Retry a single DLQ entry.
 
-    Returns True if successful, False otherwise.
+    Resolves ingest metadata from the DLQ entry's stored ``metadata`` dict,
+    falling back to a JSON sidecar next to the PDF. Calls
+    ``PDFDispatcher.ingest_pdf`` with the full set of required arguments,
+    then removes the entry from the DLQ on success.
+
+    Parameters
+    ----------
+    dlq : DeadLetterQueue
+        DLQ to remove the entry from on success.
+    entry : DLQEntry
+        DLQ entry to retry.
+
+    Returns
+    -------
+    bool
+        True on successful ingest, False otherwise.
     """
     from research_kb_pdf.dispatcher import PDFDispatcher
 
@@ -123,20 +225,27 @@ async def retry_entry(dlq: DeadLetterQueue, entry: DLQEntry) -> bool:
         return False
 
     try:
-        # Create dispatcher and retry
+        kwargs = _resolve_metadata(entry)
         dispatcher = PDFDispatcher()
-        result = await dispatcher.ingest_pdf(pdf_path)
+        result = await dispatcher.ingest_pdf(**kwargs)
 
-        if result.status == "success":
+        if getattr(result, "source", None) is not None:
             print("  ✅ Success!")
             dlq.remove(entry.id)
             return True
-        else:
-            print(f"  ❌ Failed: {result.error}")
-            return False
+
+        err = getattr(result, "error", "no source returned")
+        print(f"  ❌ Failed: {err}")
+        return False
 
     except Exception as e:
         print(f"  ❌ Exception: {e}")
+        logger.error(
+            "dlq_retry_exception",
+            entry_id=entry.id,
+            file_path=entry.file_path,
+            error=str(e),
+        )
         return False
 
 

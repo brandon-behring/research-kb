@@ -23,6 +23,12 @@ def scripts_dir():
 
 
 @pytest.fixture
+def repo_root():
+    """Path to repository root."""
+    return Path(__file__).parent.parent.parent
+
+
+@pytest.fixture
 def fixtures_dir():
     """Path to fixtures directory."""
     return Path(__file__).parent.parent.parent / "fixtures"
