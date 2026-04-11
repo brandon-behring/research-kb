@@ -20,10 +20,12 @@
 | Understand the architecture | [System Design](SYSTEM_DESIGN.md) |
 | See current status | [Current Status](status/CURRENT_STATUS.md) |
 | Understand integration surfaces | [Integration Guide](INTEGRATION.md) |
+| Follow the Bayes/stats curriculum | [Bayesian Curriculum](curriculum/README.md) |
 | Run the CLI | [CLAUDE.md](../CLAUDE.md#cli-usage) |
 | Set up locally | [Local Development](guides/LOCAL_DEVELOPMENT.md) |
 | See domain coverage gaps | [Domain Coverage](DOMAIN_COVERAGE.md) |
 | See what to buy/download next | [Acquisition List](ACQUISITION_LIST.md) |
+| See Bayes-specific acquisitions | [Bayesian Acquisition List](BAYESIAN_ACQUISITION_LIST.md) |
 | Find a script's usage | [Script Utilities](scripts/UTILITIES.md) |
 | Update status docs | `python scripts/generate_status.py` |
 
@@ -80,6 +82,7 @@
 docs/
 ├── INDEX.md                    # 🗺️ YOU ARE HERE
 ├── SYSTEM_DESIGN.md            # Architecture summary
+├── curriculum/                 # Bayesian/statistics learning track
 │
 ├── phases/                     # Phase documentation
 │   ├── phase1/FOUNDATION.md

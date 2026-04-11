@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-03-30 09:20:28
+**Auto-generated**: 2026-04-11 17:46:49
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,12 +9,12 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 1,756 |
-| chunks | 1,395,596 |
-| concepts | 310,063 |
-| concept_relationships | 743,984 |
-| chunk_concepts | 0 |
-| citations | 49,174 |
+| sources | 1,866 |
+| chunks | 1,468,863 |
+| concepts | 311,591 |
+| concept_relationships | 745,336 |
+| chunk_concepts | 3,053 |
+| citations | 47,361 |
 | methods | 15,505 |
 | assumptions | 9,468 |
 
@@ -33,8 +33,8 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 1,395,596 | 1,395,596 | 100.0% |
-| Concepts | 283,521 | 310,063 | 91.4% |
+| Chunks | 1,468,863 | 1,468,863 | 100.0% |
+| Concepts | 283,521 | 311,591 | 91.0% |
 
 ---
 
@@ -42,8 +42,9 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 1,361 |
-| paper | 395 |
+| textbook | 1,346 |
+| paper | 510 |
+| blog | 10 |
 
 ---
 
@@ -51,41 +52,41 @@
 
 | Domain | Sources |
 |--------|--------:|
-| machine_learning | 352 |
-| software_engineering | 164 |
-| deep_learning | 152 |
-| causal_inference | 131 |
-| rag_llm | 113 |
+| machine_learning | 354 |
+| causal_inference | 253 |
+| software_engineering | 165 |
+| deep_learning | 155 |
+| rag_llm | 116 |
+| mathematics | 76 |
 | time_series | 72 |
-| mathematics | 69 |
 | finance | 65 |
 | numerical_methods | 52 |
 | linear_algebra | 47 |
-| econometrics | 44 |
-| statistics | 40 |
-| data_science | 36 |
+| statistics | 45 |
+| econometrics | 45 |
 | healthcare | 35 |
+| data_science | 34 |
 | algorithms | 32 |
-| ml_engineering | 30 |
-| actuarial_insurance | 25 |
+| ml_engineering | 28 |
 | functional_programming | 25 |
+| actuarial_insurance | 24 |
 | dynamical_systems | 23 |
 | fitness | 22 |
-| biology_neuroscience | 21 |
 | probability_theory | 21 |
-| interview_prep | 20 |
+| biology_neuroscience | 21 |
 | portfolio_management | 20 |
-| reinforcement_learning | 19 |
 | analysis | 18 |
-| optimization | 18 |
 | algebra | 18 |
-| physics | 16 |
+| optimization | 17 |
 | topology_geometry | 16 |
-| sql | 14 |
+| physics | 16 |
 | signal_processing | 11 |
-| recommender_systems | 5 |
+| interview_prep | 10 |
+| reinforcement_learning | 10 |
+| sql | 8 |
 | forecasting | 5 |
-| adtech | 3 |
+| recommender_systems | 3 |
+| adtech | 2 |
 | economics | 2 |
 
 ---
@@ -94,15 +95,15 @@
 
 | Type | Count |
 |------|------:|
-| concept | 85,501 |
-| technique | 74,630 |
-| definition | 56,092 |
-| model | 24,820 |
-| method | 20,365 |
-| problem | 19,402 |
-| principle | 12,620 |
-| assumption | 10,916 |
-| theorem | 5,717 |
+| concept | 85,700 |
+| technique | 74,975 |
+| definition | 56,436 |
+| model | 25,146 |
+| method | 20,441 |
+| problem | 19,549 |
+| principle | 12,662 |
+| assumption | 10,943 |
+| theorem | 5,739 |
 
 ---
 
@@ -110,14 +111,14 @@
 
 | Type | Count |
 |------|------:|
-| USES | 349,331 |
-| ADDRESSES | 113,232 |
-| SPECIALIZES | 89,591 |
-| REQUIRES | 63,332 |
+| USES | 350,002 |
+| ADDRESSES | 113,476 |
+| SPECIALIZES | 89,755 |
+| REQUIRES | 63,385 |
 | RELATED_TO | 51,547 |
-| ALTERNATIVE_TO | 40,700 |
-| EXTENDS | 27,627 |
-| GENERALIZES | 8,624 |
+| ALTERNATIVE_TO | 40,847 |
+| EXTENDS | 27,690 |
+| GENERALIZES | 8,634 |
 
 ---
 
@@ -128,8 +129,8 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 1,756 sources, 1,395,596 chunks |
-| Phase 2: Knowledge Graph | ✅ Complete | 310,063 concepts, 743,984 relationships |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 1,866 sources, 1,468,863 chunks |
+| Phase 2: Knowledge Graph | ✅ Complete | 311,591 concepts, 745,336 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |
 
