@@ -30,12 +30,36 @@ class TestSourceType:
         assert SourceType.TEXTBOOK == "textbook"
         assert SourceType.PAPER == "paper"
         assert SourceType.CODE_REPO == "code_repo"
+        assert SourceType.BLOG == "blog"
 
     def test_source_type_string_conversion(self):
         """Verify SourceType can be created from strings."""
         assert SourceType("textbook") == SourceType.TEXTBOOK
         assert SourceType("paper") == SourceType.PAPER
         assert SourceType("code_repo") == SourceType.CODE_REPO
+        assert SourceType("blog") == SourceType.BLOG
+
+    def test_blog_source_roundtrip(self):
+        """BLOG sources survive Pydantic model_dump/model_validate cycle."""
+        now = datetime.now(timezone.utc)
+        source = Source(
+            id=uuid4(),
+            source_type=SourceType.BLOG,
+            title="Switchback Experiments at Lyft",
+            authors=["Nicholas Chamandy"],
+            year=2023,
+            domain_id="causal_inference",
+            file_hash="sha256:blog123",
+            metadata={"url": "https://eng.lyft.com/..."},
+            created_at=now,
+            updated_at=now,
+        )
+        assert source.source_type == SourceType.BLOG
+        dumped = source.model_dump()
+        assert dumped["source_type"] == "blog"
+        rehydrated = Source.model_validate(dumped)
+        assert rehydrated.source_type == SourceType.BLOG
+        assert rehydrated.metadata["url"] == "https://eng.lyft.com/..."
 
 
 class TestSource:

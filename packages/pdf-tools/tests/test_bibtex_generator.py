@@ -211,6 +211,26 @@ class TestSourceToBibtex:
         assert "eprint = {1608.00060}" in result
         assert "archiveprefix = {arXiv}" in result
 
+    def test_online_for_blog(self, now):
+        """Blog sources should use @online entry type."""
+        source = Source(
+            id=uuid.uuid4(),
+            source_type=SourceType.BLOG,
+            title="Switchback Experiments at Lyft",
+            authors=["Chamandy, Nicholas"],
+            year=2023,
+            domain_id="causal_inference",
+            file_path="/path/to/chamandy_switchback.pdf",
+            file_hash="blog123",
+            metadata={"url": "https://eng.lyft.com/..."},
+            created_at=now,
+            updated_at=now,
+        )
+        result = source_to_bibtex(source)
+
+        assert result.startswith("@online{")
+        assert "title = {Switchback Experiments at Lyft}" in result
+
     def test_includes_all_authors(self, now):
         """All authors should be included."""
         source = Source(

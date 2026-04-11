@@ -1,0 +1,97 @@
+{
+  "description": "Industry blog posts on switchback experimentation (issue #7 part D)",
+  "domain_id": "causal_inference",
+  "source_type": "blog",
+  "blogs": [
+    {
+      "slug": "chamandy_lyft_experimentation_marketplace_2016",
+      "url": "https://eng.lyft.com/experimentation-in-a-ridesharing-marketplace-b39db027a66e",
+      "wayback": true,
+      "title": "Experimentation in a ridesharing marketplace",
+      "authors": ["Nicholas Chamandy"],
+      "year": 2016,
+      "venue": "Lyft Engineering"
+    },
+    {
+      "slug": "greenhall_lyft_simulating_ridesharing_2016",
+      "url": "https://eng.lyft.com/https-medium-com-adamgreenhall-simulating-a-ridesharing-marketplace-36007a8a31f2",
+      "wayback": true,
+      "title": "Simulating a ridesharing marketplace",
+      "authors": ["Adam Greenhall"],
+      "year": 2016,
+      "venue": "Lyft Engineering"
+    },
+    {
+      "slug": "kirn_lyft_experimentation_challenges_2022",
+      "url": "https://eng.lyft.com/challenges-in-experimentation-be9ab98a7ef4",
+      "wayback": true,
+      "title": "Challenges in experimentation",
+      "authors": ["Spencer Kirn"],
+      "year": 2022,
+      "venue": "Lyft Engineering"
+    },
+    {
+      "slug": "wang_kim_lyft_surrogacy_region_splits_2026",
+      "url": "https://eng.lyft.com/beyond-a-b-testing-using-surrogacy-and-region-splits-to-measure-long-term-effects-in-marketplaces-9cb06d628f2d",
+      "wayback": true,
+      "title": "Beyond A/B Testing: Using Surrogacy and Region Splits to Measure Long-Term Effects in Marketplaces",
+      "authors": ["Yao Wang", "Jisu Kim"],
+      "year": 2026,
+      "venue": "Lyft Engineering"
+    },
+    {
+      "slug": "doordash_switchback_network_effects_2019",
+      "url": "https://careersatdoordash.com/blog/switchback-tests-and-randomized-experimentation-under-network-effects-at-doordash/",
+      "wayback": true,
+      "title": "Switchback Tests and Randomized Experimentation Under Network Effects at DoorDash",
+      "authors": ["DoorDash Engineering"],
+      "year": 2019,
+      "venue": "DoorDash Engineering Blog"
+    },
+    {
+      "slug": "doordash_experiment_rigor_switchback_2019",
+      "url": "https://careersatdoordash.com/blog/experiment-rigor-for-switchback-experiment-analysis/",
+      "wayback": true,
+      "title": "Experiment Rigor for Switchback Experiment Analysis",
+      "authors": ["DoorDash Engineering"],
+      "year": 2019,
+      "venue": "DoorDash Engineering Blog"
+    },
+    {
+      "slug": "doordash_cluster_robust_se_switchback_2019",
+      "url": "https://careersatdoordash.com/blog/cluster-robust-standard-error-in-switchback-experiments/",
+      "wayback": true,
+      "title": "Cluster-Robust Standard Error in Switchback Experiments",
+      "authors": ["DoorDash Engineering"],
+      "year": 2019,
+      "venue": "DoorDash Engineering Blog"
+    },
+    {
+      "slug": "doordash_network_learning_power_2022",
+      "url": "https://careersatdoordash.com/blog/balancing-network-effects-learning-effects-and-power-in-experiments/",
+      "wayback": true,
+      "title": "Balancing Network Effects, Learning Effects, and Power in Experiments",
+      "authors": ["DoorDash Engineering"],
+      "year": 2022,
+      "venue": "DoorDash Engineering Blog"
+    },
+    {
+      "slug": "statsig_switchback_overview",
+      "url": "https://www.statsig.com/blog/switchback-experiments",
+      "wayback": false,
+      "title": "Switchback Experiments",
+      "authors": ["Statsig"],
+      "year": 2024,
+      "venue": "Statsig Blog"
+    },
+    {
+      "slug": "statsig_marketplace_technical_guide",
+      "url": "https://www.statsig.com/blog/marketplace-experiments-technical-guide",
+      "wayback": false,
+      "title": "Marketplace Experiments Technical Guide",
+      "authors": ["Statsig"],
+      "year": 2024,
+      "venue": "Statsig Blog"
+    }
+  ]
+}

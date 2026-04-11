@@ -176,6 +176,8 @@ def source_to_bibtex(source: Source) -> str:
         entry_type = "book"
     elif source.source_type == SourceType.PAPER:
         entry_type = "article"
+    elif source.source_type == SourceType.BLOG:
+        entry_type = "online"
     else:
         entry_type = "misc"
 

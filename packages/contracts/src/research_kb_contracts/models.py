@@ -18,6 +18,7 @@ class SourceType(str, Enum):
     TEXTBOOK = "textbook"
     PAPER = "paper"
     CODE_REPO = "code_repo"
+    BLOG = "blog"
 
 
 class CrossDomainLinkType(str, Enum):
