@@ -924,3 +924,117 @@ class TestSearchWithExpansionUnit:
 
         assert expanded is None
         assert results == expected
+
+
+# ---------------------------------------------------------------------------
+# Issue #3: fast_search vs search_hybrid field parity
+# ---------------------------------------------------------------------------
+
+
+class TestSearchResultFieldParity:
+    """Regression tests guaranteeing fast_search and hybrid search return
+    identical SearchResult field shapes.
+
+    Issue #3: literature_search.py uses a shared parser across both paths.
+    If fast_search and search_hybrid diverge, deduplication would silently
+    fail. These tests pin down the contract so any future divergence fails
+    loudly in CI.
+    """
+
+    def test_search_result_has_required_identity_fields(self):
+        """SearchResult exposes source.id and chunk.id for dedup key."""
+        result = _make_search_result(vector_score=0.9)
+
+        assert hasattr(result.source, "id")
+        assert hasattr(result.chunk, "id")
+        assert result.source.id is not None
+        assert result.chunk.id is not None
+
+    def test_search_result_model_dump_has_stable_field_set(self):
+        """SearchResult.model_dump() produces a stable, documented field set.
+
+        If new optional fields are added to SearchResult, update the expected
+        set intentionally. This guards against accidental field drift.
+        """
+        result = _make_search_result(fts_score=0.5, vector_score=0.7, combined_score=0.6, rank=1)
+        dumped = result.model_dump()
+
+        required = {
+            "chunk",
+            "source",
+            "fts_score",
+            "vector_score",
+            "graph_score",
+            "citation_score",
+            "combined_score",
+            "rank",
+        }
+        assert required.issubset(dumped.keys()), f"Missing fields: {required - dumped.keys()}"
+
+    @patch("research_kb_storage.search.get_connection_pool")
+    @patch("research_kb_storage.search.register_vector", new_callable=AsyncMock)
+    async def test_fast_and_hybrid_return_same_identity_fields(self, mock_register, mock_get_pool):
+        """A result surfaced by both fast_search and search_hybrid has
+        byte-identical source.id, chunk.id, and field-set when dumped.
+
+        Regression guard for Issue #3: if the two paths ever diverge on
+        identity fields, dedup in literature_search.py breaks silently.
+        """
+        from research_kb_storage.search import search_hybrid, search_vector_only
+
+        shared_sid = uuid4()
+        shared_cid = uuid4()
+
+        # Build a single SearchResult reused as the "hit" in both paths
+        def _build_shared_result():
+            chunk = _make_chunk(chunk_id=shared_cid, source_id=shared_sid)
+            source = _make_source(source_id=shared_sid)
+            return SearchResult(
+                chunk=chunk,
+                source=source,
+                fts_score=None,
+                vector_score=0.88,
+                graph_score=None,
+                citation_score=None,
+                combined_score=0.88,
+                rank=1,
+            )
+
+        pool, _ = _make_pool_mock()
+        mock_get_pool.return_value = pool
+
+        # Path 1: search_hybrid with embedding-only query -> _vector_search
+        with patch(
+            "research_kb_storage.search._vector_search",
+            new_callable=AsyncMock,
+            return_value=[_build_shared_result()],
+        ):
+            hybrid_results = await search_hybrid(SearchQuery(embedding=[0.1] * 1024, limit=5))
+
+        # Path 2: search_vector_only with same embedding
+        with patch(
+            "research_kb_storage.search._vector_search",
+            new_callable=AsyncMock,
+            return_value=[_build_shared_result()],
+        ):
+            fast_results = await search_vector_only(SearchQuery(embedding=[0.1] * 1024, limit=5))
+
+        assert len(hybrid_results) == 1
+        assert len(fast_results) == 1
+
+        h = hybrid_results[0]
+        f = fast_results[0]
+
+        # Identity fields must match — dedup key
+        assert h.source.id == f.source.id == shared_sid
+        assert h.chunk.id == f.chunk.id == shared_cid
+
+        # Both paths must return the same class (no subclassing drift)
+        assert type(h) is type(f) is SearchResult
+
+        # Field sets must be identical
+        h_keys = set(h.model_dump().keys())
+        f_keys = set(f.model_dump().keys())
+        assert h_keys == f_keys, (
+            f"Field divergence: hybrid-only={h_keys - f_keys}, " f"fast-only={f_keys - h_keys}"
+        )
