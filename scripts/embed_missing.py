@@ -31,7 +31,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "packages" / "contracts" / "src"))
 async def embed_missing(batch_size: int = 50, limit: int | None = None) -> int:
     """Generate embeddings for chunks without them."""
     import asyncpg
-    from research_kb_pdf.embed_client import EmbeddingClient
+    from research_kb_pdf.embedding_client import EmbeddingClient
 
     client = EmbeddingClient()
     try:
