@@ -1,6 +1,6 @@
 # Domain Coverage Report
 
-**Auto-generated**: 2026-04-11 17:46:49
+**Auto-generated**: 2026-04-11 21:16:37
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -11,7 +11,7 @@
 |--------|--------:|-------:|---------:|----------|
 | `machine_learning` | 354 | 342,545 | 0 | Excellent |
 | `causal_inference` | 253 | 75,830 | 271,332 | Excellent |
-| `software_engineering` | 165 | 148,599 | 0 | Excellent |
+| `software_engineering` | 165 | 148,678 | 0 | Excellent |
 | `deep_learning` | 155 | 47,640 | 1,463 | Excellent |
 | `rag_llm` | 116 | 58,683 | 21,544 | Excellent |
 | `mathematics` | 76 | 106,358 | 0 | Good |
@@ -19,42 +19,42 @@
 | `finance` | 65 | 72,102 | 0 | Good |
 | `numerical_methods` | 52 | 45,502 | 0 | Good |
 | `linear_algebra` | 47 | 46,147 | 0 | Good |
-| `statistics` | 45 | 63,274 | 0 | Good |
 | `econometrics` | 45 | 25,047 | 0 | Good |
+| `statistics` | 45 | 63,274 | 0 | Good |
 | `healthcare` | 35 | 1,006 | 0 | Good |
 | `data_science` | 34 | 34,588 | 0 | Good |
 | `algorithms` | 32 | 31,201 | 0 | Good |
 | `ml_engineering` | 28 | 20,512 | 0 | Moderate |
-| `functional_programming` | 25 | 25,275 | 0 | Moderate |
 | `actuarial_insurance` | 24 | 15,753 | 0 | Moderate |
 | `dynamical_systems` | 23 | 22,213 | 0 | Moderate |
 | `fitness` | 22 | 19,988 | 0 | Moderate |
 | `probability_theory` | 21 | 32,990 | 0 | Moderate |
 | `biology_neuroscience` | 21 | 18,892 | 0 | Moderate |
 | `portfolio_management` | 20 | 20,714 | 0 | Moderate |
-| `analysis` | 18 | 22,392 | 0 | Moderate |
 | `algebra` | 18 | 19,149 | 0 | Moderate |
+| `analysis` | 18 | 22,392 | 0 | Moderate |
 | `optimization` | 17 | 14,945 | 0 | Moderate |
+| `physics` | 17 | 28,587 | 0 | Moderate |
 | `topology_geometry` | 16 | 36,862 | 0 | Moderate |
-| `physics` | 16 | 25,954 | 0 | Moderate |
 | `signal_processing` | 11 | 11,012 | 0 | Moderate |
 | `interview_prep` | 10 | 9,099 | 0 | Moderate |
 | `reinforcement_learning` | 10 | 9,864 | 0 | Moderate |
 | `sql` | 8 | 1,612 | 0 | Thin |
 | `forecasting` | 5 | 872 | 0 | Thin |
 | `recommender_systems` | 3 | 430 | 0 | Thin |
-| `adtech` | 2 | 394 | 0 | Thin |
 | `economics` | 2 | 3,288 | 0 | Thin |
+| `functional_programming` | 2 | 2,371 | 0 | Thin |
+| `adtech` | 2 | 394 | 0 | Thin |
 
 ---
 
 ## Coverage Summary
 
-- **Total**: 1,866 sources across 36 domains (1,468,863 chunks)
+- **Total**: 1,844 sources across 36 domains (1,448,671 chunks)
 - **Excellent** (100+ sources): 5 domains
 - **Good** (30-99 sources): 10 domains
-- **Moderate** (10-29 sources): 16 domains
-- **Thin** (<10 sources): 5 domains
+- **Moderate** (10-29 sources): 15 domains
+- **Thin** (<10 sources): 6 domains
 - **Concept extraction**: 4/36 domains have KG concepts
 
 ---

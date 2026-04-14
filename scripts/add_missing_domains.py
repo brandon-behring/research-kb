@@ -72,6 +72,11 @@ NEW_DOMAINS = [
         "Ads & AdTech",
         "Auction mechanics, CTR prediction, bid optimization, attribution, incrementality",
     ),
+    (
+        "reinforcement_learning",
+        "Reinforcement Learning",
+        "MDPs, policy optimization, value functions, temporal difference, multi-agent RL",
+    ),
 ]
 
 

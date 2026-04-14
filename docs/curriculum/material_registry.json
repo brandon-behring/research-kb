@@ -1,0 +1,737 @@
+{
+  "track": "bayesian_inference_statistics_deep_study",
+  "updated": "2026-04-06",
+  "defaults": {
+    "audience": "technically strong self-learner building a pedagogical repo",
+    "pace": "full deep study",
+    "primary_stack": "python_pymc_arviz",
+    "secondary_stack": "stan_cmdstanpy"
+  },
+  "source_states": [
+    "owned_indexed",
+    "owned_unindexed",
+    "external_target"
+  ],
+  "role_tags": [
+    "core",
+    "support",
+    "optional",
+    "duplicate",
+    "out_of_scope"
+  ],
+  "summary": {
+    "materials_total": 51,
+    "by_source_state": {
+      "owned_indexed": 13,
+      "owned_unindexed": 22,
+      "external_target": 16
+    },
+    "by_role": {
+      "core": 30,
+      "support": 16,
+      "optional": 5
+    }
+  },
+  "canonical_duplicates": [
+    {
+      "id": "bayesian_data_analysis",
+      "keep": "fixtures/library_books/Chapman Hall_CRC Texts in Statistical Science Andrew Gelman John B Carlin Hal S Stern David B Dunson Aki Vehtari Donald B Rubin - Bayesian Data Analysis-Chapman and Hall_CRC 2014.pdf",
+      "duplicates": [
+        "fixtures/library_books/data_science/(Chapman & Hall_CRC Texts in Statistical Science) Andrew Gelman, John B. Carlin, Hal S. Stern, David B. Dunson, Aki Vehtari, Donald B. Rubin - Bayesian Data Analysis-Chapman and Hall_CRC (2014).pdf",
+        "fixtures/library_books/Bayesian Data Analysis Third Edition 3rd Edition -- Andrew Gelman John B Carlin Hal Steven Stern David B -- Chapman Hall_CRC Texts in -- 9780429113079 -- 2e9d2df246cb144c7224d1e6db53466f -- Annas Archive.pdf"
+      ]
+    },
+    {
+      "id": "regression_and_other_stories",
+      "keep": "fixtures/library_books/Andrew Gelman Jennifer Hill Aki Vehtari - Regression and Other Stories-Cambridge University Press 2020.pdf",
+      "duplicates": [
+        "fixtures/library_books/Andrew Gelman, Jennifer Hill, Aki Vehtari - Regression and Other Stories-Cambridge University Press (2020).pdf"
+      ]
+    },
+    {
+      "id": "shumway_stoffer",
+      "keep": "fixtures/textbooks/migrated/springer_texts_in_statistics_robert_h_shumway_davi_nd.pdf",
+      "duplicates": [
+        "fixtures/library_books/(Springer Texts in Statistics) Robert H. Shumway, David S. Stoffer (auth.) - Time Series Analysis and Its Applications_ With R Examples-Springer International Publishing (2017).pdf",
+        "fixtures/library_books/Robert H. Shumway, David S. Sto\ufb00er - Time Series Analysis and its Applications with R Examples-Springer (2017).pdf"
+      ]
+    },
+    {
+      "id": "box_jenkins",
+      "keep": "fixtures/textbooks/box_jenkins_time_series_2015.pdf",
+      "duplicates": [
+        "fixtures/library_books/(Wiley Series in Probability and Statistics) George E. P. Box, Gwilym M. Jenkins, Gregory C. Reinsel, Greta M. Ljung - Time Series Analysis_ Forecasting and Control-Wiley (2015).pdf",
+        "fixtures/library_books/(Wiley Series in Probability and Statistics) George E. P. Box, Gwilym M. Jenkins, Gregory C. Reinsel, Greta M. Ljung - Time Series Analysis_ Forecasting and Control-Wiley (2015) 2.pdf"
+      ]
+    },
+    {
+      "id": "hamilton_time_series",
+      "keep": "fixtures/textbooks/hamilton_time_series_analysis_1994.pdf",
+      "duplicates": [
+        "fixtures/textbooks/time_series_hamilton_1994.pdf",
+        "fixtures/textbooks/tier1_04_hamilton_1994_time_series_2025.pdf"
+      ]
+    }
+  ],
+  "explicit_out_of_scope": [
+    {
+      "title": "Introduction to Hamiltonian Dynamical Systems and the N-Body Problem",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "out_of_scope",
+      "path": "fixtures/library_books/Kenneth R. Meyer, Daniel C. Offin - Introduction to Hamiltonian Dynamical Systems and the N-Body Problem-Springer (2017).pdf",
+      "reason": "Physics/mechanics false positive from filename search; not part of the stats/Bayes curriculum."
+    },
+    {
+      "title": "Complex Hamiltonian Dynamics",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "out_of_scope",
+      "path": "fixtures/library_books/(Springer series in synergetics, 10._ Springer complexity) Tassos Bountis_ Haris Skokos -Complex hamiltonian dynamics-Springer (2012).pdf",
+      "reason": "Physics/mechanics false positive; exclude from the curriculum registry."
+    },
+    {
+      "title": "Convexity Methods in Hamiltonian Mechanics",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "out_of_scope",
+      "path": "fixtures/library_books/Ergebnisse der Mathematik und ihrer Grenzgebiete 19 Ivar Ekeland auth-Convexity Methods in Hamiltonian Mechanics-Springer-Verlag Berlin Heidelberg 1990.pdf",
+      "reason": "Mechanics text, not time-series Hamiltonian Monte Carlo material."
+    }
+  ],
+  "materials": [
+    {
+      "id": "openintro_statistics",
+      "title": "OpenIntro Statistics",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "01_probability_and_stat_baseline"
+      ],
+      "path": "fixtures/textbooks/migrated/openintro-statistics_nd.pdf",
+      "notes": "Fast refresh on sampling, estimators, uncertainty, and applied statistical literacy."
+    },
+    {
+      "id": "all_of_statistics",
+      "title": "All of Statistics",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "01_probability_and_stat_baseline"
+      ],
+      "path": "fixtures/textbooks/migrated/springer_texts_in_statistics_larry_wasserman_-_all_nd.pdf",
+      "notes": "Compact mathematical baseline for likelihood, inference, and asymptotics."
+    },
+    {
+      "id": "probability_and_statistical_inference",
+      "title": "Probability and Statistical Inference",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "support",
+      "module_ids": [
+        "01_probability_and_stat_baseline"
+      ],
+      "path": "fixtures/library_books/(10) by Robert V. Hogg, Elliot Tanis, Dale Zimmerman - Probability and Statistical Inference (10th Edition) (2019).pdf",
+      "notes": "Good frequentist contrast text for the foundations phase."
+    },
+    {
+      "id": "intro_mathematical_statistics",
+      "title": "Introduction to Mathematical Statistics",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "support",
+      "module_ids": [
+        "01_probability_and_stat_baseline"
+      ],
+      "path": "fixtures/library_books/Hogg RV McKean JW Craig AT - Introduction to mathematical statistics-Pearson 2019.pdf",
+      "notes": "Use selectively for estimator properties and likelihood derivations."
+    },
+    {
+      "id": "student_guide_bayesian_statistics",
+      "title": "A Student's Guide to Bayesian Statistics",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "02_core_bayesian_inference",
+        "03_computational_bayes",
+        "06_hierarchical_models"
+      ],
+      "path": "fixtures/textbooks/lambert_students_guide_bayesian_statistics.pdf",
+      "notes": "Best beginner-to-computation bridge in the local library."
+    },
+    {
+      "id": "lambert_solutions_castillo",
+      "title": "Lambert problem set solutions (Castillo)",
+      "kind": "code_repo",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "02_core_bayesian_inference",
+        "03_computational_bayes"
+      ],
+      "path": "fixtures/library_books/companion_repos/lambert_solutions_castillo",
+      "notes": "Worked exercises and data for Lambert chapters."
+    },
+    {
+      "id": "lambert_solutions_hotti",
+      "title": "Lambert problem set solutions (Hotti)",
+      "kind": "code_repo",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "02_core_bayesian_inference",
+        "03_computational_bayes",
+        "06_hierarchical_models"
+      ],
+      "path": "fixtures/library_books/companion_repos/lambert_solutions_hotti",
+      "notes": "Python-heavy worked solutions, including MCMC, Gibbs, HMC, Stan, and hierarchical examples."
+    },
+    {
+      "id": "bayesian_statistics_for_beginners",
+      "title": "Bayesian Statistics for Beginners",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "02_core_bayesian_inference"
+      ],
+      "path": "fixtures/textbooks/migrated/therese_m_donovan__ruth_m_mickey_-_bayesian_statis_nd.pdf",
+      "notes": "Gentle posterior-thinking introduction."
+    },
+    {
+      "id": "bayesian_statistics_intro",
+      "title": "Bayesian Statistics: An Introduction",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "02_core_bayesian_inference"
+      ],
+      "path": "fixtures/textbooks/migrated/lee_peter_-_bayesian_statistics__an_introduction-j_nd.pdf",
+      "notes": "Conceptual Bayes treatment after the beginner text."
+    },
+    {
+      "id": "think_bayes_2",
+      "title": "Think Bayes 2",
+      "kind": "textbook",
+      "source_state": "external_target",
+      "role": "core",
+      "module_ids": [
+        "02_core_bayesian_inference"
+      ],
+      "url": "https://allendowney.github.io/ThinkBayes2/",
+      "notes": "Computational Bayes text with open notebooks."
+    },
+    {
+      "id": "bolstad_intro_bayes",
+      "title": "Introduction to Bayesian Statistics (Bolstad)",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "support",
+      "module_ids": [
+        "02_core_bayesian_inference"
+      ],
+      "path": "fixtures/library_books/[William_M._Bolstad]_Introduction_to_Bayesian_Stat(Bookos.org).pdf",
+      "notes": "Backup introductory text if you want another worked style."
+    },
+    {
+      "id": "bayesian_data_analysis",
+      "title": "Bayesian Data Analysis",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "04_bayesian_workflow_and_model_checks",
+        "06_hierarchical_models"
+      ],
+      "path": "fixtures/library_books/Chapman Hall_CRC Texts in Statistical Science Andrew Gelman John B Carlin Hal S Stern David B Dunson Aki Vehtari Donald B Rubin - Bayesian Data Analysis-Chapman and Hall_CRC 2014.pdf",
+      "notes": "Canonical workflow and hierarchical-model reference."
+    },
+    {
+      "id": "bda_py_demos",
+      "title": "BDA Python demos",
+      "kind": "code_repo",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks"
+      ],
+      "path": "fixtures/library_books/companion_repos/BDA_py_demos",
+      "notes": "Jupyter demos for BDA chapters 2, 3, 4, 5, 6, 10, and 11 plus CmdStanPy examples."
+    },
+    {
+      "id": "bda_r_demos",
+      "title": "BDA R demos",
+      "kind": "code_repo",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks"
+      ],
+      "path": "fixtures/library_books/companion_repos/BDA_R_demos",
+      "notes": "Posterior predictive, model checking, and Stan/R ecosystem demos."
+    },
+    {
+      "id": "bda_course_aalto",
+      "title": "Aalto Bayesian Data Analysis course materials",
+      "kind": "code_repo",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks"
+      ],
+      "path": "fixtures/library_books/companion_repos/BDA_course_Aalto",
+      "notes": "Complete course spine with schedule, assignments, demos, notes, and slides."
+    },
+    {
+      "id": "bayesian_workflow_paper",
+      "title": "Bayesian Workflow",
+      "kind": "paper",
+      "source_state": "external_target",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks"
+      ],
+      "url": "https://arxiv.org/abs/2011.01808",
+      "notes": "The main philosophical and practical workflow paper for the track."
+    },
+    {
+      "id": "psis_loo_waic_paper",
+      "title": "Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC",
+      "kind": "paper",
+      "source_state": "external_target",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks"
+      ],
+      "url": "https://arxiv.org/abs/1507.04544",
+      "notes": "Model comparison backbone."
+    },
+    {
+      "id": "improved_rhat_paper",
+      "title": "Rank-normalization, folding, and localization: An improved R-hat",
+      "kind": "paper",
+      "source_state": "external_target",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks"
+      ],
+      "url": "https://arxiv.org/abs/1903.08008",
+      "notes": "Modern convergence diagnostics."
+    },
+    {
+      "id": "sbc_paper",
+      "title": "Validating Bayesian Inference Algorithms with Simulation-Based Calibration",
+      "kind": "paper",
+      "source_state": "external_target",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes"
+      ],
+      "url": "https://arxiv.org/abs/1804.06788",
+      "notes": "Computational validation that most pedagogical repos skip."
+    },
+    {
+      "id": "nuts_paper",
+      "title": "The No-U-Turn Sampler",
+      "kind": "paper",
+      "source_state": "external_target",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes"
+      ],
+      "url": "https://jmlr.org/papers/v15/hoffman14a.html",
+      "notes": "Primary HMC/NUTS reference."
+    },
+    {
+      "id": "aevb_paper",
+      "title": "Auto-Encoding Variational Bayes",
+      "kind": "paper",
+      "source_state": "external_target",
+      "role": "support",
+      "module_ids": [
+        "03_computational_bayes",
+        "08_advanced_branches"
+      ],
+      "url": "https://arxiv.org/abs/1312.6114",
+      "notes": "Variational inference anchor for the advanced branch."
+    },
+    {
+      "id": "pymc_docs",
+      "title": "PyMC documentation",
+      "kind": "docs",
+      "source_state": "external_target",
+      "role": "core",
+      "module_ids": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks",
+        "05_regression_and_glms",
+        "06_hierarchical_models"
+      ],
+      "url": "https://www.pymc.io/welcome.html",
+      "notes": "Primary implementation stack."
+    },
+    {
+      "id": "arviz_docs",
+      "title": "ArviZ documentation",
+      "kind": "docs",
+      "source_state": "external_target",
+      "role": "core",
+      "module_ids": [
+        "04_bayesian_workflow_and_model_checks"
+      ],
+      "url": "https://python.arviz.org/en/stable/",
+      "notes": "Diagnostics, PPC, and model comparison tooling."
+    },
+    {
+      "id": "pymc_examples",
+      "title": "PyMC examples",
+      "kind": "code_repo",
+      "source_state": "external_target",
+      "role": "support",
+      "module_ids": [
+        "04_bayesian_workflow_and_model_checks",
+        "05_regression_and_glms",
+        "06_hierarchical_models"
+      ],
+      "url": "https://github.com/pymc-devs/pymc-examples",
+      "notes": "Runnable patterns for the primary stack."
+    },
+    {
+      "id": "stan_example_models",
+      "title": "Stan example models",
+      "kind": "code_repo",
+      "source_state": "external_target",
+      "role": "support",
+      "module_ids": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks",
+        "07_time_series_and_forecasting"
+      ],
+      "url": "https://github.com/stan-dev/example-models",
+      "notes": "Secondary comparison stack and real data examples."
+    },
+    {
+      "id": "cmdstanpy_docs",
+      "title": "CmdStanPy documentation",
+      "kind": "docs",
+      "source_state": "external_target",
+      "role": "support",
+      "module_ids": [
+        "03_computational_bayes"
+      ],
+      "url": "https://mc-stan.org/cmdstanpy/",
+      "notes": "Stan comparison stack for the computational module."
+    },
+    {
+      "id": "regression_and_other_stories",
+      "title": "Regression and Other Stories",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "05_regression_and_glms"
+      ],
+      "path": "fixtures/library_books/Andrew Gelman Jennifer Hill Aki Vehtari - Regression and Other Stories-Cambridge University Press 2020.pdf",
+      "notes": "Primary regression and applied modeling text."
+    },
+    {
+      "id": "ros_examples",
+      "title": "Regression and Other Stories examples",
+      "kind": "code_repo",
+      "source_state": "external_target",
+      "role": "support",
+      "module_ids": [
+        "05_regression_and_glms"
+      ],
+      "url": "https://avehtari.github.io/ROS-Examples/",
+      "notes": "Examples and datasets aligned with ROS."
+    },
+    {
+      "id": "glm_intro",
+      "title": "An Introduction to Generalized Linear Models",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "support",
+      "module_ids": [
+        "05_regression_and_glms"
+      ],
+      "path": "fixtures/library_books/(Chapman & Hall Statistics Texts) Annette J. Dobson_ Adrian G Barnett - An Introduction to Generalized Linear Models-CRC Press (2018).pdf",
+      "notes": "Support text for GLM structure and interpretation."
+    },
+    {
+      "id": "applied_logistic_regression",
+      "title": "Applied Logistic Regression",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "support",
+      "module_ids": [
+        "05_regression_and_glms"
+      ],
+      "path": "fixtures/library_books/(Wiley Series in Probability and Statistics) David W. Hosmer, Stanley Lemeshow, Rodney X. Sturdivant (auth.), Walter A. Shewhart, Samuel S. Wilks (eds.) - Applied Logistic Regression-Wiley (2013).pdf",
+      "notes": "Binary outcome modeling support text."
+    },
+    {
+      "id": "logistic_regression_self_learning",
+      "title": "Logistic Regression: A Self-Learning Text",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "support",
+      "module_ids": [
+        "05_regression_and_glms"
+      ],
+      "path": "fixtures/library_books/(Statistics for Biology and Health) David G. Kleinbaum, Mitchel Klein (auth.) - Logistic Regression_ A Self-Learning Text-Springer-Verlag New York (2010).pdf",
+      "notes": "Teaching-friendly logistic backup."
+    },
+    {
+      "id": "multilevel_analysis",
+      "title": "Multilevel Analysis",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "06_hierarchical_models"
+      ],
+      "path": "fixtures/textbooks/migrated/quantitative_methodology_joop_j_hox_mirjam_moerbee_nd.pdf",
+      "notes": "Support text for partial pooling and multilevel structure."
+    },
+    {
+      "id": "linear_mixed_models",
+      "title": "Linear Mixed Models: A Practical Guide",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "support",
+      "module_ids": [
+        "06_hierarchical_models"
+      ],
+      "path": "fixtures/library_books/Linear Mixed Models _ A Practical Guide Using Statistical -- Brady T_ West, Kathleen B_ Welch, Andrzej T_ Gaecki, Brenda -- 1, 3, 2022 -- Chapman and -- 9781000598261 -- 31742598b6e8e788ac6d817f5edbd62a -- Anna\u2019s Archive.pdf",
+      "notes": "Practical extension beyond BDA and Hox."
+    },
+    {
+      "id": "shumway_stoffer",
+      "title": "Time Series Analysis and Its Applications",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "path": "fixtures/textbooks/migrated/springer_texts_in_statistics_robert_h_shumway_davi_nd.pdf",
+      "notes": "Entry point for the time-series branch."
+    },
+    {
+      "id": "box_jenkins",
+      "title": "Time Series Analysis: Forecasting and Control",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "path": "fixtures/textbooks/box_jenkins_time_series_2015.pdf",
+      "notes": "Box-Jenkins reference."
+    },
+    {
+      "id": "hamilton_time_series",
+      "title": "Time Series Analysis",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "path": "fixtures/textbooks/hamilton_time_series_analysis_1994.pdf",
+      "notes": "Deeper econometric time-series treatment."
+    },
+    {
+      "id": "durbin_koopman",
+      "title": "Time Series Analysis by State Space Methods",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "path": "fixtures/library_books/James Durbin, Siem Jan Koopman - Time Series Analysis by State Space Methods_ Second Edition (Oxford Statistical Science Series)-Oxford University Press (2012).pdf",
+      "notes": "State-space and Kalman backbone."
+    },
+    {
+      "id": "west_prado",
+      "title": "Time Series: Modeling, Computation, and Inference",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "path": "fixtures/library_books/(Chapman & Hall_CRC Texts in Statistical Science) West, Mike_ Prado, Raquel - Time Series_ Modeling, Computation, and Inference-Chapman and Hall_CRC (2010).pdf",
+      "notes": "Modern Bayesian time-series reference."
+    },
+    {
+      "id": "bayesian_time_series_models",
+      "title": "Bayesian Time Series Models",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "path": "fixtures/library_books/Barber D., Cemgil A.T., Chiappa S. (eds.) - Bayesian Time Series Models-Cambridge University Press (2011).pdf",
+      "notes": "Explicit Bayesian state-space and time-series resource."
+    },
+    {
+      "id": "applied_bayesian_forecasting",
+      "title": "Applied Bayesian Forecasting and Time Series Analysis",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "path": "fixtures/library_books/Andy Pole, Mike West, Jeff Harrison (auth.) - Applied Bayesian Forecasting and Time Series Analysis-Springer US (1994).pdf",
+      "notes": "Pedagogically useful Bayesian forecasting text."
+    },
+    {
+      "id": "forecasting_principles_practice",
+      "title": "Forecasting: Principles and Practice",
+      "kind": "textbook",
+      "source_state": "external_target",
+      "role": "support",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "url": "https://otexts.com/fpp3/",
+      "notes": "Free applied forecasting reference."
+    },
+    {
+      "id": "m4_competition",
+      "title": "M4 competition data",
+      "kind": "dataset",
+      "source_state": "external_target",
+      "role": "support",
+      "module_ids": [
+        "07_time_series_and_forecasting"
+      ],
+      "url": "https://github.com/Mcompetitions/M4-methods",
+      "notes": "Benchmark forecasting dataset and methods."
+    },
+    {
+      "id": "probabilistic_graphical_models",
+      "title": "Probabilistic Graphical Models",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "core",
+      "module_ids": [
+        "08_advanced_branches"
+      ],
+      "path": "fixtures/textbooks/koller_friedman_pgm_2009.pdf",
+      "notes": "Advanced branch entry for structured probabilistic modeling."
+    },
+    {
+      "id": "ml_probabilistic_perspective",
+      "title": "Machine Learning: A Probabilistic Perspective",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "support",
+      "module_ids": [
+        "08_advanced_branches"
+      ],
+      "path": "fixtures/library_books/(Adaptive Computation and Machine Learning series) Kevin P. Murphy - Machine Learning_ A Probabilistic Perspective-The MIT Press (2012).pdf",
+      "notes": "Broad probabilistic modeling reference."
+    },
+    {
+      "id": "probml_intro",
+      "title": "Probabilistic Machine Learning: An Introduction",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "core",
+      "module_ids": [
+        "08_advanced_branches"
+      ],
+      "path": "fixtures/library_books/Kevin P. Murphy - Probabilistic Machine Learning_ An Introduction-The MIT Press (2021).pdf",
+      "notes": "Modern probability-first ML framing."
+    },
+    {
+      "id": "probml_advanced",
+      "title": "Probabilistic Machine Learning: Advanced Topics",
+      "kind": "textbook",
+      "source_state": "external_target",
+      "role": "support",
+      "module_ids": [
+        "08_advanced_branches"
+      ],
+      "url": "https://probml.github.io/pml-book/book2.html",
+      "notes": "Advanced optional continuation for VI, deep generative models, and beyond."
+    },
+    {
+      "id": "bayesian_optimization_in_action",
+      "title": "Bayesian Optimization in Action",
+      "kind": "textbook",
+      "source_state": "owned_unindexed",
+      "role": "optional",
+      "module_ids": [
+        "08_advanced_branches"
+      ],
+      "path": "Documents/Manning_Books_research_kb/Bayesian Optimization in Action/Bayesian_Optimization_in_Action.pdf",
+      "notes": "Useful, but not part of the trunk path."
+    },
+    {
+      "id": "monte_carlo_financial_engineering",
+      "title": "Monte Carlo Methods in Financial Engineering",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "optional",
+      "module_ids": [
+        "03_computational_bayes",
+        "08_advanced_branches"
+      ],
+      "path": "fixtures/textbooks/glasserman_monte_carlo_methods_2003.pdf",
+      "notes": "Advanced simulation reference, not trunk material."
+    },
+    {
+      "id": "causal_bayes_incomplete_data",
+      "title": "Applied Bayesian Modeling and Causal Inference from Incomplete-Data Perspectives",
+      "kind": "textbook",
+      "source_state": "owned_indexed",
+      "role": "optional",
+      "module_ids": [
+        "08_advanced_branches"
+      ],
+      "path": "fixtures/textbooks/Applied Bayesian modeling and causal inference from -- Donald B Rubin; Andrew Gelman; Xiao-Li Meng -- Wiley Series in Probability and Statistics, -- 9780470090435 -- 6b4631b748ce7a0ce1b9e18edbfee08c -- Anna\u2019s Archive (1).pdf",
+      "notes": "Optional causal-Bayes branch only after the trunk is complete."
+    },
+    {
+      "id": "causal_core_texts",
+      "title": "Existing causal inference library",
+      "kind": "collection",
+      "source_state": "owned_indexed",
+      "role": "optional",
+      "module_ids": [
+        "08_advanced_branches"
+      ],
+      "path": "docs/owned_inventory.json",
+      "notes": "Use only after regression, hierarchy, and model checking are solid."
+    },
+    {
+      "id": "bayesian_mmm_papers",
+      "title": "Bayesian MMM paper set",
+      "kind": "paper_collection",
+      "source_state": "owned_indexed",
+      "role": "optional",
+      "module_ids": [
+        "08_advanced_branches"
+      ],
+      "path": "fixtures/papers/mmm_google",
+      "notes": "Optional marketing and decision branch."
+    }
+  ]
+}

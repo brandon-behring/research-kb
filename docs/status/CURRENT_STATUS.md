@@ -1,6 +1,6 @@
 # Current Status
 
-**Auto-generated**: 2026-04-11 17:46:49
+**Auto-generated**: 2026-04-11 21:16:37
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,12 +9,12 @@
 
 | Table | Count |
 |-------|------:|
-| sources | 1,866 |
-| chunks | 1,468,863 |
+| sources | 1,844 |
+| chunks | 1,448,671 |
 | concepts | 311,591 |
 | concept_relationships | 745,336 |
 | chunk_concepts | 3,053 |
-| citations | 47,361 |
+| citations | 47,331 |
 | methods | 15,505 |
 | assumptions | 9,468 |
 
@@ -33,7 +33,7 @@
 
 | Entity | With Embeddings | Total | Coverage |
 |--------|----------------:|------:|---------:|
-| Chunks | 1,468,863 | 1,468,863 | 100.0% |
+| Chunks | 1,448,671 | 1,448,671 | 100.0% |
 | Concepts | 283,521 | 311,591 | 91.0% |
 
 ---
@@ -42,7 +42,7 @@
 
 | Type | Count |
 |------|------:|
-| textbook | 1,346 |
+| textbook | 1,324 |
 | paper | 510 |
 | blog | 10 |
 
@@ -62,32 +62,32 @@
 | finance | 65 |
 | numerical_methods | 52 |
 | linear_algebra | 47 |
-| statistics | 45 |
 | econometrics | 45 |
+| statistics | 45 |
 | healthcare | 35 |
 | data_science | 34 |
 | algorithms | 32 |
 | ml_engineering | 28 |
-| functional_programming | 25 |
 | actuarial_insurance | 24 |
 | dynamical_systems | 23 |
 | fitness | 22 |
 | probability_theory | 21 |
 | biology_neuroscience | 21 |
 | portfolio_management | 20 |
-| analysis | 18 |
 | algebra | 18 |
+| analysis | 18 |
 | optimization | 17 |
+| physics | 17 |
 | topology_geometry | 16 |
-| physics | 16 |
 | signal_processing | 11 |
 | interview_prep | 10 |
 | reinforcement_learning | 10 |
 | sql | 8 |
 | forecasting | 5 |
 | recommender_systems | 3 |
-| adtech | 2 |
 | economics | 2 |
+| functional_programming | 2 |
+| adtech | 2 |
 
 ---
 
@@ -129,7 +129,7 @@ Based on database population and feature detection:
 | Phase | Status | Evidence |
 |-------|--------|----------|
 | Phase 1: Foundation | ✅ Complete | PostgreSQL + pgvector operational |
-| Phase 1.5: PDF Ingestion | ✅ Complete | 1,866 sources, 1,468,863 chunks |
+| Phase 1.5: PDF Ingestion | ✅ Complete | 1,844 sources, 1,448,671 chunks |
 | Phase 2: Knowledge Graph | ✅ Complete | 311,591 concepts, 745,336 relationships |
 | Phase 3: Enhanced Retrieval | ✅ Complete | Query expansion, reranking, citation graph |
 | Phase 4: API & Dashboard | ✅ Complete | FastAPI + Streamlit dashboard |

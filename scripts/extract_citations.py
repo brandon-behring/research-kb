@@ -26,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "s
 from research_kb_common import get_logger
 from research_kb_contracts import Source, SourceType
 from research_kb_pdf import GrobidClient
+from research_kb_pdf.dlq import DeadLetterQueue
 from research_kb_storage import (
     CitationStore,
     DatabaseConfig,
@@ -34,6 +35,9 @@ from research_kb_storage import (
 )
 
 logger = get_logger(__name__)
+
+GROBID_DLQ_PATH = Path(__file__).parent.parent / "data" / "dlq" / "grobid_failed.jsonl"
+GROBID_MAX_RETRIES = 2  # total 3 attempts: initial + 2 retries
 
 
 async def get_all_sources(
@@ -89,9 +93,27 @@ async def get_all_sources(
         return sources
 
 
+def _is_retryable_grobid_error(err: Exception) -> bool:
+    """Return True if the error looks like a transient GROBID failure.
+
+    GROBID 500 errors and connection resets are often transient — retrying
+    with backoff recovers. NoneType attribute errors and FileNotFound are
+    permanent parser/data bugs and should not be retried.
+    """
+    msg = str(err).lower()
+    if "500 server error" in msg or "503 service" in msg:
+        return True
+    if "connection" in msg and ("reset" in msg or "refused" in msg):
+        return True
+    if "timeout" in msg:
+        return True
+    return False
+
+
 async def extract_citations_for_source(
     source: Source,
     grobid_client: GrobidClient,
+    dlq: DeadLetterQueue | None = None,
     dry_run: bool = False,
 ) -> dict:
     """Extract citations from a single source via GROBID.
@@ -138,16 +160,65 @@ async def extract_citations_for_source(
         logger.info("dry_run_skip", source_id=str(source.id), title=source.title)
         return result
 
-    # Process with GROBID
-    try:
-        logger.info(
-            "extracting_citations",
-            source_id=str(source.id),
-            source_type=source.source_type.value,
-            title=source.title,
-        )
+    # Process with GROBID — retry transient 500/503/timeout errors with backoff.
+    paper = None
+    last_error: Exception | None = None
+    for attempt in range(GROBID_MAX_RETRIES + 1):
+        try:
+            logger.info(
+                "extracting_citations",
+                source_id=str(source.id),
+                source_type=source.source_type.value,
+                title=source.title,
+                attempt=attempt + 1,
+            )
+            paper = grobid_client.process_pdf(str(file_path))
+            break
+        except Exception as e:
+            last_error = e
+            if attempt < GROBID_MAX_RETRIES and _is_retryable_grobid_error(e):
+                backoff = 2**attempt  # 1s, 2s
+                logger.warning(
+                    "grobid_retry",
+                    source_id=str(source.id),
+                    attempt=attempt + 1,
+                    backoff_s=backoff,
+                    error=str(e)[:200],
+                )
+                await asyncio.sleep(backoff)
+                continue
+            # Non-retryable OR exhausted retries — persist to DLQ and return.
+            result["error"] = f"{type(e).__name__}: {str(e)[:200]}"
+            logger.error(
+                "citation_extraction_failed",
+                source_id=str(source.id),
+                title=source.title,
+                error=str(e),
+                attempts=attempt + 1,
+            )
+            if dlq is not None:
+                try:
+                    dlq.add(
+                        file_path=str(file_path),
+                        error=e,
+                        retry_count=attempt,
+                        metadata={
+                            "source_id": str(source.id),
+                            "source_type": source.source_type.value,
+                            "title": source.title[:200],
+                            "stage": "grobid_citation_extraction",
+                        },
+                    )
+                except OSError:
+                    pass  # Don't fail the pipeline on DLQ write errors
+            return result
 
-        paper = grobid_client.process_pdf(str(file_path))
+    if paper is None:
+        # Defensive — loop exited without paper or exception path
+        result["error"] = f"GROBID returned no result: {last_error}"
+        return result
+
+    try:
 
         if not paper.citations:
             logger.info(
@@ -223,6 +294,11 @@ async def main():
 
     print("GROBID service is alive")
 
+    # Initialize DLQ for persistent 500/parse failures
+    GROBID_DLQ_PATH.parent.mkdir(parents=True, exist_ok=True)
+    dlq = DeadLetterQueue(GROBID_DLQ_PATH)
+    print(f"DLQ: {GROBID_DLQ_PATH} ({dlq.count()} existing entries)")
+
     # Get sources
     source_type = None
     if args.type:
@@ -260,6 +336,7 @@ async def main():
                 extract_citations_for_source(
                     source=source,
                     grobid_client=grobid_client,
+                    dlq=dlq,
                     dry_run=args.dry_run,
                 ),
                 timeout=120,  # 2 minutes per source (GROBID can hang on malformed PDFs)

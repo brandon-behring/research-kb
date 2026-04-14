@@ -1,0 +1,331 @@
+[
+  {
+    "filename": "(2nd) Andrew Hunt_ David Hurst Thomas - The Pragmatic Programmer_ Your Journey to Mastery, 20th Anniversary Edition-Addison-Wesley Professional (2019).pdf",
+    "full_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/(2nd) Andrew Hunt_ David Hurst Thomas - The Pragmatic Programmer_ Your Journey to Mastery, 20th Anniversary Edition-Addison-Wesley Professional (2019).pdf",
+    "file_size_mb": 4.2,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 98,
+    "title": "The Pragmatic Programmer: your journey to mastery, 20th Anniversary Edition, 2nd Edition",
+    "authors": [
+      "Andrew Hunt & David Thomas"
+    ],
+    "year": 2019,
+    "publisher": null,
+    "r2_isbns": [],
+    "source_kind": "repo_library",
+    "selection_reason": "Core software-craft classic with strong general programming value. Preferred over 1 alternate copy.",
+    "catalog_domain": "software_engineering",
+    "catalog_priority": 65,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/(2nd) Andrew Hunt_ David Hurst Thomas - The Pragmatic Programmer_ Your Journey to Mastery, 20th Anniversary Edition-Addison-Wesley Professional (2019).pdf"
+  },
+  {
+    "filename": "Vladimir Khorikov - Unit Testing Principles, Practices, and Patterns-Manning Publications (2019).pdf",
+    "full_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Vladimir Khorikov - Unit Testing Principles, Practices, and Patterns-Manning Publications (2019).pdf",
+    "file_size_mb": 2.94,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 97,
+    "title": "Unit Testing Principles, Practices, and Patterns",
+    "authors": [
+      "Vladimir Khorikov"
+    ],
+    "year": 2019,
+    "publisher": "Manning Publications",
+    "r2_isbns": [
+      "9781617296277",
+      "9781617296"
+    ],
+    "source_kind": "repo_library",
+    "selection_reason": "High-signal testing practice book for production code quality.",
+    "catalog_domain": "software_engineering",
+    "catalog_priority": 65,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Vladimir Khorikov - Unit Testing Principles, Practices, and Patterns-Manning Publications (2019).pdf"
+  },
+  {
+    "filename": "Fluent Python_ Clear, Concise, and Effective Programming, -- Luciano Ramalho -- 2nd, 2022 -- Beijing _ O'Reilly Media, Inc -- 9781492056355 -- 6b8f1e751c6d6b82a49cc155099f9949 -- Anna’s Archive.pdf",
+    "full_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Fluent Python_ Clear, Concise, and Effective Programming, -- Luciano Ramalho -- 2nd, 2022 -- Beijing _ O'Reilly Media, Inc -- 9781492056355 -- 6b8f1e751c6d6b82a49cc155099f9949 -- Anna’s Archive.pdf",
+    "file_size_mb": 15.69,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 96,
+    "title": "Fluent Python Clear, Concise, and Effective Programming",
+    "authors": [
+      "Luciano Ramalho"
+    ],
+    "year": 2022,
+    "publisher": "Beijing _ O'Reilly Media, Inc",
+    "r2_isbns": [
+      "9781492056355"
+    ],
+    "source_kind": "downloads",
+    "selection_reason": "Deep Python fluency and language-idiom coverage. Preferred over 1 alternate copy.",
+    "catalog_domain": "software_engineering",
+    "catalog_priority": 50,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Fluent Python_ Clear, Concise, and Effective Programming, -- Luciano Ramalho -- 2nd, 2022 -- Beijing _ O'Reilly Media, Inc -- 9781492056355 -- 6b8f1e751c6d6b82a49cc155099f9949 -- Anna’s Archive.pdf"
+  },
+  {
+    "filename": "Effective Python_ 125 Specific Ways to Write Better Python_ -- Brett Slatkin -- 3, 2024 nov 30 -- Pearson Education, Limited -- 9780138172183 -- 859e2b0eab74efb9626b6b79a353f72a -- Anna’s Archive.pdf",
+    "full_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Effective Python_ 125 Specific Ways to Write Better Python_ -- Brett Slatkin -- 3, 2024 nov 30 -- Pearson Education, Limited -- 9780138172183 -- 859e2b0eab74efb9626b6b79a353f72a -- Anna’s Archive.pdf",
+    "file_size_mb": 10.88,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 95,
+    "title": "Effective Python 125 Specific Ways to Write Better Python",
+    "authors": [
+      "Brett Slatkin"
+    ],
+    "year": 2024,
+    "publisher": "Pearson Education, Limited",
+    "r2_isbns": [
+      "9780138172183"
+    ],
+    "source_kind": "downloads",
+    "selection_reason": "Modern Python best practices for maintainable production code. Preferred over 1 alternate copy.",
+    "catalog_domain": null,
+    "catalog_priority": null,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Effective Python_ 125 Specific Ways to Write Better Python_ -- Brett Slatkin -- 3, 2024 nov 30 -- Pearson Education, Limited -- 9780138172183 -- 859e2b0eab74efb9626b6b79a353f72a -- Anna’s Archive.pdf"
+  },
+  {
+    "filename": "Refactoring_ Improving the Design of Existing Code -- Martin Fowler, Kent Beck -- Addison-Wesley Signature Series (Fowler) Ser, 2nd ed, -- 9780134757599 -- f4fc75eb1eee5537400908e6f59db631 -- Anna’s Archive.pdf",
+    "full_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Refactoring_ Improving the Design of Existing Code -- Martin Fowler, Kent Beck -- Addison-Wesley Signature Series (Fowler) Ser, 2nd ed, -- 9780134757599 -- f4fc75eb1eee5537400908e6f59db631 -- Anna’s Archive.pdf",
+    "file_size_mb": 4.52,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 94,
+    "title": "Refactoring Improving the Design of Existing Code",
+    "authors": [
+      "Martin Fowler, Kent Beck"
+    ],
+    "year": null,
+    "publisher": "9780134757599",
+    "r2_isbns": [
+      "9780134757599"
+    ],
+    "source_kind": "downloads",
+    "selection_reason": "Foundational design-improvement and code transformation reference. Preferred over 1 alternate copy.",
+    "catalog_domain": null,
+    "catalog_priority": null,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Refactoring_ Improving the Design of Existing Code -- Martin Fowler, Kent Beck -- Addison-Wesley Signature Series (Fowler) Ser, 2nd ed, -- 9780134757599 -- f4fc75eb1eee5537400908e6f59db631 -- Anna’s Archive.pdf"
+  },
+  {
+    "filename": "Paul Barry - Head First Python  A Brain-Friendly Guide-O'Reilly Media (2016).pdf",
+    "full_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Paul Barry - Head First Python  A Brain-Friendly Guide-O'Reilly Media (2016).pdf",
+    "file_size_mb": 87.02,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 91,
+    "title": "Head First Python",
+    "authors": [
+      "Paul Barry"
+    ],
+    "year": 2016,
+    "publisher": "O'Reilly Media",
+    "r2_isbns": [],
+    "source_kind": "repo_library",
+    "selection_reason": "Accessible Python programming foundation within the shortlist.",
+    "catalog_domain": "software_engineering",
+    "catalog_priority": 60,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Paul Barry - Head First Python  A Brain-Friendly Guide-O'Reilly Media (2016).pdf"
+  },
+  {
+    "filename": "JJ Geewax - API Design Patterns-Manning Publications 2021.pdf",
+    "full_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/JJ Geewax - API Design Patterns-Manning Publications 2021.pdf",
+    "file_size_mb": 11.48,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 90,
+    "title": "API Design Patterns",
+    "authors": [
+      "J J Geewax"
+    ],
+    "year": 2021,
+    "publisher": null,
+    "r2_isbns": [],
+    "source_kind": "repo_library",
+    "selection_reason": "Useful production API design guidance with reusable patterns.",
+    "catalog_domain": "software_engineering",
+    "catalog_priority": 40,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/JJ Geewax - API Design Patterns-Manning Publications 2021.pdf"
+  },
+  {
+    "filename": "Database Internals _ A Deep Dive Into How Distributed Data -- Alex Petrov -- O'REILLY, 1, 2019 -- O'Reilly Media, Incorporated -- 9781492040316 -- 05ef18aa9887e93cd3babf136e65001b -- Anna’s Archive.pdf",
+    "full_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Database Internals _ A Deep Dive Into How Distributed Data -- Alex Petrov -- O'REILLY, 1, 2019 -- O'Reilly Media, Incorporated -- 9781492040316 -- 05ef18aa9887e93cd3babf136e65001b -- Anna’s Archive.pdf",
+    "file_size_mb": 11.92,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 89,
+    "title": "Database Internals A Deep Dive Into How Distributed Data",
+    "authors": [
+      "Alex Petrov"
+    ],
+    "year": 2019,
+    "publisher": "O'Reilly Media, Incorporated",
+    "r2_isbns": [
+      "9781492040316"
+    ],
+    "source_kind": "downloads",
+    "selection_reason": "Strong systems book for storage, indexing, and distributed data fundamentals.",
+    "catalog_domain": null,
+    "catalog_priority": null,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Database Internals _ A Deep Dive Into How Distributed Data -- Alex Petrov -- O'REILLY, 1, 2019 -- O'Reilly Media, Incorporated -- 9781492040316 -- 05ef18aa9887e93cd3babf136e65001b -- Anna’s Archive.pdf"
+  },
+  {
+    "filename": "Software Engineering for Data Scientists_ From Notebooks to -- Catherine Nelson -- 1 _ converted, 2024 -- O'Reilly Media, Incorporated -- 9781098136178 -- 195635a2e35f97b4e0f3e3a570a43393 -- Anna’s Archive.pdf",
+    "full_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Software Engineering for Data Scientists_ From Notebooks to -- Catherine Nelson -- 1 _ converted, 2024 -- O'Reilly Media, Incorporated -- 9781098136178 -- 195635a2e35f97b4e0f3e3a570a43393 -- Anna’s Archive.pdf",
+    "file_size_mb": 7.41,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 88,
+    "title": "Software Engineering for Data Scientists From Notebooks to",
+    "authors": [
+      "Catherine Nelson"
+    ],
+    "year": 2024,
+    "publisher": "O'Reilly Media, Incorporated",
+    "r2_isbns": [
+      "9781098136178"
+    ],
+    "source_kind": "downloads",
+    "selection_reason": "Bridges notebook-heavy work with software engineering discipline. Preferred over 6 alternate copies.",
+    "catalog_domain": "software_engineering",
+    "catalog_priority": 20,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Software Engineering for Data Scientists_ From Notebooks to -- Catherine Nelson -- 1 _ converted, 2024 -- O'Reilly Media, Incorporated -- 9781098136178 -- 195635a2e35f97b4e0f3e3a570a43393 -- Anna’s Archive.pdf"
+  },
+  {
+    "filename": "Fundamentals of data engineering _ plan and build robust -- Joe Reis, Matt Housley -- 1 _ converted, 2022 -- O'Reilly Media, Incorporated -- 9781098108274 -- 154c987de8f3d58b451e2479b54661e7 -- Anna’s Archive.pdf",
+    "full_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Fundamentals of data engineering _ plan and build robust -- Joe Reis, Matt Housley -- 1 _ converted, 2022 -- O'Reilly Media, Incorporated -- 9781098108274 -- 154c987de8f3d58b451e2479b54661e7 -- Anna’s Archive.pdf",
+    "file_size_mb": 6.52,
+    "is_book": true,
+    "domain": "software_engineering",
+    "priority_score": 87,
+    "title": "Fundamentals of data engineering plan and build robust",
+    "authors": [
+      "Joe Reis, Matt Housley"
+    ],
+    "year": 2022,
+    "publisher": "O'Reilly Media, Incorporated",
+    "r2_isbns": [
+      "9781098108274"
+    ],
+    "source_kind": "downloads",
+    "selection_reason": "Production-oriented data engineering fundamentals for systems-minded programming. Preferred over 1 alternate copy.",
+    "catalog_domain": null,
+    "catalog_priority": null,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Fundamentals of data engineering _ plan and build robust -- Joe Reis, Matt Housley -- 1 _ converted, 2022 -- O'Reilly Media, Incorporated -- 9781098108274 -- 154c987de8f3d58b451e2479b54661e7 -- Anna’s Archive.pdf"
+  },
+  {
+    "filename": "Michael T Goodrich Roberto Tamassia Michael H Goldwasser - Data Structures and Algorithms in Python-Wiley 2013.pdf",
+    "full_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Michael T Goodrich Roberto Tamassia Michael H Goldwasser - Data Structures and Algorithms in Python-Wiley 2013.pdf",
+    "file_size_mb": 6.6,
+    "is_book": true,
+    "domain": "algorithms",
+    "priority_score": 86,
+    "title": "Data Structures and Algorithms in Python",
+    "authors": [
+      "Michael T. Goodrich"
+    ],
+    "year": 2013,
+    "publisher": null,
+    "r2_isbns": [],
+    "source_kind": "repo_library",
+    "selection_reason": "Algorithms and data structures grounded in Python implementations.",
+    "catalog_domain": "algorithms",
+    "catalog_priority": 50,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Michael T Goodrich Roberto Tamassia Michael H Goldwasser - Data Structures and Algorithms in Python-Wiley 2013.pdf"
+  },
+  {
+    "filename": "Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein - Introduction to Algorithms 3rd Edition (2009).pdf",
+    "full_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein - Introduction to Algorithms 3rd Edition (2009).pdf",
+    "file_size_mb": 5.47,
+    "is_book": true,
+    "domain": "algorithms",
+    "priority_score": 84,
+    "title": "Introduction to Algorithms 3rd Edition",
+    "authors": [
+      "Thomas H. Cormen",
+      "Charles E. Leiserson",
+      "Ronald L. Rivest",
+      "Clifford Stein"
+    ],
+    "year": 2009,
+    "publisher": null,
+    "r2_isbns": [
+      "9780262033848",
+      "9780262533058"
+    ],
+    "source_kind": "repo_library",
+    "selection_reason": "Canonical algorithms reference for fundamentals and interview-adjacent breadth. Preferred over 3 alternate copies.",
+    "catalog_domain": "algorithms",
+    "catalog_priority": 65,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein - Introduction to Algorithms 3rd Edition (2009).pdf"
+  },
+  {
+    "filename": "Learning SQL_ Generate, Manipulate, and Retrieve Data -- Alan Beaulieu -- 2020 -- O'Reilly Media, Incorporated -- 9781492057611 -- 089bb3c2d0f555be4c292251f45c4863 -- Anna’s Archive.pdf",
+    "full_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Learning SQL_ Generate, Manipulate, and Retrieve Data -- Alan Beaulieu -- 2020 -- O'Reilly Media, Incorporated -- 9781492057611 -- 089bb3c2d0f555be4c292251f45c4863 -- Anna’s Archive.pdf",
+    "file_size_mb": 5.25,
+    "is_book": true,
+    "domain": "sql",
+    "priority_score": 78,
+    "title": "Learning SQL Generate, Manipulate, and Retrieve Data",
+    "authors": [
+      "Alan Beaulieu"
+    ],
+    "year": 2020,
+    "publisher": "O'Reilly Media, Incorporated",
+    "r2_isbns": [
+      "9781492057611"
+    ],
+    "source_kind": "downloads",
+    "selection_reason": "Supporting SQL fundamentals for day-to-day data work.",
+    "catalog_domain": null,
+    "catalog_priority": null,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Learning SQL_ Generate, Manipulate, and Retrieve Data -- Alan Beaulieu -- 2020 -- O'Reilly Media, Incorporated -- 9781492057611 -- 089bb3c2d0f555be4c292251f45c4863 -- Anna’s Archive.pdf"
+  },
+  {
+    "filename": "SQL cookbook _ query solutions and techniques for all SQL -- Anthony Molinaro, database developer; Robert W De Graaf -- Second edition, Sebastopol, -- 9781492077442 -- f26030bcee656c6a942752267fba1cba -- Anna’s Archive.pdf",
+    "full_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/SQL cookbook _ query solutions and techniques for all SQL -- Anthony Molinaro, database developer; Robert W De Graaf -- Second edition, Sebastopol, -- 9781492077442 -- f26030bcee656c6a942752267fba1cba -- Anna’s Archive.pdf",
+    "file_size_mb": 13.08,
+    "is_book": true,
+    "domain": "sql",
+    "priority_score": 76,
+    "title": "SQL cookbook query solutions and techniques for all SQL",
+    "authors": [
+      "Anthony Molinaro, database developer",
+      "Robert W De Graaf"
+    ],
+    "year": null,
+    "publisher": "9781492077442",
+    "r2_isbns": [
+      "9781492077442"
+    ],
+    "source_kind": "downloads",
+    "selection_reason": "Supporting query reference with practical SQL patterns.",
+    "catalog_domain": null,
+    "catalog_priority": null,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/SQL cookbook _ query solutions and techniques for all SQL -- Anthony Molinaro, database developer; Robert W De Graaf -- Second edition, Sebastopol, -- 9781492077442 -- f26030bcee656c6a942752267fba1cba -- Anna’s Archive.pdf"
+  },
+  {
+    "filename": "Vitaly Bragilevsky - Haskell in Depth-Manning Publications (2021).pdf",
+    "full_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Vitaly Bragilevsky - Haskell in Depth-Manning Publications (2021).pdf",
+    "file_size_mb": 15.39,
+    "is_book": true,
+    "domain": "functional_programming",
+    "priority_score": 74,
+    "title": "Haskell in Depth",
+    "authors": [
+      "Vitaly Bragilevsky"
+    ],
+    "year": 2021,
+    "publisher": "Manning Publications",
+    "r2_isbns": [
+      "9781617295409",
+      "9781617295"
+    ],
+    "source_kind": "repo_library",
+    "selection_reason": "Functional programming depth and type-driven design perspective. Preferred over 3 alternate copies.",
+    "catalog_domain": "functional_programming",
+    "catalog_priority": 75,
+    "planned_fixtures_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Vitaly Bragilevsky - Haskell in Depth-Manning Publications (2021).pdf"
+  }
+]

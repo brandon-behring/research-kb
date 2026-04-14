@@ -195,17 +195,21 @@ def parse_tei_xml(tei_xml: str) -> ExtractedPaper:
 
 def _extract_metadata(root, ns: dict) -> PaperMetadata:
     """Extract paper metadata from TEI-XML."""
-    # Title
+    # Title — guard against <title type="main"/> empty element (text is None)
     title_elem = root.find(".//tei:titleStmt/tei:title[@type='main']", ns)
-    title = title_elem.text if title_elem is not None else "Untitled"
+    title = (title_elem.text or "Untitled") if title_elem is not None else "Untitled"
 
-    # Authors
+    # Authors — guard against missing .text on forename/surname
     authors = []
     for author in root.findall(".//tei:sourceDesc//tei:author", ns):
         forename = author.find(".//tei:forename", ns)
         surname = author.find(".//tei:surname", ns)
         if forename is not None and surname is not None:
-            authors.append(f"{forename.text} {surname.text}")
+            fn = (forename.text or "").strip()
+            sn = (surname.text or "").strip()
+            full = f"{fn} {sn}".strip()
+            if full:
+                authors.append(full)
 
     # Abstract
     abstract_elem = root.find(".//tei:profileDesc//tei:abstract", ns)

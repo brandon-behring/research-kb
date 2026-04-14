@@ -1272,6 +1272,72 @@ Broader concepts (use when more appropriate):
             "pi": "prediction interval",
         },
     },
+    "reinforcement_learning": {
+        "name": "Reinforcement Learning",
+        "description": "MDPs, policy optimization, value functions, temporal difference, multi-agent RL",
+        "concept_type_guidance": """Reinforcement learning and sequential decision-making:
+1. method: RL algorithms and planning methods (e.g., Q-learning, SARSA, PPO, DQN, A3C, SAC, MCTS, policy gradient, actor-critic, value iteration, policy iteration)
+2. assumption: Conditions for convergence or validity (e.g., Markov property, stationarity, ergodicity, bounded rewards, Lipschitz continuity, tabular setting)
+3. problem: Core RL challenges (e.g., exploration-exploitation tradeoff, credit assignment, partial observability, non-stationarity, curse of dimensionality, sim-to-real gap)
+4. definition: Formal RL definitions (e.g., value function, action-value function, policy, reward signal, return, discount factor, state, trajectory, episode, regret)
+5. theorem: Formal results (e.g., Bellman optimality equation, policy gradient theorem, contraction mapping theorem, convergence of TD(0), no-regret bounds)
+
+Broader concepts (use when more appropriate):
+6. concept: General RL concepts (e.g., on-policy vs off-policy, model-based vs model-free, online vs offline RL, reward shaping, curriculum learning)
+7. principle: Foundational principles (e.g., optimality principle, temporal abstraction, generalized policy iteration, representation learning)
+8. technique: Applied techniques (e.g., experience replay, target networks, entropy regularization, clipped objectives, prioritized sweeping, eligibility traces)
+9. model: Environment models and architectures (e.g., MDP, POMDP, multi-armed bandit, contextual bandit, Markov game, world model, dynamics model)""",
+        "examples": [
+            "Q-learning requires the Markov property for convergence guarantees",
+            "PPO uses a clipped surrogate objective to stabilize policy updates",
+            "TD learning addresses credit assignment via bootstrapping from value estimates",
+            "Experience replay breaks temporal correlations in training data for DQN",
+            "The policy gradient theorem connects policy improvement to expected return gradients",
+            "Actor-critic methods combine policy gradient with value function approximation",
+            "MCTS uses simulation rollouts for planning in large state spaces",
+            "Bellman optimality equation characterizes the optimal value function recursively",
+        ],
+        "abbreviations": {
+            # Core concepts
+            "mdp": "markov decision process",
+            "pomdp": "partially observable markov decision process",
+            "td": "temporal difference",
+            "mc": "monte carlo",
+            "dp": "dynamic programming",
+            "rl": "reinforcement learning",
+            "drl": "deep reinforcement learning",
+            "marl": "multi-agent reinforcement learning",
+            "irl": "inverse reinforcement learning",
+            # Value-based methods
+            "dqn": "deep Q-network",
+            "ddqn": "double deep Q-network",
+            "sarsa": "state-action-reward-state-action",
+            # Policy gradient methods
+            "ppo": "proximal policy optimization",
+            "trpo": "trust region policy optimization",
+            "a3c": "asynchronous advantage actor-critic",
+            "a2c": "advantage actor-critic",
+            "sac": "soft actor-critic",
+            "ddpg": "deep deterministic policy gradient",
+            "td3": "twin delayed deep deterministic policy gradient",
+            "reinforce": "monte carlo policy gradient",
+            # Planning and search
+            "mcts": "monte carlo tree search",
+            "mbrl": "model-based reinforcement learning",
+            # Exploration
+            "ucb": "upper confidence bound",
+            "mab": "multi-armed bandit",
+            "cmab": "contextual multi-armed bandit",
+            "gae": "generalized advantage estimation",
+            # Offline RL
+            "cql": "conservative Q-learning",
+            "bcq": "batch constrained Q-learning",
+            # Multi-agent
+            "ctde": "centralized training decentralized execution",
+            "qmix": "Q-value mixing network",
+            "mappo": "multi-agent proximal policy optimization",
+        },
+    },
 }
 
 # Generic fallback for unknown domains — domain-agnostic extraction guidance

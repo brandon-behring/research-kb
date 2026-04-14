@@ -1,0 +1,364 @@
+{
+  "track": "bayesian_inference_statistics_deep_study",
+  "defaults": {
+    "audience": "technically strong self-learner building a pedagogical repo",
+    "pace": "full deep study",
+    "primary_stack": "python_pymc_arviz",
+    "secondary_stack": "stan_cmdstanpy"
+  },
+  "trunk_modules": [
+    "01_probability_and_stat_baseline",
+    "02_core_bayesian_inference",
+    "03_computational_bayes",
+    "04_bayesian_workflow_and_model_checks",
+    "05_regression_and_glms",
+    "06_hierarchical_models",
+    "07_time_series_and_forecasting"
+  ],
+  "modules": [
+    {
+      "id": "00_inventory_and_prereqs",
+      "title": "Inventory and Prerequisites",
+      "prerequisites": [],
+      "goal": "Normalize the curriculum inventory, mark source states, and align the learning path with prerequisites rather than shelf order.",
+      "checkpoint": "You can explain the trunk path, identify every core source state, and distinguish core vs support vs optional vs out-of-scope materials.",
+      "primary_material_ids": [
+        "openintro_statistics",
+        "all_of_statistics",
+        "student_guide_bayesian_statistics",
+        "bayesian_data_analysis",
+        "regression_and_other_stories",
+        "shumway_stoffer"
+      ],
+      "support_material_ids": [
+        "probability_and_statistical_inference",
+        "intro_mathematical_statistics",
+        "multilevel_analysis"
+      ],
+      "optional_material_ids": [
+        "bayesian_optimization_in_action",
+        "monte_carlo_financial_engineering"
+      ],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/00_inventory_and_prereqs/README.md",
+        "case_study": "docs/curriculum/modules/00_inventory_and_prereqs/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/00_inventory_and_prereqs/notebooks/01_inventory_audit.ipynb",
+          "docs/curriculum/modules/00_inventory_and_prereqs/notebooks/02_dependency_graph.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/00_inventory_and_prereqs/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/00_inventory_and_prereqs/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/00_inventory_and_prereqs/references/primary/README.md",
+          "support": "docs/curriculum/modules/00_inventory_and_prereqs/references/support/README.md",
+          "optional": "docs/curriculum/modules/00_inventory_and_prereqs/references/optional/README.md"
+        }
+      }
+    },
+    {
+      "id": "01_probability_and_stat_baseline",
+      "title": "Probability and Statistical Baseline",
+      "prerequisites": [
+        "00_inventory_and_prereqs"
+      ],
+      "goal": "Establish conditioning, likelihood, estimation, uncertainty, and simulation literacy before introducing Bayes-specific machinery.",
+      "checkpoint": "You can derive a likelihood, simulate a sampling distribution, and articulate the difference between confidence intervals and posterior uncertainty.",
+      "primary_material_ids": [
+        "openintro_statistics",
+        "all_of_statistics"
+      ],
+      "support_material_ids": [
+        "probability_and_statistical_inference",
+        "intro_mathematical_statistics"
+      ],
+      "optional_material_ids": [],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/01_probability_and_stat_baseline/README.md",
+        "case_study": "docs/curriculum/modules/01_probability_and_stat_baseline/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/01_probability_and_stat_baseline/notebooks/01_bernoulli_likelihoods.ipynb",
+          "docs/curriculum/modules/01_probability_and_stat_baseline/notebooks/02_confidence_vs_posterior_uncertainty.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/01_probability_and_stat_baseline/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/01_probability_and_stat_baseline/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/01_probability_and_stat_baseline/references/primary/README.md",
+          "support": "docs/curriculum/modules/01_probability_and_stat_baseline/references/support/README.md",
+          "optional": "docs/curriculum/modules/01_probability_and_stat_baseline/references/optional/README.md"
+        }
+      }
+    },
+    {
+      "id": "02_core_bayesian_inference",
+      "title": "Core Bayesian Inference",
+      "prerequisites": [
+        "01_probability_and_stat_baseline"
+      ],
+      "goal": "Introduce priors, posteriors, conjugacy, posterior predictive thinking, and decision framing with simple models.",
+      "checkpoint": "You can perform conjugate updates, compute posterior predictive distributions, and explain how priors affect posterior learning.",
+      "primary_material_ids": [
+        "student_guide_bayesian_statistics",
+        "bayesian_statistics_for_beginners",
+        "bayesian_statistics_intro",
+        "think_bayes_2"
+      ],
+      "support_material_ids": [
+        "lambert_solutions_castillo",
+        "lambert_solutions_hotti",
+        "bolstad_intro_bayes"
+      ],
+      "optional_material_ids": [],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/02_core_bayesian_inference/README.md",
+        "case_study": "docs/curriculum/modules/02_core_bayesian_inference/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/02_core_bayesian_inference/notebooks/01_beta_binomial_updates.ipynb",
+          "docs/curriculum/modules/02_core_bayesian_inference/notebooks/02_posterior_predictive_coin_flips.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/02_core_bayesian_inference/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/02_core_bayesian_inference/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/02_core_bayesian_inference/references/primary/README.md",
+          "support": "docs/curriculum/modules/02_core_bayesian_inference/references/support/README.md",
+          "optional": "docs/curriculum/modules/02_core_bayesian_inference/references/optional/README.md"
+        }
+      }
+    },
+    {
+      "id": "03_computational_bayes",
+      "title": "Computational Bayes",
+      "prerequisites": [
+        "02_core_bayesian_inference"
+      ],
+      "goal": "Move from analytic Bayes to simulation, importance sampling, MCMC, HMC/NUTS, and probabilistic programming workflows.",
+      "checkpoint": "You can run and diagnose MCMC/HMC in PyMC and compare one computational workflow to Stan/CmdStanPy.",
+      "primary_material_ids": [
+        "student_guide_bayesian_statistics",
+        "lambert_solutions_hotti",
+        "bda_py_demos",
+        "bda_r_demos",
+        "bda_course_aalto",
+        "bayesian_workflow_paper",
+        "psis_loo_waic_paper",
+        "improved_rhat_paper",
+        "sbc_paper",
+        "nuts_paper"
+      ],
+      "support_material_ids": [
+        "lambert_solutions_castillo",
+        "pymc_docs",
+        "cmdstanpy_docs",
+        "stan_example_models",
+        "monte_carlo_financial_engineering",
+        "aevb_paper"
+      ],
+      "optional_material_ids": [],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/03_computational_bayes/README.md",
+        "case_study": "docs/curriculum/modules/03_computational_bayes/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/03_computational_bayes/notebooks/01_importance_sampling_and_metropolis.ipynb",
+          "docs/curriculum/modules/03_computational_bayes/notebooks/02_hmc_comparison_template.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/03_computational_bayes/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/03_computational_bayes/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/03_computational_bayes/references/primary/README.md",
+          "support": "docs/curriculum/modules/03_computational_bayes/references/support/README.md",
+          "optional": "docs/curriculum/modules/03_computational_bayes/references/optional/README.md"
+        }
+      }
+    },
+    {
+      "id": "04_bayesian_workflow_and_model_checks",
+      "title": "Bayesian Workflow and Model Checks",
+      "prerequisites": [
+        "03_computational_bayes"
+      ],
+      "goal": "Train the iterative workflow: prior design, posterior predictive checks, diagnostics, sensitivity analysis, and model comparison.",
+      "checkpoint": "You can perform PPC, check R-hat and ESS, and compare competing models using predictive criteria.",
+      "primary_material_ids": [
+        "bayesian_data_analysis",
+        "bda_course_aalto",
+        "bayesian_workflow_paper",
+        "arviz_docs"
+      ],
+      "support_material_ids": [
+        "bda_py_demos",
+        "bda_r_demos",
+        "pymc_docs",
+        "pymc_examples",
+        "stan_example_models",
+        "psis_loo_waic_paper",
+        "improved_rhat_paper"
+      ],
+      "optional_material_ids": [],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/README.md",
+        "case_study": "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/notebooks/01_poisson_ppc.ipynb",
+          "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/notebooks/02_model_comparison_scorecard.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/references/primary/README.md",
+          "support": "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/references/support/README.md",
+          "optional": "docs/curriculum/modules/04_bayesian_workflow_and_model_checks/references/optional/README.md"
+        }
+      }
+    },
+    {
+      "id": "05_regression_and_glms",
+      "title": "Regression and GLMs",
+      "prerequisites": [
+        "04_bayesian_workflow_and_model_checks"
+      ],
+      "goal": "Build linear, logistic, and Poisson modeling fluency with uncertainty-aware interpretation and predictive checks.",
+      "checkpoint": "You can fit and interpret linear, logistic, and Poisson models and connect parameter uncertainty to predictions.",
+      "primary_material_ids": [
+        "regression_and_other_stories"
+      ],
+      "support_material_ids": [
+        "ros_examples",
+        "glm_intro",
+        "applied_logistic_regression",
+        "logistic_regression_self_learning",
+        "pymc_examples"
+      ],
+      "optional_material_ids": [],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/05_regression_and_glms/README.md",
+        "case_study": "docs/curriculum/modules/05_regression_and_glms/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/05_regression_and_glms/notebooks/01_linear_regression_grid.ipynb",
+          "docs/curriculum/modules/05_regression_and_glms/notebooks/02_logistic_likelihood_surface.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/05_regression_and_glms/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/05_regression_and_glms/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/05_regression_and_glms/references/primary/README.md",
+          "support": "docs/curriculum/modules/05_regression_and_glms/references/support/README.md",
+          "optional": "docs/curriculum/modules/05_regression_and_glms/references/optional/README.md"
+        }
+      }
+    },
+    {
+      "id": "06_hierarchical_models",
+      "title": "Hierarchical Models",
+      "prerequisites": [
+        "05_regression_and_glms"
+      ],
+      "goal": "Develop partial pooling intuition, varying intercept/slope modeling, and mixed-model judgment.",
+      "checkpoint": "You can justify partial pooling and implement a basic multilevel model with a clear explanation of shrinkage.",
+      "primary_material_ids": [
+        "bayesian_data_analysis",
+        "multilevel_analysis",
+        "student_guide_bayesian_statistics"
+      ],
+      "support_material_ids": [
+        "linear_mixed_models",
+        "lambert_solutions_hotti",
+        "pymc_examples"
+      ],
+      "optional_material_ids": [],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/06_hierarchical_models/README.md",
+        "case_study": "docs/curriculum/modules/06_hierarchical_models/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/06_hierarchical_models/notebooks/01_partial_pooling_normal_means.ipynb",
+          "docs/curriculum/modules/06_hierarchical_models/notebooks/02_varying_intercepts_case_study.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/06_hierarchical_models/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/06_hierarchical_models/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/06_hierarchical_models/references/primary/README.md",
+          "support": "docs/curriculum/modules/06_hierarchical_models/references/support/README.md",
+          "optional": "docs/curriculum/modules/06_hierarchical_models/references/optional/README.md"
+        }
+      }
+    },
+    {
+      "id": "07_time_series_and_forecasting",
+      "title": "Time Series and Forecasting",
+      "prerequisites": [
+        "03_computational_bayes",
+        "04_bayesian_workflow_and_model_checks",
+        "05_regression_and_glms",
+        "06_hierarchical_models"
+      ],
+      "goal": "Move from classical ARIMA foundations into state-space models, Bayesian time series, and probabilistic forecasting.",
+      "checkpoint": "You can fit one ARIMA/state-space/Bayesian forecast model and evaluate calibration or forecast error on held-out data.",
+      "primary_material_ids": [
+        "shumway_stoffer",
+        "box_jenkins",
+        "hamilton_time_series",
+        "durbin_koopman",
+        "west_prado",
+        "bayesian_time_series_models",
+        "applied_bayesian_forecasting"
+      ],
+      "support_material_ids": [
+        "forecasting_principles_practice",
+        "m4_competition",
+        "stan_example_models"
+      ],
+      "optional_material_ids": [],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/07_time_series_and_forecasting/README.md",
+        "case_study": "docs/curriculum/modules/07_time_series_and_forecasting/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/07_time_series_and_forecasting/notebooks/01_ar1_simulation_and_forecast.ipynb",
+          "docs/curriculum/modules/07_time_series_and_forecasting/notebooks/02_local_level_state_space.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/07_time_series_and_forecasting/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/07_time_series_and_forecasting/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/07_time_series_and_forecasting/references/primary/README.md",
+          "support": "docs/curriculum/modules/07_time_series_and_forecasting/references/support/README.md",
+          "optional": "docs/curriculum/modules/07_time_series_and_forecasting/references/optional/README.md"
+        }
+      }
+    },
+    {
+      "id": "08_advanced_branches",
+      "title": "Advanced Branches",
+      "prerequisites": [
+        "07_time_series_and_forecasting"
+      ],
+      "goal": "Split into advanced optional branches once the trunk is stable: probabilistic ML and causal/Bayesian decision work.",
+      "checkpoint": "You can choose an advanced branch intentionally without breaking the trunk sequence or skipping required Bayes workflow concepts.",
+      "primary_material_ids": [
+        "probabilistic_graphical_models",
+        "probml_intro"
+      ],
+      "support_material_ids": [
+        "ml_probabilistic_perspective",
+        "probml_advanced",
+        "causal_bayes_incomplete_data",
+        "causal_core_texts",
+        "bayesian_mmm_papers"
+      ],
+      "optional_material_ids": [
+        "bayesian_optimization_in_action",
+        "aevb_paper"
+      ],
+      "artifacts": {
+        "readme": "docs/curriculum/modules/08_advanced_branches/README.md",
+        "case_study": "docs/curriculum/modules/08_advanced_branches/case_study.md",
+        "notebooks": [
+          "docs/curriculum/modules/08_advanced_branches/notebooks/01_graphical_model_factorization.ipynb",
+          "docs/curriculum/modules/08_advanced_branches/notebooks/02_variational_objective_demo.ipynb"
+        ],
+        "worked_exercises": "docs/curriculum/modules/08_advanced_branches/exercises/worked.md",
+        "unworked_exercises": "docs/curriculum/modules/08_advanced_branches/exercises/unworked.md",
+        "references": {
+          "primary": "docs/curriculum/modules/08_advanced_branches/references/primary/README.md",
+          "support": "docs/curriculum/modules/08_advanced_branches/references/support/README.md",
+          "optional": "docs/curriculum/modules/08_advanced_branches/references/optional/README.md"
+        }
+      }
+    }
+  ]
+}

@@ -38,6 +38,12 @@ except ImportError:
     sys.exit(1)
 
 
+# Add packages to path for DB access (full text fetch)
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "storage" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
+
+
 GRADE_COLORS = {
     0: "red",
     1: "yellow",
@@ -63,11 +69,45 @@ def show_help() -> None:
     help_table.add_row("Enter", "Accept suggested grade")
     help_table.add_row("0-3", "Override with specific grade")
     help_table.add_row("e", "Edit evidence text (for grade >= 2)")
+    help_table.add_row("f", "Fetch full chunk text from DB")
     help_table.add_row("s", "Skip this chunk (leave unannotated)")
     help_table.add_row("q", "Save progress and quit")
     help_table.add_row("?", "Show this help")
     console.print(help_table)
     console.print()
+
+
+def fetch_full_chunk_text(chunk_id: str) -> Optional[str]:
+    """Fetch full chunk content from DB.
+
+    Parameters
+    ----------
+    chunk_id : str
+        UUID of the chunk.
+
+    Returns
+    -------
+    str or None
+        Full chunk content, or None on error.
+    """
+    import asyncio
+    from uuid import UUID
+
+    async def _fetch() -> Optional[str]:
+        try:
+            from research_kb_storage.connection import get_connection_pool
+
+            pool = await get_connection_pool()
+            async with pool.acquire() as conn:
+                row = await conn.fetchrow(
+                    "SELECT content FROM chunks WHERE id = $1",
+                    UUID(chunk_id),
+                )
+                return row["content"] if row else None
+        except Exception as e:
+            return f"[Error fetching: {e}]"
+
+    return asyncio.run(_fetch())
 
 
 def format_chunk_panel(
@@ -161,7 +201,7 @@ def annotate_chunk(
 
     while True:
         response = Prompt.ask(
-            f"  Grade [Enter={suggested}, 0-3, e=evidence, s=skip, q=quit, ?=help]",
+            f"  Grade [Enter={suggested}, 0-3, e=evidence, f=full text, s=skip, q=quit, ?=help]",
             default=str(suggested),
         )
 
@@ -180,6 +220,22 @@ def annotate_chunk(
             candidate["annotated_at"] = datetime.now(timezone.utc).isoformat()
             console.print("  [dim]Skipped[/dim]")
             return None
+
+        if response == "f":
+            # Fetch full chunk text from DB
+            console.print("  [dim]Fetching full text...[/dim]")
+            full_text = fetch_full_chunk_text(candidate["chunk_id"])
+            if full_text:
+                text_panel = Panel(
+                    full_text[:2000],
+                    title=f"Full text ({len(full_text)} chars)",
+                    border_style="cyan",
+                    width=100,
+                )
+                console.print(text_panel)
+            else:
+                console.print("  [red]Could not fetch chunk text[/red]")
+            continue
 
         if response == "e":
             # Edit evidence text
@@ -204,7 +260,9 @@ def annotate_chunk(
 
             grade_label = GRADE_LABELS.get(grade, "?")
             override_str = " [bold](override)[/bold]" if human_override else ""
-            console.print(f"  [{GRADE_COLORS.get(grade, 'white')}]{grade} ({grade_label}){override_str}[/]")
+            console.print(
+                f"  [{GRADE_COLORS.get(grade, 'white')}]{grade} ({grade_label}){override_str}[/]"
+            )
             return None
 
         # Default: treat as accepting the suggestion
@@ -219,7 +277,9 @@ def annotate_chunk(
                 candidate["evidence_text"] = snippet
 
             grade_label = GRADE_LABELS.get(suggested, "?")
-            console.print(f"  [{GRADE_COLORS.get(suggested, 'white')}]{suggested} ({grade_label})[/]")
+            console.print(
+                f"  [{GRADE_COLORS.get(suggested, 'white')}]{suggested} ({grade_label})[/]"
+            )
             return None
 
         console.print("  [red]Invalid input. Type 0-3, Enter, e, s, q, or ?[/red]")
@@ -355,7 +415,9 @@ def main() -> None:
     annotated, skipped, total = count_annotated(data)
     console.print(f"[bold]Annotation session[/bold]")
     console.print(f"  Queries: {start_idx + 1}-{end_idx} of {len(queries)}")
-    console.print(f"  Progress: {annotated}/{total} annotated, {total - annotated - skipped} remaining")
+    console.print(
+        f"  Progress: {annotated}/{total} annotated, {total - annotated - skipped} remaining"
+    )
     console.print()
     show_help()
 
@@ -375,7 +437,7 @@ def main() -> None:
         if args.resume and already_done == len(candidates):
             continue
 
-        console.rule(f"Query {qi + 1}/{len(queries)}: \"{query_text}\" [{domain}]")
+        console.rule(f'Query {qi + 1}/{len(queries)}: "{query_text}" [{domain}]')
 
         for ci, candidate in enumerate(candidates):
             if quit_requested:

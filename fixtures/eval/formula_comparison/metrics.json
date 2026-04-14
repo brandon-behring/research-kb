@@ -1,0 +1,22 @@
+{
+  "generated": "2026-04-05T18:50:32.311008+00:00",
+  "pages": "50-54",
+  "results": [
+    {
+      "extractor": "mineru",
+      "pdf_key": "murty",
+      "pages": "50-54",
+      "time_seconds": 553.0,
+      "wall_time": 556.0694763660431,
+      "total_chars": 811035,
+      "formula_gaps": 0,
+      "picture_omitted": 0,
+      "latex_display": 2734,
+      "latex_inline": 6105,
+      "lines": 19698,
+      "error": null,
+      "sample_formulas": [],
+      "sample_gaps": []
+    }
+  ]
+}
