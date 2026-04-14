@@ -48,6 +48,10 @@ fixtures/demo/papers/
 *.log
 .env
 *.sql                   # Database dumps
+*.dump                  # pg_dump custom-format binary dumps (cross-machine sync)
+backups/sync.log        # Cron sync log
+backups/.last_sync_*    # Sync success/failure markers
+backups/.last_restore_mtime  # Restore staleness marker
 
 # Personal config (ship .mcp.json.example instead)
 .mcp.json

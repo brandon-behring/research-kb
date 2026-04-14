@@ -222,6 +222,112 @@ docker exec research-kb-postgres psql -U postgres -d research_kb -c "SELECT COUN
 
 ---
 
+## Cross-machine sync (Linux authoritative -> Mac replica)
+
+The database itself is not in git (`*.sql` and `*.dump` are gitignored). To
+keep a Mac replica in sync, nightly cron on the Linux workstation dumps the
+DB in compressed custom format and uploads it to Google Drive. The Mac's
+Google Drive app auto-downloads the file in the background; the user runs
+`restore_db_from_cloud.sh` on the Mac when a fresh snapshot is desired.
+
+### Architecture
+
+```
+Linux (authoritative)                       Mac (replica)
+─────────────────────                       ─────────────
+nightly 03:17 cron                          manual restore
+     │                                          ▲
+     ▼                                          │
+pg_dump -Fc -Z 9 -> research_kb_latest.dump     │
+     │                                          │
+     └── rclone copy --> gdrive:/research-kb-db/ -> GDrive app auto-downloads
+                                                        │
+                                                        ▼
+                                              pg_restore -c -j 4
+                                                        │
+                                                        ▼
+                                              sync_kuzu.py (rebuild graph)
+```
+
+### On Linux (sync side)
+
+Install nightly cron once:
+```bash
+( crontab -l 2>/dev/null; echo "17 3 * * * cd $HOME/Claude/research-kb && ./scripts/sync_db_to_cloud.sh >> backups/sync.log 2>&1" ) | crontab -
+```
+
+Manual operations:
+```bash
+./scripts/sync_db_to_cloud.sh              # dump + upload
+./scripts/sync_db_to_cloud.sh --dump-only  # dump only, skip upload
+tail -50 backups/sync.log                  # inspect cron output
+cat backups/.last_sync_ok                  # last successful sync timestamp
+cat backups/.last_sync_FAILED              # error detail if sync failed
+```
+
+Failure markers: `backups/.last_sync_FAILED` is written on any error (with
+timestamp + reason) and cleared on the next successful sync.
+
+### On Mac (first-time setup)
+
+1. Install prerequisites:
+   ```bash
+   brew install --cask docker
+   brew install --cask google-drive
+   brew install postgresql@16 python@3.11 uv git rclone
+   ```
+2. Clone the repo and install deps:
+   ```bash
+   mkdir -p ~/Claude && cd ~/Claude
+   git clone git@github.com:brandon-behring/research-kb.git
+   cd research-kb && uv sync --all-packages
+   ```
+3. Start Postgres:
+   ```bash
+   docker compose up -d postgres
+   docker compose ps    # wait for "healthy"
+   ```
+4. Sign in to the Google Drive desktop app (same account as Linux). Enable
+   **Mirror mode** for `research-kb-db/` so the dump lives on local disk
+   (not streamed), which makes restores instant.
+5. Locate the mirrored file and set the env var in `~/.zshrc`:
+   ```bash
+   find ~/Library/CloudStorage -name research_kb_latest.dump 2>/dev/null
+   # Copy the result and add to ~/.zshrc:
+   export RESEARCH_KB_DUMP_PATH="$HOME/Library/CloudStorage/GoogleDrive-<email>/My Drive/research-kb-db/research_kb_latest.dump"
+   source ~/.zshrc
+   ```
+6. First restore:
+   ```bash
+   cd ~/Claude/research-kb
+   ./scripts/restore_db_from_cloud.sh    # 5-10 min on typical Mac
+   research-kb sources stats             # should match Linux counts
+   ```
+
+### Mac ongoing usage
+
+- Google Drive app keeps `research_kb_latest.dump` auto-synced in the background
+- When you want fresh data on Mac: `./scripts/restore_db_from_cloud.sh`
+- The script is idempotent and staleness-aware — it skips work if already
+  current. Use `--force` to re-restore anyway
+- `pg_restore -c` drops and recreates objects, so don't run during active queries
+
+### Archived old backups (cold storage)
+
+Historical plain-SQL backups older than the most recent pre-extraction dump
+live on the external drive at
+`/media/brandon_behring/Extra_Space/research-kb-backups/`. The
+`scripts/archive_backups.sh` script moves old dumps there, keeping only the
+compressed sync dump and the most recent pre-extraction SQL on system disk.
+Re-run it as rotation whenever `backups/` grows.
+
+```bash
+./scripts/archive_backups.sh --dry-run   # preview what will move
+./scripts/archive_backups.sh             # execute after confirmation
+```
+
+---
+
 ## Emergency Contacts
 
 If you encounter a scenario not covered here:
@@ -229,3 +335,4 @@ If you encounter a scenario not covered here:
 1. Check git history for recent changes: `git log --oneline -10`
 2. Check docker logs: `docker compose logs postgres`
 3. Check if backups directory is intact: `ls -la backups/`
+4. Check archived backups on external drive: `ls -la /media/brandon_behring/Extra_Space/research-kb-backups/`
