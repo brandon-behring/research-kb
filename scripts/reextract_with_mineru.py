@@ -53,6 +53,7 @@ from research_kb_common.gpu_guard import (
     DEFAULT_MINERU_VRAM_MIN_MB,
     abort_if_vram_insufficient_for_mineru,
     restart_services,
+    wait_for_vram_recovery,
 )
 from research_kb_pdf.mineru_extractor import (
     MinerUExtractionResult,
@@ -601,6 +602,23 @@ async def run(args: argparse.Namespace) -> None:
         for i, source in enumerate(sources):
             title = source["title"][:60]
             gaps = source["gap_count"]
+
+            # Wait for the NVIDIA driver to fully reclaim VRAM from the
+            # prior subprocess. Skipping this on the first source: the
+            # startup preflight already validated VRAM.
+            if i > 0:
+                recovered, free_mib = wait_for_vram_recovery(
+                    min_free_mib=args.mineru_vram_min_mib,
+                    max_wait_s=120,
+                )
+                if not recovered:
+                    print(
+                        f"  [recovery] WARNING: VRAM stuck at {free_mib} MiB after 120s wait; "
+                        "proceeding anyway (per-source check will skip if still insufficient)"
+                    )
+                else:
+                    print(f"  [recovery] VRAM stable at {free_mib} MiB free")
+
             print(f"  [{i+1}/{len(sources)}] {title} ({gaps} gaps)...", end=" ", flush=True)
 
             result = await reextract_source(

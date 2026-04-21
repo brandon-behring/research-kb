@@ -19,6 +19,7 @@ Usage:
 """
 
 import logging
+import time
 from typing import Optional
 
 try:
@@ -648,6 +649,56 @@ def _abort_with_reclaim_hint(
     )
     print(msg, file=sys.stderr)
     raise SystemExit(1)
+
+
+def wait_for_vram_recovery(
+    min_free_mib: int = DEFAULT_MINERU_VRAM_MIN_MB,
+    max_wait_s: int = 120,
+    poll_s: float = 2.0,
+    stable_readings: int = 2,
+) -> tuple[bool, int]:
+    """Poll VRAM until at least ``stable_readings`` consecutive polls report
+    ``free_mib >= min_free_mib``.
+
+    Protects against the kernel-reclaim race observed on 2026-04-21: when a
+    MinerU subprocess dies, ``nvidia-smi`` sometimes reports VRAM as freed
+    before the NVIDIA kernel driver has actually released it, so the next
+    subprocess's ``torch.cuda.mem_get_info`` sees only ~100 MiB free and
+    OOMs during model load. Waiting for N consecutive stable readings
+    eliminates that race because the driver has fully reclaimed by the
+    time two independent polls both see sufficient VRAM.
+
+    Args:
+        min_free_mib: VRAM floor required. Default matches MinerU.
+        max_wait_s: Total deadline in seconds. Default 120.
+        poll_s: Seconds between polls. Default 2.
+        stable_readings: Consecutive good polls required. Default 2.
+
+    Returns:
+        ``(recovered, last_free_mib)``. ``recovered`` is True if the
+        condition was met within ``max_wait_s``, else False. Callers
+        that don't want to block can check ``recovered`` and decide
+        (the caller is responsible for abort / skip / proceed-anyway
+        semantics).
+    """
+    deadline = time.time() + max_wait_s
+    stable = 0
+    last_free = 0
+    while time.time() < deadline:
+        ok, free = check_vram_available_cuda(min_mib=min_free_mib)
+        last_free = free
+        if ok:
+            stable += 1
+            if stable >= stable_readings:
+                return True, free
+        else:
+            stable = 0
+        # Don't oversleep past the deadline.
+        remaining = deadline - time.time()
+        if remaining <= 0:
+            break
+        time.sleep(min(poll_s, remaining))
+    return False, last_free
 
 
 def restart_services(services: list[str]) -> None:

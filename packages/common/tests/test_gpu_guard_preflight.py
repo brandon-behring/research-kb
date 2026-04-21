@@ -22,6 +22,7 @@ from research_kb_common.gpu_guard import (
     abort_if_vram_insufficient_for_mineru,
     check_vram_available_cuda,
     restart_services,
+    wait_for_vram_recovery,
 )
 
 
@@ -245,6 +246,94 @@ class TestAbortIfVramInsufficientGeneralized:
         err = capsys.readouterr().err
         assert "svc_a.service" in err
         assert "svc_b.service" in err
+
+
+# ---------------------------------------------------------------------------
+# wait_for_vram_recovery
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+class TestWaitForVramRecovery:
+    """Unit tests for ``wait_for_vram_recovery``.
+
+    Guards the kernel-reclaim race observed in issue #9 batch B: the
+    NVIDIA driver takes time to release VRAM after a subprocess dies,
+    so back-to-back MinerU calls can OOM on model load even though
+    nvidia-smi shows VRAM as free. Waiting for N stable readings
+    eliminates the race.
+    """
+
+    def test_returns_immediately_when_already_recovered(self):
+        with (
+            patch.object(gpu_guard, "check_vram_available_cuda", return_value=(True, 6000)),
+            patch.object(gpu_guard.time, "sleep") as mock_sleep,
+        ):
+            ok, free = wait_for_vram_recovery(min_free_mib=4000, max_wait_s=120, stable_readings=2)
+        assert ok is True
+        assert free == 6000
+        # Should poll twice (to satisfy stable_readings=2) then return.
+        # Between those two polls it sleeps once.
+        assert mock_sleep.call_count == 1
+
+    def test_waits_until_stable_then_returns(self):
+        """Two low readings then two high readings: should return on the
+        second high reading (stable_readings=2)."""
+        readings = iter([(False, 100), (False, 200), (True, 5000), (True, 5500)])
+        with (
+            patch.object(
+                gpu_guard,
+                "check_vram_available_cuda",
+                side_effect=lambda **_: next(readings),
+            ),
+            patch.object(gpu_guard.time, "sleep"),
+        ):
+            ok, free = wait_for_vram_recovery(min_free_mib=4000, max_wait_s=120, stable_readings=2)
+        assert ok is True
+        assert free == 5500
+
+    def test_single_good_then_bad_resets_stable_counter(self):
+        """If a good reading is followed by a bad one, the stable counter
+        resets — we need N *consecutive* good readings."""
+        readings = iter(
+            [
+                (True, 5000),  # stable=1
+                (False, 100),  # reset
+                (True, 5000),  # stable=1
+                (True, 5500),  # stable=2 -> return
+            ]
+        )
+        with (
+            patch.object(
+                gpu_guard,
+                "check_vram_available_cuda",
+                side_effect=lambda **_: next(readings),
+            ),
+            patch.object(gpu_guard.time, "sleep"),
+        ):
+            ok, free = wait_for_vram_recovery(min_free_mib=4000, max_wait_s=120, stable_readings=2)
+        assert ok is True
+        assert free == 5500
+
+    def test_returns_false_on_deadline(self):
+        """All readings bad: returns (False, last_free) when the deadline hits."""
+        # Use time.monotonic mock via a counter to force expiry.
+        now = [1000.0]
+
+        def fake_time():
+            now[0] += 3.0  # advance 3s per call
+            return now[0]
+
+        with (
+            patch.object(gpu_guard, "check_vram_available_cuda", return_value=(False, 250)),
+            patch.object(gpu_guard.time, "sleep"),
+            patch.object(gpu_guard.time, "time", side_effect=fake_time),
+        ):
+            ok, free = wait_for_vram_recovery(
+                min_free_mib=4000, max_wait_s=6, poll_s=1, stable_readings=2
+            )
+        assert ok is False
+        assert free == 250
 
 
 # ---------------------------------------------------------------------------
