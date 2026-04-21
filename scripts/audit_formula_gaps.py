@@ -45,9 +45,11 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "storage" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
-from research_kb_common import get_logger  # noqa: E402
+from research_kb_common import configure_logging, get_logger  # noqa: E402
 from research_kb_storage import get_connection_pool  # noqa: E402
 
+# Redirect logs to stderr so JSON/Markdown output on stdout stays clean.
+configure_logging(level="WARNING")
 logger = get_logger(__name__)
 
 

@@ -88,6 +88,87 @@ print(get_vram_stats())
 "
 ```
 
+## Multi-source campaigns (issue #9 Tier 1 etc.)
+
+For corpus-wide remediation across many sources — e.g. the 117-source
+Tier 1 campaign tracked in issue #9 — use the resumable work-list /
+checkpoint flow rather than repeatedly passing `--source-id`.
+
+### Generate the work list
+
+```bash
+# Tier 1 (core math, >=10% gap rate)
+.venv/bin/python scripts/audit_formula_gaps.py \
+    --tier 1 --format json --min-chunks 100 \
+    > data/worklists/tier1.json
+
+# Or narrow to a single domain
+.venv/bin/python scripts/audit_formula_gaps.py \
+    --domain mathematics --format json --min-chunks 100 \
+    > data/worklists/mathematics.json
+```
+
+The work-list JSON is the output shape of
+`scripts/audit_formula_gaps.py --format json`. `reextract_with_mineru.py`
+also accepts a flat list of UUIDs or list-of-objects with `source_id`.
+
+### Run the campaign
+
+```bash
+python scripts/reextract_with_mineru.py \
+    --work-list data/worklists/tier1.json \
+    --checkpoint data/checkpoints/tier1.jsonl \
+    --no-embed --auto-stop-services --skip-backup
+```
+
+Behavior:
+
+- **Checkpoint on every source.** After each source completes
+  (ok / failed / skipped), one JSON line is appended to the
+  checkpoint file. Dry-runs are deliberately *not* checkpointed.
+- **Resume on restart.** On startup the script loads the checkpoint,
+  filters completed source IDs from the work list, and processes
+  only what's left. A completed campaign is a no-op
+  (`Nothing to do — all sources in the work list are already checkpointed.`).
+- **Single preflight per invocation.** `--auto-stop-services` stops
+  `research_kb_rerank.service` once at the start of the batch and
+  restarts it in a `finally` block — not per source.
+- **DLQ for failures.** `data/dlq/mineru_failed.jsonl` records any
+  source that errored, with reason + timestamp.
+
+### Long-running batches
+
+A 117-source Tier 1 campaign runs ~30-50 hours wall clock. Launch
+under `tmux` or `nohup` so SSH drops don't kill it:
+
+```bash
+tmux new-session -d -s mineru-tier1 \
+    'python scripts/reextract_with_mineru.py \
+        --work-list data/worklists/tier1.json \
+        --checkpoint data/checkpoints/tier1.jsonl \
+        --no-embed --auto-stop-services --skip-backup \
+        2>&1 | tee data/logs/tier1-$(date +%Y%m%d).log'
+
+# Observe progress
+tmux attach -t mineru-tier1        # live terminal
+wc -l data/checkpoints/tier1.jsonl  # count of completed sources
+
+# Safe to Ctrl-C and resume later — the same command with the same
+# checkpoint skips completed sources.
+```
+
+### Post-batch audit
+
+```bash
+# Confirm Tier 1 gap totals dropped to ~0
+.venv/bin/python scripts/audit_formula_gaps.py --tier 1 --format json \
+    | python3 -c "import json,sys; d=json.load(sys.stdin); \
+        print(f'remaining: {d[\"total_sources\"]} sources, {d[\"total_gap_chunks\"]} gap chunks')"
+
+# Failed sources to triage
+cat data/dlq/mineru_failed.jsonl | jq -r '"\(.source_id) \(.title) \(.error[:80])"'
+```
+
 ## Post-batch embedding backfill
 
 MinerU extraction runs `--no-embed` by default (chunks are written

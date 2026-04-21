@@ -89,3 +89,8 @@ staging/
 fixtures/eval/formula_comparison/*/mineru.md
 fixtures/eval/formula_comparison/manning/docling_*.md
 fixtures/eval/formula_comparison/boyd/docling_*.md
+
+# Generated MinerU batch artifacts
+/data/worklists/
+/data/checkpoints/
+/data/logs/

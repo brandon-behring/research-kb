@@ -66,6 +66,101 @@ logger = get_logger(__name__)
 DLQ_PATH = Path(__file__).parent.parent / "data" / "dlq" / "mineru_failed.jsonl"
 
 
+# ── Work-list + checkpoint helpers (for resumable batches) ──────────────────
+
+
+def load_work_list(path: Path) -> list[str]:
+    """Load a work list of source IDs from JSON.
+
+    Accepts either:
+
+    - the output of ``audit_formula_gaps.py --format json`` — an object with
+      a ``rows`` key whose elements have ``source_id``; or
+    - a flat list of either strings (source IDs) or objects with ``source_id``.
+
+    Parameters
+    ----------
+    path : Path
+        Work-list JSON path.
+
+    Returns
+    -------
+    list[str]
+        Source IDs in the order they appear in the file.
+    """
+    data = json.loads(path.read_text())
+    if isinstance(data, dict) and "rows" in data:
+        return [str(r["source_id"]) for r in data["rows"]]
+    if isinstance(data, list):
+        out: list[str] = []
+        for item in data:
+            if isinstance(item, str):
+                out.append(item)
+            elif isinstance(item, dict) and "source_id" in item:
+                out.append(str(item["source_id"]))
+            else:
+                raise ValueError(
+                    f"work list entry has no 'source_id' and is not a string: {item!r}"
+                )
+        return out
+    raise ValueError(
+        f"unrecognized work list shape: expected dict with 'rows' or list, "
+        f"got {type(data).__name__}"
+    )
+
+
+def load_checkpoint(path: Path) -> dict[str, dict]:
+    """Load completed source results from a JSONL checkpoint.
+
+    Returns a mapping of ``source_id -> last result dict``. If the file
+    doesn't exist, returns an empty dict (first-run case).
+
+    Tolerates malformed lines (logs and skips) so a truncated file doesn't
+    block resumption.
+
+    Parameters
+    ----------
+    path : Path
+        Checkpoint JSONL path (one result per line).
+
+    Returns
+    -------
+    dict[str, dict]
+        source_id -> last-seen result dict.
+    """
+    if not path.exists():
+        return {}
+    completed: dict[str, dict] = {}
+    for i, line in enumerate(path.read_text().splitlines(), 1):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as e:
+            logger.warning("checkpoint_malformed_line", line_no=i, error=str(e))
+            continue
+        sid = row.get("source_id")
+        if sid:
+            completed[str(sid)] = row
+    return completed
+
+
+def append_checkpoint(path: Path, result: dict) -> None:
+    """Append a single result dict to the checkpoint JSONL.
+
+    Atomic at the line level (single write, OS append). Creates parent
+    directory if needed. We don't fsync — on crash we may lose the very
+    last line, which is fine: the worst case is re-processing one source.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    row = {"source_id": str(result.get("source_id", "")), **result}
+    # Make timestamps structlog-parseable for post-hoc forensics.
+    row.setdefault("checkpointed_at", datetime.now(timezone.utc).isoformat())
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row) + "\n")
+
+
 # ── Database Queries ─────────────────────────────────────────────────────────
 
 
@@ -74,6 +169,7 @@ async def get_sources_for_domains(
     domains: list[str],
     limit: Optional[int] = None,
     source_id: Optional[str] = None,
+    source_ids: Optional[list[str]] = None,
 ) -> list[dict]:
     """Query sources to re-extract.
 
@@ -109,6 +205,26 @@ async def get_sources_for_domains(
                 """,
                 UUID(source_id),
             )
+        elif source_ids:
+            # Preserve the caller-provided ordering so checkpointed batches
+            # are deterministic across restarts.
+            uuid_list = [UUID(s) for s in source_ids]
+            rows = await conn.fetch(
+                """
+                SELECT s.id, s.title, s.file_path, s.domain_id,
+                       count(c.id) as chunk_count,
+                       count(c.id) FILTER (
+                           WHERE c.content LIKE '%formula-not-decoded%'
+                       ) as gap_count
+                FROM sources s
+                LEFT JOIN chunks c ON c.source_id = s.id
+                WHERE s.id = ANY($1::uuid[])
+                GROUP BY s.id, s.title, s.file_path, s.domain_id
+                """,
+                uuid_list,
+            )
+            order = {sid: i for i, sid in enumerate(uuid_list)}
+            rows = sorted(rows, key=lambda r: order.get(r["id"], 10**9))
         else:
             query = """
                 SELECT s.id, s.title, s.file_path, s.domain_id,
@@ -124,7 +240,7 @@ async def get_sources_for_domains(
             """
             params: list = [domains]
             if limit:
-                query += f" LIMIT $2"
+                query += " LIMIT $2"
                 params.append(limit)
             rows = await conn.fetch(query, *params)
 
@@ -403,14 +519,43 @@ async def run(args: argparse.Namespace) -> None:
     # Parse domains
     domains = [d.strip() for d in args.domains.split(",")] if args.domains else []
 
-    if not domains and not args.source_id:
-        print("ERROR: Must specify --domains or --source-id", file=sys.stderr)
+    if not domains and not args.source_id and not args.work_list:
+        print(
+            "ERROR: Must specify --domains, --source-id, or --work-list",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
-    # Get sources
-    sources = await get_sources_for_domains(
-        pool, domains, limit=args.limit, source_id=args.source_id
-    )
+    # Load checkpoint (if any) so we know which source_ids to skip.
+    checkpoint_path = Path(args.checkpoint) if args.checkpoint else None
+    completed: dict[str, dict] = {}
+    if checkpoint_path:
+        completed = load_checkpoint(checkpoint_path)
+        if completed:
+            print(
+                f"  [checkpoint] Loaded {len(completed)} completed sources from "
+                f"{checkpoint_path}"
+            )
+
+    # Get sources — from work list, single --source-id, or domain scan.
+    if args.work_list:
+        work_path = Path(args.work_list)
+        all_ids = load_work_list(work_path)
+        pending_ids = [sid for sid in all_ids if sid not in completed]
+        print(
+            f"  [work list] {len(all_ids)} total, {len(all_ids) - len(pending_ids)} "
+            f"already done, {len(pending_ids)} pending"
+        )
+        if args.limit:
+            pending_ids = pending_ids[: args.limit]
+        if not pending_ids:
+            print("Nothing to do — all sources in the work list are already checkpointed.")
+            return
+        sources = await get_sources_for_domains(pool, [], source_ids=pending_ids)
+    else:
+        sources = await get_sources_for_domains(
+            pool, domains, limit=args.limit, source_id=args.source_id
+        )
 
     if not sources:
         print("No sources found matching criteria.")
@@ -484,6 +629,12 @@ async def run(args: argparse.Namespace) -> None:
                 failed += 1
                 print(f"FAILED: {result['reason'][:80]}")
                 log_to_dlq(source, result["reason"])
+
+            # Persist progress after each source so Ctrl+C / crashes don't
+            # force re-work. Skip dry-runs so we don't pollute the real
+            # checkpoint with non-durable results.
+            if checkpoint_path and status != "dry_run":
+                append_checkpoint(checkpoint_path, result)
     finally:
         if stopped_services:
             print(f"  [preflight] Restarting: {', '.join(stopped_services)}")
@@ -597,6 +748,26 @@ def main() -> None:
         type=str,
         default=None,
         help="Save JSON report to path",
+    )
+    parser.add_argument(
+        "--work-list",
+        type=str,
+        default=None,
+        help=(
+            "Path to a JSON file listing source IDs to re-extract. Accepts "
+            "the output of scripts/audit_formula_gaps.py --format json, a "
+            "flat list of source IDs, or a list of objects with 'source_id'."
+        ),
+    )
+    parser.add_argument(
+        "--checkpoint",
+        type=str,
+        default=None,
+        help=(
+            "Path to a JSONL checkpoint file. Completed sources are appended "
+            "after each one; on restart the script skips anything already "
+            "recorded here. Safe to run against a partial file."
+        ),
     )
     parser.add_argument(
         "--auto-stop-services",
