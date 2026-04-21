@@ -319,26 +319,24 @@ async def reextract_source(
                 )
 
             # Update source metadata to record extraction method.
-            # $1::jsonb forces Postgres to parse the text as JSON; otherwise
-            # asyncpg sends it as a scalar string and `obj || string_scalar`
-            # coerces both sides to an array, producing [obj, "{...}"] (bug
-            # that damaged 52 sources in the DB, fixed 2026-04-11).
+            # Pass the dict directly: the jsonb codec registered above
+            # (encoder=json.dumps) runs json.dumps for us. Wrapping the
+            # dict in json.dumps() here and casting to ::jsonb causes
+            # double-encoding — the codec re-encodes the str, producing
+            # a JSONB string scalar, and `metadata || <string_scalar>`
+            # then coerces both sides to [dict, "str"] (issue #8 §C).
+            # Same pattern as SourceStore.update_metadata.
             await conn.execute(
-                """
-                UPDATE sources SET metadata = metadata || $1::jsonb
-                WHERE id = $2
-                """,
-                json.dumps(
-                    {
-                        "extraction_method": "mineru",
-                        "mineru_extracted_at": datetime.now(timezone.utc).isoformat(),
-                        "total_pages": extraction_result.total_pages,
-                        "total_chars": extraction_result.total_chars,
-                        "total_chunks": new_count,
-                        "has_equations": extraction_result.has_equations,
-                        "heading_count": extraction_result.heading_count,
-                    }
-                ),
+                "UPDATE sources SET metadata = metadata || $1 WHERE id = $2",
+                {
+                    "extraction_method": "mineru",
+                    "mineru_extracted_at": datetime.now(timezone.utc).isoformat(),
+                    "total_pages": extraction_result.total_pages,
+                    "total_chars": extraction_result.total_chars,
+                    "total_chunks": new_count,
+                    "has_equations": extraction_result.has_equations,
+                    "heading_count": extraction_result.heading_count,
+                },
                 source_id,
             )
 
