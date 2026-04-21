@@ -404,3 +404,204 @@ class VRAMMonitor:
             result["forced_proceeds"],
         )
         return result
+
+
+# ---------------------------------------------------------------------------
+# MinerU preflight — strict VRAM floor + opt-in service management
+# ---------------------------------------------------------------------------
+
+# MinerU (magic_pdf layout + UniMERNet formula) needs ~4 GB free VRAM.
+# Ties into scripts/reextract_with_mineru.py where the old inline check
+# used env MINERU_VRAM_MIN_MB with the same default.
+DEFAULT_MINERU_VRAM_MIN_MB = 4000
+
+# The single service managed by ``abort_if_vram_insufficient_for_mineru``.
+# On the current workstation, rerank_server is the only resident GPU
+# consumer (embed_server is CPU-only; Ollama is not persistent). If a
+# future consumer appears, the abort branch surfaces it via the VRAM
+# floor check before we reach this list.
+MINERU_MANAGED_SERVICES = ("research_kb_rerank.service",)
+
+
+def check_vram_for_mineru(min_mib: int = DEFAULT_MINERU_VRAM_MIN_MB) -> tuple[bool, int]:
+    """Probe free VRAM against the MinerU floor.
+
+    Unlike ``check_vram_available`` (which treats missing CUDA as "CPU
+    fallback OK"), MinerU requires CUDA — no CUDA means no-go.
+
+    Args:
+        min_mib: Minimum free VRAM in MiB. Default 4000.
+
+    Returns:
+        ``(ok, free_mib)``. ``ok`` is True iff ``free_mib >= min_mib``.
+        On CUDA unavailable, returns ``(False, 0)``.
+    """
+    if not _HAS_TORCH or not torch.cuda.is_available():
+        return (False, 0)
+    try:
+        free_bytes, _total_bytes = torch.cuda.mem_get_info()
+        free_mib = int(free_bytes / (1024 * 1024))
+    except RuntimeError as e:
+        logger.debug("mineru_vram_check_unavailable: %s", e)
+        return (False, 0)
+    return (free_mib >= min_mib, free_mib)
+
+
+def _systemctl_user(action: str, service: str) -> tuple[int, str]:
+    """Run ``systemctl --user <action> <service>`` and return (rc, output)."""
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            ["systemctl", "--user", action, service],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        return result.returncode, (result.stdout + result.stderr).strip()
+    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+        return 1, f"systemctl invocation failed: {e}"
+
+
+def _is_service_active(service: str) -> bool:
+    """Return True if ``systemctl --user is-active`` reports ``active``."""
+    rc, out = _systemctl_user("is-active", service)
+    # is-active exits 0 on 'active', >0 otherwise; stdout is the state.
+    return rc == 0 and out == "active"
+
+
+def abort_if_vram_insufficient_for_mineru(
+    min_mib: int = DEFAULT_MINERU_VRAM_MIN_MB,
+    auto_stop_services: bool = False,
+) -> list[str]:
+    """Strict preflight for MinerU. Abort with a hint unless opted in.
+
+    If free VRAM is below ``min_mib``:
+
+    * With ``auto_stop_services=True``: stop each active service in
+      ``MINERU_MANAGED_SERVICES`` and return the list of services that
+      were stopped. The caller should restart them in a ``finally``
+      block via ``restart_services``.
+    * With ``auto_stop_services=False`` (default): print an actionable
+      message to stderr (with the exact ``systemctl --user stop``
+      command and the ``--auto-stop-services`` opt-in) and raise
+      ``SystemExit(1)``. Matches ``abort_if_embed_server_running``
+      conventions.
+
+    If free VRAM is already sufficient, returns an empty list without
+    touching any services.
+
+    Args:
+        min_mib: VRAM floor in MiB. Default 4000 (MinerU requirement).
+        auto_stop_services: If True, stop known GPU consumers when
+            VRAM is below the floor. If False, abort with a hint.
+
+    Returns:
+        List of service names that were stopped by this call (possibly
+        empty). Caller should pass this list to ``restart_services``.
+
+    Raises:
+        SystemExit: When VRAM is insufficient and ``auto_stop_services``
+            is False.
+    """
+    ok, free_mib = check_vram_for_mineru(min_mib=min_mib)
+    if ok:
+        logger.info("mineru_vram_ok: free=%dMiB (floor=%dMiB)", free_mib, min_mib)
+        return []
+
+    if not auto_stop_services:
+        _abort_with_reclaim_hint(free_mib=free_mib, min_mib=min_mib)
+        # _abort_with_reclaim_hint raises SystemExit; unreachable.
+        return []  # pragma: no cover
+
+    # auto_stop_services=True path: stop active managed services.
+    stopped: list[str] = []
+    for service in MINERU_MANAGED_SERVICES:
+        if not _is_service_active(service):
+            continue
+        rc, out = _systemctl_user("stop", service)
+        if rc == 0:
+            logger.warning("mineru_preflight_stopped_service: %s", service)
+            stopped.append(service)
+        else:
+            logger.error(
+                "mineru_preflight_stop_failed: service=%s rc=%d out=%s",
+                service,
+                rc,
+                out,
+            )
+
+    ok_after, free_after = check_vram_for_mineru(min_mib=min_mib)
+    if not ok_after:
+        # Stopped everything we could, still below floor. Restart and abort —
+        # the operator has some other consumer we don't manage.
+        for service in stopped:
+            _systemctl_user("start", service)
+        _abort_with_reclaim_hint(free_mib=free_after, min_mib=min_mib)
+        return []  # pragma: no cover
+
+    logger.info(
+        "mineru_preflight_reclaimed: stopped=%s free=%dMiB (floor=%dMiB)",
+        stopped,
+        free_after,
+        min_mib,
+    )
+    return stopped
+
+
+def _abort_with_reclaim_hint(free_mib: int, min_mib: int) -> None:
+    """Print actionable reclaim hint to stderr and raise SystemExit(1).
+
+    Matches the style of ``abort_if_embed_server_running`` (line 201).
+    """
+    import sys
+
+    managed = ", ".join(MINERU_MANAGED_SERVICES)
+    msg = (
+        f"[mineru preflight] VRAM {free_mib} MiB free, need {min_mib} MiB.\n"
+        f"detected managed GPU consumer(s): {managed}\n"
+        "\n"
+        "Reclaim and re-run:\n"
+        f"  systemctl --user stop {MINERU_MANAGED_SERVICES[0]}\n"
+        "\n"
+        "Or let the script manage it:\n"
+        "  python scripts/reextract_with_mineru.py ... --auto-stop-services\n"
+        "\n"
+        "aborting.\n"
+    )
+    print(msg, file=sys.stderr)
+    raise SystemExit(1)
+
+
+def restart_services(services: list[str]) -> None:
+    """Restart the services returned by ``abort_if_vram_insufficient_for_mineru``.
+
+    Intended for use in a ``finally`` block after the MinerU batch:
+
+    .. code-block:: python
+
+        stopped = abort_if_vram_insufficient_for_mineru(
+            auto_stop_services=args.auto_stop_services,
+        )
+        try:
+            run_mineru_batch(...)
+        finally:
+            restart_services(stopped)
+
+    Errors are logged but not raised — we never want service restart
+    to mask the real exit path of the script.
+
+    Args:
+        services: Service names to restart. Empty list is a no-op.
+    """
+    for service in services:
+        rc, out = _systemctl_user("start", service)
+        if rc == 0:
+            logger.info("mineru_preflight_restarted_service: %s", service)
+        else:
+            logger.error(
+                "mineru_preflight_restart_failed: service=%s rc=%d out=%s",
+                service,
+                rc,
+                out,
+            )

@@ -32,6 +32,7 @@ markers = [
     "requires_reranker: Tests requiring cross-encoder reranker model",
     "requires_anthropic: Tests requiring Anthropic API client (anthropic package)",
     "requires_instructor: Tests requiring Instructor client (instructor package)",
+    "requires_gpu: Tests requiring a CUDA-capable GPU",
 ]
 
 [dependency-groups]

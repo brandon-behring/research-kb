@@ -49,6 +49,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" /
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
 from research_kb_common import get_logger
+from research_kb_common.gpu_guard import (
+    DEFAULT_MINERU_VRAM_MIN_MB,
+    abort_if_vram_insufficient_for_mineru,
+    restart_services,
+)
 from research_kb_pdf.mineru_extractor import (
     MinerUExtractionResult,
     check_vram_available,
@@ -430,13 +435,14 @@ async def run(args: argparse.Namespace) -> None:
         print("Use --skip-backup to suppress this warning.")
         print()
 
-    # VRAM check
-    sufficient, free_mb = check_vram_available()
-    if not sufficient:
-        print(f"ERROR: Insufficient VRAM ({free_mb} MB free, need 4000 MB).")
-        print("Stop embed_server, rerank_server, and Ollama first.")
-        sys.exit(1)
-    print(f"  VRAM: {free_mb} MB free (OK)")
+    # Strict VRAM preflight — aborts unless --auto-stop-services is passed.
+    # Returns services stopped by this call; restart them in finally.
+    stopped_services = abort_if_vram_insufficient_for_mineru(
+        min_mib=args.mineru_vram_min_mib,
+        auto_stop_services=args.auto_stop_services,
+    )
+    if stopped_services:
+        print(f"  [preflight] Stopped for reclaim: {', '.join(stopped_services)}")
     print()
 
     # Process sources
@@ -446,37 +452,42 @@ async def run(args: argparse.Namespace) -> None:
     skipped = 0
     t_start = time.time()
 
-    for i, source in enumerate(sources):
-        title = source["title"][:60]
-        gaps = source["gap_count"]
-        print(f"  [{i+1}/{len(sources)}] {title} ({gaps} gaps)...", end=" ", flush=True)
+    try:
+        for i, source in enumerate(sources):
+            title = source["title"][:60]
+            gaps = source["gap_count"]
+            print(f"  [{i+1}/{len(sources)}] {title} ({gaps} gaps)...", end=" ", flush=True)
 
-        result = await reextract_source(
-            pool=pool,
-            source=source,
-            dry_run=args.dry_run,
-            no_embed=args.no_embed,
-            venv_path=args.venv_path,
-        )
-        results.append(result)
-
-        status = result["status"]
-        if status == "ok" or status == "dry_run":
-            ok += 1
-            delta = result["new_count"] - result["old_count"]
-            gap_delta = result["new_gaps"] - result["old_gaps"]
-            print(
-                f"{result['new_count']} chunks ({delta:+d}), "
-                f"{result['new_gaps']} gaps ({gap_delta:+d}), "
-                f"{result['elapsed_s']:.0f}s"
+            result = await reextract_source(
+                pool=pool,
+                source=source,
+                dry_run=args.dry_run,
+                no_embed=args.no_embed,
+                venv_path=args.venv_path,
             )
-        elif status == "skipped":
-            skipped += 1
-            print(f"SKIPPED: {result['reason']}")
-        elif status == "failed":
-            failed += 1
-            print(f"FAILED: {result['reason'][:80]}")
-            log_to_dlq(source, result["reason"])
+            results.append(result)
+
+            status = result["status"]
+            if status == "ok" or status == "dry_run":
+                ok += 1
+                delta = result["new_count"] - result["old_count"]
+                gap_delta = result["new_gaps"] - result["old_gaps"]
+                print(
+                    f"{result['new_count']} chunks ({delta:+d}), "
+                    f"{result['new_gaps']} gaps ({gap_delta:+d}), "
+                    f"{result['elapsed_s']:.0f}s"
+                )
+            elif status == "skipped":
+                skipped += 1
+                print(f"SKIPPED: {result['reason']}")
+            elif status == "failed":
+                failed += 1
+                print(f"FAILED: {result['reason'][:80]}")
+                log_to_dlq(source, result["reason"])
+    finally:
+        if stopped_services:
+            print(f"  [preflight] Restarting: {', '.join(stopped_services)}")
+            restart_services(stopped_services)
 
     elapsed_total = time.time() - t_start
 
@@ -586,6 +597,24 @@ def main() -> None:
         type=str,
         default=None,
         help="Save JSON report to path",
+    )
+    parser.add_argument(
+        "--auto-stop-services",
+        action="store_true",
+        help=(
+            "Stop managed GPU services (research_kb_rerank.service) if VRAM is "
+            "below the MinerU floor, then restart them on exit. Default: abort "
+            "with a systemctl hint."
+        ),
+    )
+    parser.add_argument(
+        "--mineru-vram-min-mib",
+        type=int,
+        default=DEFAULT_MINERU_VRAM_MIN_MB,
+        help=(
+            f"MinerU VRAM floor in MiB. Default: {DEFAULT_MINERU_VRAM_MIN_MB}. "
+            "Lower values risk MinerU OOM; higher values are safer but pickier."
+        ),
     )
     args = parser.parse_args()
 
