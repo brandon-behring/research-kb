@@ -1,0 +1,33 @@
+name: Add tracked issues to Work Tracker
+
+# Auto-adds any issue with the `tracked` label to the user-level
+# Work Tracker project (projects/1). This is the repo-side half of
+# the cross-repo work-tracking system described in
+# ~/.claude/rules/work-tracking.md. See
+# docs/runbooks/work_tracker_pat.md for PAT setup.
+
+on:
+  issues:
+    types: [opened, labeled, reopened]
+
+permissions:
+  # The default GITHUB_TOKEN cannot write to user-owned projects;
+  # the action reads the issue via `contents: read` and authenticates
+  # to the project via the fine-grained PAT in `ADD_TO_PROJECT_PAT`.
+  contents: read
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    # Skip when the event is the `labeled` type and the label added is
+    # not `tracked` — avoids unnecessary action runs on unrelated labels.
+    if: |
+      github.event.action != 'labeled' ||
+      github.event.label.name == 'tracked'
+    steps:
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/users/brandon-behring/projects/1
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+          labeled: tracked
+          label-operator: AND
