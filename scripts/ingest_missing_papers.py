@@ -285,6 +285,14 @@ async def main():
         action="store_true",
         help="Enable embedding during ingestion (single-phase, unsafe on shared GPU).",
     )
+    parser.add_argument(
+        "--auto-stop-services",
+        action="store_true",
+        help=(
+            "Stop research_kb_rerank.service if VRAM is below the Docling floor, "
+            "then restart on exit. Default: abort with a systemctl hint."
+        ),
+    )
     args = parser.parse_args()
     # --with-embed overrides --no-embed
     if args.with_embed:
@@ -292,6 +300,23 @@ async def main():
         from research_kb_common.gpu_guard import abort_if_embed_server_running
 
         abort_if_embed_server_running()
+
+    # Docling VRAM preflight — always on. Orthogonal to the embed_server
+    # socket check above: that one guards against our own embed_server;
+    # this one guards against any other VRAM consumer (e.g. rerank_server).
+    from research_kb_common.gpu_guard import (
+        DEFAULT_DOCLING_VRAM_MIN_MB,
+        MINERU_MANAGED_SERVICES,
+        abort_if_vram_insufficient,
+        restart_services,
+    )
+
+    _stopped_services = abort_if_vram_insufficient(
+        min_mib=DEFAULT_DOCLING_VRAM_MIN_MB,
+        managed_services=MINERU_MANAGED_SERVICES,
+        auto_stop_services=args.auto_stop_services,
+        caller_label="docling preflight (ingest_missing_papers)",
+    )
     domain_id = args.domain
 
     papers_dir = Path(__file__).parent.parent / "fixtures" / "papers"
@@ -332,53 +357,59 @@ async def main():
     # Ingest missing papers
     results = {"success": [], "failed": []}
 
-    for i, pdf_path in enumerate(to_ingest):
-        print(f"\n[{i+1}/{len(to_ingest)}] Processing: {pdf_path.name}")
+    try:
+        for i, pdf_path in enumerate(to_ingest):
+            print(f"\n[{i+1}/{len(to_ingest)}] Processing: {pdf_path.name}")
 
-        # Get metadata (prefers S2 sidecar, falls back to filename parsing)
-        title, authors, year, extra_metadata = get_metadata_for_pdf(pdf_path)
-        extra_metadata["auto_ingested"] = True
+            # Get metadata (prefers S2 sidecar, falls back to filename parsing)
+            title, authors, year, extra_metadata = get_metadata_for_pdf(pdf_path)
+            extra_metadata["auto_ingested"] = True
 
-        # Log metadata source
-        source = extra_metadata.get("metadata_source", "unknown")
-        if source == "s2_sidecar":
-            print(f"  📄 Using S2 metadata: {title[:50]}...")
-        else:
-            print(f"  📝 Using filename metadata: {title[:50]}...")
+            # Log metadata source
+            source = extra_metadata.get("metadata_source", "unknown")
+            if source == "s2_sidecar":
+                print(f"  📄 Using S2 metadata: {title[:50]}...")
+            else:
+                print(f"  📝 Using filename metadata: {title[:50]}...")
 
-        # Use per-paper domain from sidecar if available, else CLI default
-        paper_domain = extra_metadata.pop("sidecar_domain_id", None) or domain_id
+            # Use per-paper domain from sidecar if available, else CLI default
+            paper_domain = extra_metadata.pop("sidecar_domain_id", None) or domain_id
 
-        try:
-            source_id, num_chunks, num_headings = await ingest_pdf(
-                pdf_path=str(pdf_path),
-                title=title,
-                authors=authors,
-                year=year,
-                metadata=extra_metadata,
-                domain_id=paper_domain,
-                no_embed=args.no_embed,
-            )
+            try:
+                source_id, num_chunks, num_headings = await ingest_pdf(
+                    pdf_path=str(pdf_path),
+                    title=title,
+                    authors=authors,
+                    year=year,
+                    metadata=extra_metadata,
+                    domain_id=paper_domain,
+                    no_embed=args.no_embed,
+                )
 
-            results["success"].append(
-                {
-                    "file": pdf_path.name,
-                    "title": title,
-                    "chunks": num_chunks,
-                }
-            )
+                results["success"].append(
+                    {
+                        "file": pdf_path.name,
+                        "title": title,
+                        "chunks": num_chunks,
+                    }
+                )
 
-            print(f"  ✓ {num_chunks} chunks created")
+                print(f"  ✓ {num_chunks} chunks created")
 
-        except Exception as e:
-            logger.error("ingestion_failed", file=pdf_path.name, error=str(e), exc_info=True)
-            results["failed"].append(
-                {
-                    "file": pdf_path.name,
-                    "error": str(e),
-                }
-            )
-            print(f"  ✗ Failed: {e}")
+            except Exception as e:
+                logger.error("ingestion_failed", file=pdf_path.name, error=str(e), exc_info=True)
+                results["failed"].append(
+                    {
+                        "file": pdf_path.name,
+                        "error": str(e),
+                    }
+                )
+                print(f"  ✗ Failed: {e}")
+    finally:
+        # Restart any services the VRAM preflight stopped at startup.
+        if _stopped_services:
+            print(f"  [preflight] Restarting: {', '.join(_stopped_services)}")
+            restart_services(_stopped_services)
 
     # Summary
     print("\n" + "=" * 70)

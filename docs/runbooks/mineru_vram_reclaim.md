@@ -197,11 +197,34 @@ within the 35% fraction cap.
 | Script aborts even with `--auto-stop-services` | An unmanaged consumer (outside `MINERU_MANAGED_SERVICES`) is holding VRAM | Stop it manually. File an issue to add it to the managed list if it's a regular consumer. |
 | Restart fails after batch | `systemctl --user start` returned non-zero | The preflight logs the error but does not raise. Check `systemctl --user status research_kb_rerank.service` and restart manually. |
 
+## Docling ingestion preflight
+
+The same `abort_if_vram_insufficient` helper is now wired into the
+Docling ingestion scripts with a lower 3500 MiB floor
+(`DEFAULT_DOCLING_VRAM_MIN_MB`), so they no longer race MinerU
+or rerank for VRAM:
+
+```bash
+python scripts/ingest_missing_papers.py --auto-stop-services
+python scripts/ingest_missing_textbooks.py --auto-stop-services
+```
+
+This is **orthogonal** to the existing `abort_if_embed_server_running()`
+socket check in those scripts. The socket check guards against our
+own embed_server (which Docling can't share VRAM with); the new VRAM
+floor guards against *any* other GPU consumer (rerank_server,
+stray jobs, etc.).
+
+Default behavior is strict abort with a `systemctl --user stop`
+hint, matching the MinerU preflight. `--auto-stop-services` opts
+into the same stop/restart lifecycle.
+
 ## Scope
 
-The preflight currently manages only `research_kb_rerank.service`.
-Other ingestion scripts (`ingest_missing_textbooks.py`,
-`ingest_missing_papers.py`, `mass_ingest_catalog.py`) use the
-older `abort_if_embed_server_running()` contract. Unifying both
-patterns is tracked separately — see the follow-up issue filed
-from the 2026-04-21 plan (label: `tracked,improvement,P3`).
+The preflight manages only `research_kb_rerank.service` by default.
+The Docling ingestion scripts (`ingest_missing_textbooks.py`,
+`ingest_missing_papers.py`) now share the same
+`abort_if_vram_insufficient` helper as MinerU (issue #11).
+`mass_ingest_catalog.py` and `rechunk_corpus.py` still use the
+older contract and are deferred to a follow-up — see the
+`tracked,improvement,P3` issue.

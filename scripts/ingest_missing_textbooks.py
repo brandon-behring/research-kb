@@ -382,6 +382,14 @@ def parse_args():
         help="Custom PDF directory to scan (default: fixtures/textbooks/). "
         "Use for library_books or other collections with sidecar JSONs.",
     )
+    parser.add_argument(
+        "--auto-stop-services",
+        action="store_true",
+        help=(
+            "Stop research_kb_rerank.service if VRAM is below the Docling floor, "
+            "then restart on exit. Default: abort with a systemctl hint."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -404,6 +412,23 @@ async def main():
         from research_kb_common.gpu_guard import abort_if_embed_server_running
 
         abort_if_embed_server_running()
+
+    # Docling VRAM preflight — always on. Orthogonal to the embed_server
+    # socket check above: that one guards against our own embed_server;
+    # this one guards against any other VRAM consumer (rerank_server etc.).
+    from research_kb_common.gpu_guard import (
+        DEFAULT_DOCLING_VRAM_MIN_MB,
+        MINERU_MANAGED_SERVICES,
+        abort_if_vram_insufficient,
+        restart_services,
+    )
+
+    _stopped_services = abort_if_vram_insufficient(
+        min_mib=DEFAULT_DOCLING_VRAM_MIN_MB,
+        managed_services=MINERU_MANAGED_SERVICES,
+        auto_stop_services=args.auto_stop_services,
+        caller_label="docling preflight (ingest_missing_textbooks)",
+    )
 
     # Configure logging based on quiet mode
     if quiet:
@@ -631,6 +656,12 @@ async def main():
             for r in results["failed"]:
                 status = "(recoverable)" if r.get("recoverable", False) else "(not recoverable)"
                 print(f"  - {r['file']}: {r['error'][:60]} {status}")
+
+    # Restart any services the VRAM preflight stopped at startup.
+    if _stopped_services:
+        if not quiet:
+            print(f"  [preflight] Restarting: {', '.join(_stopped_services)}")
+        restart_services(_stopped_services)
 
     await close_connection_pool()
 
