@@ -336,12 +336,16 @@ async def reextract_source(
         )
     except Exception as e:
         elapsed = time.time() - t0
-        error_msg = str(e)[:300]
+        # Preserve the full error so DLQ triage can see CUDA OOM details,
+        # MinerU stderr, and tracebacks. A 4000-char cap handles even
+        # multi-frame tracebacks without unbounded DLQ growth.
+        error_msg = str(e)[:4000]
         logger.error(
             "mineru_extraction_failed",
             title=title,
             source_id=str(source_id),
-            error=error_msg,
+            # Keep the log line brief — the DLQ has the full text.
+            error=error_msg[:400],
         )
         return {
             "title": title,
@@ -487,24 +491,71 @@ async def reextract_source(
     }
 
 
+def _classify_mineru_error(error: str) -> dict:
+    """Extract structured fields from a MinerU error string.
+
+    Returns a dict with any of:
+      ``error_kind`` (``cuda_oom``, ``subprocess_nonzero``, ``timeout``, ``other``)
+      ``cuda_tried_mib``: MiB the subprocess tried to allocate
+      ``cuda_free_mib``:  MiB free when OOM hit (per CUDA's own report)
+      ``cuda_total_gib``: GPU total capacity
+      ``cuda_processes``: list of ``(pid, mib)`` of other processes holding VRAM
+
+    Missing fields are omitted — callers can rely on ``.get()`` semantics.
+    Parsing is best-effort; unknown errors get ``error_kind=other``.
+    """
+    import re
+
+    parsed: dict = {}
+    if "CUDA out of memory" in error:
+        parsed["error_kind"] = "cuda_oom"
+        m = re.search(r"Tried to allocate (\d+\.?\d*) MiB", error)
+        if m:
+            parsed["cuda_tried_mib"] = float(m.group(1))
+        m = re.search(r"which (\d+\.?\d*) MiB is free", error)
+        if m:
+            parsed["cuda_free_mib"] = float(m.group(1))
+        m = re.search(r"total capacity of (\d+\.?\d*) GiB", error)
+        if m:
+            parsed["cuda_total_gib"] = float(m.group(1))
+        procs = re.findall(r"Process (\d+) has (\d+\.?\d*) MiB", error)
+        if procs:
+            parsed["cuda_processes"] = [{"pid": int(p), "mib": float(m)} for p, m in procs]
+    elif "TimeoutExpired" in error or "timeout" in error.lower():
+        parsed["error_kind"] = "timeout"
+    elif "returned non-zero exit status" in error or "CalledProcessError" in error:
+        parsed["error_kind"] = "subprocess_nonzero"
+    else:
+        parsed["error_kind"] = "other"
+    return parsed
+
+
 def log_to_dlq(source: dict, error: str) -> None:
     """Append failed source to dead letter queue.
+
+    Writes the full error (up to 4000 chars) plus parsed structured
+    fields when present. The structured fields let downstream triage
+    (e.g. ``split_and_reingest.py --from-dlq``) filter by error_kind
+    without regex-sniffing the raw text.
 
     Parameters
     ----------
     source : dict
         Source info.
     error : str
-        Error message.
+        Error message. Preserved in full up to 4000 chars; the caller
+        typically already caps at a sane bound (see reextract_source).
     """
     DLQ_PATH.parent.mkdir(parents=True, exist_ok=True)
+    parsed = _classify_mineru_error(error)
     entry = {
         "source_id": str(source["id"]),
         "title": source["title"],
         "file_path": source["file_path"],
         "domain_id": source["domain_id"],
-        "error": error[:500],
+        "error": error[:4000],
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        **parsed,
     }
     with open(DLQ_PATH, "a") as f:
         f.write(json.dumps(entry) + "\n")

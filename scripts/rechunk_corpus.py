@@ -405,6 +405,14 @@ def parse_args():
         help="Re-rechunk ALL sources, including those already chunked with Docling. "
         "Use for full corpus re-processing after extractor fixes.",
     )
+    parser.add_argument(
+        "--auto-stop-services",
+        action="store_true",
+        help=(
+            "Stop research_kb_rerank.service if VRAM is below the Docling floor, "
+            "then restart on exit. Default: abort with a systemctl hint."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -458,6 +466,22 @@ async def main():
         except KeyboardInterrupt:
             print("\nAborted.")
             return
+
+    # Docling VRAM preflight — skip on dry-run (no GPU work happens).
+    _stopped_services: list[str] = []
+    if not args.dry_run:
+        from research_kb_common.gpu_guard import (
+            DEFAULT_DOCLING_VRAM_MIN_MB,
+            MINERU_MANAGED_SERVICES,
+            abort_if_vram_insufficient,
+        )
+
+        _stopped_services = abort_if_vram_insufficient(
+            min_mib=DEFAULT_DOCLING_VRAM_MIN_MB,
+            managed_services=MINERU_MANAGED_SERVICES,
+            auto_stop_services=args.auto_stop_services,
+            caller_label="docling preflight (rechunk_corpus)",
+        )
 
     # Connect to database
     config = DatabaseConfig()
@@ -616,6 +640,14 @@ async def main():
                 f"  {'6' if args.no_embed else '4'}. Validate retrieval: "
                 "python scripts/eval_retrieval.py --per-domain"
             )
+
+    # Restart any services the VRAM preflight stopped at startup.
+    if _stopped_services:
+        from research_kb_common.gpu_guard import restart_services
+
+        if not (args.quiet or args.json_output):
+            print(f"  [preflight] Restarting: {', '.join(_stopped_services)}")
+        restart_services(_stopped_services)
 
 
 if __name__ == "__main__":

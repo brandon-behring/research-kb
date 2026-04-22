@@ -288,6 +288,14 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip the post-ingest citation graph build (default: on)",
     )
+    parser.add_argument(
+        "--auto-stop-services",
+        action="store_true",
+        help=(
+            "Stop research_kb_rerank.service if VRAM is below the Docling floor, "
+            "then restart on exit. Default: abort with a systemctl hint."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -345,6 +353,22 @@ async def main() -> None:
     if not args.base_dir.exists():
         print(f"Error: --base-dir does not exist: {args.base_dir}")
         sys.exit(1)
+
+    # Docling VRAM preflight — applies to any real (non-dry-run) pass.
+    # Mirrors ingest_missing_textbooks / ingest_missing_papers wiring.
+    from research_kb_common.gpu_guard import (
+        DEFAULT_DOCLING_VRAM_MIN_MB,
+        MINERU_MANAGED_SERVICES,
+        abort_if_vram_insufficient,
+        restart_services,
+    )
+
+    _stopped_services = abort_if_vram_insufficient(
+        min_mib=DEFAULT_DOCLING_VRAM_MIN_MB,
+        managed_services=MINERU_MANAGED_SERVICES,
+        auto_stop_services=args.auto_stop_services,
+        caller_label="docling preflight (mass_ingest_catalog)",
+    )
 
     # Initialize DB
     config = DatabaseConfig()
@@ -595,6 +619,12 @@ async def main() -> None:
             logger.error("post_ingest_hook_failed", error=str(e))
             if not args.json:
                 print(f"  ⚠ citation graph build failed: {e}")
+
+    # Restart any services the VRAM preflight stopped at startup.
+    if _stopped_services:
+        if not args.quiet:
+            print(f"  [preflight] Restarting: {', '.join(_stopped_services)}")
+        restart_services(_stopped_services)
 
 
 if __name__ == "__main__":

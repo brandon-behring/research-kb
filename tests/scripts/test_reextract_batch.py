@@ -72,6 +72,55 @@ class TestLoadWorkList:
             reextract.load_work_list(path)
 
 
+class TestClassifyMineruError:
+    """Tests for ``_classify_mineru_error``."""
+
+    def test_cuda_oom_full_parse(self):
+        err = (
+            "MinerU extraction failed: CUDA out of memory. "
+            "Tried to allocate 128.00 MiB. GPU 0 has a total capacity of "
+            "7.60 GiB of which 58.69 MiB is free. Process 6069 has 104.55 MiB "
+            "memory in use. Process 272025 has 134.57 MiB memory in use."
+        )
+        p = reextract._classify_mineru_error(err)
+        assert p["error_kind"] == "cuda_oom"
+        assert p["cuda_tried_mib"] == 128.0
+        assert p["cuda_free_mib"] == 58.69
+        assert p["cuda_total_gib"] == 7.60
+        assert p["cuda_processes"] == [
+            {"pid": 6069, "mib": 104.55},
+            {"pid": 272025, "mib": 134.57},
+        ]
+
+    def test_cuda_oom_without_process_table(self):
+        err = (
+            "CUDA out of memory. Tried to allocate 32 MiB. "
+            "GPU 0 has a total capacity of 7.60 GiB of which 20 MiB is free."
+        )
+        p = reextract._classify_mineru_error(err)
+        assert p["error_kind"] == "cuda_oom"
+        assert p["cuda_tried_mib"] == 32.0
+        assert p["cuda_free_mib"] == 20.0
+        assert "cuda_processes" not in p  # no process table → key omitted
+
+    def test_subprocess_nonzero(self):
+        err = "Command '[python, ...]' returned non-zero exit status 1."
+        p = reextract._classify_mineru_error(err)
+        assert p["error_kind"] == "subprocess_nonzero"
+        assert "cuda_free_mib" not in p
+
+    def test_timeout(self):
+        err = "subprocess.TimeoutExpired: Command timed out after 300 seconds"
+        p = reextract._classify_mineru_error(err)
+        assert p["error_kind"] == "timeout"
+
+    def test_other(self):
+        err = "Some unrelated Python error: ValueError(...)"
+        p = reextract._classify_mineru_error(err)
+        assert p["error_kind"] == "other"
+        assert "cuda_free_mib" not in p
+
+
 class TestCheckpoint:
     """Tests for ``load_checkpoint`` + ``append_checkpoint``."""
 
