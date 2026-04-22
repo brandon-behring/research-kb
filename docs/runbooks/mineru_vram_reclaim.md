@@ -160,14 +160,57 @@ wc -l data/checkpoints/tier1.jsonl  # count of completed sources
 ### Post-batch audit
 
 ```bash
-# Confirm Tier 1 gap totals dropped to ~0
+# Confirm Tier 1 gap totals dropped toward 0
 .venv/bin/python scripts/audit_formula_gaps.py --tier 1 --format json \
     | python3 -c "import json,sys; d=json.load(sys.stdin); \
         print(f'remaining: {d[\"total_sources\"]} sources, {d[\"total_gap_chunks\"]} gap chunks')"
 
-# Failed sources to triage
-cat data/dlq/mineru_failed.jsonl | jq -r '"\(.source_id) \(.title) \(.error[:80])"'
+# Summarize the DLQ by error_kind (requires jq)
+jq -r '.error_kind // "unknown"' data/dlq/mineru_failed.jsonl | sort | uniq -c | sort -rn
+
+# List CUDA-OOM failures — these are the candidates for split_and_reingest
+jq -r 'select(.error_kind=="cuda_oom") | "\(.source_id)\t\(.title)"' \
+    data/dlq/mineru_failed.jsonl | sort -u
 ```
+
+### Phase C — DLQ triage via split-and-reingest
+
+For CUDA-OOM failures (books too large for whole-book MinerU on a
+7.6 GB GPU), split each failing PDF into N parts, re-register the
+parts as new sources, then MinerU-extract the parts. Matches the
+vol23 Phase F' 4-part pattern for Korte / Kochenderfer-DM.
+
+```bash
+# 1. Filter the DLQ to just the current Tier 1 run's OOMs
+#    (skip pre-2026-04-21 entries from prior runs)
+jq -c 'select(.timestamp > "2026-04-21" and .error_kind == "cuda_oom")' \
+    data/dlq/mineru_failed.jsonl > data/worklists/tier1_oom.jsonl
+
+# 2. Dry-run first to see what the splits would look like
+.venv/bin/python scripts/split_and_reingest.py \
+    --from-dlq data/worklists/tier1_oom.jsonl \
+    --parts 4 --dry-run
+
+# 3. Execute the split — creates N new source rows per failed book,
+#    deletes the original, emits data/worklists/post_split_parts.json
+.venv/bin/python scripts/split_and_reingest.py \
+    --from-dlq data/worklists/tier1_oom.jsonl \
+    --parts 4
+
+# 4. MinerU-extract the new parts (each ~250-400 pages, well within
+#    the 4000 MiB floor, so --auto-stop-services alone should do it)
+.venv/bin/python scripts/reextract_with_mineru.py \
+    --work-list data/worklists/post_split_parts.json \
+    --checkpoint data/checkpoints/post_split.jsonl \
+    --no-embed --auto-stop-services --skip-backup
+
+# 5. Re-audit to confirm the parts have 0 gaps
+.venv/bin/python scripts/audit_formula_gaps.py --tier 1 --tier-breakdown
+```
+
+A per-source audit log is appended to `data/split_log.jsonl`
+recording parent → child UUIDs and page ranges (similar to what
+vol23 issue #10 comment #2 did manually for Korte + Kochenderfer-DM).
 
 ## Post-batch embedding backfill
 
