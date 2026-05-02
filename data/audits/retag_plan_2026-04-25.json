@@ -1,0 +1,3225 @@
+{
+  "total": 319,
+  "method_dist": {
+    "llm": 57,
+    "path": 216,
+    "title": 45,
+    "fallback": 1
+  },
+  "domain_dist": {
+    "machine_learning": 83,
+    "computer_science": 7,
+    "analysis": 47,
+    "physics": 28,
+    "topology_geometry": 42,
+    "mathematics": 83,
+    "optimization": 7,
+    "information_theory": 2,
+    "neuroscience": 3,
+    "engineering": 2,
+    "finance": 5,
+    "statistics": 3,
+    "reinforcement_learning": 2,
+    "probability_theory": 1,
+    "fitness": 3,
+    "general": 1
+  },
+  "tier_dist": {
+    "2": 88,
+    "3": 44,
+    "1": 180,
+    "4": 7
+  },
+  "suggestions": [
+    {
+      "source_id": "dbcfbd16-6926-4328-ab1d-200597df185f",
+      "title": "Alberto Fern\u00e1ndez, Salvador Garc\u00eda, Mikel Galar, Ronaldo C. Prati, Bartosz Krawczyk, Francisco Herrera - Learning from Imbalanced Data Sets-Springer International Publishing",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Alberto Fern\u00e1ndez, Salvador Garc\u00eda, Mikel Galar, Ronaldo C. Prati, Bartosz Krawczyk, Francisco Herrera - Learning from Imbalanced Data Sets-Springer International Publishing (2018).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "8479a894-58a5-400e-b5c9-d8ade4342d16",
+      "title": "asl_webinar_cloud_composer",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/asl_webinar_cloud_composer.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "e8e3f921-2b8c-4c0d-b0ba-406ff79d0df2",
+      "title": "A Unified Approach to Interpreting Model Predictions",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/lundberg_shap_2017.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "a2a30711-9932-471a-9342-b23ff1f1da1d",
+      "title": "A Unifying Privacy Analysis Framework for Unknown Domain Algorithms in Differential Privacy",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2309.09170.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "computer_science",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "computer_science"
+    },
+    {
+      "source_id": "64d7e701-b689-41aa-a8af-83974e9939a2",
+      "title": "Banach Algebra Techniques in Operator Theory (Ronald G. Douglas)",
+      "file_path": "fixtures/library_books/analysis/Banach Algebra Techniques in Operator Theory (Ronald G. Douglas).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "3218b8fa-f160-4341-ab74-791b359b096a",
+      "title": "Barger, Vernon  Olsson, Martin-Classical Mechanics  A modern perspective-McGraw-Hill (1995)",
+      "file_path": "fixtures/library_books/physics/(INTERNATIONAL SERIES IN PURE AND APPLIED PHYSICS) Barger, Vernon_ Olsson, Martin-Classical Mechanics_ A modern perspective-McGraw-Hill (1995).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6ed19352-34dd-46c0-b553-cf523745808e",
+      "title": "Basic Concepts of Algebraic Topology (Fred H. Croom)",
+      "file_path": "fixtures/library_books/topology_geometry/Basic Concepts of Algebraic Topology (Fred H. Croom).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "86c3f3e3-b10d-46e1-a200-10bf12fecb35",
+      "title": "Basic Topology (M. A. Armstrong)",
+      "file_path": "fixtures/library_books/topology_geometry/Basic Topology (M. A. Armstrong).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "5f9fe8b4-c668-450a-853f-e5954e76b4ff",
+      "title": "Beginning Functional Analysis (Karen Saxe)",
+      "file_path": "fixtures/library_books/analysis/Beginning Functional Analysis (Karen Saxe).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2bdcee88-9909-49d6-98ee-4704996acbe1",
+      "title": "Bengt Fornberg - A Practical Guide to Pseudospectral Methods-Cambridge University Press (1996)",
+      "file_path": "fixtures/library_books/numerical_methods/(Cambridge Monographs on Applied and Computational Mathematics) Bengt Fornberg - A Practical Guide to Pseudospectral Methods-Cambridge University Press (1996).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "602009db-1948-4839-8d22-71a0f69652df",
+      "title": "Beyond bias and discrimination: redefining the AI ethics principle of fairness in healthcare machine-learning algorithms",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/giovanola_beyond_bias_and_discrimination_2022.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "f7359a31-cc1e-454e-938f-22219dac7bc4",
+      "title": "Bhimsen K. Shivamoggi Auth. Perturbation Methods For Differential Equations",
+      "file_path": "fixtures/library_books/dynamical_systems/Bhimsen K. Shivamoggi auth. Perturbation Methods for Differential Equations.pdf.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "89e28c58-2e29-4d0a-ab78-dbd206415e12",
+      "title": "Bifurcation Theory and Catastrophe Theory",
+      "file_path": "fixtures/library_books/dynamical_systems/VS Afrajmovich YuS Ilyashenko LP Shilnikov VI Arnold VI Arnold N Kazarinoff Dynamical Systems V Bifurcation Theory and Catastrophe Theory.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "56051c7b-8db8-46c8-98a0-e3a613bde59f",
+      "title": "book1",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/book1.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "9d9743c1-9cd0-4a9a-aee8-e507e11cb51e",
+      "title": "book1 1",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/book1 1.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "71648db9-f5fb-4a03-906d-707dc4639fb7",
+      "title": "book2",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/book2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "f55640c3-632d-4fe2-9d49-0de175454d34",
+      "title": "Brunton Data Driven Science Engineering",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/brunton_data_driven_science_engineering.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "80cac67b-a4a8-4ce3-b0ee-7726f4d714ca",
+      "title": "C3_W1",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/C3_W1.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "78381b86-8b01-4eb0-a7b3-c411e6e895e7",
+      "title": "Calculus 1",
+      "file_path": "fixtures/library_books/analysis/Mathematics - Tom M Apostol - Calculus vol. 1.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "ca2c6de6-d5cf-4c18-b2e5-c30a16686bb7",
+      "title": "Calculus A Liberal Art (William McGowen Priestley)",
+      "file_path": "fixtures/library_books/analysis/Calculus A Liberal Art (William McGowen Priestley).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2e9a760d-f7d5-49b1-a429-46112823f3b0",
+      "title": "Calculus An Historical Approach (William McGowen Priestley)",
+      "file_path": "fixtures/library_books/analysis/Calculus An Historical Approach (William McGowen Priestley).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "19b1006e-c99b-4e81-ba6c-b8895a8caca3",
+      "title": "Calculus III (Jerrold Marsden Alan Weinstein)",
+      "file_path": "fixtures/library_books/analysis/Calculus III (Jerrold Marsden Alan Weinstein).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b28f4cd2-abe3-4e03-acd5-513f8b455bb5",
+      "title": "Calculus I (Jerrold Marsden Alan Weinstein)",
+      "file_path": "fixtures/library_books/analysis/Calculus I (Jerrold Marsden Alan Weinstein).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2f977a7e-a4c3-456f-8962-2610c08a4a86",
+      "title": "Calculus of Several Variables (Serge Lang)",
+      "file_path": "fixtures/library_books/analysis/Calculus of Several Variables (Serge Lang).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "bdd1955a-8e72-4cce-a97d-f4b13b22d75b",
+      "title": "Calculus of Variations and Optimal Control Theory",
+      "file_path": "fixtures/library_books/optimization/Daniel Liberzon - Calculus of Variations and Optimal Control Theory_ A Concise Introduction-Princeton University Press (2012).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "optimization",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6028d7bd-5e79-4218-be81-603aa151c26f",
+      "title": "Calculus: One and Several Variables, 10th Edition",
+      "file_path": "fixtures/library_books/analysis/Calculus one and several variables 10E Salas.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "94454d25-dca8-45af-87b9-ec9bc1bf3f7e",
+      "title": "Capietto A et al Stability and bifurcation theory for non-autonomous differential equations LNM2065 Springer 2013ISBN 97",
+      "file_path": "fixtures/library_books/dynamical_systems/Capietto A et al Stability and bifurcation theory for non-autonomous differential equations LNM2065 Springer 2013ISBN 9783642329050O314s_Mln_.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "5aa88da0-6144-4948-8594-3b1499d08118",
+      "title": "C Cohen-Tannoudji B Diu F Laloe - Quantum Mechanics 1-3 Basic Concepts Tools and Applications  Angular Momentum Spin an",
+      "file_path": "fixtures/library_books/physics/ C Cohen-Tannoudji B Diu F Laloe - Quantum Mechanics 1-3 Basic Concepts Tools and Applications_ Angular Momentum Spin and Approximation_ Fermions Bosons Pho 2019 Wiley-VCH - libgenli.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "a69d897f-a85b-4e26-8fd8-2e57df2c230a",
+      "title": "Clark Robinson - Dynamical Systems  Stability, Symbolic Dynamics, and Chaos-CRC Press (1994)",
+      "file_path": "fixtures/library_books/dynamical_systems/(Studies in Advanced Mathematics) Clark Robinson - Dynamical Systems_ Stability, Symbolic Dynamics, and Chaos-CRC Press (1994).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "152d65f0-b01a-4d79-a2f9-7bb388f528c3",
+      "title": "Classical Mechanics",
+      "file_path": "fixtures/library_books/physics/book.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "5d76ca39-350f-47d2-af7b-6bdcc116227d",
+      "title": "Classical Topology and Combinatorial Group Theory (Dr. John Stillwell)",
+      "file_path": "fixtures/library_books/topology_geometry/Classical Topology and Combinatorial Group Theory (Dr. John Stillwell).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1a6df858-c315-446f-9a94-08d3063fbea9",
+      "title": "Cohomology of Groups (Kenneth S. Brown)",
+      "file_path": "fixtures/library_books/topology_geometry/Cohomology of Groups (Kenneth S. Brown).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "3a82ee65-1e69-4cef-a1eb-0516d9d4c87f",
+      "title": "Commutative Algebra (David Eisenbud)",
+      "file_path": "fixtures/library_books/algebra/Commutative Algebra (David Eisenbud).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b256d360-2201-4f5b-8594-76f4d9ac1310",
+      "title": "Commutative Algebra (Oscar Zariski Pierre Samuel)",
+      "file_path": "fixtures/library_books/algebra/Commutative Algebra (Oscar Zariski Pierre Samuel).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "5c624985-b429-429b-9ef3-a5b5148e9748",
+      "title": "Complex Analysis (Princeton Lectures in Analysis, Volume II)",
+      "file_path": "fixtures/library_books/analysis/Complex Analysis(Stein).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "a049565f-87fe-45b1-9cf9-b0aaf483f90f",
+      "title": "Complex Analysis (Theodore W. Gamelin)",
+      "file_path": "fixtures/library_books/analysis/Complex Analysis (Theodore W. Gamelin).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b3f46390-374d-471c-807d-fddaaf37d547",
+      "title": "Composition Theorems for Interactive Differential Privacy",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2207.09397.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "computer_science",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "computer_science"
+    },
+    {
+      "source_id": "e99f8066-c98d-4d88-8bb3-3dd791ef070f",
+      "title": "compressed_(Adaptive Computation and Machine Learning series) Kevin P. Murphy - Machine Learning: A Probabilistic Perspective-The MIT Press",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/compressed_(Adaptive Computation and Machine Learning series) Kevin P. Murphy - Machine Learning_ A Probabilistic Perspective-The MIT Press (2012).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "588f3e23-ace4-4e13-96c5-c125cbeaa8bc",
+      "title": "compressed (Cambridge Monographs on Applied and Computational Mathematics) Bengt Fornberg - A Practical Guide to Pseudos",
+      "file_path": "fixtures/library_books/numerical_methods/compressed_(Cambridge Monographs on Applied and Computational Mathematics) Bengt Fornberg - A Practical Guide to Pseudospectral Methods-Cambridge University Press (1996).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6cbf9741-bc64-43a1-8d5e-a14695ed3c9b",
+      "title": "compressed (Monographs on Mathematical Modeling and Computation) James D. Meiss - Differential Dynamical Systems-Society",
+      "file_path": "fixtures/library_books/dynamical_systems/compressed_(Monographs on Mathematical Modeling and Computation) James D. Meiss - Differential Dynamical Systems-Society for Industrial and Applied Mathematics (2007).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "5d6de5f8-9266-487a-9fe7-660dcacd26f5",
+      "title": "compressed_(.Net Developers) Sergios Theodoridis - Machine Learning: A Bayesian and Optimization Perspective-Academic Press",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/compressed_(.Net Developers) Sergios Theodoridis - Machine Learning_ A Bayesian and Optimization Perspective-Academic Press (2015).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "optimization",
+      "suggested_tier": 1,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "bb629e5b-1f94-4b77-a257-20e0a53a0735",
+      "title": "compressed (Texts in Applied Mathematics) Carmen Chicone - Ordinary Differential Equations with Applications-Springer (2",
+      "file_path": "fixtures/library_books/dynamical_systems/compressed_(Texts in Applied Mathematics) Carmen Chicone - Ordinary Differential Equations with Applications-Springer (2006).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1b5ba9a3-df03-4672-98d7-9d3219d08da6",
+      "title": "Computational Advertising: Market and Technologies for Internet Commercial Monetization",
+      "file_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Computational Advertising_ Market and Technologies for the -- Peng Liu (Author); Chao Wang (Author) -- 2, 2020 may 12 -- Taylor & Francis Group; CRC -- 9780367206383 -- 7e99156b75a7c11af78b90152e633aa8 -- Anna\u2019s Archive.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "85763eca-760f-4a1d-917d-79a7dd7ffeed",
+      "title": "Concentrated Differential Privacy: Simplifications, Extensions, and Lower Bounds",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/1605.02065.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "information_theory",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "information_theory"
+    },
+    {
+      "source_id": "aec262f8-9c3f-4007-858b-9ef60ec89997",
+      "title": "Concurrent Composition for Interactive Differential Privacy with Adaptive Privacy-Loss Parameters",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2309.05901.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "computer_science",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "computer_science"
+    },
+    {
+      "source_id": "ccb2975c-cca8-4725-9473-d114f0cf5a16",
+      "title": "Concurrent Composition of Differential Privacy",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2105.14427.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "computer_science",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "computer_science"
+    },
+    {
+      "source_id": "cb0df42d-a0e5-4e59-a38b-799251027f70",
+      "title": "Conformal Field Theory (Philippe Di Francesco Pierre Mathieu David Senechal)",
+      "file_path": "fixtures/library_books/physics/Conformal Field Theory (Philippe Di Francesco Pierre Mathieu David Senechal).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "12b16683-7f79-4942-932b-5f0adce1cb41",
+      "title": "Connecting the Dots in Trustworthy Artificial Intelligence: From AI Principles, Ethics, and Key Requirements to Responsible AI Systems and Regulation",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/rodr\u00edguez_connecting_the_dots_in_trustwo_2023.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "5df4bd82-8d7c-4fa0-a097-43d3cf9dc484",
+      "title": "Critical Point Theory and Hamiltonian Systems (Applied Mathematical Sciences)",
+      "file_path": "fixtures/library_books/dynamical_systems/Applied Mathematical Sciences 74 Jean Mawhin Michel Willem auth-Critical Point Theory and Hamiltonian Systems-Springer-Verlag New York 1989.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "04ec8f57-c5ba-4d5d-bbbd-f19e9ac8da94",
+      "title": "Critical Point Theory in Global Analysis and Differential Topology : an Introduction",
+      "file_path": "fixtures/library_books/topology_geometry/morsecairns.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "30ff451b-1f33-4a5a-8748-5e797167cef9",
+      "title": "Daniel Kaplan, Leon Glass (auth.) Understanding Nonlinear Dynamics",
+      "file_path": "fixtures/library_books/dynamical_systems/Daniel Kaplan, Leon Glass (auth.) Understanding Nonlinear Dynamics.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "bb8215fe-13d8-4f37-9925-71f9602ea6cc",
+      "title": "Data Generation for Learning to Grasp in a Bin-picking Scenario",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2108.06532.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "de49dfda-31d2-4907-8a43-c54847a4e0ba",
+      "title": "data preparation for machine learning",
+      "file_path": "fixtures/library_books/machine_learning/data_preparation_for_machine_learning.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "80f90454-a0bd-4f84-8b8e-9b3218cd0b6e",
+      "title": "David Chandler-Introduction to Modern Statistical Mechanics-Oxford University Press, USA (1987)",
+      "file_path": "fixtures/library_books/physics/David Chandler-Introduction to Modern Statistical Mechanics-Oxford University Press, USA (1987).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "cd68994b-d460-44dd-818d-49d5e1504b78",
+      "title": "David Gilbarg, Neil S. Trudinger (auth.) - Elliptic Partial Differential Equations of Second Order-Springer-Verlag Berli",
+      "file_path": "fixtures/library_books/dynamical_systems/(Classics in Mathematics 224) David Gilbarg, Neil S. Trudinger (auth.) - Elliptic Partial Differential Equations of Second Order-Springer-Verlag Berlin Heidelberg (2001).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "54a9aade-ea43-4b3f-b14c-92d3f61a3101",
+      "title": "David J Griffiths Darrell F Schroeter - Introduction to Quantum Mechanics-Cambridge University Press 2018",
+      "file_path": "fixtures/library_books/physics/David J Griffiths Darrell F Schroeter - Introduction to Quantum Mechanics-Cambridge University Press 2018.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "41137140-da2c-49da-b00f-71941e8f2c23",
+      "title": "David J. Griffiths - Instructor\u2019s Solution Manuals to Introduction to Electrodynamics (2012, Pearson) - libgen.lc",
+      "file_path": "fixtures/library_books/physics/David J. Griffiths - Instructor\u2019s Solution Manuals to Introduction to Electrodynamics (2012, Pearson) - libgen.lc.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6ebf79a9-e22a-4f5e-978f-12cd0217c7ab",
+      "title": "DecTree_2",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/DecTree_2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "90a1336e-4f6f-41db-b994-fb283cde7aae",
+      "title": "Differential Analysis on Complex Manifolds (R. O. Wells Jr.)",
+      "file_path": "fixtures/library_books/topology_geometry/Differential Analysis on Complex Manifolds (R. O. Wells Jr.).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b76a4979-0a1e-4cdc-b299-461b52fa4717",
+      "title": "Differential and Riemannian Manifolds (Serge Lang)",
+      "file_path": "fixtures/library_books/topology_geometry/Differential and Riemannian Manifolds (Serge Lang).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "ab195e59-7219-4cb2-ae38-1601f78180ca",
+      "title": "Differential Equations and Dynamical Systems, Third Edition",
+      "file_path": "fixtures/library_books/dynamical_systems/Lawrence Perko - Differential Equations and Dynamical Systems, Third Edition (2006).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "5a97f3d8-5348-4a3d-add4-2f273a2298d3",
+      "title": "Differential Equations (Clay C. Ross)",
+      "file_path": "fixtures/library_books/dynamical_systems/Differential Equations (Clay C. Ross).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "7fb73ae5-45d6-4f2f-bc91-59a3e1e84404",
+      "title": "Differential Equations, Dynamical Systems, and an Introduction to Chaos",
+      "file_path": "fixtures/library_books/dynamical_systems/def-eq.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "274b88bb-fbf0-4996-adf3-f61b639f9f87",
+      "title": "Differential Forms in Algebraic Topology (Raoul Bott Loring W. Tu)",
+      "file_path": "fixtures/library_books/topology_geometry/Differential Forms in Algebraic Topology (Raoul Bott Loring W. Tu).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1b4a084e-2509-4bda-b877-71a11df9b493",
+      "title": "Differential Privacy on Finite Computers",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/1709.05396.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "computer_science",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "computer_science"
+    },
+    {
+      "source_id": "bd00ac2c-3220-4b33-a2cc-a6c9d4284a37",
+      "title": "Differential Topology (Morris W. Hirsch)",
+      "file_path": "fixtures/library_books/topology_geometry/Differential Topology (Morris W. Hirsch).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "ed62ea42-4e19-4278-bd46-4c2820481f5e",
+      "title": "Distributed_Machine_Learning_Patterns_v4_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Distributed_Machine_Learning_Patterns_v4_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "271695bf-e406-4976-920b-9b92615eda36",
+      "title": "Distributed_Machine_Learning_Patterns_v5_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Distributed_Machine_Learning_Patterns_v5_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "486b1869-2a08-49f6-bf5a-d49d09fc8819",
+      "title": "Distributed_Machine_Learning_Patterns_v6_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Distributed_Machine_Learning_Patterns_v6_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "203f78eb-9e6e-4264-b43c-e33269fbe9db",
+      "title": "Distributed_Machine_Learning_Patterns_v7_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Distributed_Machine_Learning_Patterns_v7_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1bbe01a5-7f40-40a0-8e30-75dd4cfb3372",
+      "title": "D Mcmahon Quantum Field Theory DemystifiedBookZZorg",
+      "file_path": "fixtures/library_books/physics/D_Mcmahon_Quantum_Field_Theory_DemystifiedBookZZorg.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1ac0869b-c57b-41a0-862b-a77e177a668d",
+      "title": "Do We Really Understand Quantum Mechanics?",
+      "file_path": "fixtures/library_books/physics/Franck Laloe - Do We Really Understand Quantum Mechanics_ (2019, Cambridge University Press) - libgen.lc.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "acd57767-6d61-4ac3-bc1c-a8eff99ba9a8",
+      "title": "Dynamical Systems in Neuroscience : The Geometry of Excitability and Bursting",
+      "file_path": "fixtures/library_books/biology_neuroscience/(Computational Neuroscience) Eugene M. Izhikevich-Dynamical Systems in Neuroscience_ The Geometry of Excitability and Bursting (Computational Neuroscience)-The MIT Press (2006).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "neuroscience",
+      "suggested_tier": 4,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "318a6032-fb9a-4c08-9896-02d93bac137b",
+      "title": "Dynamic Topology (Gordon Whyburn Edwin Duda)",
+      "file_path": "fixtures/library_books/topology_geometry/Dynamic Topology (Gordon Whyburn Edwin Duda).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "a14cf48b-ce35-4779-93a2-3ac9157c0fe3",
+      "title": "Edward Ott - Chaos in Dynamical Systems-Cambridge University Press (2002)",
+      "file_path": "fixtures/library_books/dynamical_systems/Edward Ott - Chaos in Dynamical Systems-Cambridge University Press (2002).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "74531ba2-8ab7-4aa2-b2b9-66eb11b23ff5",
+      "title": "Edward R. Scheinerman Invitation to Dynamical Systems",
+      "file_path": "fixtures/library_books/dynamical_systems/Edward R. Scheinerman Invitation to Dynamical Systems.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "65eac093-7dc8-44ed-8b44-569f0a7bb484",
+      "title": "Elementary Analysis The Theory of Calculus (Kenneth A. Ross)",
+      "file_path": "fixtures/library_books/analysis/Elementary Analysis The Theory of Calculus (Kenneth A. Ross).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "f1ffe356-47ce-4c7e-bf8d-aeeb7b7910a8",
+      "title": "Elementary Differential Equations and Boundary Value Problems",
+      "file_path": "fixtures/library_books/dynamical_systems/William E. Boyce, Richard C. DiPrima, Douglas B.  Meade - Elementary Differential Equations and Boundary Value Problems-Wiley (2017) (1).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "ff40f201-bc87-411e-a6cf-069c0b102f36",
+      "title": "Elementary Lectures in Statistical Mechanics (George D. J. Phillies)",
+      "file_path": "fixtures/library_books/physics/Elementary Lectures in Statistical Mechanics (George D. J. Phillies).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "11fd4dd2-ec23-40c0-8e1e-1a8c3d657d85",
+      "title": "Elementary Stability and Bifurcation Theory (Gerard Iooss Daniel D. Joseph)",
+      "file_path": "fixtures/library_books/dynamical_systems/Elementary Stability and Bifurcation Theory (Gerard Iooss Daniel D. Joseph).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c5acaa7f-f143-4e62-8f33-7e94f3089f2d",
+      "title": "elementary theory and methods for elliptic partial differential equations",
+      "file_path": "fixtures/library_books/dynamical_systems/elementary theory and methods for elliptic partial differential equations.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "cc72ed7d-2c18-4aed-ba68-4ef80c481903",
+      "title": "Elementary Topics in Differential Geometry (J. A. Thorpe)",
+      "file_path": "fixtures/library_books/topology_geometry/Elementary Topics in Differential Geometry (J. A. Thorpe).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4263b4d5-18ef-41d3-b510-d33a6ade0eac",
+      "title": "Elements of Functional Analysis (Francis Hirsch Gilles Lacombe)",
+      "file_path": "fixtures/library_books/analysis/Elements of Functional Analysis (Francis Hirsch Gilles Lacombe).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "ecc1efec-a3e8-4204-9580-6531d3e22056",
+      "title": "Elements of Homotopy Theory (George W. Whitehead Professor Emeritus)",
+      "file_path": "fixtures/library_books/topology_geometry/Elements of Homotopy Theory (George W. Whitehead Professor Emeritus).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "7d34c695-3387-4f66-89df-4a1860fd0d8c",
+      "title": "ensemble learning algorithms with python",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/ensemble_learning_algorithms_with_python_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "439f6bfc-6981-4164-bf21-b9edbea29c5a",
+      "title": "Ensemble_Methods_for_Machine_Learning (1)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Ensemble_Methods_for_Machine_Learning (1).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b2650561-a68e-4b73-ae25-c3921539fb53",
+      "title": "Ensemble_Methods_for_Machine_Learning_v3_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Ensemble_Methods_for_Machine_Learning_v3_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "615ebdd2-1094-4cd1-b4e1-5263203036cf",
+      "title": "Ensemble_Methods_for_Machine_Learning_v4_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Ensemble_Methods_for_Machine_Learning_v4_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "cdf0b41a-0adb-45a7-9525-2451b69635e1",
+      "title": "Ensemble_Methods_for_Machine_Learning_v5_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Ensemble_Methods_for_Machine_Learning_v5_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8f61daba-1903-4009-81f1-2baedeabf52d",
+      "title": "Ensemble_Methods_for_Machine_Learning_v6_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Ensemble_Methods_for_Machine_Learning_v6_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "de4079d1-f08f-4680-87c3-5811cbe48d83",
+      "title": "Ensemble_Methods_for_Machine_Learning_v7_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Ensemble_Methods_for_Machine_Learning_v7_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "70d28ca7-ec0f-4a61-81cf-61ec38ee1eb5",
+      "title": "Ensemble_Methods_for_Machine_Learning_v8_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Ensemble_Methods_for_Machine_Learning_v8_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "fd4794f7-dbeb-41ab-bdfa-4be743c4e342",
+      "title": "[Erwin Kreyszig] Introductory functional analysis (BookFi.org)",
+      "file_path": "fixtures/library_books/analysis/[Erwin_Kreyszig]_Introductory_functional_analysis_(BookFi.org).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "e0e9a35d-fd71-4188-963d-9c16d03f49c6",
+      "title": "Evaluating Learning Algorithms: A Classification Perspective",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Nathalie Japkowicz, Mohak Shah - Evaluating Learning Algorithms_ A Classification Perspective-Cambridge University Press (2011).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "a2a35af8-4603-4450-b9d1-0250c6e25f96",
+      "title": "Eyal Wirsansky Hands On Genetic Algorithms with Python Applying genetic algorithms to solve real world deep learning and artificial intelligence problems Packt Publishing (2020)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/eyal_wirsansky_hands_on_genetic_algorithms_with_py_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "70465609-b016-46ca-b329-c3e4a19595ea",
+      "title": "Feedback Systems Astrom Murray 2020",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/feedback_systems_astrom_murray_2020.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "engineering",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "engineering"
+    },
+    {
+      "source_id": "93649a9e-f044-4021-8435-1a7bf69f4179",
+      "title": "Ferdinand Verhulst auth Nonlinear Differential Equations and Dynamical Systems",
+      "file_path": "fixtures/library_books/dynamical_systems/Ferdinand Verhulst auth Nonlinear Differential Equations and Dynamical Systems.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2b13eddd-393a-4e0d-a78f-f2f3d419ed67",
+      "title": "Fernando Casas, Vicente Mart\u00ednez (eds.) - Advances in Differential Equations and Applications-Springer International Pub",
+      "file_path": "fixtures/library_books/dynamical_systems/(SEMA SIMAI Springer Series 4) Fernando Casas, Vicente Mart\u00ednez (eds.) - Advances in Differential Equations and Applications-Springer International Publishing (2014).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "64d32ae2-c68e-4f5e-bcb9-019e2b6fcc6a",
+      "title": "Feynman Leighton and Sands Feynman Lectures on BookZZorg 1",
+      "file_path": "fixtures/library_books/physics/Feynman_Leighton_and_Sands_Feynman_Lectures_on_BookZZorg 1.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d2643cce-ac26-4bc3-8cd0-3cd2a63c24dc",
+      "title": "Financial_AI_in_Practice_v1_MEAP (1)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Financial_AI_in_Practice_v1_MEAP (1).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "05372e43-6242-40f0-82ea-7f8d2cc07d95",
+      "title": "Financial_AI_in_Practice_v2_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Financial_AI_in_Practice_v2_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "07b947d6-f088-4dc7-b560-5e11f7d20a67",
+      "title": "Financial_AI_in_Practice_v3_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Financial_AI_in_Practice_v3_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "97a114fd-5d32-4b0e-825a-4dcddf46f789",
+      "title": "Financial_AI_in_Practice_v4_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Financial_AI_in_Practice_v4_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "3a1c5d44-f59a-4ac3-a7d1-1736a87a9451",
+      "title": "Financial_AI_in_Practice_v5_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Financial_AI_in_Practice_v5_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "c2c2b2ae-4ac3-4edf-92a3-4ac81140e165",
+      "title": "Financial_AI_in_Practice_v6_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Financial_AI_in_Practice_v6_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "9f1ce230-abe5-4db2-afe5-45bf0fb28b73",
+      "title": "FINRA Notice 22-08: Complex Products",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/annuity/FINRA_Notice_22-08_Complex_Products.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "finance",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "finance"
+    },
+    {
+      "source_id": "89d7ed83-2d16-416a-9941-68d75599d235",
+      "title": "Fortney JP-A Visual Introduction to Differential Forms and Calculus on Manifolds-Springer International Publishing 2019",
+      "file_path": "fixtures/library_books/topology_geometry/Fortney JP-A Visual Introduction to Differential Forms and Calculus on Manifolds-Springer International Publishing 2019.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4e18d182-2e18-4ab8-a406-77f2d5e19a15",
+      "title": "Foundations of Differentiable Manifolds and Lie Groups (Frank W. Warner)",
+      "file_path": "fixtures/library_books/topology_geometry/Foundations of Differentiable Manifolds and Lie Groups (Frank W. Warner).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "973e8fa7-8c0b-4703-8081-2bfbd0f90077",
+      "title": "Foundations of Hyperbolic Manifolds (John G. Ratcliffe)",
+      "file_path": "fixtures/library_books/topology_geometry/Foundations of Hyperbolic Manifolds (John G. Ratcliffe).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "790c2550-f443-4293-83bd-186ae5fdadc2",
+      "title": "Francis Clarke - Functional Analysis, Calculus of Variations and Optimal Control-Springer (2013)",
+      "file_path": "fixtures/library_books/analysis/(Graduate Texts in Mathematics) Francis Clarke - Functional Analysis, Calculus of Variations and Optimal Control-Springer (2013).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2884e071-6620-4d9f-8252-8fae6046b531",
+      "title": "[Frontiers in Applied Dynamical Systems  Reviews and Tutorials 4] Mason Porter, James Gleeson (auth.) - Dynamical System",
+      "file_path": "fixtures/library_books/dynamical_systems/[Frontiers in Applied Dynamical Systems_ Reviews and Tutorials 4] Mason Porter, James Gleeson (auth.) - Dynamical Systems on Networks_ A Tutorial (2016, Springer International Publishing) - libgen.lc.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d927ce3d-2bdc-429b-8782-fe53dd62daa6",
+      "title": "fujii2019",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/fujii2019.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "b41efa35-b368-4541-ba7b-4a07351ccaab",
+      "title": "Fundamentals of Differential Equations",
+      "file_path": "fixtures/library_books/dynamical_systems/R. Kent Nagle, Edward B. Saff, Arthur David Snider - Fundamentals of Differential Equations-Pearson (2017).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2da0abd2-9c14-4fc1-bcb0-42fc8406fa21",
+      "title": "Fundamentals of Differential Geometry (Serge Lang)",
+      "file_path": "fixtures/library_books/topology_geometry/Fundamentals of Differential Geometry (Serge Lang).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d79e144a-6ebd-4116-9d59-558a29523078",
+      "title": "Galois Theory (Jean-Pierre Escofier)",
+      "file_path": "fixtures/library_books/algebra/Galois Theory (Jean-Pierre Escofier).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c43fe96f-4be4-41d1-97b6-d687123acc7c",
+      "title": "Gareth James Daniela Witten Trevor Hastie Robert Tibshirani - An Introduction to Statistical Learning with Applications in R-Springer 2015",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Gareth James Daniela Witten Trevor Hastie Robert Tibshirani - An Introduction to Statistical Learning with Applications in R-Springer 2015.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "statistics",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d17368d1-c372-489f-b7fd-cd786b6f55a0",
+      "title": "G.C. Layek - An Introduction to Dynamical Systems and Chaos-Springer (2015)",
+      "file_path": "fixtures/library_books/dynamical_systems/G.C. Layek - An Introduction to Dynamical Systems and Chaos-Springer (2015).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "56c81915-60a1-4e91-a466-518313a33b4c",
+      "title": "General Relativity for Mathematicians (Dr. Rainer K. Sachs Dr. Hung-Hsi Wu)",
+      "file_path": "fixtures/library_books/physics/General Relativity for Mathematicians (Dr. Rainer K. Sachs Dr. Hung-Hsi Wu).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2324bbb9-2e9d-4497-aba6-601e4212b1fe",
+      "title": "Genetic Algorithms in Search, Optimization, and Machine Learning-Addison",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/David E. Goldberg - Genetic Algorithms in Search, Optimization, and Machine Learning-Addison-Wesley Professional (1989).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "optimization",
+      "suggested_tier": 1,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "26ea4289-6aec-4d04-926d-da8f6cc034f9",
+      "title": "Geometric Functional Analysis and its Applications (Richard B. Holmes)",
+      "file_path": "fixtures/library_books/analysis/Geometric Functional Analysis and its Applications (Richard B. Holmes).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "940b10e5-0090-4a66-b03d-77e7403cc05d",
+      "title": "Geometric Topology in Dimensions 2 and 3 (Edwin E. Moise)",
+      "file_path": "fixtures/library_books/topology_geometry/Geometric Topology in Dimensions 2 and 3 (Edwin E. Moise).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "e4febe05-e1c2-4ffe-94f1-007d334367df",
+      "title": "Gerald B Folland - Introduction to partial differential equations-Princeton University Press 1995",
+      "file_path": "fixtures/library_books/dynamical_systems/Gerald B Folland - Introduction to partial differential equations-Princeton University Press 1995.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "307a4d39-0c76-4a7f-b6ca-22466caeba80",
+      "title": "G\u00e9rard Iooss Daniel D Joseph auth Elementary Stability and Bifurcation Theory",
+      "file_path": "fixtures/library_books/dynamical_systems/G\u00e9rard Iooss Daniel D Joseph auth Elementary Stability and Bifurcation Theory.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "59edd645-d1a0-47fe-af0a-ed6cb762c24d",
+      "title": "Glen E. Bredon Topology and Geometry (Graduate Texts in Mathematics)",
+      "file_path": "fixtures/library_books/topology_geometry/Glen E. Bredon Topology and Geometry (Graduate Texts in Mathematics).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8524786c-498e-480f-a215-0fb23e9068d5",
+      "title": "Graduate Texts in Physics Sandro Wimberger authNonlinear Dynamics and Quantum Chaos An IntroductionSpringer Internationa",
+      "file_path": "fixtures/library_books/dynamical_systems/Graduate Texts in Physics Sandro Wimberger authNonlinear Dynamics and Quantum Chaos An IntroductionSpringer International Publishing 2014.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "fe3ba6de-5ecb-4850-be9d-8aa252d02155",
+      "title": "Graph-Powered Machine Learning",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/manning/Graph-Powered_Machine_Learning.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c83a40fa-c84c-44d9-89dc-4982ada4d39a",
+      "title": "Graph-Powered_Machine_Learning (5)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Graph-Powered_Machine_Learning (5).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "29182c37-b3ee-46e5-8755-f28d85bd9522",
+      "title": "Handbook of Integrable Hamiltonian Systems",
+      "file_path": "fixtures/library_books/dynamical_systems/book15Int.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "cda619f8-d816-48c9-8479-b08715672eb9",
+      "title": "Hands-On Machine Learning with Scikit-Learn and TensorFlow",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/2 Aur\u00e9lien G\u00e9ron - Hands-On Machine Learning with Scikit-Learn Keras and Tensorflow_ Concepts Tools and Techniques to Build Intelligent Systems-OReilly Media 2019.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "f357ff16-09f8-4e35-b3b2-1067045e9da2",
+      "title": "Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Aur\u00e9lien G\u00e9ron - Hands-On Machine Learning with Scikit-Learn Keras and TensorFlow_ Concepts Tools and Techniques to Build Intelligent Systems-OReilly Media 2019.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c9a2336c-5e0b-4628-baea-05bfa02c2094",
+      "title": "Harmonic Analysis on Semigroups (Christian Berg Jens Peter Reus Christensen Paul Ressel)",
+      "file_path": "fixtures/library_books/analysis/Harmonic Analysis on Semigroups (Christian Berg Jens Peter Reus Christensen Paul Ressel).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "639bd85a-b1a3-409d-b5e4-427b78cade6e",
+      "title": "Hass Joel  Heil Christopher  Thomas George Brinton  Weir Maurice D - Thomas Calculus-Pearson 2018",
+      "file_path": "fixtures/library_books/analysis/Hass Joel_ Heil Christopher_ Thomas George Brinton_ Weir Maurice D - Thomas Calculus-Pearson 2018.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "3d1b7abe-3782-41ad-aea9-7046715adcc5",
+      "title": "Heinz Han\u03b2mann (auth.)-Local and Semi-Local Bifurcations in Hamiltonian Dynamical Systems-Springer-Verlag Berlin Heidelb",
+      "file_path": "fixtures/library_books/dynamical_systems/(Lecture Notes in Mathematics 1893) Heinz Han\u03b2mann (auth.)-Local and Semi-Local Bifurcations in Hamiltonian Dynamical Systems-Springer-Verlag Berlin Heidelberg (2007).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "626ce1ce-9ebc-4765-86df-1caa77373584",
+      "title": "Hendrik W. Broer, George B. Huitema, Mikhail B. Sevryuk - Quasi-Periodic Motions in Families of Dynamical Systems  Order",
+      "file_path": "fixtures/library_books/dynamical_systems/(Lecture Notes in Mathematics) Hendrik W. Broer, George B. Huitema, Mikhail B. Sevryuk - Quasi-Periodic Motions in Families of Dynamical Systems_ Order amidst Chaos -Springer (2002).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "745a4529-e155-491e-b7f5-737a39076ff5",
+      "title": "Henk Broer, Floris Takens (auth.) - Dynamical Systems and Chaos-Springer-Verlag New York (2011)",
+      "file_path": "fixtures/library_books/dynamical_systems/(Applied Mathematical Sciences 172) Henk Broer, Floris Takens (auth.) - Dynamical Systems and Chaos-Springer-Verlag New York (2011).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6a071123-0044-4012-b9c8-479202415c13",
+      "title": "High-order adaptive methods for computing invariant manifolds of maps",
+      "file_path": "fixtures/library_books/topology_geometry/High-order adaptive methods for computing invariant manifolds of.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "9219a4b0-c1af-4931-83d9-048870c635cc",
+      "title": "H. Keith Moffatt (auth.), Renzo L. Ricca (eds.)-An Introduction to the Geometry and Topology of Fluid Flows-Springer Net",
+      "file_path": "fixtures/library_books/topology_geometry/(NATO Science Series 47) H. Keith Moffatt (auth.), Renzo L. Ricca (eds.)-An Introduction to the Geometry and Topology of Fluid Flows-Springer Netherlands (2001).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2faf7533-692b-40f1-849d-11ee33b4c323",
+      "title": "Homology Theory (James W. Vick)",
+      "file_path": "fixtures/library_books/topology_geometry/Homology Theory (James W. Vick).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8edf975c-1e45-47b9-bbc8-102ed3eb016d",
+      "title": "Icu",
+      "file_path": "fixtures/library_books/icu.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "1c7d92a6-e31f-47d8-b529-a3f042777ce9",
+      "title": "imbalanced classification with python",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/imbalanced_classification_with_python_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "5263600b-3d66-41e2-9e5c-dd388e8663f4",
+      "title": "I. M. Gelfand, S. V. Fomin - Calculus of Variations-Dover Publications (2000)",
+      "file_path": "fixtures/library_books/analysis/I. M. Gelfand, S. V. Fomin - Calculus of Variations-Dover Publications (2000).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "eba643c6-37bf-4500-985b-9e381f1d51a5",
+      "title": "Individual Privacy Accounting via a Renyi Filter",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2008.11193.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "information_theory",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "information_theory"
+    },
+    {
+      "source_id": "e378be37-cc33-4386-8082-ff96fc3acbaf",
+      "title": "Inside Calculus (George R. Exner)",
+      "file_path": "fixtures/library_books/analysis/Inside Calculus (George R. Exner).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "e7a2db2b-afe3-4e5d-b2ed-9b5299ee3c0f",
+      "title": "INTEGRABLE HAMILTONIAN SYSTEMS: Geometry, Topology, Classification",
+      "file_path": "fixtures/library_books/topology_geometry/A.V. Bolsinov, A.T. Fomenko-Integrable Hamiltonian systems_ geometry, topology, classification-Chapman & Hall_CRC (2004).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2aed342f-138a-4a4f-b997-99b5ab175717",
+      "title": "Interdisciplinary Applied Mathematics Marco Pettini-Geometry and Topology in Hamiltonian Dynamics and Statistical Mechan",
+      "file_path": "fixtures/library_books/topology_geometry/Interdisciplinary Applied Mathematics Marco Pettini-Geometry and Topology in Hamiltonian Dynamics and Statistical Mechanics -Springer 2007.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6717f3fc-3af7-487d-a751-257aeff22964",
+      "title": "Intermediate Calculus (Murray H. Protter Charles B. Morrey Jr.)",
+      "file_path": "fixtures/library_books/analysis/Intermediate Calculus (Murray H. Protter Charles B. Morrey Jr.).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "3ece4085-7595-45e5-a4b3-f1c34ef401b8",
+      "title": "Intermediate Real Analysis (Emanuel Fischer)",
+      "file_path": "fixtures/library_books/analysis/Intermediate Real Analysis (Emanuel Fischer).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "57bfdd2c-2f6f-4dbc-835d-e487a145a7c7",
+      "title": "Introduction to Electrodynamics",
+      "file_path": "fixtures/library_books/physics/David_J_Griffiths_Introduction_to_ElectrodynamiBookZZorg-1.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "22dbff7a-b111-44cd-9d0b-ecb5c5ad52d7",
+      "title": "Introduction to Knot Theory (Richard H. Crowell Ralph H. Fox)",
+      "file_path": "fixtures/library_books/topology_geometry/Introduction to Knot Theory (Richard H. Crowell Ralph H. Fox).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "e9776b21-85ba-414a-8d2a-ea9f01e0a4a6",
+      "title": "Introduction to Lie Algebras and Representation Theory (James E. Humphreys)",
+      "file_path": "fixtures/library_books/algebra/Introduction to Lie Algebras and Representation Theory (James E. Humphreys).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "de297de6-b955-4335-85a2-12df9c5984d1",
+      "title": "Introduction to Linear Systems of Differential Equations (Translations of Mathematical Monographs)",
+      "file_path": "fixtures/library_books/dynamical_systems/L. Ya. Adrianova-Introduction to Linear Systems of Differential Equations (Translations of Mathematical Monographs)-American Mathematical Society (1995).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4cb76c5a-f4c3-4ea8-be74-526b5ec393d1",
+      "title": "Introduction to Machine Learning with Python",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Andreas C M\u00fcller Sarah Guido - Introduction to Machine Learning with Python_ A Guide for Data Scientists-OReilly Media 2016.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1617b4c5-21de-4a67-89d5-a24e4c320aac",
+      "title": "Introduction to Optimal Control Theory (Jack Macki Aaron Strauss)",
+      "file_path": "fixtures/library_books/optimization/Introduction to Optimal Control Theory (Jack Macki Aaron Strauss).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "optimization",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "fa994f6b-474a-4cca-9fe9-15a880337692",
+      "title": "Irene Fonseca, Giovanni Leoni - Modern methods in the calculus of variations  Lp spaces-Springer (2007)",
+      "file_path": "fixtures/library_books/analysis/(Springer Monographs in Mathematics) Irene Fonseca, Giovanni Leoni - Modern methods in the calculus of variations_ Lp spaces-Springer (2007).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "794b2b61-ab28-4f71-a979-59fda426153f",
+      "title": "ISLRv2_website",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/ISLRv2_website.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "73e30c2f-b568-44af-a116-80fc57a00e32",
+      "title": "James P. Sethna - Statistical Mechanics  Entropy, Order Parameters and Complexity-Oxford University Press (2006)",
+      "file_path": "fixtures/library_books/physics/(Oxford master series in statistical computational and theoretical physics 14) James P. Sethna - Statistical Mechanics_ Entropy, Order Parameters and Complexity-Oxford University Press (2006).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4d75ee53-325e-4b3a-8465-8f8fe6345dd1",
+      "title": "J. Casasayas, A. Nunes (auth.), Archie E. Roy (eds.) - Predictability, Stability, and Chaos in N-Body Dynamical Systems-",
+      "file_path": "fixtures/library_books/dynamical_systems/(NATO ASI Series 272) J. Casasayas, A. Nunes (auth.), Archie E. Roy (eds.) - Predictability, Stability, and Chaos in N-Body Dynamical Systems-Springer US (1991).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1ea9717e-3c94-4684-b424-24f436b77e76",
+      "title": "J. Nathan Kutz & Steven L. Brunton - Data-Driven Science and Engineering  Machine Learning, Dynamical Systems, and Contr",
+      "file_path": "fixtures/library_books/machine_learning/J. Nathan Kutz & Steven L. Brunton - Data-Driven Science and Engineering_ Machine Learning, Dynamical Systems, and Control-Cambridge University Press (2019).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "5e0a0fec-2592-4f5e-aa42-7fff71cac3d6",
+      "title": "Joel R. Hass, Christopher D. Heil, Maurice D. Weir-Thomas\u2019 Calculus-Pearson (2017)-2",
+      "file_path": "fixtures/library_books/analysis/Joel R. Hass, Christopher D. Heil, Maurice D. Weir-Thomas\u2019 Calculus-Pearson (2017)-2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "17b25a6c-8915-4451-9b7e-4cc59fbdce9a",
+      "title": "[John M. Howie] Fields and Galois Theory(BookFi.org)",
+      "file_path": "fixtures/library_books/algebra/[John_M._Howie]_Fields_and_Galois_Theory(BookFi.org).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "a61ddc95-e5b5-427a-836b-464c9e8b07fd",
+      "title": "John Polking David Arnold-Ordinary Differential Equations Using MATLAB Third Edition",
+      "file_path": "fixtures/library_books/dynamical_systems/John Polking David Arnold-Ordinary Differential Equations Using MATLAB Third Edition .pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "700df412-028e-4e53-8140-6392c67d5231",
+      "title": "[Joseph Muscat (auth.)] Functional Analysis An In(BookZZ.org)",
+      "file_path": "fixtures/library_books/analysis/[Joseph_Muscat_(auth.)]_Functional_Analysis_An_In(BookZZ.org).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c2ff0672-d9f2-4470-aa59-333134811621",
+      "title": "Juan C. Vallejo, Miguel A. F. Sanjuan (auth.) - Predictability of Chaotic Dynamics   A Finite-time Lyapunov Exponents Ap",
+      "file_path": "fixtures/library_books/dynamical_systems/(Springer Series in Synergetics) Juan C. Vallejo, Miguel A. F. Sanjuan (auth.) - Predictability of Chaotic Dynamics _ A Finite-time Lyapunov Exponents Approach -Springer International Publishing (2017.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6175613b-6500-4e11-b09a-2b72c924b761",
+      "title": "Jurgen Moser - Stable and Random Motions in Dynamical Systems  With Special Emphasis on Celestial Mechanics-Princeton Un",
+      "file_path": "fixtures/library_books/dynamical_systems/(Annals of Mathematics Studies 77) Jurgen Moser - Stable and Random Motions in Dynamical Systems_ With Special Emphasis on Celestial Mechanics-Princeton University Press (1973).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "cff54707-077e-4930-a2b8-92420279968d",
+      "title": "Keith Burns, Marian Gidea-Differential Geometry and Topology  With a View to Dynamical Systems-Chapman and Hall CRC (200",
+      "file_path": "fixtures/library_books/topology_geometry/(Studies in Advanced Mathematics) Keith Burns, Marian Gidea-Differential Geometry and Topology_ With a View to Dynamical Systems-Chapman and Hall_CRC (2005).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "e77fa08b-9d72-4468-b6d1-3d40cb4de333",
+      "title": "Kevin P. Murphy - Machine Learning  A Probabilistic Perspective-The MIT Press (2012)",
+      "file_path": "fixtures/library_books/machine_learning/(Adaptive Computation and Machine Learning) Kevin P. Murphy - Machine Learning_ A Probabilistic Perspective-The MIT Press (2012).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "77591bc0-d860-431c-b0d0-24ff3fa7869c",
+      "title": "Koller Friedman Pgm 2009",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/koller_friedman_pgm_2009.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "5c410f4b-192c-4cec-84bd-965e9c85ef75",
+      "title": "Lagercrantz2016 Book InfantBrainDevelopment",
+      "file_path": "fixtures/library_books/biology_neuroscience/Lagercrantz2016_Book_InfantBrainDevelopment.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "neuroscience",
+      "suggested_tier": 4,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1b8bcdc2-8bf2-49c3-9c72-ebeede118051",
+      "title": "Lagrangian Descriptors: A Method for Revealing Phase Space Structures of General Time Dependent Dynamical Systems",
+      "file_path": "fixtures/library_books/dynamical_systems/Communications in Nonlinear Science and Numerical Simulation Volume 18 issue 12 2013 [doi 10.1016_j.cnsns.2013.05.002] Mancho, Ana M.; Wiggins, Stephen; Curbelo, Jezabel; Mendoza, Car -- Lagrangian .pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "54443c9a-6298-4928-ad67-f00a41e444ee",
+      "title": "Laurence Moroney - AI and Machine Learning for Coders  A Programmer's Guide to Artificial Intelligence-O'Reilly Media (2020)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/laurence_moroney_-_ai_and_machine_learning_for_cod_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "373b68b2-ec3a-445d-b3e1-2a72e36dbb59",
+      "title": "Lax functional analysis",
+      "file_path": "fixtures/library_books/analysis/Lax functional analysis.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6802a3e0-480f-4828-9800-363f3c062daa",
+      "title": "Learning From Data",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Yaser S. Abu-Mostafa, Malik Magdon-Ismail, Hsuan-Tien Lin - Learning From Data_ A short course-AMLBook.com (2012).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "6b29de59-69ee-49f3-a425-082c57361a82",
+      "title": "Lecture notes in mathematics 1864 Konstantinos Efstathiou authMetamorphoses of Hamiltonian Systems with SymmetriesSpring",
+      "file_path": "fixtures/library_books/dynamical_systems/Lecture notes in mathematics 1864 Konstantinos Efstathiou authMetamorphoses of Hamiltonian Systems with SymmetriesSpringerVerlag Berlin Heidelberg 2005.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "9cf1c690-d1cd-42c9-b1ac-cdf70867dc3a",
+      "title": "Lecture Notes on Elementary Topology and Geometry (I. M. Singer J. A. Thorpe)",
+      "file_path": "fixtures/library_books/topology_geometry/Lecture Notes on Elementary Topology and Geometry (I. M. Singer J. A. Thorpe).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8ce6b639-fa19-4a9a-9bb8-8a5c2e010ed6",
+      "title": "Lectures in Abstract Algebra I (Nathan Jacobson)",
+      "file_path": "fixtures/library_books/algebra/Lectures in Abstract Algebra I (Nathan Jacobson).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2f84fce5-7e9d-4e8b-99bd-7d8fcae77526",
+      "title": "Lectures in Abstract Algebra (Nathan Jacobson)",
+      "file_path": "fixtures/library_books/algebra/Lectures in Abstract Algebra (Nathan Jacobson).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "27d9614a-d164-4ceb-95c6-978cd3923dad",
+      "title": "Lewis H Ryder - Quantum Field Theory-Cambridge University Press 1996",
+      "file_path": "fixtures/library_books/physics/Lewis H Ryder - Quantum Field Theory-Cambridge University Press 1996.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "758eca61-7c63-4bae-86b9-da192db3bff7",
+      "title": "Linear Algebraic Groups (Armand Borel)",
+      "file_path": "fixtures/library_books/algebra/Linear Algebraic Groups (Armand Borel).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6d00f803-1336-4206-8de0-d06abd2cbfce",
+      "title": "Linear Algebraic Groups (James E. Humphreys)",
+      "file_path": "fixtures/library_books/algebra/Linear Algebraic Groups (James E. Humphreys).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "27d6f396-872b-4f64-9775-83b236783f4e",
+      "title": "Linear Operators in Hilbert Spaces (Joachim Weidmann)",
+      "file_path": "fixtures/library_books/analysis/Linear Operators in Hilbert Spaces (Joachim Weidmann).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "3921f8c2-bf95-4210-967d-8db07b93cef8",
+      "title": "LP Lebedev Michael J Cloud - The Calculus of Variations and Functional Analysis With Optimal Control and Applications in",
+      "file_path": "fixtures/library_books/analysis/LP Lebedev Michael J Cloud - The Calculus of Variations and Functional Analysis With Optimal Control and Applications in Mechanics Series on Stability Vibration and Control of Systems Series A .pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4e6b3dc1-f896-4105-9fd7-df094d07fd31",
+      "title": "Luc Tartar (auth.) - An Introduction to Sobolev Spaces and Interpolation Spaces-Springer-Verlag Berlin Heidelberg (2007)",
+      "file_path": "fixtures/library_books/analysis/(Lecture notes of the Unione matematica italiana 3) Luc Tartar (auth.) - An Introduction to Sobolev Spaces and Interpolation Spaces-Springer-Verlag Berlin Heidelberg (2007).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "49adf5e8-ecb0-4560-b7ff-5a36a75f4d34",
+      "title": "Luis Barreira, Claudia Valls (auth.) Complex Analysis and Differential Equations",
+      "file_path": "fixtures/library_books/analysis/Luis Barreira, Claudia Valls (auth.) Complex Analysis and Differential Equations.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "637af2d8-b6f5-462b-a767-05ed753adf80",
+      "title": "Machine Learning",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Grokking_Machine_Learning (5).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "f4f2f71c-c683-44bc-9a45-3d6524b9a677",
+      "title": "machine learning algorithms from scratch",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/machine_learning_algorithms_from_scratch_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "701bbb4e-22e7-4ecc-8d53-4528ab6696df",
+      "title": "Machine Learning: A Probabilistic Perspective",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/(Adaptive Computation and Machine Learning series) Kevin P. Murphy - Machine Learning_ A Probabilistic Perspective-The MIT Press (2012).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "91be2d1b-478d-442f-97d6-3c148c56dcdc",
+      "title": "Machine_Learning_Bookcamp (5)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Machine_Learning_Bookcamp (5).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8e3fa39c-6a53-47ac-a3b7-e722e68cd1ec",
+      "title": "Machine_Learning_Bookcamp_v11_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Machine_Learning_Bookcamp_v11_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "96d51d84-5692-40a8-8e6c-aa3e62bf220d",
+      "title": "Machine Learning Control \u2013 Taming Nonlinear Dynamics and Turbulence by Thomas Duriez, Steven L. Brunton, Bernd R. Noack (auth.) (z-lib.org)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/machine_learning_control_taming_nonlinear_dynamics_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "fc273e1e-40b3-4415-9fb4-6c1031208882",
+      "title": "Machine_Learning_Engineering_in_Action (4)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Machine_Learning_Engineering_in_Action (4).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "bbfd2867-5a49-4162-95ba-333676fa3293",
+      "title": "Machine Learning in Business: An Introduction to the World of Data Science",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/John Hull - Machine Learning in Business_ An Introduction to the World of Data Science (2020).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "bc3ed572-2a08-476f-bd2a-5375a04fb990",
+      "title": "Machine Learning Interviews: Kickstart Your Machine Learning and Data Career",
+      "file_path": "/home/brandon_behring/Claude/job_applications/Machine Learning Interviews_ Kickstart Your Machine Learning -- Susan Shu Chang -- 1, PS, 2024 -- O'Reilly Media, Incorporated -- 9781098146542 -- 91a5eeee1a88ede552fffa6a59c79a5e -- Anna\u2019s Archive.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6bb0d983-9e4e-4552-abff-b36b3c574b7e",
+      "title": "machine learning mastery with python",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/machine_learning_mastery_with_python_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6670d4bd-b98a-4928-be7e-7afae6e7589c",
+      "title": "Mariano Giaquinta, Stefan Hildebrandt - Calculus of Variations II. The Hamilton Formalism  The Hamiltonian Formalism  v.",
+      "file_path": "fixtures/library_books/analysis/(Applications of Mathematics,) Mariano Giaquinta, Stefan Hildebrandt - Calculus of Variations II. The Hamilton Formalism_ The Hamiltonian Formalism_ v. 2 -Springer (2006).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d5eb1365-ac25-4f1b-a868-8601949580f7",
+      "title": "Mathematical Aspects of Classical and Celestial Mechanics",
+      "file_path": "fixtures/library_books/dynamical_systems/Mathematical Aspects of Classical and Celestial Mechanics.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8369e759-9d7a-4307-86d4-c7c142c77567",
+      "title": "Maurice A. de Gosson-The Principles of Newtonian and Quantum Mechanics  The Need for Planck\u2019s Constant, H-World Scientif",
+      "file_path": "fixtures/library_books/physics/Maurice A. de Gosson-The Principles of Newtonian and Quantum Mechanics_ The Need for Planck\u2019s Constant, H-World Scientific (2017).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d840f760-1c77-4e61-9589-ca7ac73d07b7",
+      "title": "Measure,  Topology,  and Fractal Geometry (Gerald A. Edgar)",
+      "file_path": "fixtures/library_books/topology_geometry/Measure,  Topology,  and Fractal Geometry (Gerald A. Edgar).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d42f31b9-78dd-426d-9d9e-c3868d654675",
+      "title": "Metric Structures in Differential Geometry (Gerard Walschap)",
+      "file_path": "fixtures/library_books/topology_geometry/Metric Structures in Differential Geometry (Gerard Walschap).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "192b8211-2090-495a-b607-2e307e7a6d7f",
+      "title": "Mexico) International Symposium on Hamiltonian Systems, et al. (eds.)  - Hamiltonian systems and celestial mechanics   p",
+      "file_path": "fixtures/library_books/dynamical_systems/(World Scientific monograph series in mathematics, 6) Mexico) International Symposium on Hamiltonian Systems, et al. (eds.)  - Hamiltonian systems and celestial mechanics _ proceedings of the III inte.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "a48854cd-22d2-497e-befe-ba7f7a3eaebf",
+      "title": "Michael Spivak-A Comprehensive Introduction To Differential Geometry Vol1-Publish Or Perish 1999",
+      "file_path": "fixtures/library_books/topology_geometry/Michael Spivak-A Comprehensive Introduction To Differential Geometry Vol1-Publish Or Perish 1999.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b3b1703e-ca96-4ea9-9386-68961b0f0300",
+      "title": "Michael Spivak-Calculus on Manifolds  A Modern Approach to Classical Theorems of Advanced Calculus-Westview Press 1998",
+      "file_path": "fixtures/library_books/topology_geometry/Michael Spivak-Calculus on Manifolds_ A Modern Approach to Classical Theorems of Advanced Calculus-Westview Press 1998.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b79145bf-3d44-4140-bf6f-a9332883db5c",
+      "title": "Michele Maggiore - A Modern Introduction to Quantum Field Theory -Oxford University Press, USA (2005)",
+      "file_path": "fixtures/library_books/physics/(Oxford Master Series in Statistical, Computational, and Theoretical Physics) Michele Maggiore - A Modern Introduction to Quantum Field Theory -Oxford University Press, USA (2005).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6172658b-48b2-4de2-9dd8-ec4cbf122dd4",
+      "title": "Mikio Nakahara-Geometry, topology, and physics-Institute of Physics Publishing (2003)-2",
+      "file_path": "fixtures/library_books/topology_geometry/(Graduate student series in physics) Mikio Nakahara-Geometry, topology, and physics-Institute of Physics Publishing (2003)-2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4ca9fca5-9010-4ae9-86eb-4436814c37ae",
+      "title": "Modeling and Simulation in Science Engineering and Technology Romano Antonio auth-Classical Mechanics with Mathematica\u00ae-",
+      "file_path": "fixtures/library_books/physics/Modeling and Simulation in Science Engineering and Technology Romano Antonio auth-Classical Mechanics with Mathematica\u00ae-Birkh\u00e4user Basel 2012.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "86dddd32-70ce-4eda-b454-0d7e6d399bb9",
+      "title": "Modern Koopman Theory for Dynamical Systems",
+      "file_path": "fixtures/library_books/dynamical_systems/210212086.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4f8f084a-4280-4b69-8a40-1040e2b54067",
+      "title": "Morris W Hirsch Stephen Smale and Robert L Devaney Auth Differential Equations Dynamical Systems and an Introduction to",
+      "file_path": "fixtures/library_books/dynamical_systems/Morris W Hirsch Stephen Smale and Robert L Devaney Auth Differential Equations Dynamical Systems and an Introduction to Chaos.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "46cdf940-5a64-4ef4-80ba-65ce6e04b562",
+      "title": "Morse theory for periodic solutions of hamiltonian systems and the maslov index",
+      "file_path": "fixtures/library_books/dynamical_systems/salamon-zehnder92.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "f157c8ed-096b-433e-baa2-9baeb8413fb9",
+      "title": "Much Ado About Calculus (Robert L. Wilson)",
+      "file_path": "fixtures/library_books/analysis/Much Ado About Calculus (Robert L. Wilson).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "f1a42ca7-a4c1-4624-901e-45334d86b58e",
+      "title": "Multi-Agent Reinforcement Learning: Foundations and Modern Approaches",
+      "file_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Multi-Agent Reinforcement Learning_ Foundations and Modern -- Stefano V_ Albrecht, Filippos Christianos, Lukas Scha\u0308fer -- 0a1eb0bc49df5494e6fb1eea8c6afa60 -- Anna\u2019s Archive.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "reinforcement_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "ded5850f-67bf-4fad-9926-1c86e39481a3",
+      "title": "Multivariable Calculus",
+      "file_path": "fixtures/library_books/analysis/Stewart, James - Multivariable calculus-Cengage Learning (2016).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "3e07570d-01d0-4a24-a69c-0815f259bbfb",
+      "title": "Nadir Jeevanjee Auth. An Introduction To Tensors And Group Theory For Physicists",
+      "file_path": "fixtures/library_books/algebra/Nadir Jeevanjee auth. An Introduction to Tensors and Group Theory for Physicists.pdf.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8ae9140e-0fbc-4f0b-a8e4-30b180b21a67",
+      "title": "NAIC Model 805: Nonforfeiture Law",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/annuity/NAIC_Model_805_Nonforfeiture_Law.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "finance",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "finance"
+    },
+    {
+      "source_id": "46f2f0f4-c3e4-4ec6-a7ac-d3311b052fba",
+      "title": "NAIC Model 806: Annuity Regulation",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/annuity/NAIC_Model_806_Regulation.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "finance",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "finance"
+    },
+    {
+      "source_id": "5dcaa7cc-47c9-4132-b93e-8156865cb125",
+      "title": "NATO Science Series PH Rabinowitz A Ambrosetti I Ekeland EJ Zehnder-Periodic Solutions of Hamiltonian Systems and Relate",
+      "file_path": "fixtures/library_books/dynamical_systems/NATO Science Series PH Rabinowitz A Ambrosetti I Ekeland EJ Zehnder-Periodic Solutions of Hamiltonian Systems and Related Topics NATO Science Series C_ closed-Springer 1987.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "e1b8d70e-180a-4c42-9868-dd1a4fee604c",
+      "title": "NBqbdenIRtGam3XpyBbRng_da0b01c85dfe4127b39b22b2351fdc74_file-course-slides_en",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/NBqbdenIRtGam3XpyBbRng_da0b01c85dfe4127b39b22b2351fdc74_file-course-slides_en.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "6eeae17b-3ccd-41aa-8374-d489622f5a67",
+      "title": "Neuroscience",
+      "file_path": "fixtures/library_books/biology_neuroscience/Neuroscience.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "neuroscience",
+      "suggested_tier": 4,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "859936d8-b08b-4651-8b7c-de03a094abab",
+      "title": "Noncommutative Algebra (Benson Farb R. Keith Dennis)",
+      "file_path": "fixtures/library_books/algebra/Noncommutative Algebra (Benson Farb R. Keith Dennis).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "61d56cb1-3767-4e34-8963-4bc23ec2d6bc",
+      "title": "Nonlinear Ordinary Differential Equations : An Introduction for Scientists and Engineers",
+      "file_path": "fixtures/library_books/dynamical_systems/Dominic Jordan Peter Smith Nonlinear Ordinary Differential Equations An Introduction for Scientists and Engineers .pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "ad29786a-fc8a-440a-a3ea-e1f30635f3e0",
+      "title": "Normal Forms and Complex Periodic Orbits in Semiclassical Expansions of Hamiltonian Systems",
+      "file_path": "fixtures/library_books/dynamical_systems/Annals of Physics Volume 275 issue 1 1999 doi 1010062Faphy19995916 P Leb\u0153uf A Mouchet -- Normal Forms and Complex Periodic O.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6738c6f9-5ba9-40a6-b810-f2f61d3d22f8",
+      "title": "Numerical Analysis (Rainer Kress)",
+      "file_path": "fixtures/library_books/numerical_methods/Numerical Analysis (Rainer Kress).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "9556f1d0-3dba-47ef-9a84-56e5e93bc00d",
+      "title": "Official Google Cloud Certified Professional Machine Learning Engineer Study Guide",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Official Google Cloud Certified Professional Machine -- Mona Mona Ramamurthy Pratap -- 1 PS 2023 -- Wiley Sons Limited John Wiley -- 9781119944461 -- 44960039c28ec9beabf08f4c41c7baa6 -- Annas Archive.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "a58b31e7-68ca-4113-8265-80998bbe9e78",
+      "title": "Optimal Differential Privacy Composition for Exponential Mechanisms and the Cost of Adaptivity",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/1909.13830.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "optimization",
+      "suggested_tier": 1,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "90c6e72e-6174-4cc8-b048-59a44ecdc06a",
+      "title": "Ordinary Differential Equations and Smooth Dynamical Systems",
+      "file_path": "fixtures/library_books/dynamical_systems/D V Anosov Samuel Kh Aranson V I Arnold I U Bronshtejn V Z Grines Dynamical Systems I .pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "93aca42f-44fb-4493-a252-219e34638774",
+      "title": "Ordinary Differential Equations (Wolfgang Walter)",
+      "file_path": "fixtures/library_books/dynamical_systems/Ordinary Differential Equations (Wolfgang Walter).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "696af054-94d3-4f35-8543-9ea6f29e576a",
+      "title": "Partial Differential Equations (Jeffrey Rauch)",
+      "file_path": "fixtures/library_books/dynamical_systems/Partial Differential Equations (Jeffrey Rauch).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6b548286-aaf5-428c-91f7-6162eb39935e",
+      "title": "Partial Differential Equations, Second Edition (Cornerstones)",
+      "file_path": "fixtures/library_books/dynamical_systems/18.306-Emmanuele DiBenedetto Partial differential equations  2009.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "722bb204-c53e-4239-9c82-c65887343c86",
+      "title": "Paul Fieguth (auth.) - An Introduction to Complex Systems  Society, Ecology, and Nonlinear Dynamics-Springer Internation",
+      "file_path": "fixtures/library_books/dynamical_systems/Paul Fieguth (auth.) - An Introduction to Complex Systems_ Society, Ecology, and Nonlinear Dynamics-Springer International Publishing (2017).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b670424d-c6e5-4c5f-a4d5-b08fc600a8aa",
+      "title": "Pedro M. Gadea, Jaime Mu\u00f1oz Masqu\u00e9, Ihor V. Mykytyuk-Analysis and Algebra on Differentiable Manifolds  A Workbook for St",
+      "file_path": "fixtures/library_books/topology_geometry/(Problem Books in Mathematics) Pedro M. Gadea, Jaime Mu\u00f1oz Masqu\u00e9, Ihor V. Mykytyuk-Analysis and Algebra on Differentiable Manifolds_ A Workbook for Students and Teachers-Springer (2012)_2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "129b0382-da31-4c6b-80f5-70419cf1e75d",
+      "title": "Permute-and-Flip: A new mechanism for differentially private selection",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2010.12603.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "9cda72f2-1635-4b4f-920a-719386513dc8",
+      "title": "Pierre Gaspard - Chaos Scattering and Statistical Mechanics Cambridge Nonlinear Science Series 2005 Cambridge University",
+      "file_path": "fixtures/library_books/physics/Pierre Gaspard - Chaos Scattering and Statistical Mechanics Cambridge Nonlinear Science Series 2005 Cambridge University Press.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "da28f4ec-9ca0-4387-9869-8c26b53f20d3",
+      "title": "pml2",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/pml2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "0a769e80-9a67-497f-835b-9504c0017ad2",
+      "title": "poManifolds paperII submit",
+      "file_path": "fixtures/library_books/topology_geometry/poManifolds_paperII_submit.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "308a6629-5121-4e4a-8070-3cb1a5225718",
+      "title": "Practical Recommender Systems",
+      "file_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Practical Recommender Systems -- Kim Falk -- 2018 -- 2e2ed031f9005b45d39f2cab37c6259f -- Anna\u2019s Archive.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "ab93e28e-c6ac-448a-a32d-e1f376d95182",
+      "title": "P. R. Halmos (auth.) A Hilbert Space Problem Book",
+      "file_path": "fixtures/library_books/analysis/P. R. Halmos (auth.) A Hilbert Space Problem Book.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "66de8f97-2291-4fa3-ac40-487fa2224967",
+      "title": "Principles of Real Analysis, Third Edition",
+      "file_path": "fixtures/library_books/analysis/Charalambos_D_Aliprantis_Principles_of_Real_AnaBookZZorg.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "781443e6-38b5-42c3-b349-032b525806f4",
+      "title": "Privacy Odometers and Filters: Pay-as-you-Go Composition",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/1605.08294.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "computer_science",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "computer_science"
+    },
+    {
+      "source_id": "681a77f2-6e2e-4742-8e4b-11d4d1772507",
+      "title": "Privacy-Preserving_Machine_Learning (1)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Privacy-Preserving_Machine_Learning (1).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "cb9ea03a-f43b-40cc-8dbf-3ab2d352b4f4",
+      "title": "Privacy-Preserving_Machine_Learning_v8_MEAP",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Privacy-Preserving_Machine_Learning_v8_MEAP.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "744e0614-c99c-4a81-b47c-c456acfbd138",
+      "title": "Probabilistic Machine Learning: Advanced Topics",
+      "file_path": "fixtures/library_books/murphy_pml_advanced_topics_2025.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "f53c516c-2bd0-4689-9757-f5a1324708a3",
+      "title": "Probabilistic Machine Learning: An Introduction",
+      "file_path": "fixtures/library_books/Kevin P. Murphy - Probabilistic Machine Learning_ An Introduction-The MIT Press (2021).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "978c9805-ba27-407f-8539-85a1ca0a2ca4",
+      "title": "probability for machine learning",
+      "file_path": "fixtures/library_books/machine_learning/probability_for_machine_learning.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "27f5836e-50cf-4baa-a45f-b2915a5a19ec",
+      "title": "PROBLEMS and PROOFS in REAL ANALYSIS : Theory of Measure and Integration",
+      "file_path": "fixtures/library_books/analysis/J_Yeh_Problems_and_Proofs_in_Real_Analysis_TheoBookZZorg-2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b3baefe4-5b30-40d6-a847-635ed868e075",
+      "title": "Professor Alessandra Celletti (auth.) - Stability and Chaos in Celestial Mechanics-Springer-Verlag Berlin Heidelberg (20",
+      "file_path": "fixtures/library_books/dynamical_systems/(Springer Praxis Books) Professor Alessandra Celletti (auth.) - Stability and Chaos in Celestial Mechanics-Springer-Verlag Berlin Heidelberg (2010).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "235f8c99-20f7-4e3d-bdf4-10294c34a030",
+      "title": "Progress in Nonlinear Differential Equations and Their Applications Massimiliano Berti-Nonlinear Oscillations of Hamilto",
+      "file_path": "fixtures/library_books/dynamical_systems/Progress in Nonlinear Differential Equations and Their Applications Massimiliano Berti-Nonlinear Oscillations of Hamiltonian PDEs-Birkhauser 2007.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "728913e0-2dd5-4253-b997-63c1275715a9",
+      "title": "Qualitative modeling of chaotic logical circuits and walking droplets: a dynamical systems approach",
+      "file_path": "fixtures/library_books/dynamical_systems/Qualitative modeling of chaotic logical circuits and walking drop.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "51764963-7f82-4a67-aab1-e639e52ba525",
+      "title": "Quantum Field Theory in a Nutshell: Second Edition",
+      "file_path": "fixtures/library_books/physics/[A._Zee]_Quantum_Field_Theory_in_a_Nutshell(BookZZ.org).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "636df922-7b27-4719-8184-12930d70fb2f",
+      "title": "Quantum Mechanics for Mathematicians",
+      "file_path": "fixtures/library_books/physics/Leon A. Takhtajan Quantum Mechanics for Mathematicians.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "04a576ee-ebb0-4676-81c6-d01038b65aad",
+      "title": "Quantum Mechanics Fundamentals (Kurt Gottfried Tung-Mow Yan)",
+      "file_path": "fixtures/library_books/physics/Quantum Mechanics Fundamentals (Kurt Gottfried Tung-Mow Yan).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "03e15f82-570d-436a-9ae2-33d06b10e020",
+      "title": "Quantum Mechanics (K. T. Hecht)",
+      "file_path": "fixtures/library_books/physics/Quantum Mechanics (K. T. Hecht).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6cbe99d8-c293-409e-9af3-19865db2445f",
+      "title": "RAPPOR: Randomized Aggregatable Privacy-Preserving Ordinal Response",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/1407.6981.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "354430f6-643a-4f70-b7cc-fe9a5120f5b4",
+      "title": "Rational Homotopy Theory (Yves Felix Stephen Halperin Jean-Claude Thomas)",
+      "file_path": "fixtures/library_books/topology_geometry/Rational Homotopy Theory (Yves Felix Stephen Halperin Jean-Claude Thomas).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d399da8f-e772-46c9-8380-610fe3bfc813",
+      "title": "Real Analysis(Stein)",
+      "file_path": "fixtures/library_books/analysis/Real Analysis(Stein).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2b2e3f8d-84ee-4aa6-b864-41761821f708",
+      "title": "Recommender Systems Handbook",
+      "file_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Recommender Systems Handbook -- Francesco Ricci (editor), Lior Rokach (editor), Bracha -- 3rd ed_ 2022, New York, NY, 2022 -- Springer US _ Imprint_ -- 9781071621967 -- aae9c870d761525c9123aae2abdb0d37 -- Anna\u2019s Archive.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "c5160d56-f527-40cd-a1f3-7b989a2b6fa9",
+      "title": "Reinforcement Learning for Finance",
+      "file_path": "/home/brandon_behring/Downloads/acqusition_books/acqusition_books/Reinforcement Learning for Finance_ A Python-Based -- Yves J_ Hilpisch -- 1, 2024 -- O'Reilly Media, Incorporated -- 9781098169145 -- 01065ef05b3a9e58bade4428417683bf -- Anna\u2019s Archive.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "reinforcement_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b7fe0a60-bd6f-40ed-bb9d-e58e8453229b",
+      "title": "Representation Theory (William Fulton Joe Harris)",
+      "file_path": "fixtures/library_books/algebra/Representation Theory (William Fulton Joe Harris).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "45325e79-a188-41a6-ae44-9477dc638259",
+      "title": "Richard H Rand, Dieter Armbruster, Perturbation Methods, Bifurcation Theory and Computer Algebra",
+      "file_path": "fixtures/library_books/dynamical_systems/Richard H Rand Dieter Armbruster-Perturbation Methods Bifurcation Theory and Computer Algebra Applied Mathematical Sciences 1987.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "9bb0776b-d82d-4664-b5de-5e4f1719e8d2",
+      "title": "Richard L Liboff - Introductory Quantum Mechanics-Addison-Wesley Pearson Education 2003",
+      "file_path": "fixtures/library_books/physics/Richard L Liboff - Introductory Quantum Mechanics-Addison-Wesley Pearson Education 2003.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "df49667f-0e78-461a-97ed-04573dc50005",
+      "title": "Riemannian Manifolds (John M. Lee)",
+      "file_path": "fixtures/library_books/topology_geometry/Riemannian Manifolds (John M. Lee).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c396eed2-0cc8-4d6f-89a6-80e736fd6369",
+      "title": "R. K. Bullough, R. K. Dodd (auth.), Alan R. Bishop B.Sc. Ph.D., Dr. Toni Schneider (eds.)-Solitons and Condensed Matter",
+      "file_path": "fixtures/library_books/physics/(Springer Series in Solid-State Sciences 8) R. K. Bullough, R. K. Dodd (auth.), Alan R. Bishop B.Sc. Ph.D., Dr. Toni Schneider (eds.)-Solitons and Condensed Matter Physics_ Proceedings of the Symposiu.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "d8247dbe-1e7c-4462-8063-ccb58636632f",
+      "title": "Robert Creighton Buck, Ellen F. Buck Advanced Calculus",
+      "file_path": "fixtures/library_books/analysis/Robert Creighton Buck, Ellen F. Buck Advanced Calculus.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "9fe07324-df97-4ebb-abba-aebff6c0b374",
+      "title": "Robert W Boyd-Nonlinear optics-Academic Press 2008",
+      "file_path": "fixtures/library_books/physics/Robert W Boyd-Nonlinear optics-Academic Press 2008.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "0c4b7eb4-2a99-4a7b-8c30-be3b50c0bb44",
+      "title": "ROS",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/ROS.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "bd7646a8-197f-4448-93ca-41e0319e3bf2",
+      "title": "Rudin (1991) Functional Analysis.djvu",
+      "file_path": "fixtures/library_books/analysis/WalterRudinFunctionalanalysisBookFi.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "07dc4078-91a8-4d4c-882c-7c820b859290",
+      "title": "s41598-020-58064-w",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/s41598-020-58064-w.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "8b93e573-577f-4ed1-8a7a-7611ee0a29fe",
+      "title": "Safe Planning in Dynamic Environments Using Conformal Prediction",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/lindemann_safe_planning_in_dynamic_envir_2022.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "efc797f4-6926-4a76-b194-77d0f55bd8c9",
+      "title": "[Sandro Salsa] Partial Differential Equations in A(BookZZ.org)",
+      "file_path": "fixtures/library_books/dynamical_systems/[Sandro_Salsa]_Partial_Differential_Equations_in_A(BookZZ.org).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "59953bf5-03c5-483a-a1e4-87e7edceb0d3",
+      "title": "Saxe (2002) Beginning functional analysis.djvu",
+      "file_path": "fixtures/library_books/analysis/[Karen_Saxe]_Beginning_functional_analysis(BookZZ.org).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "3e87a0fc-0136-4293-8b3e-44e95beadd28",
+      "title": "Schaum's Differential Equations -- 398",
+      "file_path": "fixtures/library_books/dynamical_systems/Schaum's Differential Equations -- 398.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2bdbd2f3-bda2-4360-9f4f-f4ab47bf04c8",
+      "title": "Schaum's Outline of Linear Algebra (4th Edition)",
+      "file_path": "fixtures/library_books/algebra/SeymourLipschutzMarcLipsonSchaumsOutlinBookZZorg.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4dae01c4-d443-4396-8799-193cb15d7567",
+      "title": "Schaum's Outline of Numerical Analysis",
+      "file_path": "fixtures/library_books/numerical_methods/FrancisScheidSchaumsOutlineofNumericalAnalysisSecondEdition1989.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "15e63688-c190-43d9-9246-2c89f81b888d",
+      "title": "Schaum's Outline of Probability, Random Variables, and Random Processes",
+      "file_path": "fixtures/library_books/probability_theory/compressed_(Schaum's Outline Series) Hwei Hsu - Schaum's Outline of Probability, Random Variables, and Random Processes, Second Edition-McGraw-Hill (2010).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "probability_theory",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "356fedbc-18dd-4e15-8774-efa0f8b69207",
+      "title": "Schaum's Partial Differential Equations -- 250",
+      "file_path": "fixtures/library_books/dynamical_systems/Schaum's Partial Differential Equations -- 250.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "652c61ab-c737-4cad-9739-6aa17a3d8648",
+      "title": "Schuam's Outline of Theory and Problems in Advanced Calculus",
+      "file_path": "fixtures/library_books/analysis/Mathematics - Schaum's Outline of Theory and Problems of Advanced Calculus.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8f2fd971-3069-4385-894a-7ce64aa69b67",
+      "title": "scikit_1",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/scikit_1.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "07f35073-e039-402f-8d25-6097f2decc3c",
+      "title": "Second Year Calculus (David M. Bressoud)",
+      "file_path": "fixtures/library_books/analysis/Second Year Calculus (David M. Bressoud).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "4c4cf8ac-e2d5-47aa-a2d6-c53ff9d187dc",
+      "title": "SEC RILA Final Rule 2024",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/annuity/SEC_RILA_Final_Rule_2024.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "finance",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "finance"
+    },
+    {
+      "source_id": "0a663ded-051d-4b57-b323-9c702abeae70",
+      "title": "SEC RILA Investor Testing Report",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/annuity/SEC_RILA_Investor_Testing_Report_2023.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "finance",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "finance"
+    },
+    {
+      "source_id": "c2c72f74-79ca-4710-b13d-a696ed593e32",
+      "title": "Sequences and Series in Banach Spaces (Joseph Diestel)",
+      "file_path": "fixtures/library_books/analysis/Sequences and Series in Banach Spaces (Joseph Diestel).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b14fed8a-48fa-4c7c-a71a-a932c0d7d7ec",
+      "title": "[Serge Lang] Linear Algebra, Third Edition (Underg(BookZZ.org)",
+      "file_path": "fixtures/library_books/algebra/[Serge_Lang]_Linear_Algebra,_Third_Edition_(Underg(BookZZ.org).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "0899de04-0ae8-495c-a914-c2ed809157c0",
+      "title": "Sergios Theodoridis - Machine Learning  A Bayesian and Optimization Perspective-Academic Press (2015)",
+      "file_path": "fixtures/library_books/machine_learning/(.Net Developers) Sergios Theodoridis - Machine Learning_ A Bayesian and Optimization Perspective-Academic Press (2015).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "61859214-111b-4b73-ac71-160cdd74e4ef",
+      "title": "Shalev-Shwartz S., Ben-David S. - Understanding Machine Learning  From Theory to Algorithms-CUP (2014)",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/shalev-shwartz_s_ben-david_s_-_understanding_machi_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c7b38fbd-f510-460c-8a00-c95bf9246241",
+      "title": "Shijun Liao -Homotopy analysis method in nonlinear differential equations-Springer 2012",
+      "file_path": "fixtures/library_books/dynamical_systems/Shijun Liao -Homotopy analysis method in nonlinear differential equations-Springer 2012.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "e267ba25-d11f-4dd5-98f2-c6412da763f4",
+      "title": "Short Calculus (Serge Lang)",
+      "file_path": "fixtures/library_books/analysis/Short Calculus (Serge Lang).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "391536ca-e76b-4197-9524-c73ccdca7a84",
+      "title": "Sigurdur Helgason-Differential Geometry, Lie Groups, and Symmetric Spaces-Academic Press,  Elsevier (1978)",
+      "file_path": "fixtures/library_books/topology_geometry/(Pure and Applied Mathematics, Vol. 80) Sigurdur Helgason-Differential Geometry, Lie Groups, and Symmetric Spaces-Academic Press,  Elsevier (1978).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "2d7122db-05cb-41e2-b4ac-e7415985fab6",
+      "title": "Singular Homology Theory (William S. Massey)",
+      "file_path": "fixtures/library_books/topology_geometry/Singular Homology Theory (William S. Massey).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "3f75a8ef-a751-45b6-ac1a-69370ee02c9a",
+      "title": "Smooth Manifolds and Observables (Jet Nestruev)",
+      "file_path": "fixtures/library_books/topology_geometry/Smooth Manifolds and Observables (Jet Nestruev).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "72369f1b-cdbc-4a48-819e-d138b9677c83",
+      "title": "Sontag Mathematical Control Theory 1998",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/sontag_mathematical_control_theory_1998.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "37453e89-d375-4ca0-811b-5f68a96c42bb",
+      "title": "source",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/source.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "a0a3e3f8-8b2b-4b84-b899-52eae8a724cb",
+      "title": "Springer Series in Statistics Trevor Hastie Robert Tibshirani Jerome Friedman - The Elements of Statistical Learning: Data Mining Inference and Prediction-Springer 2013",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Springer Series in Statistics Trevor Hastie Robert Tibshirani Jerome Friedman - The Elements of Statistical Learning_ Data Mining Inference and Prediction-Springer 2013.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "statistics",
+      "suggested_tier": 2,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "daece221-261f-4a40-af2b-bfd2b1d9a7fb",
+      "title": "[Stanley J. Farlow] Partial Differential Equations(BookZZ.org)",
+      "file_path": "fixtures/library_books/dynamical_systems/[Stanley_J._Farlow]_Partial_Differential_Equations(BookZZ.org).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "814bed75-3f40-4f33-ab76-44fbaa69364e",
+      "title": "Statistical Mechanics: A Concise Introduction for Chemists",
+      "file_path": "fixtures/library_books/physics/[B._Widom]_Statistical_Mechanics_A_Concise_Introd(BookZZ.org)-2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "aad7d801-7a75-490b-a2c3-61812d9dd3c0",
+      "title": "Stephen Lynch - Dynamical Systems with Applications using Python-Springer International Publishing Birkh\u00e4user 2018",
+      "file_path": "fixtures/library_books/dynamical_systems/Stephen Lynch - Dynamical Systems with Applications using Python-Springer International Publishing_Birkh\u00e4user 2018.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "dd9353bd-4b42-4d5c-bbd4-4312ab452ebf",
+      "title": "Steven L. Brunton, J. Nathan Kutz - Data-Driven Science and Engineering  Machine Learning, Dynamical Systems, and Contro",
+      "file_path": "fixtures/library_books/machine_learning/Steven L. Brunton, J. Nathan Kutz - Data-Driven Science and Engineering_ Machine Learning, Dynamical Systems, and Control-Cambridge University Press (2019) 2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "36cf48db-1715-45d7-a989-eee5e5c0e933",
+      "title": "Strings,  Conformal Fields,  and Topology (Michio Kaku)",
+      "file_path": "fixtures/library_books/topology_geometry/Strings,  Conformal Fields,  and Topology (Michio Kaku).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "8c77f2ff-5160-4734-8906-b8c8811f9d96",
+      "title": "Studies in Nonlinearity Steven H Strogatz-Nonlinear Dynamics and Chaos-Westview Press 2001",
+      "file_path": "fixtures/library_books/dynamical_systems/Studies in Nonlinearity Steven H Strogatz-Nonlinear Dynamics and Chaos-Westview Press 2001.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "a14c2da8-d578-407e-8900-6cdb02c39eee",
+      "title": "(Studies in Systems Decision and Control 103) Li, Benkai  Lin, Xiaofeng  Song, Ruizhuo  Wei, Qinglai - Self-Learning Optimal Control of Nonlinear Systems   Adaptive Dynamic Programming Approach",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/studies_in_systems_decision_and_control_103_li_ben_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "optimization",
+      "suggested_tier": 1,
+      "method": "title",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c822e299-94bf-4c57-928e-2e43075ef987",
+      "title": "Texts in Applied Mathematics Carmen Chicone-Ordinary Differential Equations with Applications-Springer 2006",
+      "file_path": "fixtures/library_books/dynamical_systems/Texts in Applied Mathematics Carmen Chicone-Ordinary Differential Equations with Applications-Springer 2006.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "6701b08e-1c8f-4bfb-9421-a0ba422e5169",
+      "title": "The Arithmetic of Hyperbolic 3-Manifolds (Colin Maclachlan Alan W. Reid)",
+      "file_path": "fixtures/library_books/topology_geometry/The Arithmetic of Hyperbolic 3-Manifolds (Colin Maclachlan Alan W. Reid).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "85c02d26-8e88-4b3b-8aba-d56b4563f22f",
+      "title": "The Discrete Gaussian for Differential Privacy",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2004.00010.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "1042ccb9-5916-4578-9c6f-3aa8706fbce0",
+      "title": "The Lebesgue-Stieltjes Integral (M. Carter B. van Brunt)",
+      "file_path": "fixtures/library_books/analysis/The Lebesgue-Stieltjes Integral (M. Carter B. van Brunt).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "dd0c7ee4-bd67-49f1-9add-5ca0d60e149a",
+      "title": "The Wadsworth Brooks Cole Mathematics Series J Kevorkian auth-Partial Differential Equations  Analytical Solution Techni",
+      "file_path": "fixtures/library_books/dynamical_systems/The Wadsworth Brooks_Cole Mathematics Series J Kevorkian auth-Partial Differential Equations_ Analytical Solution Techniques-Springer US 1990.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c7c500c2-2fb5-47be-b11d-11e3b51ff239",
+      "title": "Thomas Calculus 13th",
+      "file_path": "fixtures/library_books/analysis/Thomas Calculus 13th.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "1fc7f5f9-87ea-4c94-a4e2-99f670eeac5a",
+      "title": "Thomas Calculus Multivariable 13th c2014 solutions ISM",
+      "file_path": "fixtures/library_books/analysis/Thomas Calculus Multivariable 13th c2014 solutions ISM.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "analysis",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "659a98a2-b703-45b9-bbc1-528a0d82b8f2",
+      "title": "Topology of Surfaces (L. Christine Kinsey)",
+      "file_path": "fixtures/library_books/topology_geometry/Topology of Surfaces (L. Christine Kinsey).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "f86f78d4-2fe5-450f-b847-4587ce9bc685",
+      "title": "TR_Dimensionality_Reduction_Review_2009",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/TR_Dimensionality_Reduction_Review_2009.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "79164c06-c700-4010-a9c0-194d06576737",
+      "title": "Tudor O Bompa  Mauro G Di Pasquale  Lorenzo Cornacchia-Serious Strength Training-Human Kinetics 2013",
+      "file_path": "fixtures/library_books/fitness/Tudor O Bompa_ Mauro G Di Pasquale_ Lorenzo Cornacchia-Serious strength training-Human Kinetics 2013.pdf.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "fitness",
+      "suggested_tier": 4,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "80fce045-5b66-4da3-aa20-962c70cdfb88",
+      "title": "Unifying Privacy Loss Composition for Data Analytics",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/papers/arxiv/2004.07223.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "83eb30ce-6daa-46de-935e-d67908ab1894",
+      "title": "Valerij V. Kozlov (auth.)-Symmetries, Topology and Resonances in Hamiltonian Mechanics-Springer-Verlag Berlin Heidelberg",
+      "file_path": "fixtures/library_books/topology_geometry/(Ergebnisse der Mathematik und ihrer Grenzgebiete 31) Valerij V. Kozlov (auth.)-Symmetries, Topology and Resonances in Hamiltonian Mechanics-Springer-Verlag Berlin Heidelberg (1996).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "topology_geometry",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "a0002a37-0717-49f7-8103-ba303d295450",
+      "title": "Variational Calculus and Optimal Control (John L. Troutman)",
+      "file_path": "fixtures/library_books/optimization/Variational Calculus and Optimal Control (John L. Troutman).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "optimization",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "04b986bf-1041-434d-b4ef-1504ef36b7af",
+      "title": "Vladimir I Arnold Vladimir I Arnold Roger Cooke-Ordinary Differential Equations-Springer 1992",
+      "file_path": "fixtures/library_books/dynamical_systems/Vladimir I Arnold Vladimir I Arnold Roger Cooke-Ordinary Differential Equations-Springer 1992.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "588daf20-2cb3-4d71-aa0c-00f0f712b76b",
+      "title": "Vladimir Zatsiorsky William Kraemer-Science And Practice Of Strength Training Second Edition 2006",
+      "file_path": "fixtures/library_books/fitness/Vladimir Zatsiorsky William Kraemer-Science and Practice of Strength Training Second Edition 2006.pdf.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "fitness",
+      "suggested_tier": 4,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "9b484302-23b4-4043-a664-74be0d9d5008",
+      "title": "Voja Radovanovi\u00c4 auth - Problem Book in Quantum Field Theory-Springer-Verlag Berlin Heidelberg 2008 2",
+      "file_path": "fixtures/library_books/physics/Voja Radovanovi\u00c4 auth - Problem Book in Quantum Field Theory-Springer-Verlag Berlin Heidelberg 2008 2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "physics",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "fe92e339-cfaa-415b-88e4-c050f388a0ba",
+      "title": "[Walter Craig] Hamiltonian dynamical systems and a(b-ok.xyz)",
+      "file_path": "fixtures/library_books/dynamical_systems/[Walter_Craig]_Hamiltonian_dynamical_systems_and_a(b-ok.xyz).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "mathematics",
+      "suggested_tier": 1,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "b8682941-3745-4016-a4af-d4d54fef8b4f",
+      "title": "William L Briggs Van Emden Henson - The DFT  An Owners Manual for the Discrete Fourier Transform-Society for Industrial",
+      "file_path": "fixtures/library_books/signal_processing/William L Briggs Van Emden Henson - The DFT_ An Owners Manual for the Discrete Fourier Transform-Society for Industrial Mathematics 1987.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "engineering",
+      "suggested_tier": 3,
+      "method": "path",
+      "llm_raw": null
+    },
+    {
+      "source_id": "c7026714-75ff-465b-bcbd-879726c9fb9c",
+      "title": "Wittgenstein Tractatus 1921",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/wittgenstein_tractatus_1921.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "general",
+      "suggested_tier": 4,
+      "method": "fallback",
+      "llm_raw": "philosophy"
+    },
+    {
+      "source_id": "83d621b5-dc82-4a49-81a8-cfb3f3a43e56",
+      "title": "Wolfgang Banzhaf, Peter Nordin, Robert E. Keller, Frank D. Francone - Genetic Programming: An Introduction-Morgan Kaufmann",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/(The Morgan Kaufmann Series in Artificial Intelligence) Wolfgang Banzhaf, Peter Nordin, Robert E. Keller, Frank D. Francone - Genetic Programming_ An Introduction-Morgan Kaufmann (1997).pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "computer_science",
+      "suggested_tier": 3,
+      "method": "llm",
+      "llm_raw": "computer_science"
+    },
+    {
+      "source_id": "4b448bb6-775b-4ec1-8695-63c4a981c62d",
+      "title": "write_up.dvi",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/library_books/Weatherwax_Epstein_Hastie_Solution_Manual_2.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "statistics",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "statistics"
+    },
+    {
+      "source_id": "db54ca85-1c01-4be2-a8b8-ea7ef4a4888c",
+      "title": "xgboost with python",
+      "file_path": "/home/brandon_behring/Claude/research-kb/fixtures/textbooks/migrated/xgboost_with_python_nd.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "machine_learning",
+      "suggested_tier": 2,
+      "method": "llm",
+      "llm_raw": "machine_learning"
+    },
+    {
+      "source_id": "30d14772-358d-49b6-9826-eaaef69d0c57",
+      "title": "Yuri Verkhoshansky-Special Strength Training  A Coaches Manual 2006",
+      "file_path": "fixtures/library_books/fitness/Yuri Verkhoshansky-Special Strength Training_ A Coaches Manual 2006.pdf.pdf",
+      "current_domain": "machine_learning",
+      "suggested_domain": "fitness",
+      "suggested_tier": 4,
+      "method": "path",
+      "llm_raw": null
+    }
+  ]
+}

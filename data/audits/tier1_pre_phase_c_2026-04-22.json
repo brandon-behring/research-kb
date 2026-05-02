@@ -1,0 +1,497 @@
+{
+  "total_sources": 49,
+  "total_gap_chunks": 37707,
+  "total_latex_chunks": 146,
+  "rows": [
+    {
+      "source_id": "af564fb2-7480-4cc3-8ce1-bd6ae822a6b2",
+      "title": "Thomas_Calculus_Single_Multi_12th_txtbk",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 4121,
+      "latex_chunks": 67,
+      "gap_chunks": 2558,
+      "gap_pct": 62.1
+    },
+    {
+      "source_id": "6d9326ea-6e94-4c94-8623-d81c99dda47a",
+      "title": "Calculus: Early Transcendentals. 9e",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 4319,
+      "latex_chunks": 15,
+      "gap_chunks": 2484,
+      "gap_pct": 57.5
+    },
+    {
+      "source_id": "1ea595b5-795f-4bb2-8003-f5dbbe737418",
+      "title": "Advanced Engineering Mathematics 10th Edition",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 4248,
+      "latex_chunks": 5,
+      "gap_chunks": 2279,
+      "gap_pct": 53.6
+    },
+    {
+      "source_id": "dbb9e3dc-1006-463b-979a-056c7933e2f9",
+      "title": "Microsoft Word - Academic Press - Methods of modern mathematical physics.doc",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 2860,
+      "latex_chunks": 0,
+      "gap_chunks": 1704,
+      "gap_pct": 59.6
+    },
+    {
+      "source_id": "c19971d0-9f13-4b7e-a44e-957935971b22",
+      "title": "Mathematical Methods in the Physical Sciences, 3e",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 2142,
+      "latex_chunks": 1,
+      "gap_chunks": 1269,
+      "gap_pct": 59.2
+    },
+    {
+      "source_id": "3fc21f50-45b3-48c4-9629-06910cb2d1f2",
+      "title": "ISM_T12_PRE_VI",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 2896,
+      "latex_chunks": 9,
+      "gap_chunks": 1153,
+      "gap_pct": 39.8
+    },
+    {
+      "source_id": "9fe2a387-fe2f-4c0b-bc5b-4ad73546dd16",
+      "title": "Instructor's Solutions Manual to Thomas' Calculus: Early Transcendentals, 13th Edition",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 2228,
+      "latex_chunks": 1,
+      "gap_chunks": 1147,
+      "gap_pct": 51.5
+    },
+    {
+      "source_id": "fbed611f-6257-46d0-b2b0-aa898fba2728",
+      "title": "John Hamal Hubbard Barbara Burke Hubbard-Vector Calculus Linear Algebra and Differential Forms: A Unified Approach-Prentice Hall 1998",
+      "domain_id": "linear_algebra",
+      "tier": 1,
+      "total_chunks": 1703,
+      "latex_chunks": 1,
+      "gap_chunks": 1137,
+      "gap_pct": 66.8
+    },
+    {
+      "source_id": "1a0b81c3-3012-4ab5-9af5-10ca0d00fe15",
+      "title": "(Schaum\u2019s Outlines) Seymour Lipschutz, Marc Lipson Linear Algebra McGraw Hill (2017)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1342,
+      "latex_chunks": 2,
+      "gap_chunks": 958,
+      "gap_pct": 71.4
+    },
+    {
+      "source_id": "b003ef28-a4ba-44eb-aa3b-182f296c3b51",
+      "title": "Jorge V. Jos\u00e9, Eugene J. Saletan - Classical Dynamics  A Contemporary Approach-Cambridge University Press (1998)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1717,
+      "latex_chunks": 0,
+      "gap_chunks": 917,
+      "gap_pct": 53.4
+    },
+    {
+      "source_id": "7ae8974c-2c44-4182-b875-6842c649612c",
+      "title": "Choquet Bruhat Y , Dewitt Morette C Analysis, Manifolds And Physics",
+      "domain_id": "topology_geometry",
+      "tier": 1,
+      "total_chunks": 1200,
+      "latex_chunks": 5,
+      "gap_chunks": 872,
+      "gap_pct": 72.7
+    },
+    {
+      "source_id": "edc857ae-72bc-47cb-bd95-cd873f39f21d",
+      "title": "Robert D. Klauber - Student Friendly Quantum Field Theory-Sandtrove Press (2015)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 2169,
+      "latex_chunks": 0,
+      "gap_chunks": 831,
+      "gap_pct": 38.3
+    },
+    {
+      "source_id": "3ed18e62-cde7-415e-81af-198fde95b679",
+      "title": "Calculus - One Variable",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1699,
+      "latex_chunks": 12,
+      "gap_chunks": 823,
+      "gap_pct": 48.4
+    },
+    {
+      "source_id": "51eb2a50-d87f-445c-8dde-018c22badcba",
+      "title": "Probability and Measure 3rd Edition (Patrick Billingsley)",
+      "domain_id": "probability_theory",
+      "tier": 1,
+      "total_chunks": 1563,
+      "latex_chunks": 0,
+      "gap_chunks": 822,
+      "gap_pct": 52.6
+    },
+    {
+      "source_id": "9b8412c7-9d70-45db-9db9-f4fce232e351",
+      "title": "Introduction to Linear Algebra-Wellesley",
+      "domain_id": "linear_algebra",
+      "tier": 1,
+      "total_chunks": 1400,
+      "latex_chunks": 7,
+      "gap_chunks": 817,
+      "gap_pct": 58.4
+    },
+    {
+      "source_id": "f9309536-d4ce-40ef-84d3-a17e3f0017aa",
+      "title": "<446A5675CEC4BCFE>",
+      "domain_id": "probability_theory",
+      "tier": 1,
+      "total_chunks": 1556,
+      "latex_chunks": 0,
+      "gap_chunks": 798,
+      "gap_pct": 51.3
+    },
+    {
+      "source_id": "277faff6-8d54-4ae4-97a2-37ddf42a1a7e",
+      "title": "(Classroom Resource Materials) David A. B. Miller - Quantum Mechanics for Scientists and Engineers-Cambridge University Press (2008)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1564,
+      "latex_chunks": 0,
+      "gap_chunks": 795,
+      "gap_pct": 50.8
+    },
+    {
+      "source_id": "03d85479-bf03-411f-9970-4a31a523e836",
+      "title": "Gr\u00f6bner Bases: A Computational Approach to Commutative Algebra",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1628,
+      "latex_chunks": 1,
+      "gap_chunks": 795,
+      "gap_pct": 48.8
+    },
+    {
+      "source_id": "42fc714b-90a3-4908-a956-0b82bcc096df",
+      "title": "0387954481_text.pdf",
+      "domain_id": "topology_geometry",
+      "tier": 1,
+      "total_chunks": 1522,
+      "latex_chunks": 1,
+      "gap_chunks": 768,
+      "gap_pct": 50.5
+    },
+    {
+      "source_id": "9d44feda-0999-4dee-b236-70f0e1302f1c",
+      "title": "Mathematical Methods for Physicists 7th Edition Solution",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1119,
+      "latex_chunks": 3,
+      "gap_chunks": 744,
+      "gap_pct": 66.5
+    },
+    {
+      "source_id": "7778b1dc-0003-445c-9559-c22895c3bff4",
+      "title": "Mathematical Logic (J. Donald Monk)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1523,
+      "latex_chunks": 2,
+      "gap_chunks": 696,
+      "gap_pct": 45.7
+    },
+    {
+      "source_id": "eea9a9d7-06f5-4e17-b440-54f61fbc4d06",
+      "title": "Charu C. Aggarwal - Linear Algebra and Optimization for Machine Learning  A Textbook (2020, Springer) - libgen.lc (1)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1580,
+      "latex_chunks": 0,
+      "gap_chunks": 657,
+      "gap_pct": 41.6
+    },
+    {
+      "source_id": "5fddea43-e53c-4960-80b2-48f57e9d346a",
+      "title": "Advanced Topics in Computational Number Theory (Henri Cohen)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1899,
+      "latex_chunks": 2,
+      "gap_chunks": 657,
+      "gap_pct": 34.6
+    },
+    {
+      "source_id": "50fe3ef8-693d-4a76-8842-757636b62fac",
+      "title": "Linear Differential Equations With Periodic Coefficients, volume 1",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 862,
+      "latex_chunks": 2,
+      "gap_chunks": 641,
+      "gap_pct": 74.4
+    },
+    {
+      "source_id": "352d7d9d-2f8d-4c7c-a8d1-0c7c9d2b701d",
+      "title": "Elementary Methods in Number Theory (Melvyn B. Nathanson)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 860,
+      "latex_chunks": 1,
+      "gap_chunks": 629,
+      "gap_pct": 73.1
+    },
+    {
+      "source_id": "70d7348e-7d13-4675-bb97-791a315f4037",
+      "title": "Bronson R., Costa G.B. Schaum\u2019s outlines. Differential equations MGH (2014)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1176,
+      "latex_chunks": 2,
+      "gap_chunks": 614,
+      "gap_pct": 52.2
+    },
+    {
+      "source_id": "1aff069a-0ed8-4592-9c60-04cb5389e64b",
+      "title": "Advanced Calculus",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1039,
+      "latex_chunks": 1,
+      "gap_chunks": 613,
+      "gap_pct": 59.0
+    },
+    {
+      "source_id": "ce3f7db5-ed14-47e7-832e-9a7ea670924e",
+      "title": "compressed_(Texts in Applied Mathematics 69) Fred Brauer, Carlos Castillo-Chavez, Zhilan Feng - Mathematical Models in Epidemiology-Springer",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1442,
+      "latex_chunks": 0,
+      "gap_chunks": 563,
+      "gap_pct": 39.0
+    },
+    {
+      "source_id": "830496dd-b7a9-4c68-8639-4a7ad76f3672",
+      "title": "Fred Brauer, Carlos Castillo-Chavez, Zhilan Feng - Mathematical Models in Epidemiology-Springer",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1444,
+      "latex_chunks": 0,
+      "gap_chunks": 562,
+      "gap_pct": 38.9
+    },
+    {
+      "source_id": "4f5c7b2e-4260-4de3-bcab-c0f8585a62d6",
+      "title": "(Graduate Texts in Mathematics 60) V. I. Arnold (auth.) - Mathematical Methods of Classical Mechanics-Springer-Verlag New York (1989)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1190,
+      "latex_chunks": 0,
+      "gap_chunks": 553,
+      "gap_pct": 46.5
+    },
+    {
+      "source_id": "3224e7b1-70e2-428b-aecf-5936f91a8831",
+      "title": "Instructor's_Solution(BookFi.org)",
+      "domain_id": "linear_algebra",
+      "tier": 1,
+      "total_chunks": 931,
+      "latex_chunks": 0,
+      "gap_chunks": 532,
+      "gap_pct": 57.1
+    },
+    {
+      "source_id": "24997dc5-035a-4269-9802-f1cb1b4212e4",
+      "title": "Introduction to Analytic Number Theory (Tom M. Apostol)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 684,
+      "latex_chunks": 1,
+      "gap_chunks": 513,
+      "gap_pct": 75.0
+    },
+    {
+      "source_id": "40024820-db3f-4424-b963-417abd640627",
+      "title": "Evolutionary Optimization Algorithms",
+      "domain_id": "optimization",
+      "tier": 1,
+      "total_chunks": 1883,
+      "latex_chunks": 0,
+      "gap_chunks": 502,
+      "gap_pct": 26.7
+    },
+    {
+      "source_id": "d5d40a97-1a7a-4cd4-8820-5739ae7d83da",
+      "title": "Marc Peter Deisenroth  A. Aldo Faisal  Cheng Soon Ong - Mathematics for Machine Learning (2021)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 975,
+      "latex_chunks": 1,
+      "gap_chunks": 491,
+      "gap_pct": 50.4
+    },
+    {
+      "source_id": "95681dca-50df-433b-a748-174be58be338",
+      "title": "Methods of Mathematical Economics (Joel Franklin)",
+      "domain_id": "optimization",
+      "tier": 1,
+      "total_chunks": 595,
+      "latex_chunks": 0,
+      "gap_chunks": 485,
+      "gap_pct": 81.5
+    },
+    {
+      "source_id": "16a7c7e8-6476-4c3f-be76-da7c524e146d",
+      "title": "David Kay-Schaum's outline of theory and problems of tensor calculus-McGraw-Hill",
+      "domain_id": "linear_algebra",
+      "tier": 1,
+      "total_chunks": 567,
+      "latex_chunks": 0,
+      "gap_chunks": 440,
+      "gap_pct": 77.6
+    },
+    {
+      "source_id": "e0ccb596-76ba-41f7-a1bd-37bac72e3dd3",
+      "title": "Halmos P. R. Linear Algebra Problem Book ( Dolciani Mathematical Expositions Series, No. 16)",
+      "domain_id": "linear_algebra",
+      "tier": 1,
+      "total_chunks": 687,
+      "latex_chunks": 1,
+      "gap_chunks": 440,
+      "gap_pct": 64.0
+    },
+    {
+      "source_id": "9f90d702-6956-4e21-ac9c-4950276cf67e",
+      "title": "A Course in Functional Analysis (John B. Conway)",
+      "domain_id": "analysis",
+      "tier": 1,
+      "total_chunks": 1421,
+      "latex_chunks": 0,
+      "gap_chunks": 431,
+      "gap_pct": 30.3
+    },
+    {
+      "source_id": "e9f2b3a0-ae63-452b-a41b-880c6f3fe3cf",
+      "title": "Measure Theory (Paul R. Halmos)",
+      "domain_id": "analysis",
+      "tier": 1,
+      "total_chunks": 696,
+      "latex_chunks": 0,
+      "gap_chunks": 430,
+      "gap_pct": 61.8
+    },
+    {
+      "source_id": "1d488389-c413-4e46-80da-3be6c5bb4fca",
+      "title": "[Undergraduate Lecture Notes in Physics] Joshua Izaac  Jingbo Wang - Computational Quantum Mechanics (2019, Springer) - libgen.lc",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1170,
+      "latex_chunks": 0,
+      "gap_chunks": 414,
+      "gap_pct": 35.4
+    },
+    {
+      "source_id": "e42ac44e-f3fb-4aa3-80c8-2de6af697623",
+      "title": "Vortex Dynamics - P. Saffman (Cambridge, 1992) WW.djvu",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 568,
+      "latex_chunks": 0,
+      "gap_chunks": 389,
+      "gap_pct": 68.5
+    },
+    {
+      "source_id": "77140051-29b9-4fbf-81c9-4ae61546c7e2",
+      "title": "Mathematical Logic (H.-D. Ebbinghaus J. Flum W. Thomas)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 736,
+      "latex_chunks": 0,
+      "gap_chunks": 389,
+      "gap_pct": 52.9
+    },
+    {
+      "source_id": "424f83b6-e434-466a-b6f2-255e87b64223",
+      "title": "Vector analysis and an introduction to tensor analysis by Lipschutz, SeymourSpellman, DennisSpiegel, Murray R (z-lib.org)",
+      "domain_id": "linear_algebra",
+      "tier": 1,
+      "total_chunks": 550,
+      "latex_chunks": 2,
+      "gap_chunks": 380,
+      "gap_pct": 69.1
+    },
+    {
+      "source_id": "c3469991-c4ad-433f-9035-4b219f2f706b",
+      "title": "Additive Number Theory (Melvyn B. Nathanson)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 483,
+      "latex_chunks": 0,
+      "gap_chunks": 377,
+      "gap_pct": 78.1
+    },
+    {
+      "source_id": "fba37555-441d-4ebe-9d09-a9d294b25dd6",
+      "title": "Linear_Algebra-Peter_Lax",
+      "domain_id": "linear_algebra",
+      "tier": 1,
+      "total_chunks": 448,
+      "latex_chunks": 1,
+      "gap_chunks": 367,
+      "gap_pct": 81.9
+    },
+    {
+      "source_id": "b26e1a9a-bf63-41bb-831a-c5fbd170bbed",
+      "title": "Miklavcic S.J - An illustrative guide to multivariable and vector calculus-Springer (2020)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 596,
+      "latex_chunks": 0,
+      "gap_chunks": 345,
+      "gap_pct": 57.9
+    },
+    {
+      "source_id": "6cde85f8-6dba-48f9-81dd-243c60e8b973",
+      "title": "Stefan Thurner, Rudolf Hanel, Peter Klimek - Introduction to the Theory of Complex Systems-Oxford University Press, USA (2018)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1257,
+      "latex_chunks": 0,
+      "gap_chunks": 329,
+      "gap_pct": 26.2
+    },
+    {
+      "source_id": "8b9644c3-69b3-40c6-b76d-d2af74632e95",
+      "title": "probability_stats_for_DS",
+      "domain_id": "probability_theory",
+      "tier": 1,
+      "total_chunks": 448,
+      "latex_chunks": 0,
+      "gap_chunks": 312,
+      "gap_pct": 69.6
+    },
+    {
+      "source_id": "12b5c538-3c70-49f2-bc08-452c6e723579",
+      "title": "Trefethen L.N. - Finite Difference and Spectral Methods for Ordinary and Partial Differential Equations (1996)",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 732,
+      "latex_chunks": 0,
+      "gap_chunks": 285,
+      "gap_pct": 38.9
+    }
+  ]
+}
