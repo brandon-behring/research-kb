@@ -91,6 +91,11 @@ fixtures/eval/formula_comparison/manning/docling_*.md
 fixtures/eval/formula_comparison/boyd/docling_*.md
 
 # Generated MinerU batch artifacts
-/data/worklists/
-/data/checkpoints/
+/data/mineru/
 /data/logs/
+
+# In-flight runtime state — keep dirs (via .gitkeep), ignore contents
+/data/checkpoints/*
+!/data/checkpoints/.gitkeep
+/data/worklists/*
+!/data/worklists/.gitkeep
