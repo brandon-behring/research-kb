@@ -1,6 +1,6 @@
 # Domain Coverage Report
 
-**Auto-generated**: 2026-04-11 21:16:37
+**Auto-generated**: 2026-05-02 09:44:38
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,51 +9,51 @@
 
 | Domain | Sources | Chunks | Concepts | Coverage |
 |--------|--------:|-------:|---------:|----------|
-| `machine_learning` | 354 | 342,545 | 0 | Excellent |
-| `causal_inference` | 253 | 75,830 | 271,332 | Excellent |
-| `software_engineering` | 165 | 148,678 | 0 | Excellent |
-| `deep_learning` | 155 | 47,640 | 1,463 | Excellent |
+| `mathematics` | 331 | 291,680 | 0 | Excellent |
+| `causal_inference` | 254 | 76,038 | 271,332 | Excellent |
+| `software_engineering` | 174 | 150,166 | 0 | Excellent |
+| `analysis` | 163 | 134,110 | 0 | Excellent |
+| `deep_learning` | 154 | 46,064 | 1,463 | Excellent |
 | `rag_llm` | 116 | 58,683 | 21,544 | Excellent |
-| `mathematics` | 76 | 106,358 | 0 | Good |
+| `topology_geometry` | 114 | 109,416 | 0 | Excellent |
+| `machine_learning` | 84 | 156,700 | 0 | Good |
 | `time_series` | 72 | 38,131 | 17,252 | Good |
-| `finance` | 65 | 72,102 | 0 | Good |
+| `finance` | 70 | 72,102 | 0 | Good |
+| `linear_algebra` | 57 | 60,805 | 0 | Good |
 | `numerical_methods` | 52 | 45,502 | 0 | Good |
-| `linear_algebra` | 47 | 46,147 | 0 | Good |
+| `physics` | 52 | 28,587 | 0 | Good |
+| `statistics` | 48 | 63,274 | 0 | Good |
+| `optimization` | 48 | 34,063 | 0 | Good |
 | `econometrics` | 45 | 25,047 | 0 | Good |
-| `statistics` | 45 | 63,274 | 0 | Good |
 | `healthcare` | 35 | 1,006 | 0 | Good |
 | `data_science` | 34 | 34,588 | 0 | Good |
 | `algorithms` | 32 | 31,201 | 0 | Good |
+| `probability_theory` | 30 | 40,869 | 0 | Good |
 | `ml_engineering` | 28 | 20,512 | 0 | Moderate |
+| `fitness` | 26 | 19,988 | 0 | Moderate |
+| `biology_neuroscience` | 24 | 18,892 | 0 | Moderate |
 | `actuarial_insurance` | 24 | 15,753 | 0 | Moderate |
 | `dynamical_systems` | 23 | 22,213 | 0 | Moderate |
-| `fitness` | 22 | 19,988 | 0 | Moderate |
-| `probability_theory` | 21 | 32,990 | 0 | Moderate |
-| `biology_neuroscience` | 21 | 18,892 | 0 | Moderate |
 | `portfolio_management` | 20 | 20,714 | 0 | Moderate |
 | `algebra` | 18 | 19,149 | 0 | Moderate |
-| `analysis` | 18 | 22,392 | 0 | Moderate |
-| `optimization` | 17 | 14,945 | 0 | Moderate |
-| `physics` | 17 | 28,587 | 0 | Moderate |
-| `topology_geometry` | 16 | 36,862 | 0 | Moderate |
-| `signal_processing` | 11 | 11,012 | 0 | Moderate |
+| `signal_processing` | 15 | 11,012 | 0 | Moderate |
+| `reinforcement_learning` | 12 | 9,958 | 0 | Moderate |
 | `interview_prep` | 10 | 9,099 | 0 | Moderate |
-| `reinforcement_learning` | 10 | 9,864 | 0 | Moderate |
+| `functional_programming` | 9 | 8,949 | 0 | Thin |
 | `sql` | 8 | 1,612 | 0 | Thin |
 | `forecasting` | 5 | 872 | 0 | Thin |
+| `economics` | 3 | 3,294 | 0 | Thin |
 | `recommender_systems` | 3 | 430 | 0 | Thin |
-| `economics` | 2 | 3,288 | 0 | Thin |
-| `functional_programming` | 2 | 2,371 | 0 | Thin |
 | `adtech` | 2 | 394 | 0 | Thin |
 
 ---
 
 ## Coverage Summary
 
-- **Total**: 1,844 sources across 36 domains (1,448,671 chunks)
-- **Excellent** (100+ sources): 5 domains
-- **Good** (30-99 sources): 10 domains
-- **Moderate** (10-29 sources): 15 domains
+- **Total**: 2,195 sources across 36 domains (1,680,873 chunks)
+- **Excellent** (100+ sources): 7 domains
+- **Good** (30-99 sources): 13 domains
+- **Moderate** (10-29 sources): 10 domains
 - **Thin** (<10 sources): 6 domains
 - **Concept extraction**: 4/36 domains have KG concepts
 
