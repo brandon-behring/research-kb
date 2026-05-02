@@ -278,6 +278,66 @@ DOMAIN_KEYWORDS = {
     # Forecasting
     "demand_forecasting": "forecasting",
     "practical_time_series": "forecasting",
+    # Tier 1: core math
+    "linear_algebra": "linear_algebra",
+    "matrix_theory": "linear_algebra",
+    "optimization": "optimization",
+    "convex_optim": "optimization",
+    "probability_theory": "probability_theory",
+    "measure_theory": "probability_theory",
+    "stochastic_process": "probability_theory",
+    "real_analysis": "analysis",
+    "complex_analysis": "analysis",
+    "functional_analysis": "analysis",
+    "harmonic_analysis": "analysis",
+    "fourier_analysis": "analysis",
+    "operator_theory": "analysis",
+    "spectral_theor": "analysis",
+    "ergodic": "analysis",
+    "banach": "analysis",
+    "hilbert_space": "analysis",
+    "topology": "topology_geometry",
+    "geometr": "topology_geometry",
+    "manifold": "topology_geometry",
+    "differential_geometry": "topology_geometry",
+    "algebraic_topology": "topology_geometry",
+    "homotopy": "topology_geometry",
+    "homology": "topology_geometry",
+    "cohomology": "topology_geometry",
+    "knot_theory": "topology_geometry",
+    "lie_group": "topology_geometry",
+    "symplectic": "topology_geometry",
+    "riemannian": "topology_geometry",
+    "calculus": "mathematics",
+    "differential_equation": "mathematics",
+    "variation": "mathematics",
+    "numerical_method": "mathematics",
+    "numerical_analysis": "mathematics",
+    "number_theory": "mathematics",
+    "abstract_algebra": "mathematics",
+    "commutative_algebra": "mathematics",
+    "set_theory": "mathematics",
+    "combinator": "mathematics",
+    "graph_theory": "mathematics",
+    "dynamical_system": "mathematics",
+    "mathematical_proof": "mathematics",
+    # Tier 3: physics & engineering
+    "quantum_mechanic": "physics",
+    "quantum_theory": "physics",
+    "quantum_field": "physics",
+    "classical_mechanic": "physics",
+    "classical_dynamic": "physics",
+    "general_relativit": "physics",
+    "special_relativit": "physics",
+    "statistical_mechanic": "physics",
+    "thermodynamic": "physics",
+    "electrodynamic": "physics",
+    "feynman_lecture": "physics",
+    "cohen_tannoudji": "physics",
+    "control_theory": "engineering",
+    "control_system": "engineering",
+    "signal_processing": "engineering",
+    "information_theory": "information_theory",
 }
 
 
@@ -285,67 +345,186 @@ DOMAIN_KEYWORDS = {
 # The migrated/ directory uses non-standard labels.
 LEGACY_DOMAIN_MAP = {
     "programming": "software_engineering",
-    "other": "machine_learning",
+    "other": "general",  # was "machine_learning" — silent ML over-tagging path; "general" is honest
     "ml_stats": "statistics",
     "math": "mathematics",
-    "nlp": "rag_llm",
+    "nlp": "nlp",
     "causal": "causal_inference",
+    "dynamical_systems": "mathematics",
+    "numerical_methods": "mathematics",
+    "algebra": "mathematics",
+    "signal_processing": "engineering",
+    "biology_neuroscience": "neuroscience",
 }
+
+
+# Maps fixtures/library_books/<dir>/ → canonical domain (audit script taxonomy).
+# Used by infer_domain when filename keywords don't match: the parent directory
+# in library_books is the curated, ground-truth domain assignment.
+LIBRARY_DIR_TO_DOMAIN = {
+    "algebra": "mathematics",
+    "algorithms": "algorithms",
+    "analysis": "analysis",
+    "biology_neuroscience": "neuroscience",
+    "causal_inference": "causal_inference",
+    "data_science": "data_science",
+    "deep_learning": "deep_learning",
+    "dynamical_systems": "mathematics",
+    "finance": "finance",
+    "fitness": "fitness",
+    "machine_learning": "machine_learning",
+    "mathematics": "mathematics",
+    "numerical_methods": "mathematics",
+    "optimization": "optimization",
+    "physics": "physics",
+    "probability_theory": "probability_theory",
+    "rag_llm": "rag_llm",
+    "reinforcement_learning": "reinforcement_learning",
+    "signal_processing": "engineering",
+    "software_engineering": "software_engineering",
+    "statistics": "statistics",
+    "time_series": "time_series",
+    "topology_geometry": "topology_geometry",
+}
+
+
+# Path under which unclassified-source records are appended for follow-up triage.
+UNCLASSIFIED_DLQ = Path(__file__).parent.parent / "data" / "dlq" / "unclassified_sources.jsonl"
+
+
+def _record_unclassified(pdf_path: Path, sidecar_meta: dict | None) -> None:
+    """Append an unclassified-source record to the DLQ for later batch triage.
+
+    Captures filename, full path, and sidecar keys so a follow-up session can
+    decide on a canonical domain (or extend DOMAIN_KEYWORDS / LIBRARY_DIR_TO_DOMAIN).
+    """
+    import json
+    from datetime import datetime, timezone
+
+    UNCLASSIFIED_DLQ.parent.mkdir(parents=True, exist_ok=True)
+    sidecar_keys = list(sidecar_meta.keys()) if sidecar_meta else []
+    sidecar_domain = (sidecar_meta or {}).get("domain")
+    record = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "filename": pdf_path.name,
+        "pdf_path": str(pdf_path),
+        "sidecar_keys": sidecar_keys,
+        "sidecar_domain_raw": sidecar_domain,
+        "fallback_assigned": "general",
+    }
+    with UNCLASSIFIED_DLQ.open("a") as f:
+        f.write(json.dumps(record) + "\n")
 
 
 VALID_DOMAINS = {
-    "adtech",
-    "algorithms",
-    "causal_inference",
-    "data_science",
+    # Tier 1 (audit_formula_gaps.py)
+    "mathematics",
+    "linear_algebra",
+    "optimization",
+    "probability_theory",
+    "analysis",
+    "topology_geometry",
+    # Tier 2
+    "statistics",
+    "machine_learning",
+    "reinforcement_learning",
     "deep_learning",
+    "causal_inference",
+    "time_series",
     "econometrics",
-    "economics",
+    # Tier 3
+    "physics",
+    "engineering",
     "finance",
+    "nlp",
+    "information_theory",
+    "rag_llm",
+    "algorithms",
+    "computer_science",
+    # Tier 4
+    "software_engineering",
+    "functional_programming",
+    "business",
+    "economics",
+    "neuroscience",
+    "interview_prep",
+    "general",
+    # Other canonical (not tier-classified)
+    "adtech",
+    "data_science",
     "fitness",
     "forecasting",
-    "functional_programming",
     "healthcare",
-    "interview_prep",
-    "machine_learning",
-    "mathematics",
     "ml_engineering",
     "portfolio_management",
-    "rag_llm",
     "recommender_systems",
-    "software_engineering",
     "sql",
-    "statistics",
-    "time_series",
 }
 
 
-def infer_domain(filename: str, sidecar_meta: dict | None = None) -> str:
-    """Infer domain_id from sidecar metadata or filename keywords.
+def infer_domain(
+    filename: str,
+    sidecar_meta: dict | None = None,
+    full_path: Path | None = None,
+) -> str:
+    """Infer domain_id from sidecar metadata, filesystem path, or filename keywords.
 
-    Returns a valid domain string. Falls back to 'machine_learning' if no match.
+    Returns a valid domain string. Falls back to 'general' if no match,
+    appending the source to data/dlq/unclassified_sources.jsonl for later triage
+    and logging a warning so silent drift can be audited.
 
-    Priority: sidecar (if valid) → filename keywords → legacy mapping → fallback.
+    Priority:
+      1. Sidecar (if value already canonical) — highest trust.
+      2. Library_books filesystem path — `fixtures/library_books/<DIR>/file.pdf`
+         is the curated ground-truth domain assignment.
+      3. Filename keyword match (specific books).
+      4. Legacy sidecar mapping (non-canonical → canonical).
+      5. Fallback: 'general' + DLQ + warning.
     """
-    # Sidecar metadata — use if it's already a valid domain
+    # 1. Sidecar metadata — use if it's already a valid canonical domain
     if sidecar_meta and sidecar_meta.get("domain"):
         raw = sidecar_meta["domain"]
         if raw in VALID_DOMAINS:
             return raw
 
-    # Filename keyword inference (most reliable for specific books)
+    # 2. Filesystem path: library_books/<dir>/ encodes curated domain
+    if full_path is not None:
+        parts = full_path.parts
+        for i, part in enumerate(parts):
+            if part == "library_books" and i + 1 < len(parts):
+                dir_name = parts[i + 1]
+                mapped = LIBRARY_DIR_TO_DOMAIN.get(dir_name)
+                if mapped:
+                    return mapped
+                break
+
+    # 3. Filename keyword inference (most reliable for specific books)
     name_lower = filename.lower().replace(" ", "_").replace("-", "_")
     for keyword, domain in sorted(DOMAIN_KEYWORDS.items(), key=lambda x: -len(x[0])):
         if keyword in name_lower:
             return domain
 
-    # Legacy sidecar mapping as last resort
+    # 4. Legacy sidecar mapping (non-canonical → canonical)
     if sidecar_meta and sidecar_meta.get("domain"):
         mapped = LEGACY_DOMAIN_MAP.get(sidecar_meta["domain"])
         if mapped:
             return mapped
 
-    return "machine_learning"  # Safe fallback
+    # 5. Fallback: 'general' + DLQ + warning. Was 'machine_learning' historically;
+    # the silent ML default tagged ~260 math/physics books incorrectly (see issue #9
+    # post-2026-04-25 follow-up). 'general' is honest — surfaces sources that need
+    # manual classification rather than hiding them under a wrong canonical domain.
+    fallback_path = full_path if full_path is not None else Path(filename)
+    _record_unclassified(fallback_path, sidecar_meta)
+    logger.warning(
+        "domain_classifier_fallback",
+        filename=filename,
+        path=str(fallback_path) if full_path is not None else None,
+        sidecar_domain_raw=(sidecar_meta or {}).get("domain"),
+        assigned="general",
+        note="appended to data/dlq/unclassified_sources.jsonl",
+    )
+    return "general"
 
 
 def parse_args():
@@ -513,7 +692,7 @@ async def main():
         if not meta or not meta.get("title"):
             meta = parse_filename_for_metadata(pdf_path.name)
 
-        domain_id = infer_domain(pdf_path.name, meta)
+        domain_id = infer_domain(pdf_path.name, meta, full_path=pdf_path)
         start_time = time.time()
 
         try:
