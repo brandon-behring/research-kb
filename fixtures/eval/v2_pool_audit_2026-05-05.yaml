@@ -1,0 +1,539 @@
+schema_version: 1
+audit_date: '2026-05-05'
+auditor: assistant_pre_review
+pool_source: fixtures/eval/v2_pool_prelabeled.yaml
+stratification:
+  grade_3_per_domain: 5
+  grade_0_per_domain: 5
+  domains:
+    - mathematics
+    - analysis
+    - causal_inference
+    - machine_learning
+    - software_engineering
+    - cross_domain
+total_samples: 60
+random_seed: 42
+
+summary:
+  grade_3:
+    correct: 25
+    borderline: 5
+    wrong: 0
+    hit_rate_strict: 0.833
+    hit_rate_lenient: 1.000  # borderline counted as not-wrong
+  grade_0:
+    correct: 11
+    borderline: 3
+    wrong: 16
+    hit_rate_strict: 0.367
+    hit_rate_lenient: 0.467
+
+verdict: REJECT_AUTO_GRADES
+decision_rule_threshold: 0.80
+result: >
+  Grade-3 labels pass the 80% trust threshold (83% strict / 100% lenient).
+  Grade-0 labels FAIL severely (37% strict / 47% lenient). The auto-grader's
+  similarity-threshold heuristic is producing a high false-negative rate for
+  grade-0 — many genuinely-relevant chunks are mislabeled as irrelevant.
+  Auto-grades are NOT trustworthy as a v0 baseline metric; eval results
+  computed against them will systematically under-estimate true retrieval
+  precision (relevant retrievals graded as misses).
+
+failure_modes:
+  - mode: in_domain_content_below_similarity_threshold
+    description: >
+      Specialized in-domain chunks fall below the suggested_grade=3 threshold
+      (~0.45 similarity) and get graded 0 even though they answer the query.
+      Examples: Spirtes Causation/Prediction/Search "Directed Acyclic Graphs"
+      section graded 0 for "directed acyclic graph causal"; Reed-Simon
+      spectral theorem graded 0 for "Banach space functional analysis";
+      LightGBM content graded 0 for "gradient boosting XGBoost".
+    impact: ~50% of grade-0 samples in math/analysis/CI/ML/SWE were actually relevant
+  - mode: vocabulary_mismatch_overweighted
+    description: >
+      Auto-grader uses BGE cosine similarity, which under-credits chunks with
+      different surface vocabulary even when they're conceptually identical
+      (e.g., "compact operators" vs "Banach space functional analysis operator"
+      — both functional analysis but lexically distinct).
+    impact: false-negative concentration in foundational math/analysis domains
+  - mode: duplicate_books_inflate_grade_3_count
+    description: >
+      Multiple MEAP versions of the same book (Ensemble Methods v3/v4/v6/v7)
+      surface the same chunk text, all graded 3. Inflates apparent agreement
+      rate but under-tests label quality on diverse content.
+    impact: 5/5 grade-3 samples for ML are the same XGBoost section across MEAP versions
+  - mode: cross_domain_term_collisions
+    description: >
+      "Dirichlet" matches both Dirichlet's theorem (analytic number theory)
+      and Dirichlet distribution (probability). Auto-grader correctly grades
+      probability examples as 0 for the number theory query; this is a
+      success case for the threshold but illustrates that surface-level
+      similarity is sometimes the right signal.
+    impact: 3/5 grade-0 samples in math correctly classified due to term-collision filtering
+
+recommendations:
+  - "Don't use auto-graded labels as a trustworthy baseline. The eval numbers computed against them will be pessimistic relative to true retrieval quality."
+  - "For Session +2 marker-extension decision, use the DELTA between markers-on and markers-off rather than the absolute NDCG/MRR. The auto-grade noise is constant across both runs and cancels out in the A/B comparison."
+  - "For a trustworthy baseline, re-grade the existing pool's grade-0 candidates with a tighter rule (e.g., human review for chunks with similarity ≥ 0.65 AND source domain matches query domain). Estimated cost is ~500 candidates × 30 sec each = ~4 hours of human review."
+  - "Alternatively, switch the eval scoring rule from auto-grades to a 'match-by-source' criterion — a chunk is relevant if its source has been pre-tagged as a domain-canonical text for the query topic. This trades chunk-level precision for source-level robustness."
+
+samples:
+  # ----- mathematics: grade 3 -----
+  - sample_id: math_g3_01
+    query_id: q_math_001
+    query_text: analytic number theory prime number theorem Dirichlet
+    chunk_id: 53f4fa04-fca6-4202-9981-4fe86b250226
+    source_title: Complex Analysis (Theodore W. Gamelin)
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Section 5 'The Prime Number Theorem' — directly relevant (PNT proof history)"
+  - sample_id: math_g3_02
+    query_id: q_math_002
+    query_text: calculus integration techniques fundamental theorem
+    chunk_id: be37198e-be40-4cd7-818d-7e079d2b18f9
+    source_title: 'Calculus: Early Transcendentals. 9e'
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Stewart Calculus 'Techniques of Integration' chapter — exact match for query"
+  - sample_id: math_g3_03
+    query_id: q_math_002
+    query_text: calculus integration techniques fundamental theorem
+    chunk_id: 304e3975-8f03-43f3-915b-1d3c8ffe884b
+    source_title: Complex Analysis (Theodore W. Gamelin)
+    suggested_grade: 3
+    audit_verdict: borderline
+    note: "FTC for analytic functions is conceptually related but advanced/different audience than typical 'calculus integration techniques'"
+  - sample_id: math_g3_04
+    query_id: q_math_002
+    query_text: calculus integration techniques fundamental theorem
+    chunk_id: 2c6fad11-cc41-473e-be63-c0593da0691f
+    source_title: Stein-Shakarchi Fourier Analysis
+    suggested_grade: 3
+    audit_verdict: borderline
+    note: "Repeated integrals (Fubini-style) using FTC — relevant but more advanced than likely query intent"
+  - sample_id: math_g3_05
+    query_id: q_math_001
+    query_text: analytic number theory prime number theorem Dirichlet
+    chunk_id: 3d322585-6dc6-4a89-8cf2-88a1413b4873
+    source_title: Elementary Methods in Number Theory (Nathanson)
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Notes on Dirichlet's theorem elementary proof — directly relevant"
+
+  # ----- mathematics: grade 0 -----
+  - sample_id: math_g0_01
+    query_id: q_math_001
+    chunk_id: ded37071-006f-48d7-b324-1a2361fa6b8e
+    source_title: Bayesian Data Analysis (Gelman et al.)
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "'Dirichlet' here is the probability distribution, not Dirichlet's theorem — correct g0 (term collision)"
+  - sample_id: math_g0_02
+    query_id: q_math_001
+    chunk_id: 901966cc-0993-40d7-8cef-0917807bce39
+    source_title: Nakahara Geometry/Topology/Physics
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "Mathematical formulas, not about PNT or Dirichlet's theorem"
+  - sample_id: math_g0_03
+    query_id: q_math_001
+    chunk_id: 8188beda-9303-42ac-a758-2d2e884d4d8f
+    source_title: Bayesian Data Analysis (third edition)
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "Same as math_g0_01 — Dirichlet distribution, not theorem"
+  - sample_id: math_g0_04
+    query_id: q_math_001
+    chunk_id: b2f0ea91-d640-45e7-aa54-8b91eb87c789
+    source_title: Algebraic Number Theory (Lang)
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Section §2 Zeta function of a number field — directly analytic number theory! Zeta functions are central to PNT proof. Should be g2/g3."
+  - sample_id: math_g0_05
+    query_id: q_math_001
+    chunk_id: 68c19dbd-4fa2-474b-9cb8-2cfabbcb2e3c
+    source_title: Multiplicative Number Theory (Davenport)
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Siegel's theorem references — directly in analytic number theory canon. Should be g2/g3."
+
+  # ----- analysis: grade 3 -----
+  - sample_id: anal_g3_01
+    query_id: q_anal_001
+    query_text: Banach space functional analysis operator
+    chunk_id: b2e55544-d05e-440d-b1a1-d74848289823
+    source_title: A Short Course on Spectral Theory (Arveson)
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Functional Calculus + Operators on Hilbert Space — core functional analysis"
+  - sample_id: anal_g3_02
+    query_id: q_anal_002
+    query_text: complex analysis Cauchy integral formula
+    chunk_id: e883d192-ef78-4e49-9be8-6ce64b63b881
+    source_title: Complex Analysis
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Cauchy's formula for C^infty functions — exact topical match"
+  - sample_id: anal_g3_03
+    query_id: q_anal_001
+    chunk_id: 93a67971-bf1c-41c8-9b3a-abca02ef4e21
+    source_title: 253-Elementary Functional Analysis-MacCluer
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Operator Theory Basics chapter — directly relevant"
+  - sample_id: anal_g3_04
+    query_id: q_anal_002
+    chunk_id: 5a17e0e9-5049-4fd2-b2c9-55e4ad1a7d7b
+    source_title: Complex Analysis (Lang)
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Cauchy's formula appendix — directly relevant"
+  - sample_id: anal_g3_05
+    query_id: q_anal_001
+    chunk_id: 25afb6cf-da81-4096-92f0-8ecb887e720b
+    source_title: 253-Elementary Functional Analysis-MacCluer
+    suggested_grade: 3
+    audit_verdict: borderline
+    note: "Banach and the Scottish Cafe — mentions Banach by name but historical/biographical, not technical"
+
+  # ----- analysis: grade 0 (high failure rate domain) -----
+  - sample_id: anal_g0_01
+    query_id: q_anal_001
+    chunk_id: de446e95-d6cd-4e66-8145-75e7b3371149
+    source_title: 253-Elementary Functional Analysis-MacCluer
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Compact Operators section — DIRECTLY in functional analysis on Hilbert/Banach spaces. Should be g3."
+  - sample_id: anal_g0_02
+    query_id: q_anal_001
+    chunk_id: 4aa5b3c5-467e-4636-acd9-ddc56326b79e
+    source_title: Methods of Modern Mathematical Physics (Reed-Simon)
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Spectral theorem for self-adjoint operators — canonical functional analysis. Should be g3."
+  - sample_id: anal_g0_03
+    query_id: q_anal_001
+    chunk_id: 3e0b3294-ac3a-4781-9159-b312a99d5e8d
+    source_title: Beginning Functional Analysis (Saxe)
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Invariant Subspace Problem — major problem in functional analysis. Should be g2/g3."
+  - sample_id: anal_g0_04
+    query_id: q_anal_001
+    chunk_id: a6c119b2-b626-45e0-9d79-1100d620eb73
+    source_title: A Short Course on Spectral Theory (Arveson)
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Preface mentions 'fundamental problem of operator theory: calculate spectra' — operator theory is functional analysis. Should be g2/g3."
+  - sample_id: anal_g0_05
+    query_id: q_anal_002
+    chunk_id: 42c62b74-1fc5-4dd3-8caa-cf5b8622f43b
+    source_title: '978-0-387-98908-2 (textbook)'
+    suggested_grade: 0
+    audit_verdict: borderline
+    note: "Snippet too short — '2.4 A complex analytic viewpoint' suggests relevance but no body text"
+
+  # ----- causal_inference: grade 3 -----
+  - sample_id: ci_g3_01
+    query_id: q_ci_001
+    query_text: directed acyclic graph causal
+    chunk_id: a74ce50d-a3a0-4185-a8eb-002a40b0e93e
+    source_title: Graph Neural Networks In Action
+    suggested_grade: 3
+    audit_verdict: borderline
+    note: "Discusses DAGs but in GNN context, not necessarily causal — drift between query intent and chunk topic"
+  - sample_id: ci_g3_02
+    query_id: q_ci_004
+    query_text: consistency assumption potential outcomes
+    chunk_id: c3b95580-6992-46be-8018-036c19e540db
+    source_title: 'Explanation in Causal Inference (VanderWeele)'
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Potential outcomes / counterfactual framework — directly relevant"
+  - sample_id: ci_g3_03
+    query_id: q_ci_001
+    chunk_id: 12130198-f826-4051-b39e-de2500fc1113
+    source_title: Graph Neural Networks in Action
+    suggested_grade: 3
+    audit_verdict: borderline
+    note: "Same as ci_g3_01 — different version of GNN book; DAG yes but causal context unclear"
+  - sample_id: ci_g3_04
+    query_id: q_ci_003
+    query_text: doubly robust estimation AIPW
+    chunk_id: 92cb079c-8c23-4aff-a997-7ccff9ce84c6
+    source_title: Wager Causal Inference Statistical Learning 2024
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "14.2 Doubly robust estimation, IPW + regression-augmented = AIPW — exact match"
+  - sample_id: ci_g3_05
+    query_id: q_ci_004
+    chunk_id: 86f5820f-8302-4930-9821-e51f4255b835
+    source_title: Causal Inference and Discovery in Python
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Consistency assumption from potential outcomes framework — directly relevant"
+
+  # ----- causal_inference: grade 0 -----
+  - sample_id: ci_g0_01
+    query_id: q_ci_001
+    chunk_id: 184a8067-9198-43b1-8993-6fb3f7d7b4f0
+    source_title: Cunningham Causal Inference Mixtape 2021
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "TOC page only — no content"
+  - sample_id: ci_g0_02
+    query_id: q_ci_004
+    chunk_id: ad395d36-8014-4748-8171-660992a9c4d0
+    source_title: Causal Inference in Python
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "Index page only — no content"
+  - sample_id: ci_g0_03
+    query_id: q_ci_001
+    chunk_id: 283d30e5-ac82-4562-b482-4d77514ee22c
+    source_title: 2112.08417 Gerhardus
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Causal Ancestral Graphs for Time Series with Latent Confounders — DIRECTLY about causal DAGs (and generalizations). Should be g2/g3."
+  - sample_id: ci_g0_04
+    query_id: q_ci_003
+    chunk_id: d7a368e6-ae53-4203-bd87-3966c0b11d05
+    source_title: Wager Causal Inference Statistical Learning 2024
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Chapter 3 'Doubly Robust Methods' — same source as ci_g3_04. Should be g3 (chapter intro vs section content)."
+  - sample_id: ci_g0_05
+    query_id: q_ci_001
+    chunk_id: 5e63cea4-01de-4429-819f-e36b077652f0
+    source_title: Causation, Prediction, and Search (Spirtes)
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Section 2.3.1 Directed Acyclic Graphs — DEFINITION of DAGs in the Spirtes/Glymour/Scheines canonical text. Should be g3 (highest priority)."
+
+  # ----- machine_learning: grade 3 -----
+  - sample_id: ml_g3_01
+    query_id: q_ml_001
+    query_text: gradient boosting XGBoost
+    chunk_id: 1f791b23-fef0-4c94-bcbc-9d164cf48a54
+    source_title: Ensemble_Methods_for_Machine_Learning_v7_MEAP
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "6.3 XGBoost: A Framework for Newton Boosting — exact match"
+  - sample_id: ml_g3_02
+    query_id: q_ml_001
+    chunk_id: 72a37b5c-6f40-4634-9eeb-20786f9c23f7
+    source_title: Ensemble_Methods_for_Machine_Learning_v4_MEAP
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Same XGBoost section as v7 — duplicate book"
+  - sample_id: ml_g3_03
+    query_id: q_ml_001
+    chunk_id: 61dfa89a-be14-4469-9b20-f3c783ba1706
+    source_title: xgboost with python
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "XGBoost dedicated book intro — directly relevant"
+  - sample_id: ml_g3_04
+    query_id: q_ml_001
+    chunk_id: a0a42662-d8e4-4453-aa18-57341717dd42
+    source_title: Ensemble_Methods_for_Machine_Learning_v3_MEAP
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Same XGBoost section as v4 and v7 — duplicate"
+  - sample_id: ml_g3_05
+    query_id: q_ml_001
+    chunk_id: 3526fb12-d0af-4047-8031-14cd642c69ec
+    source_title: Ensemble_Methods_for_Machine_Learning_v6_MEAP
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Same XGBoost section as v3/v4/v7 — duplicate"
+
+  # ----- machine_learning: grade 0 -----
+  - sample_id: ml_g0_01
+    query_id: q_ml_001
+    chunk_id: 508befdb-32eb-4f40-8298-a852fe9a2079
+    source_title: ensemble learning algorithms with python
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Light Gradient Boosting Machine Ensemble — LightGBM is a peer of XGBoost (both gradient boosting). Should be g2."
+  - sample_id: ml_g0_02
+    query_id: q_ml_001
+    chunk_id: ddb1fa8e-03b5-4a7b-92d6-dc777f74dbff
+    source_title: Ace the Data Science Interview
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Boosting section explicitly mentions XGBoost as 'extreme gradient boosting'. Should be g2/g3."
+  - sample_id: ml_g0_03
+    query_id: q_ml_001
+    chunk_id: 33b4a944-d2af-4d46-a794-3abf14235b83
+    source_title: ensemble learning algorithms with python
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Light Gradient Boosted Machine Algorithm — gradient boosting class of ensemble ML. Should be g2."
+  - sample_id: ml_g0_04
+    query_id: q_ml_001
+    chunk_id: 3fc5d909-eeab-4cb7-a645-27b008ac7809
+    source_title: ensemble learning algorithms with python
+    suggested_grade: 0
+    audit_verdict: borderline
+    note: "Contents page listing 'Extreme Gradient Boosting Ensemble' — TOC of relevant content"
+  - sample_id: ml_g0_05
+    query_id: q_ml_001
+    chunk_id: 42b618c3-8cce-4ce3-a569-0f321cf672bf
+    source_title: Kaggle forecasting competitions paper
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "References list mentioning LightGBM — bibliography entry, not content"
+
+  # ----- software_engineering: grade 3 -----
+  - sample_id: swe_g3_01
+    query_id: q_swe_001
+    query_text: microservice vs monolith architecture
+    chunk_id: 583cbf2c-4300-453c-8abf-6322523d965b
+    source_title: AWS Certified Developer Official Study Guide
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Monolithic vs Microservices Architecture — exact match"
+  - sample_id: swe_g3_02
+    query_id: q_swe_001
+    chunk_id: 96c615b8-edff-4d7c-9489-726eb655d4ff
+    source_title: Kubernetes_for_Developers_v15_MEAP
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Microservice vs Monolith — exact section match"
+  - sample_id: swe_g3_03
+    query_id: q_swe_001
+    chunk_id: 8354ce0d-0866-4a0f-ac32-6f5648b20926
+    source_title: Kubernetes_for_Developers_v14_MEAP
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Same as v15 — duplicate MEAP version"
+  - sample_id: swe_g3_04
+    query_id: q_swe_001
+    chunk_id: d8bc3c74-0560-4c86-908f-9d56e8f0102d
+    source_title: Kubernetes_for_Developers (published)
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Same content as MEAP versions — published edition"
+  - sample_id: swe_g3_05
+    query_id: q_swe_001
+    chunk_id: a2337c94-2f38-4ed9-ab46-df1f7e59afcc
+    source_title: AWS Certified Developer Study Guide (alt edition)
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Same Monolithic vs Microservices content — duplicate AWS book"
+
+  # ----- software_engineering: grade 0 -----
+  - sample_id: swe_g0_01
+    query_id: q_swe_001
+    chunk_id: e706248a-1178-4a3a-a480-875d48baecb8
+    source_title: Platform_Engineering_on_Kubernetes_v9_MEAP
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "1.4.2 Differences with a Monolith — directly relevant. Should be g2/g3."
+  - sample_id: swe_g0_02
+    query_id: q_swe_001
+    chunk_id: b00adb27-6ddf-4643-a459-52170dee6a8b
+    source_title: AWS Certified Developer Official Study Guide
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "Contents page only — TOC reference"
+  - sample_id: swe_g0_03
+    query_id: q_swe_001
+    chunk_id: 91bf69a1-4925-46f9-a550-859cebaf0545
+    source_title: Kubernetes_for_Developers_v14_MEAP
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Microservice vs Monolith section continuation (page 139) — same chapter as g3 entries. Should be g3."
+  - sample_id: swe_g0_04
+    query_id: q_swe_001
+    chunk_id: 54814a63-8add-46e4-a1bd-7df628a1688a
+    source_title: Kubernetes_for_Developers_v15_MEAP
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Same as swe_g0_03 — chapter continuation. Should be g3."
+  - sample_id: swe_g0_05
+    query_id: q_swe_001
+    chunk_id: 520cf8b7-7d97-499b-83a9-06d9fac1beb8
+    source_title: Kubernetes_for_Developers (published)
+    suggested_grade: 0
+    audit_verdict: wrong
+    note: "Microservice vs monolith section continuation — same as g3 entries. Should be g3."
+
+  # ----- cross_domain: grade 3 -----
+  - sample_id: xd_g3_01
+    query_id: q_xd_006
+    query_text: matrix factorization methods in recommendation systems
+    chunk_id: fdc9d309-c645-48ed-90c0-fef526b7ddaa
+    source_title: Aggarwal Linear Algebra and Optimization for ML
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Further Reading: SVD and matrix factorization for recommender systems — exact match"
+  - sample_id: xd_g3_02
+    query_id: q_xd_004
+    query_text: stochastic differential equations in financial modeling
+    chunk_id: a97f6a81-00be-472f-a732-e126f8a9b0e0
+    source_title: Mathematics of Financial Derivatives
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "8.7 Conclusions previewing SDE chapters in financial modeling — exact match"
+  - sample_id: xd_g3_03
+    query_id: q_xd_002
+    query_text: optimization algorithms for neural network training
+    chunk_id: 0c135a25-28dc-4147-a4b7-d0cc889be30e
+    source_title: AWS ML Engineer Study Guide
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Optimization Problem in ML, gradient-based — directly relevant"
+  - sample_id: xd_g3_04
+    query_id: q_xd_002
+    chunk_id: ca813634-8a30-4953-a706-1ac97680cc58
+    source_title: Deep Learning (Goodfellow)
+    suggested_grade: 3
+    audit_verdict: correct
+    note: "Optimization for Training Deep Models — exact chapter match"
+  - sample_id: xd_g3_05
+    query_id: q_xd_006
+    chunk_id: 8d202949-ff71-41c3-b4f5-e653032d12ad
+    source_title: Survey on Accuracy-oriented Neural Recommendation
+    suggested_grade: 3
+    audit_verdict: borderline
+    note: "Generic intro to recommender systems; doesn't explicitly mention matrix factorization in this snippet"
+
+  # ----- cross_domain: grade 0 -----
+  - sample_id: xd_g0_01
+    query_id: q_xd_002
+    chunk_id: 8ba52179-2d41-45fd-ae39-58068263a780
+    source_title: 'Machine Learning Interviews (Kickstart)'
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "Index page about alerts/dashboards/data quality — not optimization content"
+  - sample_id: xd_g0_02
+    query_id: q_xd_002
+    chunk_id: 1ce122eb-a8a1-47d6-9100-44ebf503e9ad
+    source_title: Evolutionary Deep Learning
+    suggested_grade: 0
+    audit_verdict: borderline
+    note: "Brief contents page mentioning 'OPTIMIZING DEEP LEARNING' Part 2 — TOC of relevant book"
+  - sample_id: xd_g0_03
+    query_id: q_xd_002
+    chunk_id: 165a97c7-6c5e-4a13-9046-1bd1e1d0251d
+    source_title: 'Machine Learning: A Probabilistic Perspective'
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "Bibliography entries — pure references, no content"
+  - sample_id: xd_g0_04
+    query_id: q_xd_009
+    chunk_id: 4840e2cd-3100-4ffa-8aa2-456d6bca7c86
+    source_title: Chicone Ordinary Differential Equations
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "TOC of an ODE applications book — not specifically about epidemiological modeling"
+  - sample_id: xd_g0_05
+    query_id: q_xd_006
+    chunk_id: 255e8db1-4fd3-464c-9be8-8764c75b7148
+    source_title: Aggarwal Linear Algebra and Optimization for ML
+    suggested_grade: 0
+    audit_verdict: correct
+    note: "Bibliography references — not content about matrix factorization"

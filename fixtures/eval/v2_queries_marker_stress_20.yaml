@@ -1,0 +1,205 @@
+metadata:
+  version: 2-marker-stress-test
+  total_queries: 20
+  parent_fixture: fixtures/eval/v2_queries.yaml
+  selection: all queries with domain in marker-stress-test set (math, anal, ci, ml, swe, cross_domain)
+  selection_date: '2026-05-05'
+  note: "Aspirational 10\xD76=60 was infeasible; existing fixture has only 20 queries across these 6 domains."
+queries:
+- query_id: q_math_001
+  query_text: analytic number theory prime number theorem Dirichlet
+  domain: mathematics
+  difficulty: medium
+  tier: 1
+  type: single_domain
+  v1_source_id: null
+  v1_top_k: null
+  notes: Replacement query targeting Apostol, Newman, Murty number theory textbooks
+- query_id: q_math_002
+  query_text: calculus integration techniques fundamental theorem
+  domain: mathematics
+  difficulty: medium
+  tier: 1
+  type: single_domain
+  v1_source_id: null
+  v1_top_k: null
+  notes: Replacement query targeting Stewart, Thomas, Salas calculus textbooks
+- query_id: q_anal_001
+  query_text: Banach space functional analysis operator
+  domain: analysis
+  difficulty: medium
+  tier: 1
+  type: single_domain
+  v1_source_id: 2b79b2dc-7b2f-4124-aed7-1b6ed9d1670d
+  v1_top_k: 5
+- query_id: q_anal_002
+  query_text: complex analysis Cauchy integral formula
+  domain: analysis
+  difficulty: medium
+  tier: 1
+  type: single_domain
+  v1_source_id: a049565f-87fe-45b1-9cf9-b0aaf483f90f
+  v1_top_k: 10
+- query_id: q_swe_001
+  query_text: microservice vs monolith architecture
+  domain: software_engineering
+  difficulty: medium
+  tier: 2
+  type: single_domain
+  v1_source_id: d1ab3ca1-aa5e-4984-b8d9-a676d1564b91
+  v1_top_k: 5
+- query_id: q_ci_001
+  query_text: directed acyclic graph causal
+  domain: causal_inference
+  difficulty: medium
+  tier: 2
+  type: single_domain
+  v1_source_id: 91f2dc44-1cb3-49cb-b6f6-9062f9b3334e
+  v1_top_k: 10
+- query_id: q_ci_002
+  query_text: sensitivity analysis unmeasured confounding
+  domain: causal_inference
+  difficulty: medium
+  tier: 2
+  type: single_domain
+  v1_source_id: 1d3a81a8-cec4-401c-9fe1-39aa8374020d
+  v1_top_k: 5
+- query_id: q_ci_003
+  query_text: doubly robust estimation AIPW
+  domain: causal_inference
+  difficulty: medium
+  tier: 2
+  type: single_domain
+  v1_source_id: 865939f8-17ad-4c7f-af2d-9e7965461503
+  v1_top_k: 5
+- query_id: q_ci_004
+  query_text: consistency assumption potential outcomes
+  domain: causal_inference
+  difficulty: medium
+  tier: 2
+  type: single_domain
+  v1_source_id: 505004de-8f37-412c-b184-ad961a300b2b
+  v1_top_k: 5
+- query_id: q_ml_001
+  query_text: gradient boosting XGBoost
+  domain: machine_learning
+  difficulty: medium
+  tier: 2
+  type: single_domain
+  v1_source_id: 637af2d8-b6f5-462b-a767-05ed753adf80
+  v1_top_k: 5
+- query_id: q_xd_001
+  query_text: causal inference methods for time series data
+  domain: cross_domain
+  difficulty: medium
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - causal_inference
+  - time_series
+  - econometrics
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_002
+  query_text: optimization algorithms for neural network training
+  domain: cross_domain
+  difficulty: medium
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - optimization
+  - deep_learning
+  - algorithms
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_003
+  query_text: Bayesian methods applied to causal inference
+  domain: cross_domain
+  difficulty: medium
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - statistics
+  - causal_inference
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_004
+  query_text: stochastic differential equations in financial modeling
+  domain: cross_domain
+  difficulty: medium
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - probability_theory
+  - finance
+  - mathematics
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_005
+  query_text: graph neural networks for causal discovery
+  domain: cross_domain
+  difficulty: hard
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - deep_learning
+  - causal_inference
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_006
+  query_text: matrix factorization methods in recommendation systems
+  domain: cross_domain
+  difficulty: medium
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - linear_algebra
+  - recommender_systems
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_007
+  query_text: statistical testing for online controlled experiments
+  domain: cross_domain
+  difficulty: medium
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - statistics
+  - data_science
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_008
+  query_text: reinforcement learning for portfolio optimization
+  domain: cross_domain
+  difficulty: hard
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - reinforcement_learning
+  - portfolio_management
+  - finance
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_009
+  query_text: epidemiological modeling with differential equations
+  domain: cross_domain
+  difficulty: medium
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - biology_neuroscience
+  - dynamical_systems
+  - mathematics
+  v1_source_id: null
+  v1_top_k: null
+- query_id: q_xd_010
+  query_text: neural embedding models for information retrieval
+  domain: cross_domain
+  difficulty: medium
+  tier: 3
+  type: cross_domain
+  domains_involved:
+  - rag_llm
+  - deep_learning
+  v1_source_id: null
+  v1_top_k: null
