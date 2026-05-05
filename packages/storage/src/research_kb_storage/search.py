@@ -15,6 +15,7 @@ Score semantics:
 
 import asyncio
 import json
+import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
@@ -210,7 +211,14 @@ def _apply_priority_multiplier(results: list[SearchResult]) -> None:
     Sources marked 'low_redundant' (clear-skip intro/solution-manual material) get a
     0.5x multiplier; 'low_review_pending' get 0.75x. Normal-priority sources are
     unchanged. Mutates results in place; caller must resort by combined_score.
+
+    Ablation hook: when env var ``RKB_PRIORITY_MULTIPLIERS_DISABLED=1`` is set, this
+    function is a no-op. Used by ``scripts/eval_v2.py --disable-priority`` to measure
+    the marker effect via A/B comparison; production defaults remain unchanged when
+    the env var is unset or set to any other value.
     """
+    if os.environ.get("RKB_PRIORITY_MULTIPLIERS_DISABLED") == "1":
+        return
     for r in results:
         prio = r.source.metadata.get("ingestion_priority") if r.source.metadata else None
         mult = PRIORITY_MULTIPLIERS.get(prio)

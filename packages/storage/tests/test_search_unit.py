@@ -1038,3 +1038,129 @@ class TestSearchResultFieldParity:
         assert h_keys == f_keys, (
             f"Field divergence: hybrid-only={h_keys - f_keys}, " f"fast-only={f_keys - h_keys}"
         )
+
+
+# ---------------------------------------------------------------------------
+# _apply_priority_multiplier: ingestion_priority downweight + ablation gate
+# ---------------------------------------------------------------------------
+
+
+def _make_priority_result(priority, combined_score=1.0):
+    """Build a SearchResult with metadata.ingestion_priority set to ``priority``.
+
+    Parameters
+    ----------
+    priority : str | None
+        Value for ``source.metadata['ingestion_priority']``. None leaves metadata empty.
+    combined_score : float
+        Initial combined_score before _apply_priority_multiplier mutates it.
+
+    Returns
+    -------
+    SearchResult
+    """
+    sid = uuid4()
+    chunk = _make_chunk(source_id=sid)
+    source = Source(
+        id=sid,
+        source_type=SourceType.PAPER,
+        title="Test Source",
+        domain_id="mathematics",
+        file_hash=f"hash_{uuid4().hex[:8]}",
+        metadata={"ingestion_priority": priority} if priority is not None else {},
+        created_at=_NOW,
+        updated_at=_NOW,
+    )
+    return SearchResult(
+        chunk=chunk,
+        source=source,
+        fts_score=None,
+        vector_score=None,
+        graph_score=None,
+        citation_score=None,
+        combined_score=combined_score,
+        rank=1,
+    )
+
+
+class TestPriorityMultiplier:
+    """Unit tests for _apply_priority_multiplier (sync helper)."""
+
+    def test_low_redundant_gets_half_multiplier(self):
+        """``low_redundant`` priority halves the combined_score (0.5x)."""
+        from research_kb_storage.search import _apply_priority_multiplier
+
+        results = [_make_priority_result("low_redundant", combined_score=1.0)]
+        _apply_priority_multiplier(results)
+
+        assert results[0].combined_score == pytest.approx(0.5)
+
+    def test_low_review_pending_gets_three_quarters_multiplier(self):
+        """``low_review_pending`` priority applies 0.75x."""
+        from research_kb_storage.search import _apply_priority_multiplier
+
+        results = [_make_priority_result("low_review_pending", combined_score=1.0)]
+        _apply_priority_multiplier(results)
+
+        assert results[0].combined_score == pytest.approx(0.75)
+
+    def test_normal_priority_unchanged(self):
+        """Sources with no ingestion_priority marker are not downweighted."""
+        from research_kb_storage.search import _apply_priority_multiplier
+
+        results = [_make_priority_result(None, combined_score=0.8)]
+        _apply_priority_multiplier(results)
+
+        assert results[0].combined_score == pytest.approx(0.8)
+
+    def test_unknown_priority_value_unchanged(self):
+        """Unknown priority strings (typo, future tier) are no-ops, not errors."""
+        from research_kb_storage.search import _apply_priority_multiplier
+
+        results = [_make_priority_result("brand_new_tier", combined_score=0.6)]
+        _apply_priority_multiplier(results)
+
+        assert results[0].combined_score == pytest.approx(0.6)
+
+    def test_env_var_disable_skips_multiplier(self, monkeypatch):
+        """RKB_PRIORITY_MULTIPLIERS_DISABLED=1 short-circuits the helper.
+
+        Used by ``scripts/eval_v2.py --disable-priority`` to measure marker
+        effect via A/B comparison without code changes.
+        """
+        from research_kb_storage.search import _apply_priority_multiplier
+
+        monkeypatch.setenv("RKB_PRIORITY_MULTIPLIERS_DISABLED", "1")
+        results = [
+            _make_priority_result("low_redundant", combined_score=1.0),
+            _make_priority_result("low_review_pending", combined_score=0.8),
+        ]
+        _apply_priority_multiplier(results)
+
+        # Scores must be untouched when the ablation flag is set
+        assert results[0].combined_score == pytest.approx(1.0)
+        assert results[1].combined_score == pytest.approx(0.8)
+
+    def test_env_var_other_values_still_apply_multiplier(self, monkeypatch):
+        """Only the literal string '1' disables; other truthy values must NOT.
+
+        Guards against accidental disables — e.g., ``RKB_PRIORITY_MULTIPLIERS_DISABLED=true``
+        is a misconfiguration that should still apply downweight (fail safe to default).
+        """
+        from research_kb_storage.search import _apply_priority_multiplier
+
+        monkeypatch.setenv("RKB_PRIORITY_MULTIPLIERS_DISABLED", "true")
+        results = [_make_priority_result("low_redundant", combined_score=1.0)]
+        _apply_priority_multiplier(results)
+
+        assert results[0].combined_score == pytest.approx(0.5)
+
+    def test_env_var_unset_applies_multiplier(self, monkeypatch):
+        """When env var is unset, default downweight behavior is preserved."""
+        from research_kb_storage.search import _apply_priority_multiplier
+
+        monkeypatch.delenv("RKB_PRIORITY_MULTIPLIERS_DISABLED", raising=False)
+        results = [_make_priority_result("low_redundant", combined_score=1.0)]
+        _apply_priority_multiplier(results)
+
+        assert results[0].combined_score == pytest.approx(0.5)

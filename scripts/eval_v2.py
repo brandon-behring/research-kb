@@ -32,6 +32,7 @@ Usage:
 import argparse
 import asyncio
 import json
+import os
 import sys
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -41,6 +42,13 @@ from typing import Any, Optional
 import numpy as np
 import yaml
 from ranx import Qrels, Run, compare, evaluate
+
+# Pre-scan argv for --disable-priority. Must run BEFORE the storage import below
+# because _apply_priority_multiplier reads RKB_PRIORITY_MULTIPLIERS_DISABLED via
+# os.environ.get(); the env var must be set before any module-level state in
+# search.py is captured. (The argparse handler later just produces --help text.)
+if "--disable-priority" in sys.argv:
+    os.environ["RKB_PRIORITY_MULTIPLIERS_DISABLED"] = "1"
 
 # Add packages to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "pdf-tools" / "src"))
@@ -114,7 +122,9 @@ def convert_metric_names(ranx_metrics: dict[str, float]) -> dict[str, float]:
     dict
         Metrics keyed by eval_compare.py names (e.g., "ndcg_10").
     """
-    return {METRIC_NAME_MAP.get(k, k): float(v) for k, v in ranx_metrics.items() if k in METRIC_NAME_MAP}
+    return {
+        METRIC_NAME_MAP.get(k, k): float(v) for k, v in ranx_metrics.items() if k in METRIC_NAME_MAP
+    }
 
 
 def load_ground_truth(
@@ -427,7 +437,9 @@ def build_output(
         output["per_domain"] = compute_per_group_metrics(queries, per_query_metrics, "domain")
 
     if per_difficulty:
-        output["per_difficulty"] = compute_per_group_metrics(queries, per_query_metrics, "difficulty")
+        output["per_difficulty"] = compute_per_group_metrics(
+            queries, per_query_metrics, "difficulty"
+        )
 
     return output
 
@@ -533,13 +545,24 @@ async def main() -> None:
         metavar=("BASELINE", "CANDIDATE"),
         help="Compare two saved runs with statistical significance",
     )
+    parser.add_argument(
+        "--disable-priority",
+        action="store_true",
+        help=(
+            "Disable ingestion_priority downweight in search results "
+            "(sets RKB_PRIORITY_MULTIPLIERS_DISABLED=1 BEFORE storage import). "
+            "Use for marker-effect A/B comparison; production defaults preserved when unset."
+        ),
+    )
     args = parser.parse_args()
 
     # --- Load ground truth ---
     print(f"Loading ground truth from {args.ground_truth}")
     qrels_dict, queries = load_ground_truth(args.ground_truth, args.use_suggested)
     gt_field = "suggested_grade" if args.use_suggested else "relevance"
-    print(f"  {len(queries)} queries, {sum(len(d) for d in qrels_dict.values())} relevant judgments")
+    print(
+        f"  {len(queries)} queries, {sum(len(d) for d in qrels_dict.values())} relevant judgments"
+    )
     print(f"  Ground truth field: {gt_field}")
 
     qrels = Qrels(qrels_dict)
@@ -592,7 +615,9 @@ async def main() -> None:
 
     if args.per_domain and "per_domain" in output:
         print(f"\n  Per-domain ({len(output['per_domain'])} domains):")
-        for domain, metrics in sorted(output["per_domain"].items(), key=lambda x: x[1].get("ndcg_10", 0)):
+        for domain, metrics in sorted(
+            output["per_domain"].items(), key=lambda x: x[1].get("ndcg_10", 0)
+        ):
             ndcg = metrics.get("ndcg_10", 0)
             mrr = metrics.get("mrr", 0)
             n = metrics["total"]
