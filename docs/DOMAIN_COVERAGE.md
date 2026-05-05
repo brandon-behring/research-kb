@@ -1,6 +1,6 @@
 # Domain Coverage Report
 
-**Auto-generated**: 2026-05-02 09:44:38
+**Auto-generated**: 2026-05-05 10:22:28
 **DO NOT EDIT MANUALLY** - Run `python scripts/generate_status.py` to update
 
 ---
@@ -9,21 +9,21 @@
 
 | Domain | Sources | Chunks | Concepts | Coverage |
 |--------|--------:|-------:|---------:|----------|
-| `mathematics` | 331 | 291,680 | 0 | Excellent |
+| `mathematics` | 334 | 296,329 | 0 | Excellent |
 | `causal_inference` | 254 | 76,038 | 271,332 | Excellent |
 | `software_engineering` | 174 | 150,166 | 0 | Excellent |
-| `analysis` | 163 | 134,110 | 0 | Excellent |
+| `analysis` | 163 | 137,743 | 0 | Excellent |
 | `deep_learning` | 154 | 46,064 | 1,463 | Excellent |
 | `rag_llm` | 116 | 58,683 | 21,544 | Excellent |
 | `topology_geometry` | 114 | 109,416 | 0 | Excellent |
-| `machine_learning` | 84 | 156,700 | 0 | Good |
+| `machine_learning` | 84 | 150,371 | 0 | Good |
 | `time_series` | 72 | 38,131 | 17,252 | Good |
 | `finance` | 70 | 72,102 | 0 | Good |
 | `linear_algebra` | 57 | 60,805 | 0 | Good |
 | `numerical_methods` | 52 | 45,502 | 0 | Good |
 | `physics` | 52 | 28,587 | 0 | Good |
 | `statistics` | 48 | 63,274 | 0 | Good |
-| `optimization` | 48 | 34,063 | 0 | Good |
+| `optimization` | 47 | 34,063 | 0 | Good |
 | `econometrics` | 45 | 25,047 | 0 | Good |
 | `healthcare` | 35 | 1,006 | 0 | Good |
 | `data_science` | 34 | 34,588 | 0 | Good |
@@ -50,7 +50,7 @@
 
 ## Coverage Summary
 
-- **Total**: 2,195 sources across 36 domains (1,680,873 chunks)
+- **Total**: 2,197 sources across 36 domains (1,682,826 chunks)
 - **Excellent** (100+ sources): 7 domains
 - **Good** (30-99 sources): 13 domains
 - **Moderate** (10-29 sources): 10 domains
