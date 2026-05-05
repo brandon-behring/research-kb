@@ -1,0 +1,37 @@
+{
+  "total_sources": 3,
+  "total_gap_chunks": 2591,
+  "total_latex_chunks": 1,
+  "rows": [
+    {
+      "source_id": "5d6de5f8-9266-487a-9fe7-660dcacd26f5",
+      "title": "compressed_(.Net Developers) Sergios Theodoridis - Machine Learning: A Bayesian and Optimization Perspective-Academic Press",
+      "domain_id": "optimization",
+      "tier": 1,
+      "total_chunks": 3214,
+      "latex_chunks": 1,
+      "gap_chunks": 1296,
+      "gap_pct": 40.3
+    },
+    {
+      "source_id": "c4bff040-d26a-42f8-9b8e-9f6d47de54ae",
+      "title": "An Exploration of Dynamical Systems and Chaos",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1900,
+      "latex_chunks": 0,
+      "gap_chunks": 839,
+      "gap_pct": 44.2
+    },
+    {
+      "source_id": "aad7d801-7a75-490b-a2c3-61812d9dd3c0",
+      "title": "Stephen Lynch - Dynamical Systems with Applications using Python-Springer International Publishing Birkh\u00e4user 2018",
+      "domain_id": "mathematics",
+      "tier": 1,
+      "total_chunks": 1215,
+      "latex_chunks": 0,
+      "gap_chunks": 456,
+      "gap_pct": 37.5
+    }
+  ]
+}
