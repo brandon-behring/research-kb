@@ -163,6 +163,8 @@ KG revival (Option D) can run as a separate weekend campaign once Tier 1 redo an
 
 8.1 **Multiplier values**: 0.5 / 0.75 are placeholders. Once eval suite exists, tune empirically. Possible alternatives: 0.3 / 0.6 (more aggressive) or 0.7 / 0.85 (more conservative).
 
+> **Update 2026-05-05** (eval baseline session, see `evaluation_runs/baseline_2026-05-05.md`): A/B run on the 71-query v2 suite produced **null effect** at p>0.05 (NDCG@10 0.5572 ON vs 0.5673 OFF; Fisher's randomization test). On the targeted domains (math, analysis), the marker effect is exactly **zero** — top-K retrievals do not include any marked sources for those queries. Where markers had any effect at all, it was a regression: dynamical_systems -0.150 NDCG@10, biology_neuroscience -0.127, reinforcement_learning -0.062. The label-quality audit (`fixtures/eval/v2_pool_audit_2026-05-05.yaml`) found grade-0 hit-rate of only 37% — auto-grades cannot reliably distinguish marker effect from label noise. **Do not retune multipliers based on this null result; instead: (a) re-grade the eval pool, (b) investigate the dyn_sys/RL/bio regressions for mistagged sources, (c) build marker-stress-test queries before re-running A/B.**
+
 8.2 **Do `low_review_pending` items deserve the marker at all?** Some (Lang's *Short Calculus*, Klambauer's *Aspects of Calculus*) are intro-but-pedagogically-different. User judgment; eval suite would settle it.
 
 8.3 **MEAP older versions kept as `low_redundant`** — but newest version of a Manning book may be DRAFT (typos, incomplete chapters). Should newest-MEAP get downweighted vs the published edition (when both exist)?
