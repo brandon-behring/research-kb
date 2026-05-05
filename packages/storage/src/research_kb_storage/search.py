@@ -198,6 +198,26 @@ def _compute_ranks_by_signal(results: list) -> dict[str, dict[str, int]]:
     return dict(rankings)
 
 
+PRIORITY_MULTIPLIERS = {
+    "low_redundant": 0.5,
+    "low_review_pending": 0.75,
+}
+
+
+def _apply_priority_multiplier(results: list[SearchResult]) -> None:
+    """Downweight combined_score for sources flagged via metadata.ingestion_priority.
+
+    Sources marked 'low_redundant' (clear-skip intro/solution-manual material) get a
+    0.5x multiplier; 'low_review_pending' get 0.75x. Normal-priority sources are
+    unchanged. Mutates results in place; caller must resort by combined_score.
+    """
+    for r in results:
+        prio = r.source.metadata.get("ingestion_priority") if r.source.metadata else None
+        mult = PRIORITY_MULTIPLIERS.get(prio)
+        if mult is not None:
+            r.combined_score *= mult
+
+
 async def search_hybrid(query: SearchQuery) -> list[SearchResult]:
     """Execute hybrid search combining FTS and vector similarity.
 
@@ -254,6 +274,14 @@ async def search_hybrid(query: SearchQuery) -> list[SearchResult]:
                     rankings = chunk_rankings.get(chunk_id, {})
                     result.combined_score = compute_rrf_score(rankings)
                 # Re-sort by RRF score and reassign ranks
+                results.sort(key=lambda r: r.combined_score, reverse=True)
+                for rank, result in enumerate(results, start=1):
+                    result.rank = rank
+
+            # Apply ingestion_priority downweight (low_redundant 0.5x, low_review_pending 0.75x)
+            # then resort. No-op for results without the marker.
+            if results:
+                _apply_priority_multiplier(results)
                 results.sort(key=lambda r: r.combined_score, reverse=True)
                 for rank, result in enumerate(results, start=1):
                     result.rank = rank
@@ -538,6 +566,10 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
                     + graph_w * graph_score_norm
                     + citation_w * citation_score_norm
                 )
+
+        # Apply ingestion_priority downweight before final sort (low_redundant 0.5x,
+        # low_review_pending 0.75x). No-op for normal-priority sources.
+        _apply_priority_multiplier(base_results)
 
         # Sort by combined score and apply final limit
         base_results.sort(key=lambda r: r.combined_score, reverse=True)

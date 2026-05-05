@@ -1,0 +1,1087 @@
+{
+  "version": 1,
+  "created_at": "2026-05-03T11:59:19.673278+00:00",
+  "schema": "ingestion_priority marker manifest",
+  "tiers": {
+    "low_redundant": "Clear-skip: redundant intro/solution-manual content (calculus 101, Schaum's, ISM). Last priority for re-ingestion.",
+    "low_review_pending": "Likely-skip: probably redundant intro material; pending user confirmation."
+  },
+  "rows": [
+    {
+      "parent_title": "Calculus: Early Transcendentals. 9e",
+      "tier": "low_redundant",
+      "n_parts": 6,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "3a41653a-0ea7-4094-a944-4a529f628cb5",
+        "556f9d74-fb2c-456b-8d62-4533ca9167a0",
+        "f488b857-dda3-4762-87fb-5e432e8bf070",
+        "3b5c1b6c-27ac-48d5-be5f-5cb13fc4d1b7",
+        "5ba8071c-39e1-488a-8551-80f55d5725e0",
+        "61361f7d-7c14-42fb-9b3b-e8a0a1efce2d"
+      ]
+    },
+    {
+      "parent_title": "Thomas_Calculus_Single_Multi_12th_txtbk",
+      "tier": "low_redundant",
+      "n_parts": 6,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "32580ec1-0016-4a54-a396-e4477b9338d3",
+        "a648d0bb-5485-4e3b-be73-3686be95c3d3",
+        "c534034c-04f8-4935-b612-a522478f2856",
+        "1a9d14e5-e75c-46aa-9e3e-18812b31d810",
+        "0c781ac4-48ed-46c2-b675-56b9e5f92f43",
+        "31e40028-be47-4dc7-a30e-a388f86768ac"
+      ]
+    },
+    {
+      "parent_title": "Thomas Calculus 13th",
+      "tier": "low_redundant",
+      "n_parts": 6,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "0890178c-5f56-44b2-909b-2f9232931733",
+        "0fe17252-30d2-472c-915a-f9c663bb4580",
+        "75e1910d-5739-4071-99cd-d813477ede72",
+        "118e06df-3e2c-4a53-9066-85dcb93dab68",
+        "b25a8cc6-a629-4cf7-a147-feb660adee4b",
+        "61b9f605-dc3f-4484-b719-6b913d380be1"
+      ]
+    },
+    {
+      "parent_title": "Joel R. Hass, Christopher D. Heil, Maurice D. Weir-Thomas\u2019 Calculus-Pearson (2017)-2",
+      "tier": "low_redundant",
+      "n_parts": 6,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "e6a9d1d1-54c6-4972-aad1-291d08e20bfe",
+        "4e667abb-b1e8-4e40-bda8-8c4337f28c78",
+        "43a85d97-3340-4e7b-a39e-6883d7e85c23",
+        "d6c203b5-e183-4af7-b0b2-3954cc767a06",
+        "5a6f91f5-ed20-4a3e-92e1-432e0934c621",
+        "7a015967-6640-405c-8e77-d5d00ff41c3f"
+      ]
+    },
+    {
+      "parent_title": "Hass Joel  Heil Christopher  Thomas George Brinton  Weir Maurice D - Thomas Calculus-Pearson 2018",
+      "tier": "low_redundant",
+      "n_parts": 6,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "7896e0a0-e05c-4b15-b4de-a7f4be35687c",
+        "191b8d96-c5f0-4ba0-8f37-5585cefe783a",
+        "21ff5ae3-b932-4916-a1b4-1fff4a2c089f",
+        "fb4875a5-7d18-454a-a799-4c526ebf5fa1",
+        "2725bc08-8bd9-49ff-ae7b-047873e129bd",
+        "0628cf89-1069-439c-8354-ab940fc94a51"
+      ]
+    },
+    {
+      "parent_title": "Calculus: One and Several Variables, 10th Edition",
+      "tier": "low_redundant",
+      "n_parts": 6,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "0529603a-6cee-4ba6-bc43-6ed87bbac3f3",
+        "f850bb40-d5b5-454d-8d17-e86e9386bb79",
+        "534e16f9-71ec-4b29-aeeb-597045640c44",
+        "7628c3d6-ceb3-4163-85a2-5d61b89940be",
+        "269cb0b7-6fa5-43ce-85f1-bc7c294bb13b",
+        "d6a7f04e-8e62-4f46-a988-f4e679411959"
+      ]
+    },
+    {
+      "parent_title": "ISM_T12_PRE_VI",
+      "tier": "low_redundant",
+      "n_parts": 6,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "60874b67-921c-4d47-8c09-5b502266bfe3",
+        "a0a0aabc-4162-46f8-b74a-ac6ee92b89ff",
+        "5829ab0a-5744-41dc-8824-70061593c22e",
+        "de0e8f68-3a98-47d8-9e40-618d8ba39b54",
+        "bb6bcbb2-5e18-497f-9bc2-ac5f6e5cff97",
+        "1641787b-152d-4e0e-96d6-fcf404ac4271"
+      ]
+    },
+    {
+      "parent_title": "Instructor's Solutions Manual to Thomas' Calculus: Early Transcendentals, 13th Edition",
+      "tier": "low_redundant",
+      "n_parts": 4,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "41b59d6a-074c-4ddf-a202-2fe0e9c52f05",
+        "293204f1-1cac-401a-9ef2-d4ca256fa055",
+        "ea74b6af-a34a-4443-b25e-3fbe90f115a9",
+        "080acf12-fea8-403a-b337-279ce2b8668f"
+      ]
+    },
+    {
+      "parent_title": "3000 Solved Problems in Calculus",
+      "tier": "low_redundant",
+      "n_parts": 4,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "ad7fce83-2bd1-4c5a-9a5a-7619c54abdb6",
+        "49159403-b220-49c6-8a77-43de6d4483ac",
+        "cec3666b-f856-4549-8ea2-2417004ef35a",
+        "8313a4d9-9aee-4f19-b1c0-7713203220cf"
+      ]
+    },
+    {
+      "parent_title": "Calculus - One Variable",
+      "tier": "low_redundant",
+      "n_parts": 4,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "cb2a3139-e34f-4514-b24f-402984391ea7",
+        "6e37791d-fd1f-48db-b4c6-5569e52cf8bd",
+        "7be4a73f-8083-4516-a65e-38fdf73f7528",
+        "f4398987-41c1-4841-b382-dee4de147607"
+      ]
+    },
+    {
+      "parent_title": "Multivariable Calculus",
+      "tier": "low_redundant",
+      "n_parts": 4,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "fbc36080-af00-4c6a-9cd2-e762f1f639d1",
+        "e3002f94-c074-4d18-a269-f72426a13ee6",
+        "667b4d37-3efe-49aa-9d50-0ba3975a39dc",
+        "93d01734-014d-495c-91e4-72f8398a28d5"
+      ]
+    },
+    {
+      "parent_title": "Bronson R., Costa G.B. Schaum\u2019s outlines. Differential equations MGH (2014)",
+      "tier": "low_redundant",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "10390e19-a361-4f62-ab4a-139cc0954c76",
+        "61dbc582-d705-44f0-9d23-f87841848b9f",
+        "1d914818-9b4c-4348-af5b-dc913ae6f944"
+      ]
+    },
+    {
+      "parent_title": "Schaum's Differential Equations -- 398",
+      "tier": "low_redundant",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "d8f2af3f-bc87-42e3-a13d-1be5e325060e",
+        "39efa2c0-f53d-4583-968e-716ee6754073",
+        "0dbe58c6-5b16-4727-a5bd-1420d6d55a71"
+      ]
+    },
+    {
+      "parent_title": "Schaum's Outline of Linear Algebra (4th Edition)",
+      "tier": "low_redundant",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "4566d8f3-0b76-4f26-b109-e1937a31c9a4",
+        "f8824249-d761-4f59-9f17-8908cdafa5a4",
+        "572f8429-f89a-42f9-ae6a-2aa7d69c3dd6"
+      ]
+    },
+    {
+      "parent_title": "(Schaum\u2019s Outlines) Seymour Lipschutz, Marc Lipson Linear Algebra McGraw Hill (2018)",
+      "tier": "low_redundant",
+      "n_parts": 0,
+      "n_parents_resolved": 0,
+      "all_source_ids": []
+    },
+    {
+      "parent_title": "Schaum's Outline of Numerical Analysis",
+      "tier": "low_redundant",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "c9e3e80f-732d-47ae-86ff-08b6aadc7a80",
+        "84e7d469-3b42-4b06-9a21-1f2b966f0b5b",
+        "a7a7af4c-f08f-4fe9-93e8-aa1df5f0f566"
+      ]
+    },
+    {
+      "parent_title": "Schuam's Outline of Theory and Problems in Advanced Calculus",
+      "tier": "low_redundant",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "782c5cd3-0546-4935-b894-26eeee6926c5",
+        "3b5dcd1f-116b-4a2b-9c63-e9ecbb3e5fed",
+        "02ea2150-5910-4c0d-9ab4-f1132ed216bc"
+      ]
+    },
+    {
+      "parent_title": "[Erwin Kreyszig] Introductory functional analysis (BookFi.org)",
+      "tier": "low_redundant",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "a08ee8e3-ae9d-449b-ad3f-a07812c96ba6",
+        "d0599c25-778e-4d28-968d-0c5e2a86cf0f",
+        "4c937e24-bb24-42e8-ad68-4ec3434b3324"
+      ]
+    },
+    {
+      "parent_title": "Mathematical Methods for Physicists 7th Edition Solution",
+      "tier": "low_redundant",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "56aa8646-2299-44bb-b4ba-0554f4d33306",
+        "a6987027-f48d-4422-80e2-28984d3738c5",
+        "1183b9f4-066a-49e8-88c0-80ed3b46652b"
+      ]
+    },
+    {
+      "parent_title": "Much Ado About Calculus (Robert L. Wilson)",
+      "tier": "low_review_pending",
+      "n_parts": 4,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "5fb3884d-da85-421e-894c-d00403664730",
+        "162c731a-397d-484f-a1db-f2504616222e",
+        "b7f09646-82a8-4cec-a9f7-fdc4e6ca3bec",
+        "5954d19d-6d7a-45ca-af0b-6cf48522cd66"
+      ]
+    },
+    {
+      "parent_title": "Calculus 1",
+      "tier": "low_review_pending",
+      "n_parts": 4,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "d860eceb-9c69-45d2-aa63-83997432da73",
+        "a2a7dccb-1911-46d3-a760-01c6d292cca0",
+        "0a68b190-4f47-4afa-8a06-b4a0b4efbe4b",
+        "be4ee2af-e3ad-45bf-91a8-4d7d5ab8764b"
+      ]
+    },
+    {
+      "parent_title": "Mariano Giaquinta, Stefan Hildebrandt - Calculus of Variations II. The Hamilton Formalism_ The Hamiltonian Formalism_ v. 2 -Springer (2006)",
+      "tier": "low_review_pending",
+      "n_parts": 0,
+      "n_parents_resolved": 0,
+      "all_source_ids": []
+    },
+    {
+      "parent_title": "Calculus I (Jerrold Marsden Alan Weinstein)",
+      "tier": "low_review_pending",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "f1cff49f-173a-4ac4-8adf-0330f72b00c1",
+        "b23c9328-f28a-4c67-8875-d1ba67d85dfe",
+        "72db0be4-8249-4f27-92bd-a34803b43663"
+      ]
+    },
+    {
+      "parent_title": "Calculus III (Jerrold Marsden Alan Weinstein)",
+      "tier": "low_review_pending",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "1078199b-103d-4830-932f-96408628bff9",
+        "5a651507-046b-46a6-abdb-84e2f7b526e5",
+        "2c94cf95-9489-488b-a378-ad912e22cf02"
+      ]
+    },
+    {
+      "parent_title": "A First Course in Calculus (Serge Lang)",
+      "tier": "low_review_pending",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "e705065c-4451-4feb-9d37-ea7c4044c6a0",
+        "33ac8b9f-b3fe-4460-823f-216e9e09f999",
+        "722f65c0-87b8-495d-87d5-cbd3d800f282"
+      ]
+    },
+    {
+      "parent_title": "Advanced Calculus",
+      "tier": "low_review_pending",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "faa54951-ae5f-4edf-a4c0-23d3c314c787",
+        "e0972901-65bb-4724-bee7-e0b716f4b16e",
+        "407ef4ad-39be-4870-891f-971a2c390c5a"
+      ]
+    },
+    {
+      "parent_title": "Robert Creighton Buck, Ellen F. Buck Advanced Calculus",
+      "tier": "low_review_pending",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "063c5d9b-eeb2-4dfb-ba34-0505ee817313",
+        "cc30c5c6-e3f3-4d6f-947a-3a140af080a0",
+        "81fa88b7-c0b5-4f47-9f05-7f9c8a8081b4"
+      ]
+    },
+    {
+      "parent_title": "A First Course in Real Analysis (M. H. Protter C. B. Morrey Jr.)",
+      "tier": "low_review_pending",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "d812dce4-d301-44f5-a714-80ca3e22e621",
+        "d88f04a7-a793-4c57-a096-60a06b75b669",
+        "79c9e5d8-57e5-4a05-91ea-d8d0522e929f"
+      ]
+    },
+    {
+      "parent_title": "A First Course in Real Analysis (Murray H. Protter Charles B. Morrey Jr.)",
+      "tier": "low_review_pending",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "abadb3cb-8c4f-4abc-bd06-617701a35f02",
+        "336b05f3-efca-4766-b270-2fc451d2a211",
+        "7d775a35-7b06-4ed7-a663-9764f44cc905"
+      ]
+    },
+    {
+      "parent_title": "Intermediate Calculus (Murray H. Protter Charles B. Morrey Jr.)",
+      "tier": "low_review_pending",
+      "n_parts": 3,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "a63a02a2-24b8-47d6-b85b-a28362ea8904",
+        "dcd05b82-7ec1-444b-8ea3-f14a2b8bd0be",
+        "5adcce4e-2a63-4aae-9581-f9afd2b5b22f"
+      ]
+    },
+    {
+      "parent_title": "Fundamentals of Differential Equations",
+      "tier": "low_review_pending",
+      "n_parts": 4,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "30cbdc29-01bc-4973-bff3-3a6ca9a54d06",
+        "008256ab-8c5a-4bf6-9646-6425fb0db138",
+        "86f4ca35-2a89-4251-a165-5b1450505e7a",
+        "06ea6d26-f9ca-40b9-8b9a-c9fdafc1f5e7"
+      ]
+    },
+    {
+      "parent_title": "Elementary Differential Equations and Boundary Value Problems",
+      "tier": "low_review_pending",
+      "n_parts": 4,
+      "n_parents_resolved": 0,
+      "all_source_ids": [
+        "b048fa29-3dae-4e91-88e9-6fecdfc7e5ce",
+        "2ef01a87-51df-4b56-9123-07d7ca7ea804",
+        "aa62599f-a0f5-44a7-9c7a-b32a2210ef9a",
+        "92d3535e-54e3-49c3-8861-4a321fe91d8c"
+      ]
+    }
+  ],
+  "waves": [
+    {
+      "wave": 2,
+      "applied_at": "2026-05-03T12:11:02.464204+00:00",
+      "added_low_redundant": 76,
+      "added_low_review_pending": 8,
+      "rows": [
+        {
+          "pattern": "Schaum's outline of vector analysis Spiegel",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 0,
+          "hits": []
+        },
+        {
+          "pattern": "Byron Gottfried - Schaums Outline of Programming with C",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "63d94204-162b-4b0a-83bc-450c89b22735",
+              "Byron Gottfried - Schaums Outline of Programming with C-McGraw-Hill 1996",
+              "software_engineering"
+            ]
+          ]
+        },
+        {
+          "pattern": "compressed_(Schaum's outline series) J R Hubbard - Schaum's outline",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "98f7ab20-da02-417a-b8e6-a327196503dc",
+              "compressed_(Schaum's outline series) J R Hubbard - Schaum's outline of theory and problems of programming with C++-McGraw Hill",
+              "software_engineering"
+            ]
+          ]
+        },
+        {
+          "pattern": "David Kay-Schaum's outline of theory and problems of tensor calculus",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 2,
+          "hits": [
+            [
+              "b268ae62-76e1-44e6-8746-71878c12a534",
+              "David Kay-Schaum's outline of theory and problems of tensor calculus-McGraw-Hill (Part 1/2)",
+              "linear_algebra"
+            ],
+            [
+              "f4aef703-7dff-46f4-b04f-53d120505a20",
+              "David Kay-Schaum's outline of theory and problems of tensor calculus-McGraw-Hill (Part 2/2)",
+              "linear_algebra"
+            ]
+          ]
+        },
+        {
+          "pattern": "John Hubbard - Schaum's Outline of Programming with C",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "a1389e2c-3ba2-4a10-9a92-0fbb2c338563",
+              "John Hubbard - Schaum's Outline of Programming with C-McGraw-Hill (2000)",
+              "software_engineering"
+            ]
+          ]
+        },
+        {
+          "pattern": "Schaum's Outline of Linear Algebra",
+          "tier": "low_redundant",
+          "scope": "where_linear_algebra",
+          "n": 1,
+          "hits": [
+            [
+              "355f81f4-06cf-428b-80a9-69e0ef783def",
+              "Schaum's Outline of Linear Algebra",
+              "linear_algebra"
+            ]
+          ]
+        },
+        {
+          "pattern": "Schaum's Outline of Probability and Statistics",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "4c2bab55-d3d9-4341-9975-261cdbc57f6a",
+              "Schaum's Outline of Probability and Statistics, Third Edition 2009",
+              "statistics"
+            ]
+          ]
+        },
+        {
+          "pattern": "Schaum's Outline of Probability, Random Variables, and Random Processes",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 3,
+          "hits": [
+            [
+              "2f135e91-be19-4c3a-93f9-4e68d8acb7ff",
+              "Schaum's Outline of Probability, Random Variables, and Random Processes",
+              "probability_theory"
+            ],
+            [
+              "e82e6f28-0e7e-4015-89fc-fb45f22b6555",
+              "Schaum's Outline of Probability, Random Variables, and Random Processes (Part 1/2)",
+              "probability_theory"
+            ],
+            [
+              "09a594ef-6b99-40d5-9acc-3281b905d34b",
+              "Schaum's Outline of Probability, Random Variables, and Random Processes (Part 2/2)",
+              "probability_theory"
+            ]
+          ]
+        },
+        {
+          "pattern": "Schaums Outline Series Eugene Don",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "a9984c16-079b-4a41-9da3-7181fecc2c1a",
+              "Schaums Outline Series Eugene DonSchaums outline of mathematicaMcGrawHill 2009",
+              "software_engineering"
+            ]
+          ]
+        },
+        {
+          "pattern": "(Schaum's outline series) J  R Hubbard",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "e2d85a7c-53f3-4776-acef-39e7092cdb84",
+              "(Schaum's outline series) J  R Hubbard - Schaum's outline of theory and problems of programming with C++-McGraw Hill  (2000)",
+              "software_engineering"
+            ]
+          ]
+        },
+        {
+          "pattern": "(Schaum\u2019s Outlines) Seymour Lipschutz, Marc Lipson Linear Algebra",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 3,
+          "hits": [
+            [
+              "f09ffd48-aec3-4600-a7c0-a991eabd1d95",
+              "(Schaum\u2019s Outlines) Seymour Lipschutz, Marc Lipson Linear Algebra McGraw Hill (2017) (Part 1/3)",
+              "mathematics"
+            ],
+            [
+              "ed53bd17-439f-40ba-b0c4-571d7723924c",
+              "(Schaum\u2019s Outlines) Seymour Lipschutz, Marc Lipson Linear Algebra McGraw Hill (2017) (Part 2/3)",
+              "mathematics"
+            ],
+            [
+              "b03e2522-2b8f-4087-b567-3f239d8fb366",
+              "(Schaum\u2019s Outlines) Seymour Lipschutz, Marc Lipson Linear Algebra McGraw Hill (2017) (Part 3/3)",
+              "mathematics"
+            ]
+          ]
+        },
+        {
+          "pattern": "Schaum's Partial Differential Equations",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 2,
+          "hits": [
+            [
+              "6b96dbbc-6f6d-4a33-bcb7-a03e31cd1d1f",
+              "Schaum's Partial Differential Equations -- 250 (Part 2/2)",
+              "mathematics"
+            ],
+            [
+              "284419cd-e8c3-468a-94a6-65eda83362ea",
+              "Schaum's Partial Differential Equations -- 250 (Part 1/2)",
+              "mathematics"
+            ]
+          ]
+        },
+        {
+          "pattern": "Solutions Manual for Langs Linear Algebra",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "f13f52fd-9b28-479c-95a7-aafdd444f208",
+              "Rami Shakarchi authSolutions Manual for Langs Linear AlgebraSpringerVerlag New York 1996",
+              "algebra"
+            ]
+          ]
+        },
+        {
+          "pattern": "Thomas Calculus Multivariable 13th c2014 solutions ISM",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 2,
+          "hits": [
+            [
+              "59b27e97-00a7-4e1f-8827-b9c9e647594e",
+              "Thomas Calculus Multivariable 13th c2014 solutions ISM (Part 1/2)",
+              "analysis"
+            ],
+            [
+              "01a761e2-e8d3-49d9-ab25-1c633f33b479",
+              "Thomas Calculus Multivariable 13th c2014 solutions ISM (Part 2/2)",
+              "analysis"
+            ]
+          ]
+        },
+        {
+          "pattern": "Solutions Manual to Accompany Introduction to Linear Regression Analysis",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "d8bbb096-e52d-42e7-b2e3-265eaee68786",
+              "Solutions Manual to Accompany Introduction to Linear Regression Analysis",
+              "statistics"
+            ]
+          ]
+        },
+        {
+          "pattern": "David J. Griffiths - Instructor's Solution Manuals",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 0,
+          "hits": []
+        },
+        {
+          "pattern": "18.410-Thomas H Cormen Introduction to Algorithms 2001",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "63010bfc-1da5-426b-9143-7dac055a8746",
+              "18.410-Thomas H Cormen Introduction to Algorithms 2001",
+              "algorithms"
+            ]
+          ]
+        },
+        {
+          "pattern": "Robert V. Hogg, Joeseph McKean, Allen T Craig-Introduction to Mathematical Stat",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "4e5aa58e-d3f7-4b1a-a43a-f34357468395",
+              "Robert V. Hogg, Joeseph McKean, Allen T Craig-Introduction to Mathematical Statistics-Pearson",
+              "statistics"
+            ]
+          ]
+        },
+        {
+          "pattern": "Ali Hirsa and Salih N. Neftci (Auth.) - An Introduction to the Mathematics of Fi",
+          "tier": "low_redundant",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "741222ef-f62c-4ebb-9101-fbd3d76b6852",
+              "Ali Hirsa and Salih N. Neftci (Auth.) - An Introduction to the Mathematics of Financial Derivatives-Academic Press",
+              "finance"
+            ]
+          ]
+        },
+        {
+          "pattern": "Aspects of Calculus (Gabriel Klambauer)",
+          "tier": "low_review_pending",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "ff23f678-7695-4a85-8eb2-bea3ce0c7aa1",
+              "Aspects of Calculus (Gabriel Klambauer)",
+              "analysis"
+            ]
+          ]
+        },
+        {
+          "pattern": "Elementary Analysis The Theory of Calculus (Kenneth A. Ross)",
+          "tier": "low_review_pending",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "65eac093-7dc8-44ed-8b44-569f0a7bb484",
+              "Elementary Analysis The Theory of Calculus (Kenneth A. Ross)",
+              "analysis"
+            ]
+          ]
+        },
+        {
+          "pattern": "Inside Calculus (George R. Exner)",
+          "tier": "low_review_pending",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "e378be37-cc33-4386-8082-ff96fc3acbaf",
+              "Inside Calculus (George R. Exner)",
+              "analysis"
+            ]
+          ]
+        },
+        {
+          "pattern": "Short Calculus (Serge Lang)",
+          "tier": "low_review_pending",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "e267ba25-d11f-4dd5-98f2-c6412da763f4",
+              "Short Calculus (Serge Lang)",
+              "analysis"
+            ]
+          ]
+        },
+        {
+          "pattern": "C++ Primer Plus",
+          "tier": "low_review_pending",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "a7a56e66-fb29-43be-b0f8-9bd19abb1f80",
+              "C++ Primer Plus",
+              "software_engineering"
+            ]
+          ]
+        },
+        {
+          "pattern": "13 - An Introduction to Partial Differential Equations",
+          "tier": "low_review_pending",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "e1a4d9e5-a527-4b33-8581-8f9352d9db10",
+              "13 - An Introduction to Partial Differential Equations",
+              "mathematics"
+            ]
+          ]
+        },
+        {
+          "pattern": "Math - Calculus of Finite Differences",
+          "tier": "low_review_pending",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "81ef3b26-2314-4bc0-a1f1-c1149f1d8cb2",
+              "Math - Calculus of Finite Differences",
+              "numerical_methods"
+            ]
+          ]
+        },
+        {
+          "pattern": "Pavel Grinfeld (auth.)-Introduction to tensor analysis",
+          "tier": "low_review_pending",
+          "scope": "all",
+          "n": 1,
+          "hits": [
+            [
+              "810d1d3d-2dba-4a8a-b210-66d6653c10ab",
+              "Pavel Grinfeld (auth.)-Introduction to tensor analysis and the calculus of moving surfaces-Springer-Verlag New York",
+              "linear_algebra"
+            ]
+          ]
+        },
+        {
+          "pattern": "MEAP_older_versions",
+          "tier": "low_redundant",
+          "n": 52,
+          "hits": [
+            {
+              "id": "b22c0ffd-f516-491a-acc3-f2f7eab94e30",
+              "title": "Continuous_Delivery_for_Kubernetes_v7_MEAP",
+              "domain": "software_engineering",
+              "kept": "Continuous_Delivery_for_Kubernetes_v8_MEAP"
+            },
+            {
+              "id": "233feba1-921d-401c-bb74-14f053f07bd1",
+              "title": "Continuous_Delivery_for_Kubernetes_v6_MEAP",
+              "domain": "software_engineering",
+              "kept": "Continuous_Delivery_for_Kubernetes_v8_MEAP"
+            },
+            {
+              "id": "7c5811ae-ce41-4987-926e-3670bb578e2e",
+              "title": "Continuous_Delivery_for_Kubernetes_v5_MEAP",
+              "domain": "software_engineering",
+              "kept": "Continuous_Delivery_for_Kubernetes_v8_MEAP"
+            },
+            {
+              "id": "338d02bf-c0cd-48fb-a0ad-967591a6594b",
+              "title": "Continuous_Delivery_for_Kubernetes_v4_MEAP",
+              "domain": "software_engineering",
+              "kept": "Continuous_Delivery_for_Kubernetes_v8_MEAP"
+            },
+            {
+              "id": "73e3bd39-b604-48e7-87b2-1a35a9ebfc16",
+              "title": "Continuous_Delivery_for_Kubernetes_v3_MEAP",
+              "domain": "software_engineering",
+              "kept": "Continuous_Delivery_for_Kubernetes_v8_MEAP"
+            },
+            {
+              "id": "e0839f7d-9082-45a1-9994-01c6a6a19576",
+              "title": "Continuous_Delivery_for_Kubernetes_v2_MEAP",
+              "domain": "software_engineering",
+              "kept": "Continuous_Delivery_for_Kubernetes_v8_MEAP"
+            },
+            {
+              "id": "f9509ba5-fdad-435e-99d5-d1c6fbcd5387",
+              "title": "Continuous_Delivery_for_Kubernetes_v1_MEAP",
+              "domain": "software_engineering",
+              "kept": "Continuous_Delivery_for_Kubernetes_v8_MEAP"
+            },
+            {
+              "id": "486b1869-2a08-49f6-bf5a-d49d09fc8819",
+              "title": "Distributed_Machine_Learning_Patterns_v6_MEAP",
+              "domain": "machine_learning",
+              "kept": "Distributed_Machine_Learning_Patterns_v7_MEAP"
+            },
+            {
+              "id": "271695bf-e406-4976-920b-9b92615eda36",
+              "title": "Distributed_Machine_Learning_Patterns_v5_MEAP",
+              "domain": "machine_learning",
+              "kept": "Distributed_Machine_Learning_Patterns_v7_MEAP"
+            },
+            {
+              "id": "ed62ea42-4e19-4278-bd46-4c2820481f5e",
+              "title": "Distributed_Machine_Learning_Patterns_v4_MEAP",
+              "domain": "machine_learning",
+              "kept": "Distributed_Machine_Learning_Patterns_v7_MEAP"
+            },
+            {
+              "id": "9355d9ea-f514-421a-899c-4834ee9536d5",
+              "title": "Effective_Software_Testing_v4_MEAP",
+              "domain": "software_engineering",
+              "kept": "Effective_Software_Testing_v5_MEAP"
+            },
+            {
+              "id": "b4b088d2-c30d-4bc5-85af-60dede7dba4d",
+              "title": "Effective_Software_Testing_v3_MEAP",
+              "domain": "software_engineering",
+              "kept": "Effective_Software_Testing_v5_MEAP"
+            },
+            {
+              "id": "33e695a3-7e07-4938-bc1f-408ef0e4d951",
+              "title": "Effective_Software_Testing_v2_MEAP",
+              "domain": "software_engineering",
+              "kept": "Effective_Software_Testing_v5_MEAP"
+            },
+            {
+              "id": "de4079d1-f08f-4680-87c3-5811cbe48d83",
+              "title": "Ensemble_Methods_for_Machine_Learning_v7_MEAP",
+              "domain": "machine_learning",
+              "kept": "Ensemble_Methods_for_Machine_Learning_v8_MEAP"
+            },
+            {
+              "id": "8f61daba-1903-4009-81f1-2baedeabf52d",
+              "title": "Ensemble_Methods_for_Machine_Learning_v6_MEAP",
+              "domain": "machine_learning",
+              "kept": "Ensemble_Methods_for_Machine_Learning_v8_MEAP"
+            },
+            {
+              "id": "cdf0b41a-0adb-45a7-9525-2451b69635e1",
+              "title": "Ensemble_Methods_for_Machine_Learning_v5_MEAP",
+              "domain": "machine_learning",
+              "kept": "Ensemble_Methods_for_Machine_Learning_v8_MEAP"
+            },
+            {
+              "id": "615ebdd2-1094-4cd1-b4e1-5263203036cf",
+              "title": "Ensemble_Methods_for_Machine_Learning_v4_MEAP",
+              "domain": "machine_learning",
+              "kept": "Ensemble_Methods_for_Machine_Learning_v8_MEAP"
+            },
+            {
+              "id": "b2650561-a68e-4b73-ae25-c3921539fb53",
+              "title": "Ensemble_Methods_for_Machine_Learning_v3_MEAP",
+              "domain": "machine_learning",
+              "kept": "Ensemble_Methods_for_Machine_Learning_v8_MEAP"
+            },
+            {
+              "id": "3a1c5d44-f59a-4ac3-a7d1-1736a87a9451",
+              "title": "Financial_AI_in_Practice_v5_MEAP",
+              "domain": "machine_learning",
+              "kept": "Financial_AI_in_Practice_v6_MEAP"
+            },
+            {
+              "id": "97a114fd-5d32-4b0e-825a-4dcddf46f789",
+              "title": "Financial_AI_in_Practice_v4_MEAP",
+              "domain": "machine_learning",
+              "kept": "Financial_AI_in_Practice_v6_MEAP"
+            },
+            {
+              "id": "07b947d6-f088-4dc7-b560-5e11f7d20a67",
+              "title": "Financial_AI_in_Practice_v3_MEAP",
+              "domain": "machine_learning",
+              "kept": "Financial_AI_in_Practice_v6_MEAP"
+            },
+            {
+              "id": "05372e43-6242-40f0-82ea-7f8d2cc07d95",
+              "title": "Financial_AI_in_Practice_v2_MEAP",
+              "domain": "machine_learning",
+              "kept": "Financial_AI_in_Practice_v6_MEAP"
+            },
+            {
+              "id": "d2643cce-ac26-4bc3-8cd0-3cd2a63c24dc",
+              "title": "Financial_AI_in_Practice_v1_MEAP (1)",
+              "domain": "machine_learning",
+              "kept": "Financial_AI_in_Practice_v6_MEAP"
+            },
+            {
+              "id": "d46bc5f7-8a37-48ac-8ec5-f0049ebff6af",
+              "title": "Kubernetes_for_Developers_v14_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_for_Developers_v15_MEAP"
+            },
+            {
+              "id": "142ac492-c51e-4119-8c27-0b5f7d3d124b",
+              "title": "Kubernetes_for_Developers_v13_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_for_Developers_v15_MEAP"
+            },
+            {
+              "id": "3de30bf9-4184-4ebc-a962-3b1fa8522fe0",
+              "title": "Kubernetes_for_Developers_v12_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_for_Developers_v15_MEAP"
+            },
+            {
+              "id": "8d4a63b8-7153-40aa-b51d-c9891cb9632f",
+              "title": "Kubernetes_for_Developers_v11_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_for_Developers_v15_MEAP"
+            },
+            {
+              "id": "e2d9b1ce-46da-4de4-9af4-536bd51f1ca0",
+              "title": "Kubernetes_for_Developers_v10_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_for_Developers_v15_MEAP"
+            },
+            {
+              "id": "7b25fd0c-4484-413f-876a-14cea317761f",
+              "title": "Kubernetes_for_Developers_v9_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_for_Developers_v15_MEAP"
+            },
+            {
+              "id": "6fcd79fb-2475-4bc5-9785-6305f6d76b55",
+              "title": "Kubernetes_for_Developers_v8_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_for_Developers_v15_MEAP"
+            },
+            {
+              "id": "c8b6207f-937a-443f-85a4-cc019827c4a4",
+              "title": "Kubernetes_in_Action,_Second_Edition_v15_MEAP (1)",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_in_Action,_Second_Edition_v15_MEAP"
+            },
+            {
+              "id": "1826c962-2056-4adb-bd43-dbaf86016751",
+              "title": "Kubernetes_in_Action,_Second_Edition_v14_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_in_Action,_Second_Edition_v15_MEAP"
+            },
+            {
+              "id": "db92c174-3e53-4bab-82a6-1eba42b90cdc",
+              "title": "Kubernetes_in_Action,_Second_Edition_v13_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_in_Action,_Second_Edition_v15_MEAP"
+            },
+            {
+              "id": "f0cf50db-bb87-40ea-a7b9-95c81e0be8c8",
+              "title": "Kubernetes_in_Action,_Second_Edition_v12_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_in_Action,_Second_Edition_v15_MEAP"
+            },
+            {
+              "id": "1d899251-da15-41dd-a8f7-9db8c391a94a",
+              "title": "Kubernetes_in_Action,_Second_Edition_v11_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_in_Action,_Second_Edition_v15_MEAP"
+            },
+            {
+              "id": "9b2a31e8-0631-421a-b2e2-6c7efd3d8d26",
+              "title": "Kubernetes_in_Action,_Second_Edition_v10_MEAP",
+              "domain": "software_engineering",
+              "kept": "Kubernetes_in_Action,_Second_Edition_v15_MEAP"
+            },
+            {
+              "id": "08b25379-5e4f-43ec-a8f8-663c4cf44c85",
+              "title": "Optimization_Algorithms_v9_MEAP",
+              "domain": "optimization",
+              "kept": "Optimization_Algorithms_v10_MEAP"
+            },
+            {
+              "id": "96fa69c7-d054-49ec-8016-cf7bcead0480",
+              "title": "Optimization_Algorithms_v8_MEAP",
+              "domain": "optimization",
+              "kept": "Optimization_Algorithms_v10_MEAP"
+            },
+            {
+              "id": "03e0e8be-aa18-4b39-abba-cbbb75cdcab6",
+              "title": "Optimization_Algorithms_v7_MEAP",
+              "domain": "optimization",
+              "kept": "Optimization_Algorithms_v10_MEAP"
+            },
+            {
+              "id": "cdea8b5f-af46-4951-af5f-7432ad4c5bc8",
+              "title": "Optimization_Algorithms_v5_MEAP",
+              "domain": "optimization",
+              "kept": "Optimization_Algorithms_v10_MEAP"
+            },
+            {
+              "id": "d5e65153-fbdb-4bba-b8be-fe2c7930b068",
+              "title": "Platform_Engineering_on_Kubernetes_v9_MEAP",
+              "domain": "software_engineering",
+              "kept": "Platform_Engineering_on_Kubernetes_v10_MEAP"
+            },
+            {
+              "id": "61b33987-778b-4813-936c-bbe7ae1baf01",
+              "title": "Platform_Engineering_on_Kubernetes_v8_MEAP",
+              "domain": "software_engineering",
+              "kept": "Platform_Engineering_on_Kubernetes_v10_MEAP"
+            },
+            {
+              "id": "246a37fb-ffe5-4dae-a4b6-2c4efa9bc480",
+              "title": "Skills_of_a_Software_Developer_v4_MEAP",
+              "domain": "software_engineering",
+              "kept": "Skills_of_a_Software_Developer_v5_MEAP"
+            },
+            {
+              "id": "38b2c328-b0e3-40a7-90d5-e13ed1de7908",
+              "title": "Skills_of_a_Successful_Software_Engineer_v6_MEAP",
+              "domain": "software_engineering",
+              "kept": "Skills_of_a_Successful_Software_Engineer_v7_MEAP"
+            },
+            {
+              "id": "7c7c7e8c-e679-4657-8082-cc0dd55beeb3",
+              "title": "Software_Design_for_Python_Programmers_v7_MEAP",
+              "domain": "software_engineering",
+              "kept": "Software_Design_for_Python_Programmers_v8_MEAP"
+            },
+            {
+              "id": "6f929342-65e9-4bcb-a7a9-d080d2f3077e",
+              "title": "Tiny_C_Projects_v7_MEAP",
+              "domain": "software_engineering",
+              "kept": "Tiny_C_Projects_v8_MEAP"
+            },
+            {
+              "id": "8ba057d7-a965-472f-a82e-c2ad46a662dd",
+              "title": "Tiny_C_Projects_v6_MEAP",
+              "domain": "software_engineering",
+              "kept": "Tiny_C_Projects_v8_MEAP"
+            },
+            {
+              "id": "bf4f976b-a208-4938-aaeb-7ebd858528aa",
+              "title": "Tiny_C_Projects_v5_MEAP",
+              "domain": "software_engineering",
+              "kept": "Tiny_C_Projects_v8_MEAP"
+            },
+            {
+              "id": "14610f10-b26c-4523-9e26-fe15bc3188b4",
+              "title": "Tiny_C_Projects_v4_MEAP",
+              "domain": "software_engineering",
+              "kept": "Tiny_C_Projects_v8_MEAP"
+            },
+            {
+              "id": "5ed42f9c-8f26-4216-8101-bc9a8e5caa01",
+              "title": "Tiny_C_Projects_v3_MEAP",
+              "domain": "software_engineering",
+              "kept": "Tiny_C_Projects_v8_MEAP"
+            },
+            {
+              "id": "bebb03a0-878b-41d5-9634-53449abc94e7",
+              "title": "Tiny_C_Projects_v2_MEAP",
+              "domain": "software_engineering",
+              "kept": "Tiny_C_Projects_v8_MEAP"
+            },
+            {
+              "id": "4590e39c-1ff9-4887-9596-d3e48181fcdf",
+              "title": "Tiny_C_Projects_v1_MEAP",
+              "domain": "software_engineering",
+              "kept": "Tiny_C_Projects_v8_MEAP"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

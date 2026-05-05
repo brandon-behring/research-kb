@@ -156,7 +156,7 @@ def split_pdf_range(in_pdf: Path, start: int, end: int, out_pdf: Path) -> None:
                 ],
                 capture_output=True,
                 text=True,
-                timeout=300,
+                timeout=1800,
                 check=True,
             )
         except FileNotFoundError as e:
@@ -176,7 +176,7 @@ def split_pdf_range(in_pdf: Path, start: int, end: int, out_pdf: Path) -> None:
                 ["pdfunite", *map(str, pages), str(out_pdf)],
                 capture_output=True,
                 text=True,
-                timeout=300,
+                timeout=1800,
                 check=True,
             )
         except FileNotFoundError as e:
