@@ -5,3 +5,6 @@
 # False positives: healthcare reference cache bib_key fields (bibliographic keys, not secrets)
 data/healthcare/reference_cache/html/amcp-emerging-trends-2025.md:generic-api-key:2
 data/healthcare/reference_cache/index.json:generic-api-key:40
+
+# False positive: BibTeX-style citation key in synchronized design doc
+docs/synthesis_kb_migration_2026-05-21.md:generic-api-key:83
