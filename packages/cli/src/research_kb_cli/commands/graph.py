@@ -5,9 +5,12 @@ Commands:
     neighborhood   Visualize concept neighborhood (N-hop traversal)
     path           Find shortest path between two concepts
     explain        Explain connection between two concepts with evidence and synthesis
+    export         Export a topic-filtered graph as JSON for downstream viz consumers
 """
 
 import asyncio
+import json
+from pathlib import Path
 from typing import Optional
 
 import typer
@@ -17,6 +20,7 @@ from research_kb_storage import (
     DatabaseConfig,
     RelationshipStore,
     find_shortest_path,
+    format_citation_graph_export,
     get_connection_pool,
     get_neighborhood,
     explain_connection,
@@ -410,6 +414,162 @@ def explain(
         else:
             typer.echo(format_connection_explanation(result))
 
+    except Exception as e:
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------------------
+# graph export — generic node-link JSON for downstream visualization consumers
+# ---------------------------------------------------------------------------
+#
+# Selector-resolution framework (D13b from planning):
+#   Each selector flag (--arxiv-ids today; future --source-ids / --topic /
+#   --concept-id) resolves to a `set[source_id]`-equivalent input. The
+#   common graph-build + format layers consume the resolved set and emit
+#   the versioned graph JSON. Adding a future selector requires:
+#     1. One new CLI option below
+#     2. One new branch in the resolver dispatch
+#     3. (Possibly) one new builder for non-citation graph_types
+#
+# Anti-pattern to avoid: a `--manifest <yaml>` DSL. Composition happens in
+# caller scripts (e.g., rl_and_control/scripts/build_graph_export.py), not
+# in research-kb's CLI surface.
+
+
+def _load_lines(path: Path) -> list[str]:
+    """Load newline-delimited entries; strip `# ...` comments and blanks."""
+    entries: list[str] = []
+    for raw in path.read_text().splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if line:
+            entries.append(line)
+    return entries
+
+
+@app.command()
+def export(
+    output: Path = typer.Option(
+        ..., "--output", "-o", help="Output JSON file path (parent dirs created if missing)"
+    ),
+    arxiv_ids: Optional[Path] = typer.Option(
+        None,
+        "--arxiv-ids",
+        help="Path to newline-delimited file of arXiv IDs to include in the graph",
+    ),
+    output_format: str = typer.Option(
+        "generic-node-link",
+        "--format",
+        "-f",
+        help="Output format (currently only 'generic-node-link')",
+    ),
+    schema_version: str = typer.Option(
+        "1.0", "--schema-version", help="Emitted schema_version in the JSON metadata"
+    ),
+    topic_label: str = typer.Option(
+        "", "--topic-label", help="Human-readable topic label embedded in output metadata"
+    ),
+):
+    """Export a topic-filtered graph as JSON for downstream viz consumers.
+
+    Selector framework: exactly one selector flag must be specified.
+    Currently implemented selectors:
+
+        --arxiv-ids <file>      newline-delimited arXiv IDs
+
+    Planned selectors (not yet implemented; raise NotImplementedError today):
+
+        --source-ids <file>     newline-delimited source UUIDs
+        --topic <name>          research-kb concept name -> matched sources
+        --concept-id <uuid>     specific concept -> connected sources
+
+    Output: JSON file matching the versioned graph schema (see
+    `research_kb_storage.graph_queries.format_citation_graph_export` for
+    the schema). brandon-behring.dev's `/lab/research-graph/` route is the
+    first known consumer; the format is intentionally renderer-agnostic
+    (5-line adapter to Cytoscape/Sigma at consume-time).
+
+    Examples:
+
+        research-kb graph export \\
+            --arxiv-ids rl_ids.txt \\
+            --output /tmp/rl_citation_graph.json
+
+        research-kb graph export \\
+            --arxiv-ids rl_ids.txt \\
+            --output exports/rl_citation_graph.json \\
+            --topic-label "RL and optimal control"
+    """
+    # Selector validation: exactly one selector flag must be specified.
+    # Future selectors are added to this dict as they're implemented.
+    selectors = {
+        "--arxiv-ids": arxiv_ids,
+        # "--source-ids": source_ids,     # (planned)
+        # "--topic": topic,               # (planned)
+        # "--concept-id": concept_id,     # (planned)
+    }
+    chosen = [(flag, val) for flag, val in selectors.items() if val is not None]
+    if not chosen:
+        typer.echo(
+            "Error: must specify exactly one selector "
+            "(--arxiv-ids; future: --source-ids/--topic/--concept-id)",
+            err=True,
+        )
+        raise typer.Exit(2)
+    if len(chosen) > 1:
+        flags = [f for f, _ in chosen]
+        typer.echo(
+            f"Error: only one selector may be specified at a time; got: {flags}",
+            err=True,
+        )
+        raise typer.Exit(2)
+
+    if output_format != "generic-node-link":
+        typer.echo(
+            f"Error: format '{output_format}' not supported "
+            f"(currently only 'generic-node-link')",
+            err=True,
+        )
+        raise typer.Exit(2)
+
+    selector_flag, selector_value = chosen[0]
+
+    async def run_export():
+        config = DatabaseConfig()
+        await get_connection_pool(config)
+
+        # Selector resolution layer — one branch per selector. Common
+        # graph-build/format layer lives in research_kb_storage.
+        if selector_flag == "--arxiv-ids":
+            assert isinstance(selector_value, Path)
+            arxiv_list = _load_lines(selector_value)
+            return await format_citation_graph_export(
+                arxiv_ids=arxiv_list,
+                schema_version=schema_version,
+                topic_label=topic_label,
+            )
+        # Future selector branches go here.
+        raise NotImplementedError(f"Selector {selector_flag} not yet implemented")
+
+    try:
+        graph_data = asyncio.run(run_export())
+
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("w", encoding="utf-8") as f:
+            json.dump(graph_data, f, indent=2, ensure_ascii=False)
+
+        n_nodes = len(graph_data.get("nodes", []))
+        n_edges = len(graph_data.get("edges", []))
+        n_ingested = graph_data.get("metadata", {}).get("ingested_count", 0)
+        n_missing = graph_data.get("metadata", {}).get("not_ingested_count", 0)
+        typer.echo(
+            f"✓ Wrote {output} ({n_nodes} nodes [{n_ingested} ingested + "
+            f"{n_missing} not_ingested], {n_edges} edges, "
+            f"schema_version={graph_data.get('schema_version')})"
+        )
+    except NotImplementedError as e:
+        typer.echo(f"Not implemented: {e}", err=True)
+        raise typer.Exit(2)
     except Exception as e:
         typer.echo(f"Error: {e}", err=True)
         raise typer.Exit(1)

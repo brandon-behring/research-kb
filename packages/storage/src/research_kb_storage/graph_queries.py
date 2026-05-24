@@ -1176,3 +1176,168 @@ async def get_path_with_explanation(
 
     explanation = explain_path(path)
     return path, explanation
+
+
+# ---------------------------------------------------------------------------
+# Graph export (generic node-link JSON)
+# ---------------------------------------------------------------------------
+#
+# Topic-filtered subset of `scripts/export_demo_data.py`'s schema, intended
+# for visualization consumers (e.g., brandon-behring.dev's Cytoscape.js
+# island at `/lab/research-graph/`).
+#
+# Schema (versioned):
+#
+#     {
+#       "schema_version": "1.0",
+#       "graph_type": "citation" | "concept" | "mixed",
+#       "metadata": {
+#         "topic": <str>,
+#         "source": "research-kb",
+#         "generated_at": <ISO-8601>,
+#         "node_count": <int>,
+#         "edge_count": <int>,
+#         "node_types": [<str>],
+#         "edge_types": [<str>],
+#       },
+#       "nodes": [
+#         {
+#           "id": "source:arxiv:<arxiv_id>",
+#           "type": "source",
+#           "label": <str>,
+#           "data": { ... per-type fields ... },
+#         },
+#       ],
+#       "edges": [
+#         {
+#           "id": "e:<n>",
+#           "source": <node_id>,
+#           "target": <node_id>,
+#           "type": "cites",
+#           "data": { ... },
+#         },
+#       ],
+#     }
+#
+# Extension pattern: future graph types (knowledge graph via Concept /
+# ConceptRelationship) add a second `build_*_graph_payload()` builder
+# and discriminate via `graph_type` — common formatting in
+# `_assemble_graph_payload()`.
+
+
+async def format_citation_graph_export(
+    arxiv_ids: list[str],
+    *,
+    schema_version: str = "1.0",
+    topic_label: str = "",
+) -> dict:
+    """Build a generic node-link JSON dict for a citation graph.
+
+    Caller passes a curated list of arxiv IDs. This function:
+      1. Looks up each arxiv ID in the SourceStore (ingested or not).
+      2. For ingested sources, fetches intra-set citation edges via
+         `get_cited_sources` (citation direction: source -> target).
+      3. Emits ingested sources as rich nodes; missing arxiv IDs as
+         minimal isolated nodes with `kb_status: "not_ingested"` so
+         downstream renderers can grey them out and explain.
+
+    Args:
+        arxiv_ids: Curated list of arxiv IDs to include in the graph.
+        schema_version: Output schema version (default "1.0").
+        topic_label: Human-readable topic label embedded in metadata.
+
+    Returns:
+        Graph dict suitable for `json.dump(...)`. See module-level comment
+        for the schema.
+    """
+    from datetime import datetime, timezone
+
+    # Import locally to avoid circular import (citation_graph imports from this
+    # module's siblings, and SourceStore is in source_store.py).
+    from research_kb_storage.citation_graph import get_cited_sources
+    from research_kb_storage.source_store import SourceStore
+
+    ingested: dict[str, object] = {}  # arxiv_id -> Source
+    missing: list[str] = []
+
+    for arxiv_id in arxiv_ids:
+        source = await SourceStore.get_by_arxiv_id(arxiv_id)
+        if source is not None:
+            ingested[arxiv_id] = source
+        else:
+            missing.append(arxiv_id)
+
+    # source_id (UUID) -> arxiv_id reverse lookup for edge target filtering
+    source_id_to_arxiv: dict = {s.id: aid for aid, s in ingested.items()}  # type: ignore[attr-defined]
+
+    edges: list[dict] = []
+    edge_counter = 0
+    for arxiv_id, source in ingested.items():
+        cited = await get_cited_sources(source.id, limit=10_000)  # type: ignore[attr-defined]
+        for cited_dict in cited:
+            cited_source_id = cited_dict["id"]
+            if cited_source_id in source_id_to_arxiv:
+                edge_counter += 1
+                edges.append(
+                    {
+                        "id": f"e:{edge_counter}",
+                        "source": f"source:arxiv:{arxiv_id}",
+                        "target": f"source:arxiv:{source_id_to_arxiv[cited_source_id]}",
+                        "type": "cites",
+                        "data": {"weight": 1.0},
+                    }
+                )
+
+    nodes: list[dict] = []
+    for arxiv_id, source in ingested.items():
+        source_type_raw = getattr(source, "source_type", None)
+        source_type_str = (
+            source_type_raw.value if hasattr(source_type_raw, "value") else str(source_type_raw)
+        )
+        nodes.append(
+            {
+                "id": f"source:arxiv:{arxiv_id}",
+                "type": "source",
+                "label": getattr(source, "title", arxiv_id),
+                "data": {
+                    "title": getattr(source, "title", ""),
+                    "year": getattr(source, "year", None),
+                    "authors": getattr(source, "authors", []),
+                    "arxiv_id": arxiv_id,
+                    "source_id": str(source.id),  # type: ignore[attr-defined]
+                    "kb_status": "ingested",
+                    "citation_authority": getattr(source, "citation_authority", None),
+                    "source_type": source_type_str,
+                },
+            }
+        )
+    for arxiv_id in missing:
+        nodes.append(
+            {
+                "id": f"source:arxiv:{arxiv_id}",
+                "type": "source",
+                "label": f"arxiv:{arxiv_id}",
+                "data": {
+                    "arxiv_id": arxiv_id,
+                    "kb_status": "not_ingested",
+                },
+            }
+        )
+
+    return {
+        "schema_version": schema_version,
+        "graph_type": "citation",
+        "metadata": {
+            "topic": topic_label,
+            "source": "research-kb",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "node_count": len(nodes),
+            "edge_count": len(edges),
+            "ingested_count": len(ingested),
+            "not_ingested_count": len(missing),
+            "node_types": ["source"],
+            "edge_types": ["cites"] if edges else [],
+        },
+        "nodes": nodes,
+        "edges": edges,
+    }
