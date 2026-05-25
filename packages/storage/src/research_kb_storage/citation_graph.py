@@ -109,9 +109,25 @@ async def match_citation_to_source(citation: Citation) -> Optional[UUID]:
 
 
 async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
-    """Simple citation matching without trigram extension.
+    """Match a citation to a corpus source without the trigram extension.
 
-    Falls back to exact title match + year.
+    Resolution priority:
+        1. DOI exact match
+        2. arXiv ID exact match
+        3. Exact title-or-alias match + year (title or any entry in
+           ``metadata.aliases``, lowercased)
+        4. Year-filtered partial-LIKE on title (bidirectional substring)
+
+    The alias branch uses *exact* equality (lowercased) deliberately — a
+    LIKE on aliases would re-introduce the partial-LIKE false-positive
+    landmine that the year filter on step 4 already constrains. Aliases
+    are for known alternate titles (e.g. PDF-filename slug vs. GROBID's
+    extracted canonical title); they don't need fuzziness.
+
+    The year filter on step 4 was added 2026-05-25 in response to the
+    A4 anchor-classics work, where Bellman 1957's title "Dynamic
+    Programming" would otherwise partial-match against 351 unrelated
+    citations spanning decades. See research-kb#14.
     """
     pool = await get_connection_pool()
 
@@ -141,15 +157,24 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
             if row:
                 return UUID(str(row["id"]))
 
-        # Priority 3: Exact title + year match
+        # Priority 3: Exact title-or-alias match (lowercased) + year
         if citation.title:
             normalized_title = citation.title.lower().strip()
 
             row = await conn.fetchrow(
                 """
                 SELECT id FROM sources
-                WHERE LOWER(title) = $1
-                  AND ($2::int IS NULL OR year = $2)
+                WHERE (
+                    LOWER(title) = $1
+                    OR EXISTS (
+                        SELECT 1
+                        FROM jsonb_array_elements_text(
+                            COALESCE(metadata->'aliases', '[]'::jsonb)
+                        ) AS alias
+                        WHERE LOWER(alias) = $1
+                    )
+                )
+                  AND ($2::int IS NULL OR year = $2 OR year IS NULL)
                 LIMIT 1
                 """,
                 normalized_title,
@@ -158,15 +183,19 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
             if row:
                 return UUID(str(row["id"]))
 
-            # Try partial match (title contains)
+            # Priority 4: Year-filtered partial-LIKE (bidirectional substring).
+            # The year filter is REQUIRED here — without it, this branch
+            # produced massive false positives (research-kb#14).
             row = await conn.fetchrow(
                 """
                 SELECT id FROM sources
-                WHERE LOWER(title) LIKE '%' || $1 || '%'
-                   OR $1 LIKE '%' || LOWER(title) || '%'
+                WHERE (LOWER(title) LIKE '%' || $1 || '%'
+                       OR $1 LIKE '%' || LOWER(title) || '%')
+                  AND ($2::int IS NULL OR year = $2)
                 LIMIT 1
                 """,
                 normalized_title,
+                citation.year,
             )
             if row:
                 return UUID(str(row["id"]))

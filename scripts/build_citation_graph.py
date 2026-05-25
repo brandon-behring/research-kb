@@ -39,6 +39,25 @@ async def main():
     """Build citation graph and compute PageRank."""
     parser = argparse.ArgumentParser(description="Build citation graph")
     parser.add_argument("--skip-pagerank", action="store_true", help="Skip PageRank computation")
+    rebuild_group = parser.add_mutually_exclusive_group()
+    rebuild_group.add_argument(
+        "--rebuild-unmatched",
+        action="store_true",
+        help=(
+            "Delete source_citations rows with cited_source_id IS NULL before "
+            "rebuild, so the matcher re-evaluates previously-external citations "
+            "against the current corpus (e.g. after adding new anchor sources)."
+        ),
+    )
+    rebuild_group.add_argument(
+        "--full-rebuild",
+        action="store_true",
+        help=(
+            "Delete ALL source_citations rows before rebuild. Use when matcher "
+            "logic has been tightened (e.g. fewer false-positive partial-LIKE "
+            "matches) and pre-existing edges may need re-evaluation. Slower."
+        ),
+    )
     args = parser.parse_args()
 
     # Initialize database
@@ -57,6 +76,23 @@ async def main():
     if citation_count == 0:
         print("No citations to process. Run extract_citations.py first.")
         return
+
+    # Optionally delete prior edges to force re-evaluation under current matcher.
+    if args.full_rebuild:
+        async with pool.acquire() as conn:
+            await conn.execute("DELETE FROM source_citations")
+            after = await conn.fetchval("SELECT COUNT(*) FROM source_citations")
+        print(f"\n--full-rebuild: deleted {existing_edges} edges (now {after})")
+    elif args.rebuild_unmatched:
+        async with pool.acquire() as conn:
+            null_before = await conn.fetchval(
+                "SELECT COUNT(*) FROM source_citations WHERE cited_source_id IS NULL"
+            )
+            await conn.execute("DELETE FROM source_citations WHERE cited_source_id IS NULL")
+        print(
+            f"\n--rebuild-unmatched: deleted {null_before} NULL-target edges; "
+            f"non-NULL edges preserved"
+        )
 
     # Build citation graph
     print("\n" + "=" * 70)
