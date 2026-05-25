@@ -38,6 +38,7 @@ class SourceStore:
         year: Optional[int] = None,
         file_path: Optional[str] = None,
         metadata: Optional[SourceMetadata] = None,
+        roles: Optional[list[str]] = None,
     ) -> Source:
         """Create a new source record.
 
@@ -50,6 +51,9 @@ class SourceStore:
             file_path: Path to source file
             metadata: Extensible JSONB metadata
             domain_id: Knowledge domain (required)
+            roles: Optional pipeline-role markers, stored as ``metadata.roles``
+                (deduplicated). Reserved for downstream graph projects that
+                need a stable selector (e.g. ``anchor.rl_optimal_control``).
 
         Returns:
             Created Source
@@ -65,11 +69,21 @@ class SourceStore:
             ...     authors=["Judea Pearl"],
             ...     metadata={"isbn": "978-0521895606"},
             ...     domain_id="causal_inference",
+            ...     roles=["anchor.causal_inference"],
             ... )
         """
         pool = await get_connection_pool()
         source_id = uuid4()
         now = datetime.now(timezone.utc)
+
+        # Merge roles into metadata.roles (deduplicated) before insertion.
+        final_metadata: SourceMetadata = dict(metadata) if metadata else {}
+        if roles:
+            existing_roles = list(final_metadata.get("roles") or [])
+            for role in roles:
+                if role not in existing_roles:
+                    existing_roles.append(role)
+            final_metadata["roles"] = existing_roles
 
         try:
             async with pool.acquire() as conn:
@@ -97,7 +111,7 @@ class SourceStore:
                     year,
                     file_path,
                     file_hash,
-                    metadata or {},  # Pass dict directly - asyncpg will encode
+                    final_metadata,
                     domain_id,
                     now,
                     now,
@@ -434,6 +448,178 @@ class SourceStore:
         except Exception as e:
             logger.error("source_update_failed", source_id=str(source_id), error=str(e))
             raise StorageError(f"Failed to update source: {e}") from e
+
+    @staticmethod
+    async def add_roles(source_id: UUID, roles: list[str]) -> Source:
+        """Append role markers to ``source.metadata.roles`` (deduplicated).
+
+        Roles are pipeline-role tags such as ``anchor.rl_optimal_control``.
+        Stored as a list of strings under ``metadata.roles`` so the existing
+        ``idx_sources_metadata`` GIN index accelerates containment queries
+        (see ``list_by_role``).
+
+        Args:
+            source_id: Source UUID.
+            roles: Role strings to append. Existing roles are preserved.
+
+        Returns:
+            Updated Source.
+
+        Raises:
+            StorageError: If the source is not found.
+
+        Example:
+            >>> source = await SourceStore.add_roles(
+            ...     source_id=uuid.UUID("..."),
+            ...     roles=["anchor.rl_optimal_control"],
+            ... )
+        """
+        source = await SourceStore.get_by_id(source_id)
+        if source is None:
+            raise StorageError(f"Source not found: {source_id}")
+
+        existing: list[str] = list(source.metadata.get("roles") or [])
+        for role in roles:
+            if role not in existing:
+                existing.append(role)
+
+        return await SourceStore.update_metadata(source_id, {"roles": existing})
+
+    @staticmethod
+    async def remove_roles(source_id: UUID, roles: list[str]) -> Source:
+        """Remove role markers from ``source.metadata.roles``.
+
+        Args:
+            source_id: Source UUID.
+            roles: Role strings to remove. Missing entries are ignored.
+
+        Returns:
+            Updated Source. If the resulting roles list is empty, the key
+            stays as an empty list rather than being deleted, so downstream
+            consumers can rely on ``metadata.roles`` being either absent
+            (never set) or a list.
+
+        Raises:
+            StorageError: If the source is not found.
+        """
+        source = await SourceStore.get_by_id(source_id)
+        if source is None:
+            raise StorageError(f"Source not found: {source_id}")
+
+        existing: list[str] = list(source.metadata.get("roles") or [])
+        remaining = [r for r in existing if r not in roles]
+
+        return await SourceStore.update_metadata(source_id, {"roles": remaining})
+
+    @staticmethod
+    async def list_by_role(
+        role: str,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[Source]:
+        """List sources whose ``metadata.roles`` contains the given role.
+
+        Uses JSONB containment (``@>``) over the GIN-indexed metadata column.
+
+        Args:
+            role: Role string to match (e.g., ``anchor.rl_optimal_control``).
+            limit: Maximum number of results.
+            offset: Pagination offset.
+
+        Returns:
+            List of matching sources, newest-first.
+
+        Example:
+            >>> anchors = await SourceStore.list_by_role(
+            ...     "anchor.rl_optimal_control"
+            ... )
+        """
+        pool = await get_connection_pool()
+        containment = {"roles": [role]}
+
+        try:
+            async with pool.acquire() as conn:
+                await conn.set_type_codec(
+                    "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+                )
+
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM sources
+                    WHERE metadata @> $1
+                    ORDER BY created_at DESC
+                    LIMIT $2 OFFSET $3
+                    """,
+                    containment,
+                    limit,
+                    offset,
+                )
+
+                return [_row_to_source(row) for row in rows]
+
+        except Exception as e:
+            logger.error("source_list_by_role_failed", role=role, error=str(e))
+            raise StorageError(f"Failed to list sources by role: {e}") from e
+
+    @staticmethod
+    async def find_by_title_year(
+        title: str,
+        year: Optional[int],
+    ) -> Optional[Source]:
+        """Find a source by normalized title + year.
+
+        Used for idempotent ``sources add-manual``: if a caller tries to
+        register the same metadata-only source twice, this lookup returns
+        the existing row so the CLI can merge metadata/roles instead of
+        creating a duplicate.
+
+        Normalization (Postgres-side): trim, lowercase, collapse internal
+        whitespace. Year must match exactly. If ``year`` is None, no source
+        is returned (we conservatively refuse to dedup against a year-less
+        candidate to avoid false positives).
+
+        Args:
+            title: Source title (will be normalized).
+            year: Publication year (required for dedup).
+
+        Returns:
+            Source if a normalized-title + year match exists, else None.
+        """
+        if year is None:
+            return None
+
+        pool = await get_connection_pool()
+
+        try:
+            async with pool.acquire() as conn:
+                await conn.set_type_codec(
+                    "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+                )
+
+                row = await conn.fetchrow(
+                    """
+                    SELECT * FROM sources
+                    WHERE LOWER(REGEXP_REPLACE(TRIM(title), '\\s+', ' ', 'g'))
+                        = LOWER(REGEXP_REPLACE(TRIM($1), '\\s+', ' ', 'g'))
+                      AND year = $2
+                    LIMIT 1
+                    """,
+                    title,
+                    year,
+                )
+
+                if row is None:
+                    return None
+                return _row_to_source(row)
+
+        except Exception as e:
+            logger.error(
+                "source_find_by_title_year_failed",
+                title=title,
+                year=year,
+                error=str(e),
+            )
+            raise StorageError(f"Failed to find source by title/year: {e}") from e
 
     @staticmethod
     async def delete(source_id: UUID) -> bool:

@@ -1226,29 +1226,50 @@ async def get_path_with_explanation(
 
 
 async def format_citation_graph_export(
-    arxiv_ids: list[str],
+    arxiv_ids: list[str] | None = None,
     *,
+    role: str | None = None,
     schema_version: str = "1.0",
     topic_label: str = "",
 ) -> dict:
     """Build a generic node-link JSON dict for a citation graph.
 
-    Caller passes a curated list of arxiv IDs. This function:
+    Caller selects sources via one or both of:
+      - ``arxiv_ids``: curated list of arxiv identifiers (existing selector).
+      - ``role``: a ``metadata.roles`` string such as
+        ``anchor.rl_optimal_control`` (e.g. for non-arxiv anchor classics).
+
+    This function:
       1. Looks up each arxiv ID in the SourceStore (ingested or not).
-      2. For ingested sources, fetches intra-set citation edges via
-         `get_cited_sources` (citation direction: source -> target).
-      3. Emits ingested sources as rich nodes; missing arxiv IDs as
-         minimal isolated nodes with `kb_status: "not_ingested"` so
+      2. Loads every source whose ``metadata.roles`` contains ``role``.
+      3. Deduplicates the role set against arxiv-resolved sources so each
+         source appears exactly once.
+      4. Fetches intra-set citation edges via ``get_cited_sources``
+         (citation direction: source -> target). Edges are emitted only
+         when both endpoints are in the unioned selection.
+      5. Emits ingested sources as rich nodes; missing arxiv IDs as
+         minimal isolated nodes with ``kb_status: "not_ingested"`` so
          downstream renderers can grey them out and explain.
+
+    Node id convention:
+      - Sources with an arxiv id: ``source:arxiv:<arxiv_id>`` (unchanged).
+      - Role-selected sources without an arxiv id (e.g. classical books):
+        ``source:uuid:<source.id>``.
 
     Args:
         arxiv_ids: Curated list of arxiv IDs to include in the graph.
+            Defaults to empty (use ``role`` only).
+        role: Optional ``metadata.roles`` marker; every source tagged with
+            this role is added to the graph alongside ``arxiv_ids``.
         schema_version: Output schema version (default "1.0").
         topic_label: Human-readable topic label embedded in metadata.
 
     Returns:
-        Graph dict suitable for `json.dump(...)`. See module-level comment
-        for the schema.
+        Graph dict suitable for ``json.dump(...)``. See module-level
+        comment for the schema.
+
+    Raises:
+        ValueError: If neither ``arxiv_ids`` nor ``role`` is provided.
     """
     from datetime import datetime, timezone
 
@@ -1257,6 +1278,14 @@ async def format_citation_graph_export(
     from research_kb_storage.citation_graph import get_cited_sources
     from research_kb_storage.source_store import SourceStore
 
+    arxiv_ids = list(arxiv_ids) if arxiv_ids else []
+
+    if not arxiv_ids and not role:
+        raise ValueError(
+            "format_citation_graph_export requires at least one of " "arxiv_ids or role"
+        )
+
+    # --- 1. Resolve arxiv selector ---
     ingested: dict[str, object] = {}  # arxiv_id -> Source
     missing: list[str] = []
 
@@ -1267,27 +1296,46 @@ async def format_citation_graph_export(
         else:
             missing.append(arxiv_id)
 
-    # source_id (UUID) -> arxiv_id reverse lookup for edge target filtering
-    source_id_to_arxiv: dict = {s.id: aid for aid, s in ingested.items()}  # type: ignore[attr-defined]
+    # --- 2. Resolve role selector, deduping against arxiv-resolved ---
+    role_sources: list = []
+    if role:
+        all_role_sources = await SourceStore.list_by_role(role, limit=10_000)
+        ingested_uuids = {s.id for s in ingested.values()}  # type: ignore[attr-defined]
+        role_sources = [s for s in all_role_sources if s.id not in ingested_uuids]
 
+    # --- 3. Build source_id -> node_id map for edge resolution ---
+    source_id_to_node_id: dict = {}
+    for arxiv_id, source in ingested.items():
+        source_id_to_node_id[source.id] = f"source:arxiv:{arxiv_id}"  # type: ignore[attr-defined]
+    for source in role_sources:
+        meta = source.metadata or {}  # type: ignore[attr-defined]
+        s_arxiv = meta.get("arxiv_id")
+        if s_arxiv:
+            source_id_to_node_id[source.id] = f"source:arxiv:{s_arxiv}"  # type: ignore[attr-defined]
+        else:
+            source_id_to_node_id[source.id] = f"source:uuid:{source.id}"  # type: ignore[attr-defined]
+
+    # --- 4. Build edges (citations between any pair of selected sources) ---
     edges: list[dict] = []
     edge_counter = 0
-    for arxiv_id, source in ingested.items():
+    all_selected_sources = list(ingested.values()) + role_sources
+    for source in all_selected_sources:
         cited = await get_cited_sources(source.id, limit=10_000)  # type: ignore[attr-defined]
         for cited_dict in cited:
             cited_source_id = cited_dict["id"]
-            if cited_source_id in source_id_to_arxiv:
+            if cited_source_id in source_id_to_node_id:
                 edge_counter += 1
                 edges.append(
                     {
                         "id": f"e:{edge_counter}",
-                        "source": f"source:arxiv:{arxiv_id}",
-                        "target": f"source:arxiv:{source_id_to_arxiv[cited_source_id]}",
+                        "source": source_id_to_node_id[source.id],  # type: ignore[attr-defined]
+                        "target": source_id_to_node_id[cited_source_id],
                         "type": "cites",
                         "data": {"weight": 1.0},
                     }
                 )
 
+    # --- 5. Build nodes ---
     nodes: list[dict] = []
     for arxiv_id, source in ingested.items():
         source_type_raw = getattr(source, "source_type", None)
@@ -1304,6 +1352,35 @@ async def format_citation_graph_export(
                     "year": getattr(source, "year", None),
                     "authors": getattr(source, "authors", []),
                     "arxiv_id": arxiv_id,
+                    "source_id": str(source.id),  # type: ignore[attr-defined]
+                    "kb_status": "ingested",
+                    "citation_authority": getattr(source, "citation_authority", None),
+                    "source_type": source_type_str,
+                },
+            }
+        )
+    for source in role_sources:
+        source_type_raw = getattr(source, "source_type", None)
+        source_type_str = (
+            source_type_raw.value if hasattr(source_type_raw, "value") else str(source_type_raw)
+        )
+        meta = source.metadata or {}  # type: ignore[attr-defined]
+        node_id = source_id_to_node_id[source.id]  # type: ignore[attr-defined]
+        nodes.append(
+            {
+                "id": node_id,
+                "type": "source",
+                "label": getattr(source, "title", str(source.id)),  # type: ignore[attr-defined]
+                "data": {
+                    "title": getattr(source, "title", ""),
+                    "year": getattr(source, "year", None),
+                    "authors": getattr(source, "authors", []),
+                    "arxiv_id": meta.get("arxiv_id"),
+                    "doi": meta.get("doi"),
+                    "isbn": meta.get("isbn"),
+                    "url": meta.get("url"),
+                    "kind": meta.get("kind"),
+                    "roles": list(meta.get("roles") or []),
                     "source_id": str(source.id),  # type: ignore[attr-defined]
                     "kb_status": "ingested",
                     "citation_authority": getattr(source, "citation_authority", None),
@@ -1333,10 +1410,14 @@ async def format_citation_graph_export(
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "node_count": len(nodes),
             "edge_count": len(edges),
-            "ingested_count": len(ingested),
+            "ingested_count": len(ingested) + len(role_sources),
             "not_ingested_count": len(missing),
             "node_types": ["source"],
             "edge_types": ["cites"] if edges else [],
+            "selectors": {
+                "arxiv_ids_count": len(arxiv_ids),
+                "role": role,
+            },
         },
         "nodes": nodes,
         "edges": edges,
