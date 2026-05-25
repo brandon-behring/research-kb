@@ -260,6 +260,7 @@ research-kb graph concepts                             # Search for concepts in 
 research-kb graph neighborhood                         # Visualize concept neighborhood in the knowledge graph.
 research-kb graph path                                 # Find shortest path between two concepts in the knowledge graph.
 research-kb graph explain                              # Explain how two concepts are connected with evidence and synthesis.
+research-kb graph export                               # Export a topic-filtered graph as JSON for downstream viz consumers.
 
 research-kb citations list                             # List citations extracted from a source.
 research-kb citations cited-by                         # Find sources that cite a given source.
