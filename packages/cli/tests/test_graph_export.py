@@ -57,7 +57,7 @@ class TestLoadLines:
 
 
 # ---------------------------------------------------------------------------
-# Selector validation (CLI-level — exactly one selector enforced)
+# Selector validation (CLI-level — at least one selector required; selectors union)
 # ---------------------------------------------------------------------------
 
 
@@ -69,7 +69,7 @@ class TestSelectorValidation:
         out = tmp_path / "out.json"
         result = cli_runner.invoke(app, ["graph", "export", "--output", str(out)])
         assert result.exit_code == 2
-        assert "must specify exactly one selector" in result.output
+        assert "must specify at least one selector" in result.output
 
     def test_unsupported_format_fails_with_exit_code_2(self, cli_runner, tmp_path: Path):
         """Unsupported --format value → typer.Exit(2)."""
@@ -156,3 +156,111 @@ class TestSelectorValidation:
         assert written == fake_dict
         # Subdir was created
         assert out.parent.is_dir()
+
+
+# ---------------------------------------------------------------------------
+# --role selector (new in A4 anchor-classics work)
+# ---------------------------------------------------------------------------
+
+
+class TestRoleSelector:
+    """``--role`` selector + combined ``--arxiv-ids + --role`` (union)."""
+
+    def test_role_only_invokes_format_helper(self, cli_runner, tmp_path: Path):
+        """``--role`` alone is a valid selector; format helper receives it."""
+        out = tmp_path / "role_only.json"
+        fake_dict = {
+            "schema_version": "1.0",
+            "graph_type": "citation",
+            "metadata": {
+                "topic": "",
+                "source": "research-kb",
+                "generated_at": "2026-05-25T00:00:00+00:00",
+                "node_count": 0,
+                "edge_count": 0,
+                "ingested_count": 0,
+                "not_ingested_count": 0,
+                "node_types": ["source"],
+                "edge_types": [],
+                "selectors": {
+                    "arxiv_ids_count": 0,
+                    "role": "anchor.rl_optimal_control",
+                },
+            },
+            "nodes": [],
+            "edges": [],
+        }
+
+        async_mock = AsyncMock(return_value=fake_dict)
+        with patch("research_kb_cli.commands.graph.format_citation_graph_export", async_mock):
+            with patch(
+                "research_kb_cli.commands.graph.get_connection_pool",
+                AsyncMock(return_value=None),
+            ):
+                result = cli_runner.invoke(
+                    app,
+                    [
+                        "graph",
+                        "export",
+                        "--role",
+                        "anchor.rl_optimal_control",
+                        "--output",
+                        str(out),
+                    ],
+                )
+
+        assert result.exit_code == 0, result.output
+        async_mock.assert_awaited_once()
+        call_kwargs = async_mock.call_args.kwargs
+        assert call_kwargs["arxiv_ids"] == []
+        assert call_kwargs["role"] == "anchor.rl_optimal_control"
+
+    def test_combined_arxiv_ids_and_role(self, cli_runner, tmp_path: Path):
+        """``--arxiv-ids`` and ``--role`` together → union of selections."""
+        ids_file = tmp_path / "ids.txt"
+        ids_file.write_text("1707.06347\n1502.05477\n")
+        out = tmp_path / "combined.json"
+
+        fake_dict = {
+            "schema_version": "1.0",
+            "graph_type": "citation",
+            "metadata": {
+                "topic": "",
+                "source": "research-kb",
+                "generated_at": "2026-05-25T00:00:00+00:00",
+                "node_count": 0,
+                "edge_count": 0,
+                "ingested_count": 0,
+                "not_ingested_count": 0,
+                "node_types": ["source"],
+                "edge_types": [],
+            },
+            "nodes": [],
+            "edges": [],
+        }
+
+        async_mock = AsyncMock(return_value=fake_dict)
+        with patch("research_kb_cli.commands.graph.format_citation_graph_export", async_mock):
+            with patch(
+                "research_kb_cli.commands.graph.get_connection_pool",
+                AsyncMock(return_value=None),
+            ):
+                result = cli_runner.invoke(
+                    app,
+                    [
+                        "graph",
+                        "export",
+                        "--arxiv-ids",
+                        str(ids_file),
+                        "--role",
+                        "anchor.rl_optimal_control",
+                        "--output",
+                        str(out),
+                    ],
+                )
+
+        assert result.exit_code == 0, result.output
+        async_mock.assert_awaited_once()
+        call_kwargs = async_mock.call_args.kwargs
+        assert call_kwargs["arxiv_ids"] == ["1707.06347", "1502.05477"]
+        assert call_kwargs["role"] == "anchor.rl_optimal_control"

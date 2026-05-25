@@ -457,6 +457,15 @@ def export(
         "--arxiv-ids",
         help="Path to newline-delimited file of arXiv IDs to include in the graph",
     ),
+    role: Optional[str] = typer.Option(
+        None,
+        "--role",
+        help=(
+            "metadata.roles marker to include (e.g. 'anchor.rl_optimal_control'). "
+            "Every source whose metadata.roles array contains this string is "
+            "added to the graph alongside any --arxiv-ids selection."
+        ),
+    ),
     output_format: str = typer.Option(
         "generic-node-link",
         "--format",
@@ -472,12 +481,14 @@ def export(
 ):
     """Export a topic-filtered graph as JSON for downstream viz consumers.
 
-    Selector framework: exactly one selector flag must be specified.
-    Currently implemented selectors:
+    Selector framework: at least one selector flag must be specified.
+    Selectors COMBINE — the resulting graph is the union of all matched
+    sources, deduplicated. Currently implemented selectors:
 
         --arxiv-ids <file>      newline-delimited arXiv IDs
+        --role <string>         metadata.roles marker (anchors etc.)
 
-    Planned selectors (not yet implemented; raise NotImplementedError today):
+    Planned selectors (not yet implemented; reserved):
 
         --source-ids <file>     newline-delimited source UUIDs
         --topic <name>          research-kb concept name -> matched sources
@@ -497,29 +508,22 @@ def export(
 
         research-kb graph export \\
             --arxiv-ids rl_ids.txt \\
+            --role anchor.rl_optimal_control \\
             --output exports/rl_citation_graph.json \\
             --topic-label "RL and optimal control"
     """
-    # Selector validation: exactly one selector flag must be specified.
-    # Future selectors are added to this dict as they're implemented.
-    selectors = {
-        "--arxiv-ids": arxiv_ids,
-        # "--source-ids": source_ids,     # (planned)
-        # "--topic": topic,               # (planned)
-        # "--concept-id": concept_id,     # (planned)
-    }
-    chosen = [(flag, val) for flag, val in selectors.items() if val is not None]
-    if not chosen:
+    # Selector validation: at least one selector flag must be specified.
+    # Selectors combine via set union in format_citation_graph_export.
+    chosen_flags = []
+    if arxiv_ids is not None:
+        chosen_flags.append("--arxiv-ids")
+    if role is not None:
+        chosen_flags.append("--role")
+
+    if not chosen_flags:
         typer.echo(
-            "Error: must specify exactly one selector "
-            "(--arxiv-ids; future: --source-ids/--topic/--concept-id)",
-            err=True,
-        )
-        raise typer.Exit(2)
-    if len(chosen) > 1:
-        flags = [f for f, _ in chosen]
-        typer.echo(
-            f"Error: only one selector may be specified at a time; got: {flags}",
+            "Error: must specify at least one selector "
+            "(--arxiv-ids and/or --role; future: --source-ids/--topic/--concept-id)",
             err=True,
         )
         raise typer.Exit(2)
@@ -532,24 +536,22 @@ def export(
         )
         raise typer.Exit(2)
 
-    selector_flag, selector_value = chosen[0]
-
     async def run_export():
         config = DatabaseConfig()
         await get_connection_pool(config)
 
-        # Selector resolution layer — one branch per selector. Common
-        # graph-build/format layer lives in research_kb_storage.
-        if selector_flag == "--arxiv-ids":
-            assert isinstance(selector_value, Path)
-            arxiv_list = _load_lines(selector_value)
-            return await format_citation_graph_export(
-                arxiv_ids=arxiv_list,
-                schema_version=schema_version,
-                topic_label=topic_label,
-            )
-        # Future selector branches go here.
-        raise NotImplementedError(f"Selector {selector_flag} not yet implemented")
+        # Resolve selectors to lists/values, then hand the union to the
+        # storage-layer formatter (which dedups and unions internally).
+        arxiv_list: list[str] = []
+        if arxiv_ids is not None:
+            arxiv_list = _load_lines(arxiv_ids)
+
+        return await format_citation_graph_export(
+            arxiv_ids=arxiv_list,
+            role=role,
+            schema_version=schema_version,
+            topic_label=topic_label,
+        )
 
     try:
         graph_data = asyncio.run(run_export())
