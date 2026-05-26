@@ -157,7 +157,14 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
             if row:
                 return UUID(str(row["id"]))
 
-        # Priority 3: Exact title-or-alias match (lowercased) + year
+        # Priority 3: Exact title-or-alias match (lowercased) + year.
+        # The alias branch guards against malformed `metadata.aliases`
+        # (e.g. a source with `aliases: "foo"` instead of an array) by
+        # checking `jsonb_typeof(...) = 'array'` first — without this
+        # guard, a single malformed source raises invalid_parameter_value
+        # at the Postgres level and pollutes the matcher globally
+        # (one bad row breaks matching for every citation; flagged in
+        # the 2026-05-25 code review).
         if citation.title:
             normalized_title = citation.title.lower().strip()
 
@@ -166,12 +173,15 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
                 SELECT id FROM sources
                 WHERE (
                     LOWER(title) = $1
-                    OR EXISTS (
-                        SELECT 1
-                        FROM jsonb_array_elements_text(
-                            COALESCE(metadata->'aliases', '[]'::jsonb)
-                        ) AS alias
-                        WHERE LOWER(alias) = $1
+                    OR (
+                        jsonb_typeof(metadata->'aliases') = 'array'
+                        AND EXISTS (
+                            SELECT 1
+                            FROM jsonb_array_elements_text(
+                                metadata->'aliases'
+                            ) AS alias
+                            WHERE LOWER(alias) = $1
+                        )
                     )
                 )
                   AND ($2::int IS NULL OR year = $2 OR year IS NULL)
@@ -183,14 +193,24 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
             if row:
                 return UUID(str(row["id"]))
 
-            # Priority 4: Year-filtered partial-LIKE (bidirectional substring).
+            # Priority 4: Year-filtered bidirectional substring match.
             # The year filter is REQUIRED here — without it, this branch
-            # produced massive false positives (research-kb#14).
+            # produced massive false positives (research-kb#14). Uses
+            # `position()` instead of LIKE because LIKE treats '%' and
+            # '_' in the pattern as wildcards; academic titles like
+            # "100% Natural Language Processing" would otherwise match
+            # arbitrary unrelated sources via the literal-percent-as-
+            # wildcard semantics. `position()` is metacharacter-safe in
+            # both directions (citation→source and source→citation), and
+            # `position(a IN b) > 0` is the SQL-standard equivalent of
+            # `b ILIKE '%a%'` without the wildcard hazard (flagged in
+            # the 2026-05-25 code review).
             row = await conn.fetchrow(
                 """
                 SELECT id FROM sources
-                WHERE (LOWER(title) LIKE '%' || $1 || '%'
-                       OR $1 LIKE '%' || LOWER(title) || '%')
+                WHERE (position($1 IN LOWER(title)) > 0
+                       OR (LENGTH(LOWER(title)) > 0
+                           AND position(LOWER(title) IN $1) > 0))
                   AND ($2::int IS NULL OR year = $2)
                 LIMIT 1
                 """,

@@ -167,3 +167,176 @@ class TestYearFilteredPartialLike:
         matched = await match_citation_to_source_simple(citation)
 
         assert matched == source.id
+
+
+class TestLikeMetacharacterSafety:
+    """Partial-substring branch is metacharacter-safe (regression for 2026-05-25 code review)."""
+
+    async def test_literal_percent_in_citation_title_does_not_wildcard_match(self, db_pool):
+        # Source title does NOT actually contain "100% nlp" as a substring,
+        # but its first 3 chars are "100" and it ends with " nlp". Under the
+        # buggy LIKE-based matcher, the pattern '%100% nlp%' would match
+        # because the literal '%' in the citation title acts as a wildcard
+        # between "100" and " nlp" in the LIKE pattern.
+        source = await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="100 papers on building scalable nlp systems",
+            file_hash="sha256:test_pct_wildcard_source",
+            domain_id="causal_inference",
+            year=2020,
+        )
+
+        # Citation with a literal '%' in the title.
+        citing = await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="Citer for percent wildcard test",
+            file_hash="sha256:test_pct_wildcard_citer",
+            domain_id="causal_inference",
+            year=2020,
+        )
+        citation = await CitationStore.create(
+            source_id=citing.id,
+            raw_string="…",
+            title="100% NLP",
+            authors=["Author"],
+            year=2020,
+        )
+
+        matched = await match_citation_to_source_simple(citation)
+
+        # Post-fix: '%' is treated as a literal character, not a wildcard.
+        # Neither substring contains the other → no match.
+        assert matched is None, (
+            f"Expected None (no real substring overlap), got {matched} — "
+            f"if this fails, the partial-substring branch may have "
+            f"regressed to LIKE semantics where '%' is wildcard."
+        )
+
+    async def test_literal_underscore_in_citation_title_does_not_wildcard_match(self, db_pool):
+        # '_' is the single-char LIKE wildcard. Source and citation differ
+        # only in the position where '_' sits in the citation, but if '_'
+        # were treated as a wildcard, the citation would match the source.
+        source = await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="abc xyz def",
+            file_hash="sha256:test_underscore_wildcard_source",
+            domain_id="causal_inference",
+            year=2021,
+        )
+
+        citing = await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="Citer for underscore wildcard test",
+            file_hash="sha256:test_underscore_wildcard_citer",
+            domain_id="causal_inference",
+            year=2021,
+        )
+        citation = await CitationStore.create(
+            source_id=citing.id,
+            raw_string="…",
+            title="abc_xyz_def",  # underscore-separated (no actual substring overlap)
+            authors=["Author"],
+            year=2021,
+        )
+
+        matched = await match_citation_to_source_simple(citation)
+
+        # Post-fix: '_' is literal. Citation 'abc_xyz_def' isn't a substring
+        # of source 'abc xyz def' (different chars at positions 3 and 7),
+        # and source isn't a substring of citation either → no match.
+        assert matched is None
+
+
+class TestMalformedAliasesGuard:
+    """Malformed `metadata.aliases` (non-array) doesn't poison matching for other sources.
+
+    Regression for 2026-05-25 code review: without the
+    `jsonb_typeof(metadata->'aliases') = 'array'` guard, a single source
+    with `aliases: "foo"` (a string, not a list) raises Postgres
+    invalid_parameter_value when the EXISTS subquery evaluates
+    jsonb_array_elements_text on it. That error then propagates, and the
+    matcher can't resolve ANY citation in that SELECT scope.
+    """
+
+    async def test_malformed_aliases_string_does_not_break_other_matches(self, db_pool):
+        # Source A: malformed aliases (string instead of array). Loaded
+        # via SourceStore.create which permits arbitrary JSONB metadata.
+        await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="Source with bad aliases shape",
+            file_hash="sha256:test_malformed_aliases_a",
+            domain_id="causal_inference",
+            year=2019,
+            metadata={"aliases": "this-is-a-string-not-an-array"},
+        )
+
+        # Source B: clean metadata + canonical title for the citation
+        # to resolve to.
+        source_b = await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="Clean Target Title",
+            file_hash="sha256:test_malformed_aliases_b",
+            domain_id="causal_inference",
+            year=2019,
+        )
+
+        # Citation that should resolve to source_b via exact-title match
+        # in priority 3 — but only if the EXISTS subquery doesn't blow up
+        # on source A's malformed aliases.
+        citing = await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="Citer for malformed-aliases test",
+            file_hash="sha256:test_malformed_aliases_citer",
+            domain_id="causal_inference",
+            year=2019,
+        )
+        citation = await CitationStore.create(
+            source_id=citing.id,
+            raw_string="…",
+            title="Clean Target Title",
+            authors=["Author"],
+            year=2019,
+        )
+
+        matched = await match_citation_to_source_simple(citation)
+
+        # Post-fix: jsonb_typeof guard short-circuits source A's row,
+        # source B matches via exact title.
+        assert matched == source_b.id
+
+    async def test_malformed_aliases_object_does_not_break_other_matches(self, db_pool):
+        # Variation: aliases is a JSON object instead of an array.
+        await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="Source with object-shape aliases",
+            file_hash="sha256:test_malformed_aliases_obj_a",
+            domain_id="causal_inference",
+            year=2020,
+            metadata={"aliases": {"some_key": "some_value"}},
+        )
+
+        source_b = await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="Another Clean Target",
+            file_hash="sha256:test_malformed_aliases_obj_b",
+            domain_id="causal_inference",
+            year=2020,
+        )
+
+        citing = await SourceStore.create(
+            source_type=SourceType.PAPER,
+            title="Citer for object-aliases test",
+            file_hash="sha256:test_malformed_aliases_obj_citer",
+            domain_id="causal_inference",
+            year=2020,
+        )
+        citation = await CitationStore.create(
+            source_id=citing.id,
+            raw_string="…",
+            title="Another Clean Target",
+            authors=["Author"],
+            year=2020,
+        )
+
+        matched = await match_citation_to_source_simple(citation)
+        assert matched == source_b.id
