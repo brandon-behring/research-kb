@@ -228,13 +228,15 @@ def format_citing_sources(sources: list, source_id: str) -> str:
         return "\n".join(lines)
 
     for s in sources:
-        year = f" ({s.year})" if s.year else ""
-        authors = ", ".join(s.authors[:2]) if s.authors else "Unknown"
-        if s.authors and len(s.authors) > 2:
+        yr = s.get("year")
+        year = f" ({yr})" if yr else ""
+        auth = s.get("authors") or []
+        authors = ", ".join(auth[:2]) if auth else "Unknown"
+        if len(auth) > 2:
             authors += " et al."
-        lines.append(f"- **{s.title}**{year}")
+        lines.append(f"- **{s['title']}**{year}")
         lines.append(f"  - {authors}")
-        lines.append(f"  - ID: `{s.id}`")
+        lines.append(f"  - ID: `{s['id']}`")
 
     return "\n".join(lines)
 
@@ -249,13 +251,15 @@ def format_cited_sources(sources: list, source_id: str) -> str:
         return "\n".join(lines)
 
     for s in sources:
-        year = f" ({s.year})" if s.year else ""
-        authors = ", ".join(s.authors[:2]) if s.authors else "Unknown"
-        if s.authors and len(s.authors) > 2:
+        yr = s.get("year")
+        year = f" ({yr})" if yr else ""
+        auth = s.get("authors") or []
+        authors = ", ".join(auth[:2]) if auth else "Unknown"
+        if len(auth) > 2:
             authors += " et al."
-        lines.append(f"- **{s.title}**{year}")
+        lines.append(f"- **{s['title']}**{year}")
         lines.append(f"  - {authors}")
-        lines.append(f"  - ID: `{s.id}`")
+        lines.append(f"  - ID: `{s['id']}`")
 
     return "\n".join(lines)
 
@@ -495,7 +499,7 @@ def format_domains(domain_stats: list[dict]) -> str:
     lines.append("Use the `domain` parameter in `research_kb_search` to filter by domain:")
     lines.append("- `domain=None` — Search all domains (default)")
     for stat in domain_stats:
-        lines.append(f"- `domain=\"{stat['domain_id']}\"` — {stat['name']} only")
+        lines.append(f'- `domain="{stat["domain_id"]}"` — {stat["name"]} only')
 
     return "\n".join(lines)
 
@@ -504,9 +508,9 @@ def format_citation_network(citing: list, cited: list, source: Source) -> str:
     """Format bidirectional citation network as markdown.
 
     Args:
-        citing: List of Source objects that cite this source
-        cited: List of Source objects cited by this source
-        source: The center source
+        citing: List of dicts (from get_citing_sources) that cite this source
+        cited: List of dicts (from get_cited_sources) cited by this source
+        source: The center source (a Source model)
 
     Returns:
         Markdown-formatted citation network
@@ -520,13 +524,15 @@ def format_citation_network(citing: list, cited: list, source: Source) -> str:
 
     if citing:
         for s in citing:
-            year = f" ({s.year})" if s.year else ""
-            authors = ", ".join(s.authors[:2]) if s.authors else "Unknown"
-            if s.authors and len(s.authors) > 2:
+            yr = s.get("year")
+            year = f" ({yr})" if yr else ""
+            auth = s.get("authors") or []
+            authors = ", ".join(auth[:2]) if auth else "Unknown"
+            if len(auth) > 2:
                 authors += " et al."
-            lines.append(f"- **{s.title}**{year}")
+            lines.append(f"- **{s['title']}**{year}")
             lines.append(f"  - {authors}")
-            lines.append(f"  - ID: `{s.id}`")
+            lines.append(f"  - ID: `{s['id']}`")
     else:
         lines.append("*No citing sources found in the knowledge base*")
 
@@ -538,13 +544,15 @@ def format_citation_network(citing: list, cited: list, source: Source) -> str:
 
     if cited:
         for s in cited:
-            year = f" ({s.year})" if s.year else ""
-            authors = ", ".join(s.authors[:2]) if s.authors else "Unknown"
-            if s.authors and len(s.authors) > 2:
+            yr = s.get("year")
+            year = f" ({yr})" if yr else ""
+            auth = s.get("authors") or []
+            authors = ", ".join(auth[:2]) if auth else "Unknown"
+            if len(auth) > 2:
                 authors += " et al."
-            lines.append(f"- **{s.title}**{year}")
+            lines.append(f"- **{s['title']}**{year}")
             lines.append(f"  - {authors}")
-            lines.append(f"  - ID: `{s.id}`")
+            lines.append(f"  - ID: `{s['id']}`")
     else:
         lines.append("*No cited sources found in the knowledge base*")
 
@@ -882,20 +890,20 @@ def format_citation_network_json(citing: list, cited: list, source: Source) -> s
     """Format bidirectional citation network as structured JSON.
 
     Args:
-        citing: List of Source objects that cite this source
-        cited: List of Source objects cited by this source
-        source: The center source
+        citing: List of dicts (from get_citing_sources) that cite this source
+        cited: List of dicts (from get_cited_sources) cited by this source
+        source: The center source (a Source model)
 
     Returns:
         JSON string with source metadata and citing/cited_by arrays
     """
 
-    def _source_to_dict(s: Source) -> dict:
+    def _source_to_dict(s: dict) -> dict:
         return {
-            "source_id": str(s.id),
-            "title": s.title,
-            "year": s.year,
-            "authors": s.authors if s.authors else [],
+            "source_id": str(s["id"]),
+            "title": s["title"],
+            "year": s.get("year"),
+            "authors": s.get("authors") or [],
         }
 
     return json.dumps(
