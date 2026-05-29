@@ -19,6 +19,7 @@ class SourceType(str, Enum):
     PAPER = "paper"
     CODE_REPO = "code_repo"
     BLOG = "blog"
+    WEB = "web"  # frontier web-native primary (vendor docs, standards, practitioner) — tagged + short half-life
 
 
 class CrossDomainLinkType(str, Enum):

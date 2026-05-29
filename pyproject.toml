@@ -3,6 +3,9 @@ name = "research-kb"
 version = "1.0.0"
 description = "Graph-boosted semantic search for research literature"
 requires-python = ">=3.11"
+dependencies = [
+    "trafilatura>=2.0.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["packages", "tests"]
