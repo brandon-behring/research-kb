@@ -10,6 +10,7 @@ Phase 3: Citation graph integration for search enhancement.
 """
 
 import json
+from contextlib import asynccontextmanager
 from typing import Any, Optional
 from uuid import UUID
 
@@ -228,8 +229,23 @@ async def match_citation_to_source_simple(citation: Citation) -> Optional[UUID]:
 # ============================================================================
 
 
+@asynccontextmanager
+async def _acquire(conn: Optional[Any]):
+    """Yield ``conn`` if given (caller owns its lifecycle / transaction), else
+    acquire and release a pooled connection. Lets build_citation_graph run
+    either standalone or inside a caller's transaction (research-kb#16).
+    """
+    if conn is not None:
+        yield conn
+    else:
+        pool = await get_connection_pool()
+        async with pool.acquire() as pooled:
+            yield pooled
+
+
 async def build_citation_graph(
     source_ids: Optional[list[UUID]] = None,
+    conn: Optional[Any] = None,
 ) -> dict:
     """Build source_citations edges from extracted citations.
 
@@ -245,6 +261,10 @@ async def build_citation_graph(
         IDs. Used by the post-ingest hook to incrementally build edges for
         newly ingested sources without rescanning the whole corpus.
         Default None processes all citations.
+    conn : asyncpg.Connection, optional
+        If provided, run on this connection instead of a pooled one, so a
+        caller can wrap delete + rebuild in a single transaction
+        (research-kb#16). Default None acquires a pooled connection.
 
     Returns
     -------
@@ -256,7 +276,6 @@ async def build_citation_graph(
         - by_type: dict mapping "PAPER→PAPER" etc. to counts
         - errors: int
     """
-    pool = await get_connection_pool()
     stats: dict[str, Any] = {
         "total_processed": 0,
         "matched": 0,
@@ -265,7 +284,7 @@ async def build_citation_graph(
         "errors": 0,
     }
 
-    async with pool.acquire() as conn:
+    async with _acquire(conn) as conn:
         await conn.set_type_codec(
             "jsonb",
             encoder=json.dumps,
@@ -382,6 +401,61 @@ async def build_citation_graph(
         errors=stats["errors"],
     )
 
+    return stats
+
+
+class CitationGraphSanityError(RuntimeError):
+    """A rebuild would drop the edge count below the safety ratio.
+
+    Raised *inside* delete_and_rebuild's transaction so the whole operation
+    rolls back — the pre-existing graph is preserved rather than silently
+    zeroed (research-kb#16).
+    """
+
+
+async def delete_and_rebuild(
+    conn: Any,
+    *,
+    full_rebuild: bool = False,
+    rebuild_unmatched: bool = False,
+    min_retain_ratio: float = 0.5,
+) -> dict:
+    """Atomically delete prior edges and rebuild them in one transaction.
+
+    Exactly one of ``full_rebuild`` (delete ALL edges) or ``rebuild_unmatched``
+    (delete only NULL-target edges) must be set. The DELETE and the rebuild run
+    inside a single ``conn.transaction()``, so a crash mid-rebuild rolls the
+    DELETE back and the existing graph survives (research-kb#16).
+
+    After the rebuild a sanity check aborts (and rolls back) the whole operation
+    if the edge count fell below ``min_retain_ratio`` of the prior count —
+    guarding against a matcher regression quietly collapsing the graph.
+
+    Returns the build stats dict augmented with ``edges_before``/``edges_after``.
+    """
+    if full_rebuild == rebuild_unmatched:
+        raise ValueError("exactly one of full_rebuild / rebuild_unmatched must be True")
+
+    existing = await conn.fetchval("SELECT COUNT(*) FROM source_citations")
+
+    async with conn.transaction():
+        if full_rebuild:
+            await conn.execute("DELETE FROM source_citations")
+        else:
+            await conn.execute("DELETE FROM source_citations WHERE cited_source_id IS NULL")
+
+        stats = await build_citation_graph(conn=conn)
+
+        after = await conn.fetchval("SELECT COUNT(*) FROM source_citations")
+        if existing > 0 and after < existing * min_retain_ratio:
+            raise CitationGraphSanityError(
+                f"Rebuild aborted: edges dropped {existing} -> {after} "
+                f"(< {min_retain_ratio:.0%} retained). "
+                f"Rolled back; prior graph preserved."
+            )
+
+    stats["edges_before"] = existing
+    stats["edges_after"] = after
     return stats
 
 

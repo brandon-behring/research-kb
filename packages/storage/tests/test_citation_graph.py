@@ -476,3 +476,66 @@ class TestSearchIntegration:
         # Should work without graph
         total = query.fts_weight + query.vector_weight + query.citation_weight
         assert abs(total - 1.0) < 0.01
+
+
+class TestTransactionalRebuild:
+    """research-kb#16: delete + rebuild must be atomic (crash => rollback)."""
+
+    async def test_rollback_preserves_edges_on_crash(
+        self, citation_graph_data, db_pool, monkeypatch
+    ):
+        """A crash mid-rebuild rolls back the DELETE; the prior graph survives."""
+        import research_kb_storage.citation_graph as cg
+
+        async with db_pool.acquire() as conn:
+            before = await conn.fetchval("SELECT COUNT(*) FROM source_citations")
+        assert before == 5
+
+        async def boom(*args, **kwargs):
+            raise RuntimeError("simulated crash mid-rebuild")
+
+        monkeypatch.setattr(cg, "build_citation_graph", boom)
+
+        async with db_pool.acquire() as conn:
+            with pytest.raises(RuntimeError, match="simulated crash"):
+                await cg.delete_and_rebuild(conn, full_rebuild=True)
+            after = await conn.fetchval("SELECT COUNT(*) FROM source_citations")
+
+        # The DELETE was rolled back with the failed rebuild.
+        assert after == before == 5
+
+    async def test_sanity_guard_aborts_on_edge_collapse(
+        self, citation_graph_data, db_pool, monkeypatch
+    ):
+        """If the rebuild would drop >50% of edges, abort and roll back."""
+        import research_kb_storage.citation_graph as cg
+
+        # A rebuild that inserts nothing => 5 -> 0 edges, below the 50% floor.
+        async def empty_rebuild(*args, **kwargs):
+            return {
+                "total_processed": 0,
+                "matched": 0,
+                "unmatched": 0,
+                "by_type": {},
+                "errors": 0,
+            }
+
+        monkeypatch.setattr(cg, "build_citation_graph", empty_rebuild)
+
+        async with db_pool.acquire() as conn:
+            with pytest.raises(cg.CitationGraphSanityError):
+                await cg.delete_and_rebuild(conn, full_rebuild=True)
+            after = await conn.fetchval("SELECT COUNT(*) FROM source_citations")
+
+        # Rolled back; the graph is preserved rather than zeroed.
+        assert after == 5
+
+    async def test_requires_exactly_one_mode(self, db_pool):
+        """delete_and_rebuild rejects ambiguous / missing mode flags."""
+        import research_kb_storage.citation_graph as cg
+
+        async with db_pool.acquire() as conn:
+            with pytest.raises(ValueError):
+                await cg.delete_and_rebuild(conn)  # neither flag
+            with pytest.raises(ValueError):
+                await cg.delete_and_rebuild(conn, full_rebuild=True, rebuild_unmatched=True)

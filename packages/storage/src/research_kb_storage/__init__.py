@@ -78,6 +78,8 @@ from research_kb_storage.query_expander import (
 )
 from research_kb_storage.citation_graph import (
     build_citation_graph,
+    delete_and_rebuild,
+    CitationGraphSanityError,
     compute_pagerank_authority,
     get_citing_sources,
     get_cited_sources,
@@ -174,6 +176,8 @@ __all__ = [
     "get_hyde_embedding",
     # Citation Graph (Phase 3)
     "build_citation_graph",
+    "delete_and_rebuild",
+    "CitationGraphSanityError",
     "compute_pagerank_authority",
     "get_citing_sources",
     "get_cited_sources",

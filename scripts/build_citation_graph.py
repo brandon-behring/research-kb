@@ -27,6 +27,8 @@ from research_kb_storage import (
     close_connection_pool,
     get_connection_pool,
     build_citation_graph,
+    delete_and_rebuild,
+    CitationGraphSanityError,
     compute_pagerank_authority,
     get_corpus_citation_summary,
     get_most_cited_sources,
@@ -77,29 +79,35 @@ async def main():
         print("No citations to process. Run extract_citations.py first.")
         return
 
-    # Optionally delete prior edges to force re-evaluation under current matcher.
-    if args.full_rebuild:
-        async with pool.acquire() as conn:
-            await conn.execute("DELETE FROM source_citations")
-            after = await conn.fetchval("SELECT COUNT(*) FROM source_citations")
-        print(f"\n--full-rebuild: deleted {existing_edges} edges (now {after})")
-    elif args.rebuild_unmatched:
-        async with pool.acquire() as conn:
-            null_before = await conn.fetchval(
-                "SELECT COUNT(*) FROM source_citations WHERE cited_source_id IS NULL"
-            )
-            await conn.execute("DELETE FROM source_citations WHERE cited_source_id IS NULL")
-        print(
-            f"\n--rebuild-unmatched: deleted {null_before} NULL-target edges; "
-            f"non-NULL edges preserved"
-        )
-
     # Build citation graph
     print("\n" + "=" * 70)
     print("BUILDING CITATION GRAPH")
     print("=" * 70)
 
-    stats = await build_citation_graph()
+    if args.full_rebuild or args.rebuild_unmatched:
+        # research-kb#16: delete + rebuild atomically. A crash mid-rebuild rolls
+        # back the DELETE so the existing graph is preserved (was: DELETE
+        # committed before the rebuild loop, leaving the table zeroed on crash).
+        mode = "--full-rebuild" if args.full_rebuild else "--rebuild-unmatched"
+        print(
+            f"\n{mode}: deleting prior edges + rebuilding inside ONE transaction "
+            f"(crash => rollback; the existing {existing_edges} edges are "
+            f"preserved on any failure). [research-kb#16]"
+        )
+        async with pool.acquire() as conn:
+            try:
+                stats = await delete_and_rebuild(
+                    conn,
+                    full_rebuild=args.full_rebuild,
+                    rebuild_unmatched=args.rebuild_unmatched,
+                )
+            except CitationGraphSanityError as exc:
+                print(f"\n✗ {exc}")
+                await close_connection_pool()
+                sys.exit(1)
+        print(f"\n{mode}: edges {stats['edges_before']} -> {stats['edges_after']} " f"(committed)")
+    else:
+        stats = await build_citation_graph()
 
     print("\nGraph building complete:")
     print(f"  Total processed: {stats['total_processed']}")
