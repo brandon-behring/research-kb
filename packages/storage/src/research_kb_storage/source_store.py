@@ -450,6 +450,81 @@ class SourceStore:
             raise StorageError(f"Failed to update source: {e}") from e
 
     @staticmethod
+    async def update_core_metadata(
+        source_id: UUID,
+        *,
+        title: Optional[str] = None,
+        authors: Optional[list[str]] = None,
+        year: Optional[int] = None,
+        metadata: Optional[SourceMetadata] = None,
+    ) -> Source:
+        """Update the top-level ``title`` / ``authors`` / ``year`` columns.
+
+        ``update_metadata`` only touches the ``metadata`` JSONB; this updates the
+        first-class columns that drive citation matching and graph-export labels,
+        used to repair filename-ingested junk metadata (research-kb#20). Only the
+        provided fields change (``COALESCE`` keeps the rest); ``metadata`` is
+        merged (``||``) when given.
+
+        Args:
+            source_id: Source UUID.
+            title/authors/year: New values; ``None`` leaves the column unchanged.
+                An empty ``authors`` list is treated as ``None`` (leaves authors
+                unchanged) rather than clearing them.
+            metadata: Optional JSONB to merge (e.g. ``{"metadata_source": "arxiv_api"}``).
+
+        Returns:
+            Updated Source.
+
+        Raises:
+            StorageError: If source not found or update fails.
+        """
+        # An empty list would COALESCE to '{}' and wipe existing authors; treat it
+        # as "no change" to match the None semantics (research-kb#20 review).
+        if authors is not None and len(authors) == 0:
+            authors = None
+
+        pool = await get_connection_pool()
+        now = datetime.now(timezone.utc)
+
+        try:
+            async with pool.acquire() as conn:
+                await conn.set_type_codec(
+                    "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+                )
+
+                row = await conn.fetchrow(
+                    """
+                    UPDATE sources
+                    SET title = COALESCE($1::text, title),
+                        authors = COALESCE($2::text[], authors),
+                        year = COALESCE($3::int, year),
+                        metadata = metadata || $4::jsonb,
+                        updated_at = $5
+                    WHERE id = $6
+                    RETURNING *
+                    """,
+                    title,
+                    authors,
+                    year,
+                    metadata or {},
+                    now,
+                    source_id,
+                )
+
+                if row is None:
+                    raise StorageError(f"Source not found: {source_id}")
+
+                logger.info("source_core_metadata_updated", source_id=str(source_id))
+                return _row_to_source(row)
+
+        except StorageError:
+            raise
+        except Exception as e:
+            logger.error("source_core_update_failed", source_id=str(source_id), error=str(e))
+            raise StorageError(f"Failed to update source core metadata: {e}") from e
+
+    @staticmethod
     async def add_roles(source_id: UUID, roles: list[str]) -> Source:
         """Append role markers to ``source.metadata.roles`` (deduplicated).
 

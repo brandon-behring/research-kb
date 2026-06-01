@@ -19,7 +19,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "storage" / "
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "contracts" / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "common" / "src"))
 
-from research_kb_common import get_logger
+from research_kb_common import (
+    arxiv_id_from_filename,
+    fetch_arxiv_metadata,
+    get_logger,
+)
 from research_kb_contracts import SourceType
 from research_kb_pdf import (
     EmbeddingClient,
@@ -159,7 +163,25 @@ def get_metadata_for_pdf(pdf_path: Path) -> tuple[str, list[str], int | None, di
 
         return title, authors, year, extra_metadata
 
-    # Fall back to filename parsing
+    # No sidecar. If the filename is an arXiv id, fetch real metadata from the
+    # arXiv API rather than storing filename-derived junk (research-kb#20).
+    arxiv_id = arxiv_id_from_filename(pdf_path.name)
+    if arxiv_id:
+        fetched = fetch_arxiv_metadata(arxiv_id)
+        if fetched:
+            return (
+                fetched["title"],
+                fetched["authors"],
+                fetched["year"],
+                {"metadata_source": "arxiv_api", "arxiv_id": arxiv_id},
+            )
+        logger.warning(
+            "arxiv_fetch_returned_none",
+            arxiv_id=arxiv_id,
+            filename=pdf_path.name,
+        )
+
+    # Last resort: parse the filename (flags metadata_source="filename").
     meta = parse_filename_for_metadata(pdf_path.name)
     return meta["title"], meta["authors"], meta["year"], {"metadata_source": "filename"}
 

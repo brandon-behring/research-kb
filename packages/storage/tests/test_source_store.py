@@ -248,3 +248,73 @@ class TestSourceStoreList:
         page1_ids = {s.id for s in page1}
         page2_ids = {s.id for s in page2}
         assert len(page1_ids & page2_ids) == 0
+
+
+class TestUpdateCoreMetadata:
+    """research-kb#20: repair filename-junk title/authors/year on existing rows."""
+
+    async def test_repairs_core_fields_and_merges_metadata(self, db_pool):
+        """update_core_metadata overwrites title/authors/year + merges JSONB."""
+        # Simulate a filename-ingested junk row.
+        source = await SourceStore.create(
+            domain_id="causal_inference",
+            source_type=SourceType.PAPER,
+            title="1312.5602",
+            authors=[],
+            year=1312,
+            file_hash=f"sha256:core_meta_{uuid4().hex[:8]}",
+            metadata={"metadata_source": "filename", "arxiv_id": "1312.5602"},
+        )
+
+        updated = await SourceStore.update_core_metadata(
+            source.id,
+            title="Playing Atari with Deep Reinforcement Learning",
+            authors=["Volodymyr Mnih", "Koray Kavukcuoglu"],
+            year=2013,
+            metadata={"metadata_source": "arxiv_api"},
+        )
+
+        assert updated.title == "Playing Atari with Deep Reinforcement Learning"
+        assert updated.authors == ["Volodymyr Mnih", "Koray Kavukcuoglu"]
+        assert updated.year == 2013
+        # JSONB merged: metadata_source overwritten, arxiv_id preserved.
+        assert updated.metadata["metadata_source"] == "arxiv_api"
+        assert updated.metadata["arxiv_id"] == "1312.5602"
+
+    async def test_partial_update_leaves_other_columns(self, db_pool):
+        """Only provided fields change; omitted ones are left intact."""
+        source = await SourceStore.create(
+            domain_id="causal_inference",
+            source_type=SourceType.PAPER,
+            title="Keep Me",
+            authors=["Orig Author"],
+            year=2000,
+            file_hash=f"sha256:core_partial_{uuid4().hex[:8]}",
+        )
+
+        updated = await SourceStore.update_core_metadata(source.id, year=2021)
+
+        assert updated.title == "Keep Me"
+        assert updated.authors == ["Orig Author"]
+        assert updated.year == 2021
+
+    async def test_missing_source_raises(self, db_pool):
+        """Updating a non-existent source raises StorageError."""
+        with pytest.raises(StorageError):
+            await SourceStore.update_core_metadata(uuid4(), title="nope")
+
+    async def test_empty_authors_list_leaves_authors_unchanged(self, db_pool):
+        """An empty authors list is treated as None (no clobber), per #20 review."""
+        source = await SourceStore.create(
+            domain_id="causal_inference",
+            source_type=SourceType.PAPER,
+            title="Has Authors",
+            authors=["Orig A", "Orig B"],
+            year=2010,
+            file_hash=f"sha256:core_emptyauth_{uuid4().hex[:8]}",
+        )
+
+        updated = await SourceStore.update_core_metadata(source.id, title="New Title", authors=[])
+
+        assert updated.title == "New Title"
+        assert updated.authors == ["Orig A", "Orig B"]  # [] left them unchanged

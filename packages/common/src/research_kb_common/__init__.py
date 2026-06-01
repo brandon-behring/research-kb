@@ -36,6 +36,7 @@ from research_kb_common.gpu_guard import (
     set_vram_ceiling,
 )
 from research_kb_common.retry import retry_on_exception, with_exponential_backoff
+from research_kb_common.arxiv import arxiv_id_from_filename, fetch_arxiv_metadata
 
 __version__ = "1.0.0"
 
@@ -49,6 +50,9 @@ __all__ = [
     # Retry
     "retry_on_exception",
     "with_exponential_backoff",
+    # arXiv metadata (research-kb#20)
+    "arxiv_id_from_filename",
+    "fetch_arxiv_metadata",
     # Instrumentation
     "init_telemetry",
     "get_tracer",
