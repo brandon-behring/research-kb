@@ -260,6 +260,7 @@ research-kb graph concepts                             # Search for concepts in 
 research-kb graph neighborhood                         # Visualize concept neighborhood in the knowledge graph.
 research-kb graph path                                 # Find shortest path between two concepts in the knowledge graph.
 research-kb graph explain                              # Explain how two concepts are connected with evidence and synthesis.
+research-kb graph export                               # Export a topic-filtered graph as JSON for downstream viz consumers.
 
 research-kb citations list                             # List citations extracted from a source.
 research-kb citations cited-by                         # Find sources that cite a given source.
@@ -267,7 +268,9 @@ research-kb citations cites                            # Find sources that a giv
 research-kb citations stats                            # Show corpus-wide citation graph statistics.
 research-kb citations similar                          # Find sources with similar research focus via bibliographic coupling.
 
-research-kb sources list                               # List all ingested sources in the knowledge base.
+research-kb sources list                               # List ingested sources in the knowledge base.
+research-kb sources add-manual                         # Register a metadata-only source (no PDF needed).
+research-kb sources set-role                           # Add or remove metadata.roles markers on an existing source.
 research-kb sources extraction-status                  # Show extraction pipeline statistics.
 research-kb sources stats                              # Show knowledge base statistics.
 
