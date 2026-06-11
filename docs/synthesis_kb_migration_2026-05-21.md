@@ -1,5 +1,11 @@
-> **Synchronized copy.** Canonical version: `~/Claude/research-agent/docs/plans/active/synthesis_kb_migration_2026-05-21.md`.
-> Edit the canonical first, then re-copy here. This copy lives in research-kb because M0 adapts `pdf-ingestion` to consume the cache inbox (`inbox/research_toolkit_caches/`), populating research-kb from research_toolkit gather runs.
+> **SUPERSEDED (2026-06-11)** by the research-side design review:
+> `~/Claude/lever_of_archimedes/docs/plans/active/2026-06-research-side-design-review/decisions.yaml`
+> (locally: `docs/decisions/0001-scope-retrieval-citation-backbone.md`). M0 (cache-inbox consumption)
+> was never built and is now **formally dropped** — acquisition is the wanted-list contract (review R2);
+> `inbox/` is deleted in slice RS1. Historical rationale only below.
+>
+> ~~**Synchronized copy.** Canonical version: `~/Claude/research-agent/docs/plans/active/synthesis_kb_migration_2026-05-21.md`.~~
+> (research-agent is archived; both copies now historical.)
 
 ---
 
