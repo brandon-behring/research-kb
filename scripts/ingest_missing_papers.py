@@ -323,22 +323,31 @@ async def main():
 
         abort_if_embed_server_running()
 
-    # Docling VRAM preflight — always on. Orthogonal to the embed_server
-    # socket check above: that one guards against our own embed_server;
-    # this one guards against any other VRAM consumer (e.g. rerank_server).
-    from research_kb_common.gpu_guard import (
-        DEFAULT_DOCLING_VRAM_MIN_MB,
-        MINERU_MANAGED_SERVICES,
-        abort_if_vram_insufficient,
-        restart_services,
-    )
+    # Docling VRAM preflight — on whenever a GPU is in play. Orthogonal to the
+    # embed_server socket check above: that one guards against our own
+    # embed_server; this one guards against any other VRAM consumer (e.g.
+    # rerank_server). CUDA_VISIBLE_DEVICES="" is the documented CPU mode
+    # (skills/pdf-ingestion): no device, so the CUDA preflight is meaningless.
+    import os
 
-    _stopped_services = abort_if_vram_insufficient(
-        min_mib=DEFAULT_DOCLING_VRAM_MIN_MB,
-        managed_services=MINERU_MANAGED_SERVICES,
-        auto_stop_services=args.auto_stop_services,
-        caller_label="docling preflight (ingest_missing_papers)",
-    )
+    from research_kb_common.gpu_guard import restart_services
+
+    if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+        print("[docling preflight] CPU mode (CUDA_VISIBLE_DEVICES empty) — skipping VRAM preflight")
+        _stopped_services: list[str] = []
+    else:
+        from research_kb_common.gpu_guard import (
+            DEFAULT_DOCLING_VRAM_MIN_MB,
+            MINERU_MANAGED_SERVICES,
+            abort_if_vram_insufficient,
+        )
+
+        _stopped_services = abort_if_vram_insufficient(
+            min_mib=DEFAULT_DOCLING_VRAM_MIN_MB,
+            managed_services=MINERU_MANAGED_SERVICES,
+            auto_stop_services=args.auto_stop_services,
+            caller_label="docling preflight (ingest_missing_papers)",
+        )
     domain_id = args.domain
 
     papers_dir = Path(__file__).parent.parent / "fixtures" / "papers"
