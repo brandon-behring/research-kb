@@ -40,15 +40,15 @@ def register_source_tools(mcp: FastMCP) -> None:
     ) -> str:
         """List sources (papers and textbooks) in the knowledge base.
 
-        Browse the corpus of causal inference literature including academic
-        papers and textbooks.
+        Browse the cross-domain research corpus (38+ domains) of academic
+        papers and textbooks. Call `research_kb_list_domains` for valid domain ids.
 
         Args:
             limit: Maximum number of sources to return (1-100, default 50)
             offset: Pagination offset (default 0)
             source_type: Filter by type ("paper" or "textbook", default all)
-            domain: Optional knowledge-domain filter (Issue #4). Pass a domain
-                id (e.g., "causal_inference", "time_series") to restrict.
+            domain: Optional knowledge-domain filter. Pass a domain id to
+                restrict; see `research_kb_list_domains` for valid ids.
 
         Returns:
             Markdown-formatted list of sources with:

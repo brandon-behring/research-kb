@@ -11,7 +11,7 @@ Uses fixtures from fixtures/concepts/synonym_map.yaml for realistic testing.
 
 import pytest
 from pathlib import Path
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import patch, MagicMock
 
 from research_kb_storage.query_expander import (
     QueryExpander,
@@ -222,95 +222,27 @@ class TestSynonymExpansion:
 
 
 # =============================================================================
-# Graph Expansion Tests
+# Graph Expansion Tests (RS4: retired — expand_with_graph is now an inert no-op)
 # =============================================================================
 
 
 class TestGraphExpansion:
-    """Tests for knowledge graph relationship expansion."""
+    """Graph expansion was retired (RS4, ADR-0001). expand_with_graph is now
+    an inert no-op that always returns an empty list."""
 
-    async def test_graph_expansion_finds_related_concepts(self, expander):
-        """Verify graph expansion returns related concept names."""
-        # Given: Mocked graph query results
-        mock_neighborhood = {
-            "concepts": [
-                MagicMock(canonical_name="endogeneity", name="Endogeneity"),
-                MagicMock(canonical_name="exogeneity", name="Exogeneity"),
-            ]
-        }
+    async def test_graph_expansion_returns_empty(self, expander):
+        """Verify the retired graph expansion always returns no expansions."""
+        # When: We expand with graph (retired no-op)
+        expansions = await expander.expand_with_graph("IV estimation")
 
-        # Patch at the source modules (imports are done inside the method)
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=["concept-uuid-1"],
-            ),
-            patch(
-                "research_kb_storage.graph_queries.get_neighborhood",
-                new_callable=AsyncMock,
-                return_value=mock_neighborhood,
-            ),
-        ):
-            # When: We expand with graph
-            expansions = await expander.expand_with_graph("IV estimation")
+        # Then: Empty list returned, regardless of input
+        assert expansions == []
 
-            # Then: Related concepts are returned
-            assert "endogeneity" in expansions
-            assert "exogeneity" in expansions
+    async def test_graph_expansion_ignores_max_concepts(self, expander):
+        """Verify max_concepts is ignored and result is still empty."""
+        expansions = await expander.expand_with_graph("test query", max_concepts=3)
 
-    async def test_graph_expansion_respects_max_concepts(self, expander):
-        """Verify max_concepts parameter is respected."""
-        # Given: Many concepts in neighborhood
-        mock_neighborhood = {
-            "concepts": [
-                MagicMock(canonical_name=f"concept_{i}", name=f"Concept {i}") for i in range(10)
-            ]
-        }
-
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=["concept-uuid-1"],
-            ),
-            patch(
-                "research_kb_storage.graph_queries.get_neighborhood",
-                new_callable=AsyncMock,
-                return_value=mock_neighborhood,
-            ),
-        ):
-            # When: We expand with max_concepts=3
-            expansions = await expander.expand_with_graph("test query", max_concepts=3)
-
-            # Then: At most 3 concepts returned
-            assert len(expansions) <= 3
-
-    async def test_graph_expansion_handles_no_concepts(self, expander):
-        """Verify graceful handling when no concepts found."""
-        with patch(
-            "research_kb_storage.query_extractor.extract_query_concepts",
-            new_callable=AsyncMock,
-            return_value=[],
-        ):
-            # When: No concepts are found in query
-            expansions = await expander.expand_with_graph("random text")
-
-            # Then: Empty list returned
-            assert expansions == []
-
-    async def test_graph_expansion_handles_errors_gracefully(self, expander):
-        """Verify errors in graph queries don't crash expansion."""
-        with patch(
-            "research_kb_storage.query_extractor.extract_query_concepts",
-            new_callable=AsyncMock,
-            side_effect=Exception("Database error"),
-        ):
-            # When: Graph query fails
-            expansions = await expander.expand_with_graph("IV estimation")
-
-            # Then: Empty list returned, no exception raised
-            assert expansions == []
+        assert expansions == []
 
 
 # =============================================================================
@@ -406,43 +338,20 @@ class TestCombinedExpansion:
         assert "synonyms" in result.expansion_sources
         assert "graph" not in result.expansion_sources
 
-    async def test_expand_combined_synonym_and_graph(self, expander):
-        """Verify combined synonym + graph expansion."""
-        # Given: Mocked graph expansion
-        mock_neighborhood = {
-            "concepts": [
-                MagicMock(canonical_name="endogeneity", name="Endogeneity"),
-            ]
-        }
+    async def test_expand_graph_adds_nothing(self, expander):
+        """Verify use_graph=True contributes no terms (graph retired, RS4)."""
+        # When: We expand with synonyms and the retired graph expansion
+        result = await expander.expand(
+            "IV estimation",
+            use_synonyms=True,
+            use_graph=True,
+            use_llm=False,
+        )
 
-        # Patch at the source modules
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=["concept-uuid-1"],
-            ),
-            patch(
-                "research_kb_storage.graph_queries.get_neighborhood",
-                new_callable=AsyncMock,
-                return_value=mock_neighborhood,
-            ),
-        ):
-            # When: We expand with synonyms and graph
-            result = await expander.expand(
-                "IV estimation",
-                use_synonyms=True,
-                use_graph=True,
-                use_llm=False,
-            )
-
-            # Then: Both sources contribute
-            assert "synonyms" in result.expansion_sources
-            assert "graph" in result.expansion_sources
-            # Synonym expansions present
-            assert any("instrumental" in t for t in result.expanded_terms)
-            # Graph expansion present
-            assert "endogeneity" in result.expanded_terms
+        # Then: Synonyms still contribute, but graph adds no source/terms
+        assert "synonyms" in result.expansion_sources
+        assert "graph" not in result.expansion_sources
+        assert any("instrumental" in t for t in result.expanded_terms)
 
     async def test_expand_empty_query(self, expander):
         """Verify empty query handling."""
@@ -473,42 +382,21 @@ class TestCombinedExpansion:
 
     async def test_expand_deduplicates_across_sources(self, expander):
         """Verify no duplicate terms across expansion sources."""
-        # Given: Graph returns same term as synonyms
-        mock_neighborhood = {
-            "concepts": [
-                # This matches a synonym
-                MagicMock(canonical_name="instrumental variables", name="IV"),
-            ]
-        }
+        # When: Synonym expansion runs (graph retired and contributes nothing)
+        result = await expander.expand(
+            "IV",
+            use_synonyms=True,
+            use_graph=True,
+        )
 
-        # Patch at the source modules
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=["concept-uuid-1"],
-            ),
-            patch(
-                "research_kb_storage.graph_queries.get_neighborhood",
-                new_callable=AsyncMock,
-                return_value=mock_neighborhood,
-            ),
-        ):
-            # When: Both sources would add same term
-            result = await expander.expand(
-                "IV",
-                use_synonyms=True,
-                use_graph=True,
-            )
+        # Then: No duplicates in expanded_terms
+        term_counts = {}
+        for term in result.expanded_terms:
+            lower = term.lower()
+            term_counts[lower] = term_counts.get(lower, 0) + 1
 
-            # Then: No duplicates in expanded_terms
-            term_counts = {}
-            for term in result.expanded_terms:
-                lower = term.lower()
-                term_counts[lower] = term_counts.get(lower, 0) + 1
-
-            for term, count in term_counts.items():
-                assert count == 1, f"Duplicate term found: {term}"
+        for term, count in term_counts.items():
+            assert count == 1, f"Duplicate term found: {term}"
 
 
 # =============================================================================

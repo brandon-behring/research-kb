@@ -13,7 +13,6 @@ Score semantics:
 - rerank_score: Cross-encoder relevance (higher = better)
 """
 
-import asyncio
 import json
 import os
 from dataclasses import dataclass
@@ -30,12 +29,6 @@ if TYPE_CHECKING:
     from research_kb_storage.query_expander import ExpandedQuery, HydeConfig
 
 logger = get_logger(__name__)
-
-# Limit concurrent graph-boosted searches to prevent memory accumulation.
-# The daemon allows 50 concurrent connections, but each graph-boosted search
-# can trigger a large KuzuDB SHORTEST query + in-memory DataFrame processing.
-# Capping at 3 prevents OOM while still serving multiple users.
-_graph_semaphore: asyncio.Semaphore = asyncio.Semaphore(3)
 
 
 @dataclass
@@ -176,14 +169,12 @@ def _compute_ranks_by_signal(results: list) -> dict[str, dict[str, int]]:
             chunk_scores[chunk_id]["fts"] = r.fts_score
         if r.vector_score is not None:
             chunk_scores[chunk_id]["vector"] = r.vector_score
-        if r.graph_score is not None:
-            chunk_scores[chunk_id]["graph"] = r.graph_score
         if r.citation_score is not None:
             chunk_scores[chunk_id]["citation"] = r.citation_score
 
     # Compute ranks for each signal
     rankings: dict[str, dict[str, int]] = defaultdict(dict)
-    for signal in ["fts", "vector", "graph", "citation"]:
+    for signal in ["fts", "vector", "citation"]:
         # Get all chunks with this signal's score
         scored = [
             (chunk_id, scores.get(signal))
@@ -315,9 +306,10 @@ async def search_hybrid(query: SearchQuery) -> list[SearchResult]:
 
 
 async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
-    """Execute hybrid search v2 with graph boosting and citation authority.
+    """Execute hybrid search v2 with citation authority boosting.
 
-    Enhanced search combining FTS + vector + graph + citation signals for improved relevance.
+    Enhanced search combining FTS + vector + citation signals for improved relevance.
+    (Concept-graph signal retired in RS4, ADR-0001; KuzuDB removed.)
 
     Strategy:
     1. Extract concepts from query text
@@ -351,29 +343,9 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
         ...     limit=10
         ... ))
     """
-    if not query.use_graph and not query.use_citations:
-        raise ValueError("search_hybrid_v2 requires use_graph=True and/or use_citations=True")
-
     pool = await get_connection_pool()
 
     try:
-        # Step 1: Extract concepts from query text
-        from research_kb_storage.query_extractor import extract_query_concepts
-        from research_kb_storage.chunk_concept_store import ChunkConceptStore
-        from research_kb_storage.graph_queries import compute_weighted_graph_score
-
-        query_concept_ids = []
-        if query.text:
-            query_concept_ids = await extract_query_concepts(
-                query.text, min_confidence=0.6, max_concepts=5
-            )
-
-        logger.info(
-            "graph_search_query_concepts",
-            query_text=query.text[:100] if query.text else None,
-            concept_count=len(query_concept_ids),
-        )
-
         # Step 2: Get base results (FTS + vector), fetch 2x limit for re-ranking
         async with pool.acquire() as conn:
             await register_vector(conn)
@@ -413,76 +385,6 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
             else:
                 raise SearchError("No search criteria provided")
 
-        # Step 3: Fetch chunk-concept links with mention metadata (batch operation)
-        chunk_ids = [result.chunk.id for result in base_results]
-        chunk_concepts_info: dict = {}
-        if query.use_graph:
-            # Use enhanced function that returns (concept_id, mention_type, relevance_score)
-            chunk_concepts_info = await ChunkConceptStore.get_concept_info_for_chunks(chunk_ids)
-
-        # Step 4: Compute graph scores in batch (1 KuzuDB query instead of ~20)
-        if query.use_graph:
-            from research_kb_storage.graph_queries import (
-                apply_mention_weights,
-                _check_kuzu_ready,
-            )
-
-            # Build parallel lists of chunk concept IDs and mention info
-            all_chunk_concept_ids: list[list] = []
-            all_mention_infos: list[dict | None] = []
-            for result in base_results:
-                chunk_info = chunk_concepts_info.get(result.chunk.id, [])
-                chunk_concept_ids = [cid for cid, _, _ in chunk_info]
-                mention_info = (
-                    {cid: (mtype, rel) for cid, mtype, rel in chunk_info}
-                    if chunk_concept_ids
-                    else None
-                )
-                all_chunk_concept_ids.append(chunk_concept_ids)
-                all_mention_infos.append(mention_info)
-
-            if query_concept_ids and any(all_chunk_concept_ids):
-                # Use batch scoring when KuzuDB is available (1 query for all results)
-                if _check_kuzu_ready():
-                    from research_kb_storage.kuzu_store import (
-                        compute_batch_graph_scores,
-                    )
-
-                    async with _graph_semaphore:
-                        batch_scores = await compute_batch_graph_scores(
-                            query_concept_ids,
-                            all_chunk_concept_ids,
-                            max_hops=query.max_hops,
-                        )
-
-                    # Apply mention weights as post-processing per chunk
-                    for i, result in enumerate(base_results):
-                        raw_score = batch_scores[i]
-                        result.graph_score = apply_mention_weights(
-                            raw_score,
-                            all_chunk_concept_ids[i],
-                            all_mention_infos[i],
-                        )
-                else:
-                    # Fallback: per-result scoring via PostgreSQL CTEs
-                    async with _graph_semaphore:
-                        for i, result in enumerate(base_results):
-                            chunk_concept_ids = all_chunk_concept_ids[i]
-                            if query_concept_ids and chunk_concept_ids:
-                                graph_score, _ = await compute_weighted_graph_score(
-                                    query_concept_ids,
-                                    chunk_concept_ids,
-                                    max_hops=query.max_hops,
-                                    chunk_mention_info=all_mention_infos[i],
-                                )
-                            else:
-                                graph_score = 0.0
-                            result.graph_score = graph_score
-            else:
-                # No query concepts or no chunk concepts — zero scores
-                for result in base_results:
-                    result.graph_score = 0.0
-
         # Step 4b: Fetch citation authority for each source (batch operation)
         source_authorities = {}
         if query.use_citations:
@@ -503,10 +405,7 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
                 result.citation_score = source_authorities.get(result.source.id, 0.0)
 
         # Step 4c: Renormalize weights if signals contributed nothing
-        # This prevents penalizing FTS/vector when no concepts/citations match
-        has_graph_contribution = query.use_graph and any(
-            r.graph_score and r.graph_score > 0 for r in base_results
-        )
+        # This prevents penalizing FTS/vector when no citations match
         has_citation_contribution = query.use_citations and any(
             r.citation_score and r.citation_score > 0 for r in base_results
         )
@@ -514,24 +413,20 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
         # Compute effective weights (local vars — never mutate the input query)
         fts_w = query.fts_weight
         vector_w = query.vector_weight
-        graph_w = query.graph_weight if has_graph_contribution else 0.0
         citation_w = query.citation_weight if has_citation_contribution else 0.0
 
         # Renormalize to contributing signals only
-        total_weight = fts_w + vector_w + graph_w + citation_w
+        total_weight = fts_w + vector_w + citation_w
         if total_weight > 0:
             fts_w /= total_weight
             vector_w /= total_weight
-            graph_w /= total_weight
             citation_w /= total_weight
 
         logger.debug(
             "weights_after_renormalization",
             fts=fts_w,
             vector=vector_w,
-            graph=graph_w,
             citation=citation_w,
-            has_graph=has_graph_contribution,
             has_citation=has_citation_contribution,
         )
 
@@ -557,21 +452,15 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
                 # Get individual scores (already normalized by base search)
                 fts_score_norm = result.fts_score if result.fts_score is not None else 0.0
                 vector_score_norm = result.vector_score if result.vector_score is not None else 0.0
-                graph_score_norm = result.graph_score if result.graph_score is not None else 0.0
                 citation_score_norm = (
                     result.citation_score if result.citation_score is not None else 0.0
                 )
 
-                # Normalize FTS score (already 0-1 from ts_rank, just need to handle None)
-                # Vector score already 0-1 similarity
-                # Graph score already 0-1
-                # Citation authority already 0-1 (PageRank normalized)
-
-                # Compute combined score with 4-way weighting
+                # FTS already 0-1 (ts_rank); vector 0-1 similarity; citation 0-1 (PageRank)
+                # Compute combined score with 3-way weighting (FTS + vector + citation)
                 result.combined_score = (
                     fts_w * fts_score_norm
                     + vector_w * vector_score_norm
-                    + graph_w * graph_score_norm
                     + citation_w * citation_score_norm
                 )
 
@@ -590,8 +479,6 @@ async def search_hybrid_v2(query: SearchQuery) -> list[SearchResult]:
         logger.info(
             "enhanced_search_completed",
             result_count=len(final_results),
-            query_concepts=len(query_concept_ids),
-            graph_weight=graph_w,
             citation_weight=citation_w,
             scoring_method=query.scoring_method,
         )

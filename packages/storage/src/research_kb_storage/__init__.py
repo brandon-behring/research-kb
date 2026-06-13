@@ -40,33 +40,10 @@ from research_kb_storage.search import (
     search_with_expansion,
     compute_rrf_score,
 )
-from research_kb_storage.query_extractor import (
-    extract_query_concepts,
-    extract_query_concepts_by_similarity,
-    extract_query_concepts_unified,
-)
 from research_kb_storage.source_store import SourceStore
 from research_kb_storage.method_store import MethodStore
 from research_kb_storage.assumption_store import AssumptionStore
 from research_kb_storage.biblio_store import BiblioStore
-from research_kb_storage.graph_queries import (
-    compute_graph_score,
-    compute_weighted_graph_score,
-    explain_path,
-    find_shortest_path,
-    find_shortest_path_length,
-    format_citation_graph_export,
-    generate_synthesis_prompt,
-    get_neighborhood,
-    get_path_with_explanation,
-    get_mention_weight,
-    get_relationship_weight,
-    MENTION_WEIGHTS,
-    RELATIONSHIP_WEIGHTS,
-    # KuzuDB utilities
-    is_kuzu_ready,
-    reset_kuzu_cache,
-)
 from research_kb_storage.query_expander import (
     ExpandedQuery,
     QueryExpander,
@@ -88,10 +65,6 @@ from research_kb_storage.citation_graph import (
     get_most_cited_sources,
     match_citation_to_source,
 )
-from research_kb_storage.cross_domain import (
-    CrossDomainStore,
-    CrossDomainLinkType,
-)
 from research_kb_storage.discovery_store import (
     DiscoveryStore,
     DiscoveryMethod,
@@ -104,18 +77,6 @@ from research_kb_storage.assumption_audit import (
     AssumptionDetail,
     MethodAssumptions,
     MethodAssumptionAuditor,
-)
-from research_kb_storage.synthesis import (
-    ConnectionExplanation,
-    EvidenceChunk,
-    PathStep,
-    explain_connection,
-)
-from research_kb_storage.literature_review import (
-    LiteratureReview,
-    ReviewSection,
-    ReviewEvidence,
-    generate_literature_review,
 )
 
 __version__ = "1.0.0"
@@ -146,26 +107,6 @@ __all__ = [
     "search_with_rerank",
     "search_with_expansion",
     "compute_rrf_score",
-    "extract_query_concepts",
-    "extract_query_concepts_by_similarity",
-    "extract_query_concepts_unified",
-    # Graph Queries (Phase 2 Step 7 + Phase 3 enhancements + KuzuDB migration)
-    "find_shortest_path",
-    "find_shortest_path_length",
-    "get_neighborhood",
-    "compute_graph_score",
-    "compute_weighted_graph_score",
-    "explain_path",
-    "format_citation_graph_export",
-    "generate_synthesis_prompt",
-    "get_path_with_explanation",
-    "get_mention_weight",
-    "get_relationship_weight",
-    "MENTION_WEIGHTS",
-    "RELATIONSHIP_WEIGHTS",
-    # KuzuDB utilities
-    "is_kuzu_ready",
-    "reset_kuzu_cache",
     # Query Expansion (Phase 3)
     "ExpandedQuery",
     "QueryExpander",
@@ -185,9 +126,6 @@ __all__ = [
     "get_corpus_citation_summary",
     "get_most_cited_sources",
     "match_citation_to_source",
-    # Cross-Domain Discovery (Phase 7)
-    "CrossDomainStore",
-    "CrossDomainLinkType",
     # S2 Auto-Discovery (Phase 8)
     "DiscoveryStore",
     "DiscoveryMethod",
@@ -197,14 +135,4 @@ __all__ = [
     "AssumptionDetail",
     "MethodAssumptions",
     "MethodAssumptionAuditor",
-    # Connection Synthesis (Phase AC)
-    "ConnectionExplanation",
-    "EvidenceChunk",
-    "PathStep",
-    "explain_connection",
-    # Literature Review (Phase AI)
-    "LiteratureReview",
-    "ReviewSection",
-    "ReviewEvidence",
-    "generate_literature_review",
 ]

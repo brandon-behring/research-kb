@@ -23,7 +23,6 @@ def register_search_tools(mcp: FastMCP) -> None:
         limit: int = 10,
         domain: str | None = None,
         context_type: Literal["building", "auditing", "balanced"] = "balanced",
-        use_graph: bool = False,
         use_rerank: bool = True,
         use_expand: bool = True,
         use_citations: bool = True,
@@ -31,26 +30,27 @@ def register_search_tools(mcp: FastMCP) -> None:
         use_hyde: bool = False,
         output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
-        """Search the research knowledge base across multiple domains.
+        """Search the research knowledge base across all domains.
 
-        Performs hybrid search combining:
+        Performs hybrid retrieval combining:
         - Full-text search (BM25) for keyword matching
         - Vector similarity (BGE-large embeddings) for semantic matching
-        - Knowledge graph signals for concept relationships
         - Citation authority signals (PageRank-style boosting)
+
+        The corpus spans many domains (38+). Do NOT assume a fixed set — call
+        `research_kb_list_domains` to discover valid `domain` ids and coverage.
 
         Args:
             query: Search query (natural language or keywords)
             limit: Maximum number of results (1-50, default 10)
-            domain: Knowledge domain to search:
-                - None: Search all domains (default)
-                - "causal_inference": Econometrics, treatment effects, IV, DiD, DML
-                - "time_series": Forecasting, ARIMA, VAR, GARCH, state-space
+            domain: Knowledge domain id to restrict to (optional). None searches
+                all domains. Use `research_kb_list_domains` for the authoritative
+                list of ids (e.g. mathematics, machine_learning, ml_security,
+                finance, actuarial_insurance, causal_inference, time_series, …).
             context_type: Search weighting strategy:
                 - "building": Favor semantic breadth (20% FTS, 80% vector)
                 - "auditing": Favor precision (50% FTS, 50% vector)
                 - "balanced": Default balance (30% FTS, 70% vector)
-            use_graph: Include knowledge graph signals (default False, pending KG re-extraction)
             use_rerank: Apply cross-encoder reranking (default True)
             use_expand: Expand query with synonyms (default True)
             use_citations: Enable citation authority boosting (default True)
@@ -66,14 +66,18 @@ def register_search_tools(mcp: FastMCP) -> None:
             - Source title, authors, year
             - Page numbers and section headers
             - Relevant text excerpt
-            - Score breakdown (FTS, vector, graph, citation)
+            - Score breakdown (FTS, vector, citation)
             - Source and chunk IDs for follow-up queries
 
-        Example queries:
-            - "instrumental variables assumptions" (causal_inference)
-            - "double machine learning implementation" (causal_inference)
-            - "ARIMA stationarity" (time_series)
-            - "VAR impulse response" (time_series)
+        Example queries (any domain — see research_kb_list_domains):
+            - "instrumental variables assumptions"
+            - "transformer attention mechanism"
+            - "prompt injection defenses"
+            - "copula methods for dependent risks"
+
+        Note: research-kb is the primary-literature retrieval + citation layer.
+        Concept/claim-level knowledge lives in synthesis-kb (the chunk-level KG
+        was retired in RS4, ADR-0001).
         """
         # Validate and clamp limit
         limit = max(1, min(50, limit))
@@ -88,7 +92,6 @@ def register_search_tools(mcp: FastMCP) -> None:
             query=query,
             limit=limit,
             context_type=ContextType(context_type),
-            use_graph=use_graph,
             use_rerank=use_rerank,
             use_expand=use_expand,
             use_citations=use_citations,
@@ -109,7 +112,7 @@ def register_search_tools(mcp: FastMCP) -> None:
         domain: str | None = None,
         output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
-        """Fast vector-only search (~200ms). Skips FTS, graph, citation, reranking.
+        """Fast vector-only search (~200ms). Skips FTS, citation, reranking.
 
         Use this for quick lookups when latency matters more than recall.
         Results are ranked by cosine similarity to BGE-large embeddings only.
@@ -130,7 +133,6 @@ def register_search_tools(mcp: FastMCP) -> None:
             limit=limit,
             fast_mode=True,
             domain_id=domain,
-            use_graph=False,
             use_rerank=False,
             use_expand=False,
             use_citations=False,

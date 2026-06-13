@@ -29,8 +29,6 @@ from research_kb_api.service import (
     get_concepts,
     get_concept_by_id,
     get_concept_relationships,
-    get_graph_neighborhood,
-    get_graph_path,
     get_citations_for_source,
     SearchOptions,
     ContextType,
@@ -85,7 +83,6 @@ class TestSearchTools:
             query="instrumental variables",
             limit=5,
             context_type=ContextType.balanced,
-            use_graph=False,
             use_citations=False,
             use_rerank=False,
             use_expand=False,
@@ -94,22 +91,6 @@ class TestSearchTools:
 
         assert response is not None
         assert hasattr(response, "results")
-        assert isinstance(response.results, list)
-
-    async def test_search_with_graph(self, pool):
-        """Search with graph boosting enabled."""
-        options = SearchOptions(
-            query="causal inference",
-            limit=3,
-            context_type=ContextType.balanced,
-            use_graph=True,
-            use_citations=False,
-            use_rerank=False,
-            use_expand=False,
-        )
-        response = await search(options)
-
-        assert response is not None
         assert isinstance(response.results, list)
 
     async def test_search_building_context(self, pool):
@@ -246,50 +227,6 @@ class TestConceptTools:
 
 
 @pytest.mark.e2e
-class TestGraphTools:
-    """E2E tests for graph tools."""
-
-    async def test_get_graph_neighborhood(self, pool):
-        """get_graph_neighborhood returns connected concepts."""
-        concepts = await get_concepts(concept_type="METHOD", limit=1)
-        if not concepts:
-            pytest.skip("No concepts in database")
-
-        concept_name = concepts[0].name
-        result = await get_graph_neighborhood(
-            concept_name=concept_name,
-            hops=1,
-            limit=20,
-        )
-
-        assert result is not None
-
-    async def test_get_graph_neighborhood_multiple_hops(self, pool):
-        """get_graph_neighborhood supports multiple hops."""
-        concepts = await get_concepts(concept_type="METHOD", limit=1)
-        if not concepts:
-            pytest.skip("No concepts in database")
-
-        concept_name = concepts[0].name
-        result = await get_graph_neighborhood(
-            concept_name=concept_name,
-            hops=2,
-            limit=30,
-        )
-
-        assert result is not None
-
-    async def test_get_graph_path(self, pool):
-        """get_graph_path finds path between concepts."""
-        result = await get_graph_path(
-            concept_a="regression",
-            concept_b="estimation",
-        )
-
-        assert result is not None
-
-
-@pytest.mark.e2e
 class TestCitationTools:
     """E2E tests for citation tools."""
 
@@ -315,7 +252,6 @@ class TestCrossToolIntegration:
         options = SearchOptions(
             query="regression",
             limit=1,
-            use_graph=False,
             use_citations=False,
             use_rerank=False,
             use_expand=False,
@@ -332,22 +268,6 @@ class TestCrossToolIntegration:
             source = await get_source_by_id(source_id)
             assert source is not None
             assert source.title is not None
-
-    async def test_concept_then_neighborhood(self, pool):
-        """Listed concept can be explored in neighborhood."""
-        concepts = await get_concepts(concept_type="METHOD", limit=1)
-
-        if not concepts:
-            pytest.skip("No concepts found")
-
-        concept = concepts[0]
-        neighborhood = await get_graph_neighborhood(
-            concept_name=concept.name,
-            hops=1,
-            limit=10,
-        )
-
-        assert neighborhood is not None
 
     async def test_source_then_chunks_then_concepts(self, pool):
         """Full pipeline: source -> chunks -> concepts."""

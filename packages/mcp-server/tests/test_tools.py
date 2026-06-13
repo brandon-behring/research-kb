@@ -113,24 +113,6 @@ class TestToolDocstrings:
         assert "Example" in doc
         assert "instrumental variables" in doc
 
-    def test_concept_tool_documents_types(self):
-        """Concept tool docstring documents types."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        doc = mcp.tools["research_kb_list_concepts"]["func"].__doc__
-        assert "METHOD" in doc
-        assert "ASSUMPTION" in doc
-
-    def test_graph_neighborhood_explains_hops(self):
-        """Graph neighborhood docstring explains hops parameter."""
-        mcp = MockFastMCP()
-        register_graph_tools(mcp)
-
-        doc = mcp.tools["research_kb_graph_neighborhood"]["func"].__doc__
-        assert "hops" in doc
-        assert "1-3" in doc
-
 
 # NOTE: Integration tests with mocked service layer are complex due to
 # async context managers and nested mocks. The service layer itself is

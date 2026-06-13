@@ -58,7 +58,6 @@ def main():
             [
                 "Search",
                 "Citation Network",
-                "Concept Graph",
                 "Assumption Audit",
                 "Statistics",
                 "Extraction Queue",
@@ -93,10 +92,6 @@ def main():
         from research_kb_dashboard.pages.citations import citation_network_page
 
         citation_network_page()
-    elif page == "Concept Graph":
-        from research_kb_dashboard.pages.concepts import concept_graph_page
-
-        concept_graph_page()
     elif page == "Assumption Audit":
         from research_kb_dashboard.pages.assumptions import assumptions_page
 

@@ -80,10 +80,11 @@ class TestFunctionExistence:
         """Page modules have their page entry functions."""
         pages_dir = repo_root / "packages/dashboard/src/research_kb_dashboard/pages"
 
+        # The concepts page (concept_graph_page) was retired in RS4 (ADR-0001)
+        # along with the chunk-level concept graph.
         checks = {
             "search.py": "def search_page",
             "citations.py": "def citation_network_page",
-            "concepts.py": "def concept_graph_page",
             "statistics.py": "def statistics_page",
             "assumptions.py": "def assumptions_page",
         }

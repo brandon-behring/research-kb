@@ -1,34 +1,28 @@
-"""Concept tools for MCP server.
+"""Concept tools for MCP server — RETIRED (RS4, 2026-06).
 
-Exposes concept listing, detail, and chunk-concept link functionality.
+research-kb's chunk-level concept layer was retired in slice RS4 (decision R3,
+ADR-0001). The Postgres concept tables + data are PRESERVED (dormant) per the
+ADR falsifier, but no longer exposed; the live concept layer is synthesis-kb
+(claim-level, eval-gated). These tools remain registered as fail-loud tombstones
+that redirect callers. See docs/decisions/0001.
 """
 
 from __future__ import annotations
 
 from typing import Literal, Optional
-from uuid import UUID
 
 from fastmcp import FastMCP
 
-from research_kb_api.service import (
-    get_concepts,
-    get_concept_by_id,
-    get_concept_relationships,
+_RETIRED = (
+    "⚠ RETIRED (RS4) — research-kb's chunk-level concept layer is retired "
+    "(decision R3, ADR-0001). The concept layer is now **synthesis-kb** "
+    "(claim-level, eval-gated). For primary-literature retrieval use "
+    "`research_kb_search`; for concepts use synthesis-kb."
 )
-from research_kb_storage import ChunkConceptStore, ChunkStore, ConceptStore
-from research_kb_mcp.formatters import (
-    format_concept_list,
-    format_concept_detail,
-    format_concept_detail_json,
-    format_chunk_concepts,
-)
-from research_kb_common import get_logger
-
-logger = get_logger(__name__)
 
 
 def register_concept_tools(mcp: FastMCP) -> None:
-    """Register concept tools with the MCP server."""
+    """Register concept tools (retirement stubs) with the MCP server."""
 
     @mcp.tool()
     async def research_kb_list_concepts(
@@ -37,43 +31,8 @@ def register_concept_tools(mcp: FastMCP) -> None:
         concept_type: Optional[str] = None,
         domain: Optional[str] = None,
     ) -> str:
-        """List or search concepts in the knowledge graph.
-
-        Browse extracted concepts (methods, assumptions, theorems, etc.)
-        from the causal inference literature.
-
-        Args:
-            query: Optional search query to filter concepts (default: list all)
-            limit: Maximum number of concepts (1-100, default 50)
-            concept_type: Filter by type (METHOD, ASSUMPTION, PROBLEM,
-                         DEFINITION, THEOREM)
-            domain: Optional knowledge-domain filter (Issue #4). Pass a domain
-                id (e.g., "causal_inference", "time_series") to restrict to
-                concepts that belong to that domain. None returns cross-domain
-                results.
-
-        Returns:
-            Markdown-formatted list of concepts with:
-            - Concept name
-            - Type
-            - Concept ID for detail queries
-
-        Concept types:
-            - METHOD: Statistical/ML methods (e.g., "causal forest", "DML")
-            - ASSUMPTION: Identifying assumptions (e.g., "unconfoundedness")
-            - PROBLEM: Research problems (e.g., "selection bias")
-            - DEFINITION: Key terms (e.g., "average treatment effect")
-            - THEOREM: Mathematical results (e.g., "Neyman orthogonality")
-        """
-        limit = max(1, min(100, limit))
-
-        concepts = await get_concepts(
-            query=query,
-            limit=limit,
-            concept_type=concept_type,
-            domain_id=domain,
-        )
-        return format_concept_list(concepts)
+        """⚠ RETIRED (RS4). Concept listing is retired — concept layer is synthesis-kb (ADR-0001)."""
+        return _RETIRED
 
     @mcp.tool()
     async def research_kb_get_concept(
@@ -81,85 +40,13 @@ def register_concept_tools(mcp: FastMCP) -> None:
         include_relationships: bool = True,
         output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
-        """Get detailed information about a specific concept.
-
-        Retrieve concept details including description and relationships
-        to other concepts in the knowledge graph.
-
-        Args:
-            concept_id: UUID of the concept (from search or list)
-            include_relationships: Include relationships (default True)
-            output_format: Response format - "markdown" (default) or "json"
-
-        Returns:
-            Markdown-formatted or JSON concept details with:
-            - Name and type
-            - Description (if available)
-            - Relationships (REQUIRES, USES, ADDRESSES, etc.)
-
-        Relationship types:
-            - REQUIRES: This concept requires understanding of another
-            - USES: This concept uses another (e.g., method uses assumption)
-            - ADDRESSES: This concept addresses a problem
-            - GENERALIZES/SPECIALIZES: Hierarchy relationships
-            - ALTERNATIVE_TO: Competing approaches
-            - EXTENDS: Extensions or improvements
-        """
-        concept = await get_concept_by_id(concept_id)
-
-        if concept is None:
-            return f"**Error:** Concept `{concept_id}` not found"
-
-        relationships = None
-        if include_relationships:
-            relationships = await get_concept_relationships(concept_id)
-
-        if output_format == "json":
-            return format_concept_detail_json(concept, relationships)
-        return format_concept_detail(concept, relationships)
+        """⚠ RETIRED (RS4). Concept detail is retired — concept layer is synthesis-kb (ADR-0001)."""
+        return _RETIRED
 
     @mcp.tool()
     async def research_kb_chunk_concepts(chunk_id: str) -> str:
-        """Get all concepts linked to a specific chunk.
-
-        Shows concepts extracted from a text chunk, with mention type
-        indicating how the concept appears (defines, references, or examples).
-        Useful for understanding the conceptual content of a specific passage.
-
-        Args:
-            chunk_id: UUID of the chunk (from search results)
-
-        Returns:
-            Markdown-formatted list of concepts with:
-            - Concept name and type
-            - Mention type (defines, reference, example)
-            - Relevance score (if available)
-            - Concept IDs for follow-up queries
-
-        Mention types:
-            - defines: Chunk provides definition/explanation of concept
-            - reference: Chunk mentions or uses the concept
-            - example: Chunk provides an example of the concept
-        """
-        # Validate chunk exists
-        chunk = await ChunkStore.get_by_id(UUID(chunk_id))
-        if chunk is None:
-            return f"**Error:** Chunk `{chunk_id}` not found"
-
-        # Get chunk-concept links
-        chunk_concepts = await ChunkConceptStore.list_concepts_for_chunk(UUID(chunk_id))
-
-        if not chunk_concepts:
-            return f"**Chunk `{chunk_id}`**: No concepts linked to this chunk."
-
-        # Fetch concept details for each link
-        concepts_with_links = []
-        for cc in chunk_concepts:
-            concept = await ConceptStore.get(cc.concept_id)
-            if concept:
-                concepts_with_links.append((concept, cc))
-
-        return format_chunk_concepts(chunk, concepts_with_links)
+        """⚠ RETIRED (RS4). Chunk-concept links are retired — concept layer is synthesis-kb (ADR-0001)."""
+        return _RETIRED
 
     @mcp.tool()
     async def research_kb_find_similar_concepts(
@@ -168,82 +55,5 @@ def register_concept_tools(mcp: FastMCP) -> None:
         threshold: float = 0.8,
         domain: Optional[str] = None,
     ) -> str:
-        """Find concepts semantically similar to a given concept.
-
-        Uses embedding similarity to find concepts related by meaning,
-        even if they don't have explicit relationships in the knowledge graph.
-        Useful for discovering conceptual connections and alternative terms.
-
-        Args:
-            concept_id: UUID of the source concept (from concept search/list)
-            limit: Maximum number of similar concepts (1-50, default 10)
-            threshold: Minimum similarity score (0.0-1.0, default 0.8)
-                      Higher = more similar, 0.85+ for close matches
-            domain: Optional knowledge-domain filter (Issue #4). When set,
-                only returns concepts whose domain_id matches. Useful for
-                within-domain semantic neighborhoods.
-
-        Returns:
-            Markdown-formatted list of similar concepts with:
-            - Concept name and type
-            - Similarity score
-            - Concept ID for follow-up queries
-
-        Example use cases:
-            - Find alternative terms for a concept
-            - Discover related concepts not explicitly linked
-            - Explore semantic neighborhoods in the knowledge graph
-        """
-        limit = max(1, min(50, limit))
-        threshold = max(0.0, min(1.0, threshold))
-
-        try:
-            # Get the source concept and its embedding
-            source_concept = await ConceptStore.get_by_id(UUID(concept_id))
-            if source_concept is None:
-                return f"**Error:** Concept `{concept_id}` not found"
-
-            if source_concept.embedding is None:
-                return f"**Error:** Concept `{source_concept.name}` has no embedding"
-
-            # Find similar concepts using the embedding
-            similar = await ConceptStore.find_similar(
-                embedding=source_concept.embedding,
-                limit=limit + 1,  # +1 to exclude self
-                threshold=threshold,
-                domain_id=domain,
-            )
-
-            # Filter out the source concept itself
-            similar = [(c, score) for c, score in similar if c.id != source_concept.id][:limit]
-
-            if not similar:
-                return f"**No similar concepts found** for `{source_concept.name}` at threshold {threshold:.2f}"
-
-            # Format output
-            lines = [f"## Concepts Similar to: {source_concept.name}"]
-            type_val = (
-                source_concept.concept_type.value
-                if hasattr(source_concept.concept_type, "value")
-                else source_concept.concept_type
-            )
-            lines.append(f"*Type: {type_val} | Threshold: {threshold:.2f}*\n")
-            lines.append(f"**{len(similar)} similar concepts found**\n")
-
-            for concept, score in similar:
-                c_type = (
-                    concept.concept_type.value
-                    if hasattr(concept.concept_type, "value")
-                    else concept.concept_type
-                )
-                lines.append(f"- **{concept.name}** [{c_type}]")
-                lines.append(f"  - Similarity: {score:.3f}")
-                lines.append(f"  - ID: `{concept.id}`")
-
-            return "\n".join(lines)
-
-        except ValueError as e:
-            return f"**Error:** Invalid concept ID format: {e}"
-        except Exception as e:
-            logger.error("find_similar_concepts_failed", concept_id=concept_id, error=str(e))
-            return f"**Error:** Failed to find similar concepts: {e}"
+        """⚠ RETIRED (RS4). Concept similarity is retired — concept layer is synthesis-kb (ADR-0001)."""
+        return _RETIRED

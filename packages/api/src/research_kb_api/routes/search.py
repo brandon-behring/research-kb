@@ -49,8 +49,6 @@ async def search(request: schemas.SearchRequest) -> schemas.SearchResponse:
         limit=request.limit,
         context_type=context_map[request.context_type],
         source_filter=request.source_filter,
-        use_graph=request.use_graph,
-        graph_weight=request.graph_weight,
         use_rerank=request.use_rerank,
         use_expand=request.use_expand,
         use_citations=request.use_citations,

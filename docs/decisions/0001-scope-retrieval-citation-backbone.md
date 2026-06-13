@@ -53,3 +53,34 @@ serve — reopens the KG decision. Recheck by 2026-12-31.
 - The $150–300 re-extraction line item disappears.
 - This directory (`docs/decisions/`) is new — per hub ADR-0003, decisions live per-repo with a hub index
   (hub ADR-0008).
+
+## Execution (RS4, executed 2026-06-13)
+
+R3 was executed across research-kb (record: hub roadmap RS4 row; research-kb #27/#24 close-outs):
+
+- **Stale MCP tools → fail-loud retirement stubs** (registered, return a RETIRED redirect to
+  synthesis-kb — never silently-empty graph results): `graph_neighborhood`, `graph_path`,
+  `cross_domain_concepts`, `explain_connection`, `list_concepts`, `get_concept`, `chunk_concepts`,
+  `find_similar_concepts`, plus `literature_review` (it seeded from the stale graph).
+- **`audit_assumptions` + citation tools kept** (intact, unchanged).
+- **KuzuDB removed** (confirmed dead — no DB file, no sync cron/timer): deleted `kuzu_store.py`,
+  `sync_kuzu.py`, `graph_queries.py`, `cross_domain.py`, `synthesis.py`, `literature_review.py`,
+  `query_extractor.py`, daemon `warmup.py`; dropped the `kuzu` dependency; stripped the
+  `use_graph`/graph-score path so `research_kb_search` is **FTS + vector + citation (3-way)**.
+  Graph surfaces removed on the API (`/graph`, `/concepts` routes), CLI (`graph`, `review` commands),
+  dashboard (concept page) and daemon (`graph_path` method).
+- **Concept DATA preserved (dormant), not dropped**: the Postgres `concepts` /
+  `concept_relationships` / `chunk_concepts` tables + their data (4 domains) + the
+  `ConceptStore`/`RelationshipStore`/`ChunkConceptStore` CRUD + the concept-ingest scripts remain,
+  so reopening (the falsifier) stays cheap. No table-drop migration was issued.
+- **#24 fixed both directions** (closed): search/sources/API docstrings made domain-agnostic, naming
+  `research_kb_list_domains` as the source of truth (stop understating the 38-domain corpus); the
+  "knowledge graph signals" claim + `use_graph` parameter removed from `research_kb_search` (stop
+  overstating graph capability).
+- **KG re-extraction backlog CLOSED**: `docs/STRATEGIC_ASSESSMENT.md §7` and
+  `docs/status/MIGRATION_GRAPH_DEFAULT.md` bannered superseded; the $150–300 line item dropped.
+
+Recorded residual (not a silent fallback): `SearchResult.graph_score` (contract field) and storage
+`SearchQuery.use_graph`/`graph_weight`/`max_hops` remain inert/dormant (always 0 / ignored) to avoid a
+cross-package contract ripple; a few dead formatters and the unused `KUZU_WARMUP_*` metric objects were
+left in place. None are reachable as a weak-result path.

@@ -120,8 +120,6 @@ def mock_storage(sample_source, sample_concept, sample_relationship, sample_chun
         patch("research_kb_api.service.search_hybrid_v2") as search_v2_mock,
         patch("research_kb_api.service.search_with_rerank") as rerank_mock,
         patch("research_kb_api.service.search_with_expansion") as expand_mock,
-        patch("research_kb_api.service.get_neighborhood") as neighborhood_mock,
-        patch("research_kb_api.service.find_shortest_path") as path_mock,
         patch("research_kb_api.service.get_citing_sources") as citing_mock,
         patch("research_kb_api.service.get_cited_sources") as cited_mock,
     ):
@@ -144,13 +142,6 @@ def mock_storage(sample_source, sample_concept, sample_relationship, sample_chun
         rerank_mock.return_value = []
         expand_mock.return_value = ([], None)
 
-        neighborhood_mock.return_value = {
-            "concepts": [sample_concept],
-            "relationships": [sample_relationship],
-        }
-        path_mock.return_value = [
-            {"id": str(sample_concept.id), "name": sample_concept.name},
-        ]
         citing_mock.return_value = []
         cited_mock.return_value = []
 
@@ -163,8 +154,6 @@ def mock_storage(sample_source, sample_concept, sample_relationship, sample_chun
             "search_v2": search_v2_mock,
             "rerank": rerank_mock,
             "expand": expand_mock,
-            "neighborhood": neighborhood_mock,
-            "path": path_mock,
             "citing": citing_mock,
             "cited": cited_mock,
         }

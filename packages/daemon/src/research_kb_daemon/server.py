@@ -257,15 +257,7 @@ async def run_server(socket_path: str, skip_warm: bool = False) -> None:
     # Initialize database pool
     await init_pool()
 
-    # Schedule KuzuDB pre-warming (background, non-blocking)
-    warmup_task = None
-    if not skip_warm:
-        from research_kb_daemon.warmup import warm_kuzu
-
-        warmup_task = asyncio.create_task(warm_kuzu())
-        logger.info("kuzu_warmup_scheduled")
-    else:
-        logger.info("kuzu_warmup_skipped")
+    # KuzuDB pre-warming removed (RS4, ADR-0001): the concept graph was retired.
 
     # Create server
     server = await asyncio.start_unix_server(handle_client, path=socket_path)
@@ -293,14 +285,6 @@ async def run_server(socket_path: str, skip_warm: bool = False) -> None:
             await shutdown_event.wait()
 
     finally:
-        # Cancel warmup if still running
-        if warmup_task and not warmup_task.done():
-            warmup_task.cancel()
-            try:
-                await warmup_task
-            except asyncio.CancelledError:
-                pass
-
         # Cleanup
         logger.info("daemon_stopping")
         await close_pool()

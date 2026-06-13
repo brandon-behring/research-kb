@@ -226,19 +226,17 @@ class TestSearchHybridUnit:
 
 
 class TestSearchHybridV2Unit:
-    """Unit tests for search_hybrid_v2 orchestration logic."""
+    """Unit tests for search_hybrid_v2 orchestration logic.
 
-    async def test_v2_rejects_no_graph_no_citations(self):
-        """Raises ValueError when neither graph nor citations enabled."""
-        from research_kb_storage.search import search_hybrid_v2
-
-        query = SearchQuery(text="test", use_graph=False, use_citations=False)
-        with pytest.raises(ValueError, match="use_graph"):
-            await search_hybrid_v2(query)
+    RS4 (ADR-0001) retired the chunk-level concept graph: search_hybrid_v2 now
+    combines FTS + vector + citation only. It no longer extracts query concepts,
+    computes graph scores, or raises on use_graph. These tests cover the
+    surviving citation-authority + scoring pipeline.
+    """
 
     @patch("research_kb_storage.search.get_connection_pool")
-    async def test_v2_weighted_scoring_combines_four_signals(self, mock_get_pool):
-        """Weighted scoring path correctly combines fts+vector+graph+citation."""
+    async def test_v2_weighted_scoring_combines_signals(self, mock_get_pool):
+        """Weighted scoring path correctly combines fts+vector+citation."""
         from research_kb_storage.search import search_hybrid_v2
 
         sid = uuid4()
@@ -256,40 +254,17 @@ class TestSearchHybridV2Unit:
         pool, _ = _make_pool_mock(conn)
         mock_get_pool.return_value = pool
 
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=[uuid4()],
-            ),
-            patch("research_kb_storage.chunk_concept_store.ChunkConceptStore") as mock_cc_store,
-            patch(
-                "research_kb_storage.graph_queries.compute_weighted_graph_score",
-                new_callable=AsyncMock,
-                return_value=(0.5, ["path explanation"]),
-            ),
-            patch("research_kb_storage.graph_queries._check_kuzu_ready", return_value=False),
-            patch(
-                "research_kb_storage.search._hybrid_search_for_rerank",
-                new_callable=AsyncMock,
-                return_value=[r1, r2],
-            ),
+        with patch(
+            "research_kb_storage.search._hybrid_search_for_rerank",
+            new_callable=AsyncMock,
+            return_value=[r1, r2],
         ):
-            mock_cc_store.get_concept_info_for_chunks = AsyncMock(
-                return_value={
-                    r1.chunk.id: [(uuid4(), "reference", 0.8)],
-                    r2.chunk.id: [(uuid4(), "defines", 1.0)],
-                }
-            )
-
             query = SearchQuery(
                 text="test",
                 embedding=[0.1] * 1024,
-                fts_weight=0.2,
+                fts_weight=0.3,
                 vector_weight=0.4,
-                graph_weight=0.2,
-                citation_weight=0.2,
-                use_graph=True,
+                citation_weight=0.3,
                 use_citations=True,
                 limit=10,
             )
@@ -297,7 +272,6 @@ class TestSearchHybridV2Unit:
 
         assert len(results) == 2
         for r in results:
-            assert r.graph_score is not None
             assert r.citation_score is not None
             assert r.combined_score > 0
         assert results[0].rank == 1
@@ -319,22 +293,15 @@ class TestSearchHybridV2Unit:
         pool, _ = _make_pool_mock(conn)
         mock_get_pool.return_value = pool
 
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch(
-                "research_kb_storage.search._hybrid_search_for_rerank",
-                new_callable=AsyncMock,
-                return_value=[r1],
-            ),
+        with patch(
+            "research_kb_storage.search._hybrid_search_for_rerank",
+            new_callable=AsyncMock,
+            return_value=[r1],
         ):
             query = SearchQuery(
                 text="test",
                 embedding=[0.1] * 1024,
-                use_graph=True,
+                use_citations=True,
                 scoring_method="rrf",
                 limit=5,
             )
@@ -344,39 +311,8 @@ class TestSearchHybridV2Unit:
         assert results[0].combined_score > 0
 
     @patch("research_kb_storage.search.get_connection_pool")
-    async def test_v2_no_query_concepts_zeros_graph_scores(self, mock_get_pool):
-        """When no query concepts found, all graph scores are 0."""
-        from research_kb_storage.search import search_hybrid_v2
-
-        r1 = _make_search_result(fts_score=0.8, vector_score=0.6, combined_score=0.7)
-
-        pool, _ = _make_pool_mock()
-        mock_get_pool.return_value = pool
-
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch("research_kb_storage.chunk_concept_store.ChunkConceptStore") as mock_cc,
-            patch(
-                "research_kb_storage.search._hybrid_search_for_rerank",
-                new_callable=AsyncMock,
-                return_value=[r1],
-            ),
-        ):
-            mock_cc.get_concept_info_for_chunks = AsyncMock(return_value={})
-
-            query = SearchQuery(text="test", embedding=[0.1] * 1024, use_graph=True, limit=5)
-            results = await search_hybrid_v2(query)
-
-        assert len(results) == 1
-        assert results[0].graph_score == 0.0
-
-    @patch("research_kb_storage.search.get_connection_pool")
-    async def test_v2_weight_renormalization_when_no_graph_contribution(self, mock_get_pool):
-        """Weights renormalize when graph signal contributes nothing."""
+    async def test_v2_weight_renormalization_when_no_citation_contribution(self, mock_get_pool):
+        """Weights renormalize when citation signal contributes nothing."""
         from research_kb_storage.search import search_hybrid_v2
 
         sid = uuid4()
@@ -388,39 +324,30 @@ class TestSearchHybridV2Unit:
         pool, _ = _make_pool_mock(conn)
         mock_get_pool.return_value = pool
 
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch("research_kb_storage.chunk_concept_store.ChunkConceptStore") as mock_cc,
-            patch(
-                "research_kb_storage.search._hybrid_search_for_rerank",
-                new_callable=AsyncMock,
-                return_value=[r1],
-            ),
+        with patch(
+            "research_kb_storage.search._hybrid_search_for_rerank",
+            new_callable=AsyncMock,
+            return_value=[r1],
         ):
-            mock_cc.get_concept_info_for_chunks = AsyncMock(return_value={})
-
             query = SearchQuery(
                 text="test",
                 embedding=[0.1] * 1024,
                 fts_weight=0.2,
                 vector_weight=0.4,
-                graph_weight=0.2,
                 citation_weight=0.2,
-                use_graph=True,
                 use_citations=True,
                 limit=5,
             )
             results = await search_hybrid_v2(query)
 
-        # Graph and citation both 0 → renormalized to fts+vector only
+        # Citation contributes nothing → renormalized to fts+vector only.
+        # SearchQuery.__post_init__ already normalized the input weights so
+        # fts+vector+citation sum to 1 (0.25/0.5/0.25); with no citation
+        # contribution the effective weights renormalize over fts+vector.
         assert len(results) == 1
-        expected_fts_w = 0.2 / 0.6
-        expected_vec_w = 0.4 / 0.6
-        expected_combined = expected_fts_w * 0.8 + expected_vec_w * 0.6
+        fts_w = 0.25 / 0.75
+        vec_w = 0.5 / 0.75
+        expected_combined = fts_w * 0.8 + vec_w * 0.6
         assert results[0].combined_score == pytest.approx(expected_combined, rel=1e-4)
 
     @patch("research_kb_storage.search.get_connection_pool")
@@ -433,21 +360,12 @@ class TestSearchHybridV2Unit:
         pool, conn = _make_pool_mock()
         mock_get_pool.return_value = pool
 
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch("research_kb_storage.chunk_concept_store.ChunkConceptStore") as mock_cc,
-            patch(
-                "research_kb_storage.search._fts_search",
-                new_callable=AsyncMock,
-                return_value=[r1],
-            ) as fts_mock,
-        ):
-            mock_cc.get_concept_info_for_chunks = AsyncMock(return_value={})
-            query = SearchQuery(text="test", use_graph=True, limit=5)
+        with patch(
+            "research_kb_storage.search._fts_search",
+            new_callable=AsyncMock,
+            return_value=[r1],
+        ) as fts_mock:
+            query = SearchQuery(text="test", use_citations=True, limit=5)
             await search_hybrid_v2(query)
 
         fts_mock.assert_called_once()
@@ -457,15 +375,16 @@ class TestSearchHybridV2Unit:
         """Non-SearchError in v2 is wrapped as SearchError."""
         from research_kb_storage.search import search_hybrid_v2
 
+        # Make the base search raise a generic error to exercise the wrapper.
         pool, _ = _make_pool_mock()
         mock_get_pool.return_value = pool
 
         with patch(
-            "research_kb_storage.query_extractor.extract_query_concepts",
+            "research_kb_storage.search._hybrid_search_for_rerank",
             new_callable=AsyncMock,
-            side_effect=RuntimeError("extraction failed"),
+            side_effect=RuntimeError("base search failed"),
         ):
-            query = SearchQuery(text="test", use_graph=True, limit=5)
+            query = SearchQuery(text="test", embedding=[0.1] * 1024, use_citations=True, limit=5)
             with pytest.raises(SearchError, match="Graph-boosted search failed"):
                 await search_hybrid_v2(query)
 
@@ -484,22 +403,12 @@ class TestSearchHybridV2Unit:
         pool, _ = _make_pool_mock()
         mock_get_pool.return_value = pool
 
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch("research_kb_storage.chunk_concept_store.ChunkConceptStore") as mock_cc,
-            patch(
-                "research_kb_storage.search._hybrid_search_for_rerank",
-                new_callable=AsyncMock,
-                return_value=results_in,
-            ),
+        with patch(
+            "research_kb_storage.search._hybrid_search_for_rerank",
+            new_callable=AsyncMock,
+            return_value=results_in,
         ):
-            mock_cc.get_concept_info_for_chunks = AsyncMock(return_value={})
-
-            query = SearchQuery(text="test", embedding=[0.1] * 1024, use_graph=True, limit=2)
+            query = SearchQuery(text="test", embedding=[0.1] * 1024, use_citations=True, limit=2)
             final = await search_hybrid_v2(query)
 
         assert len(final) == 2
@@ -507,8 +416,8 @@ class TestSearchHybridV2Unit:
         assert final[1].rank == 2
 
     @patch("research_kb_storage.search.get_connection_pool")
-    async def test_v2_citations_only_no_graph(self, mock_get_pool):
-        """v2 works with use_citations=True but use_graph=False."""
+    async def test_v2_citations_only(self, mock_get_pool):
+        """v2 works with use_citations=True (citation authority applied)."""
         from research_kb_storage.search import search_hybrid_v2
 
         sid = uuid4()
@@ -522,17 +431,10 @@ class TestSearchHybridV2Unit:
         pool, _ = _make_pool_mock(conn)
         mock_get_pool.return_value = pool
 
-        with (
-            patch(
-                "research_kb_storage.query_extractor.extract_query_concepts",
-                new_callable=AsyncMock,
-                return_value=[],
-            ),
-            patch(
-                "research_kb_storage.search._hybrid_search_for_rerank",
-                new_callable=AsyncMock,
-                return_value=[r1],
-            ),
+        with patch(
+            "research_kb_storage.search._hybrid_search_for_rerank",
+            new_callable=AsyncMock,
+            return_value=[r1],
         ):
             query = SearchQuery(
                 text="test",

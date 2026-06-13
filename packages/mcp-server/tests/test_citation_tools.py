@@ -10,10 +10,6 @@ from datetime import datetime
 from research_kb_contracts import (
     Source,
     SourceType,
-    Concept,
-    ConceptType,
-    Chunk,
-    ChunkConcept,
 )
 from research_kb_mcp.tools.citations import register_citation_tools
 from research_kb_mcp.tools.concepts import register_concept_tools
@@ -68,16 +64,16 @@ class TestCitationToolRegistration:
         assert "jaccard" in doc.lower()
 
     def test_chunk_concepts_tool_registered(self):
-        """Chunk concepts tool is registered correctly."""
+        """Chunk concepts tool is still registered but retired (RS4, ADR-0001)."""
         mcp = MockFastMCP()
         register_concept_tools(mcp)
 
         assert "research_kb_chunk_concepts" in mcp.tools
-        # Check docstring is present
+        # Chunk-concept links were retired in RS4; the tool is an inert stub
+        # whose docstring reflects retirement.
         doc = mcp.tools["research_kb_chunk_concepts"]["func"].__doc__
         assert doc is not None
-        assert "mention" in doc.lower()
-        assert "defines" in doc.lower()
+        assert "retired" in doc.lower()
 
     def test_all_citation_tools_have_docstrings(self):
         """All citation tools have docstrings for MCP schema."""
@@ -285,130 +281,3 @@ class TestBiblioCouplingTool:
             )
 
             assert "No similar sources found" in result
-
-
-class TestChunkConceptsTool:
-    """Tests for chunk concepts tool functionality."""
-
-    @pytest.fixture
-    def sample_chunk(self):
-        """Create a sample chunk for testing."""
-        return Chunk(
-            id=uuid4(),
-            source_id=uuid4(),
-            domain_id="causal_inference",
-            content="Double machine learning uses Neyman orthogonality.",
-            content_hash="chunk123",
-            page_start=15,
-            page_end=15,
-            metadata={"section": "Methods"},
-            created_at=datetime.now(),
-        )
-
-    @pytest.fixture
-    def sample_concepts(self, sample_chunk):
-        """Create sample concepts for testing."""
-        concept_id1 = uuid4()
-        concept_id2 = uuid4()
-
-        concepts = [
-            Concept(
-                id=concept_id1,
-                name="Double Machine Learning",
-                canonical_name="double_machine_learning",
-                concept_type=ConceptType.METHOD,
-                domain_id="causal_inference",
-                created_at=datetime.now(),
-            ),
-            Concept(
-                id=concept_id2,
-                name="Neyman Orthogonality",
-                canonical_name="neyman_orthogonality",
-                concept_type=ConceptType.THEOREM,
-                domain_id="causal_inference",
-                created_at=datetime.now(),
-            ),
-        ]
-
-        chunk_concepts = [
-            ChunkConcept(
-                chunk_id=sample_chunk.id,
-                concept_id=concept_id1,
-                mention_type="defines",
-                relevance_score=0.95,
-                created_at=datetime.now(),
-            ),
-            ChunkConcept(
-                chunk_id=sample_chunk.id,
-                concept_id=concept_id2,
-                mention_type="reference",
-                relevance_score=0.75,
-                created_at=datetime.now(),
-            ),
-        ]
-
-        return concepts, chunk_concepts
-
-    async def test_chunk_concepts_success(self, sample_chunk, sample_concepts):
-        """Chunk concepts returns formatted results."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        concepts, chunk_concepts = sample_concepts
-
-        with (
-            patch("research_kb_mcp.tools.concepts.ChunkStore") as chunk_mock,
-            patch("research_kb_mcp.tools.concepts.ChunkConceptStore") as cc_mock,
-            patch("research_kb_mcp.tools.concepts.ConceptStore") as concept_mock,
-        ):
-
-            chunk_mock.get_by_id = AsyncMock(return_value=sample_chunk)
-            cc_mock.list_concepts_for_chunk = AsyncMock(return_value=chunk_concepts)
-
-            # Return concepts in order
-            concept_mock.get = AsyncMock(side_effect=concepts)
-
-            result = await mcp.tools["research_kb_chunk_concepts"]["func"](
-                chunk_id=str(sample_chunk.id),
-            )
-
-            assert "Concepts in Chunk" in result
-            assert "Double Machine Learning" in result
-            assert "Defines" in result
-            assert "References" in result
-
-    async def test_chunk_concepts_not_found(self):
-        """Chunk concepts returns error for missing chunk."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        nonexistent_id = str(uuid4())
-
-        with patch("research_kb_mcp.tools.concepts.ChunkStore") as chunk_mock:
-            chunk_mock.get_by_id = AsyncMock(return_value=None)
-
-            result = await mcp.tools["research_kb_chunk_concepts"]["func"](
-                chunk_id=nonexistent_id,
-            )
-
-            assert "Error" in result
-            assert "not found" in result
-
-    async def test_chunk_concepts_empty(self, sample_chunk):
-        """Chunk concepts handles no linked concepts."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        with (
-            patch("research_kb_mcp.tools.concepts.ChunkStore") as chunk_mock,
-            patch("research_kb_mcp.tools.concepts.ChunkConceptStore") as cc_mock,
-        ):
-
-            chunk_mock.get_by_id = AsyncMock(return_value=sample_chunk)
-            cc_mock.list_concepts_for_chunk = AsyncMock(return_value=[])
-
-            result = await mcp.tools["research_kb_chunk_concepts"]["func"](
-                chunk_id=str(sample_chunk.id),
-            )
-
-            assert "No concepts linked" in result

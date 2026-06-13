@@ -135,22 +135,6 @@ class TestRouterRegistration:
 
         assert any("/sources" in str(r) for r in routes)
 
-    def test_concepts_router_registered(self):
-        """Test concepts router is registered."""
-        app_instance = create_app()
-
-        routes = [route.path for route in app_instance.routes]
-
-        assert any("/concepts" in str(r) for r in routes)
-
-    def test_graph_router_registered(self):
-        """Test graph router is registered."""
-        app_instance = create_app()
-
-        routes = [route.path for route in app_instance.routes]
-
-        assert any("/graph" in str(r) for r in routes)
-
     def test_router_tags_assigned(self):
         """Test routers have tags for documentation."""
         app_instance = create_app()

@@ -75,10 +75,9 @@ class TestSearchToolRegistration:
 
         doc = mcp.tools["research_kb_search"]["func"].__doc__
         assert doc is not None
-        assert "hybrid search" in doc.lower()
+        assert "hybrid retrieval" in doc.lower()
         assert "full-text" in doc.lower()
         assert "vector" in doc.lower()
-        assert "knowledge graph" in doc.lower()
         assert "citation" in doc.lower()
 
     def test_search_tool_documents_parameters(self):
@@ -90,7 +89,6 @@ class TestSearchToolRegistration:
         assert "query" in doc
         assert "limit" in doc
         assert "context_type" in doc
-        assert "use_graph" in doc
         assert "use_rerank" in doc
         assert "use_citations" in doc
 
@@ -163,9 +161,6 @@ class TestSearchToolExecution:
             call_args = search_mock.call_args[0][0]
             assert call_args.query == "instrumental variables"
             assert call_args.limit == 10  # default
-            assert (
-                call_args.use_graph is False
-            )  # default (graph disabled, pending KG re-extraction)
             assert call_args.use_citations is True  # default
 
             # Verify result format
@@ -225,14 +220,12 @@ class TestSearchToolExecution:
 
             await mcp.tools["research_kb_search"]["func"](
                 query="DML",
-                use_graph=False,
                 use_rerank=False,
                 use_expand=False,
                 use_citations=False,
             )
 
             call_args = search_mock.call_args[0][0]
-            assert call_args.use_graph is False
             assert call_args.use_rerank is False
             assert call_args.use_expand is False
             assert call_args.use_citations is False
@@ -424,7 +417,6 @@ class TestFastSearchTool:
 
             call_args = search_mock.call_args[0][0]
             assert call_args.fast_mode is True
-            assert call_args.use_graph is False
             assert call_args.use_rerank is False
             assert call_args.use_expand is False
             assert call_args.use_citations is False

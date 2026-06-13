@@ -224,72 +224,19 @@ class QueryExpander:
         query: str,
         max_concepts: int = 3,
     ) -> list[str]:
-        """Expand query using knowledge graph relationships.
+        """Graph-based query expansion — RETIRED (RS4, ADR-0001).
 
-        Finds concepts mentioned in query and retrieves 1-hop neighbors.
+        The chunk-level concept graph was retired; this returns no expansions.
+        Kept as an inert no-op so callers passing use_graph remain harmless.
 
         Args:
             query: User query text
-            max_concepts: Maximum number of concept names to add
+            max_concepts: Maximum number of concept names to add (ignored)
 
         Returns:
-            List of related concept names from graph
+            Empty list (graph expansion retired).
         """
-        try:
-            from research_kb_storage.query_extractor import extract_query_concepts
-            from research_kb_storage.graph_queries import get_neighborhood
-
-            # Extract concepts from query
-            concept_ids = await extract_query_concepts(query, max_concepts=3)
-
-            if not concept_ids:
-                return []
-
-            expansions = []
-            query_lower = query.lower()
-
-            for concept_id in concept_ids[:2]:  # Limit to 2 concepts
-                try:
-                    # Get 1-hop neighbors
-                    neighborhood = await get_neighborhood(concept_id, hops=1)
-
-                    for concept in neighborhood.get("concepts", []):
-                        name = concept.canonical_name or concept.name
-                        # Avoid adding terms already in query
-                        if name and name.lower() not in query_lower:
-                            expansions.append(name)
-
-                        if len(expansions) >= max_concepts:
-                            break
-
-                except Exception as e:
-                    logger.debug(
-                        "graph_expansion_concept_failed",
-                        concept_id=str(concept_id),
-                        error=str(e),
-                    )
-                    continue
-
-                if len(expansions) >= max_concepts:
-                    break
-
-            # Deduplicate
-            seen = set()
-            unique = []
-            for term in expansions:
-                if term.lower() not in seen:
-                    seen.add(term.lower())
-                    unique.append(term)
-
-            return unique[:max_concepts]
-
-        except Exception as e:
-            logger.warning(
-                "graph_expansion_failed",
-                query=query[:100],
-                error=str(e),
-            )
-            return []
+        return []
 
     async def expand_with_llm(
         self,

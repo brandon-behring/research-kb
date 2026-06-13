@@ -20,7 +20,7 @@ if TYPE_CHECKING:
         ConceptRelationship,
         Chunk,
     )
-    from research_kb_storage import MethodAssumptions, ConnectionExplanation
+    from research_kb_storage import MethodAssumptions
 
 
 # Maximum content length before truncation
@@ -1092,92 +1092,3 @@ def format_cross_domain_concepts_json(
         },
         indent=2,
     )
-
-
-def format_connection_explanation(result: ConnectionExplanation) -> str:
-    """Format ConnectionExplanation as markdown for LLM consumption.
-
-    Includes path steps with evidence and optional LLM synthesis.
-
-    Args:
-        result: ConnectionExplanation from explain_connection()
-
-    Returns:
-        Markdown-formatted connection explanation
-    """
-    lines = [f"## Connection: {result.concept_a} -> {result.concept_b}"]
-
-    # Handle error/no_path cases
-    if result.source == "error":
-        lines.append(f"\n**Error:** {result.path_explanation}")
-        return "\n".join(lines)
-
-    if result.source == "no_path":
-        lines.append(f"\n**No path found** between {result.concept_a} and {result.concept_b}.")
-        lines.append("")
-        lines.append("Try:")
-        lines.append("- Different spelling or abbreviation")
-        lines.append("- `research_kb_graph_neighborhood` to explore nearby concepts")
-        lines.append("- `research_kb_list_concepts` to search for related concepts")
-        return "\n".join(lines)
-
-    lines.append(
-        f"**Path ({result.path_length} hop{'s' if result.path_length != 1 else ''}):** {result.path_explanation}"
-    )
-    lines.append("")
-
-    # Path steps with evidence
-    for i, step in enumerate(result.path, 1):
-        type_val = step.concept_type
-        lines.append(f"### Step {i}: {step.concept_name} ({type_val})")
-
-        if step.definition:
-            definition = step.definition
-            if len(definition) > 300:
-                definition = definition[:297] + "..."
-            lines.append(f"> {definition}")
-
-        if step.evidence:
-            lines.append("\n**Evidence:**")
-            for ev in step.evidence:
-                page_ref = ""
-                if ev.page_start:
-                    if ev.page_end and ev.page_end != ev.page_start:
-                        page_ref = f", pp. {ev.page_start}-{ev.page_end}"
-                    else:
-                        page_ref = f", p. {ev.page_start}"
-                lines.append(f'- {ev.source_title}{page_ref}: "{ev.content}"')
-
-        if step.relationship_to_next:
-            lines.append(f"\n**-> ({step.relationship_to_next}) ->**")
-
-        lines.append("")
-
-    # Synthesis section
-    if result.synthesis:
-        lines.append("---")
-        lines.append(f"### Synthesis ({result.synthesis_style})")
-        lines.append(result.synthesis)
-        lines.append("")
-
-    # Footer
-    source_label = result.source.replace("_", " ")
-    lines.append(
-        f"*Sources: {result.evidence_count} evidence chunks | {source_label} (confidence: {result.confidence:.2f})*"
-    )
-
-    return "\n".join(lines)
-
-
-def format_connection_explanation_json(result: ConnectionExplanation) -> str:
-    """Format ConnectionExplanation as structured JSON.
-
-    Delegates to ConnectionExplanation.to_dict() for full serialization.
-
-    Args:
-        result: ConnectionExplanation from explain_connection()
-
-    Returns:
-        JSON string with path, evidence, synthesis, and metadata
-    """
-    return json.dumps(result.to_dict(), indent=2)

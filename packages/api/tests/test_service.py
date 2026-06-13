@@ -5,7 +5,7 @@ Tests cover:
 - Embedding cache operations
 - Context weight calculations
 - Search orchestration
-- Source/concept/graph operations
+- Source/concept operations
 """
 
 from __future__ import annotations
@@ -43,8 +43,6 @@ from research_kb_api.service import (
     get_concepts,
     get_concept_by_id,
     get_concept_relationships,
-    get_graph_neighborhood,
-    get_graph_path,
     get_stats,
     get_citations_for_source,
     _embedding_cache,
@@ -145,8 +143,6 @@ class TestSearchOptions:
         assert options.limit == 10
         assert options.context_type == ContextType.balanced
         assert options.source_filter is None
-        assert options.use_graph is False  # disabled pending KG re-extraction
-        assert options.graph_weight == pytest.approx(0.2)
         assert options.use_rerank is True
         assert options.use_expand is True
         assert options.use_llm_expand is False
@@ -158,8 +154,6 @@ class TestSearchOptions:
             limit=20,
             context_type=ContextType.auditing,
             source_filter="PAPER",
-            use_graph=False,
-            graph_weight=0.3,
             use_rerank=False,
             use_expand=False,
             use_llm_expand=True,
@@ -169,8 +163,6 @@ class TestSearchOptions:
         assert options.limit == 20
         assert options.context_type == ContextType.auditing
         assert options.source_filter == "PAPER"
-        assert options.use_graph is False
-        assert options.graph_weight == pytest.approx(0.3)
         assert options.use_rerank is False
         assert options.use_expand is False
         assert options.use_llm_expand is True
@@ -456,30 +448,15 @@ class TestSearch:
 
         mock_search_deps["rerank"].assert_called_once()
 
-    async def test_search_uses_hybrid_v2_with_graph(self, mock_search_deps, sample_search_result):
-        """Test search uses hybrid_v2 with graph enabled."""
-        mock_search_deps["hybrid_v2"].return_value = [sample_search_result]
-        options = SearchOptions(
-            query="test",
-            use_expand=False,
-            use_rerank=False,
-            use_graph=True,
-        )
-
-        await search(options)
-
-        mock_search_deps["hybrid_v2"].assert_called_once()
-
-    async def test_search_uses_hybrid_without_graph_or_citations(
+    async def test_search_uses_hybrid_without_citations(
         self, mock_search_deps, sample_search_result
     ):
-        """Test search uses basic hybrid without graph or citations."""
+        """Test search uses basic hybrid without citations."""
         mock_search_deps["hybrid"].return_value = [sample_search_result]
         options = SearchOptions(
             query="test",
             use_expand=False,
             use_rerank=False,
-            use_graph=False,
             use_citations=False,
         )
 
@@ -487,59 +464,19 @@ class TestSearch:
 
         mock_search_deps["hybrid"].assert_called_once()
 
-    async def test_search_uses_v2_with_citations_no_graph(
-        self, mock_search_deps, sample_search_result
-    ):
-        """Test search uses hybrid_v2 when citations enabled but graph disabled."""
+    async def test_search_uses_v2_with_citations(self, mock_search_deps, sample_search_result):
+        """Test search uses hybrid_v2 when citations enabled."""
         mock_search_deps["hybrid_v2"].return_value = [sample_search_result]
         options = SearchOptions(
             query="test",
             use_expand=False,
             use_rerank=False,
-            use_graph=False,
             use_citations=True,
         )
 
         await search(options)
 
         mock_search_deps["hybrid_v2"].assert_called_once()
-
-    async def test_search_falls_back_when_no_concepts(self, mock_search_deps, sample_search_result):
-        """Test search falls back to non-graph when no concepts exist."""
-        mock_search_deps["concept"].count = AsyncMock(return_value=0)
-        mock_search_deps["hybrid"].return_value = [sample_search_result]
-        options = SearchOptions(
-            query="test",
-            use_expand=False,
-            use_rerank=False,
-            use_graph=True,  # Requested but should fall back
-            use_citations=False,  # Disable citations to test pure fallback
-        )
-
-        await search(options)
-
-        # Should fall back to basic hybrid since no concepts and no citations
-        mock_search_deps["hybrid"].assert_called_once()
-
-    async def test_search_normalizes_weights_with_graph(self, mock_search_deps):
-        """Test search normalizes weights when graph is enabled."""
-        options = SearchOptions(
-            query="test",
-            context_type=ContextType.balanced,  # 0.3 FTS, 0.7 vector
-            use_graph=True,
-            graph_weight=0.2,
-        )
-
-        await search(options)
-
-        # Total should be 0.3 + 0.7 + 0.2 = 1.2
-        # Normalized: FTS = 0.3/1.2 = 0.25, vector = 0.7/1.2 = 0.583, graph = 0.2/1.2 = 0.167
-        call_args = mock_search_deps["expand"].call_args
-        query = call_args[0][0]  # First positional argument is SearchQuery
-
-        # Weights should be normalized
-        total = query.fts_weight + query.vector_weight + query.graph_weight
-        assert total == pytest.approx(1.0, rel=0.01)
 
     async def test_search_populates_expanded_query(self, mock_search_deps, sample_search_result):
         """Test search includes expanded query when available."""
@@ -672,92 +609,6 @@ class TestConceptOperations:
 
             assert len(result) == 1
             assert result[0].relationship_type == RelationshipType.REQUIRES
-
-
-# =============================================================================
-# Test Graph Operations
-# =============================================================================
-
-
-class TestGraphOperations:
-    """Test graph-related service functions."""
-
-    async def test_get_graph_neighborhood(self, sample_concept):
-        """Test get_graph_neighborhood returns neighborhood data."""
-        with (
-            patch("research_kb_api.service.ConceptStore") as concept_mock,
-            patch("research_kb_api.service.get_neighborhood") as neighbor_mock,
-        ):
-
-            concept_mock.search = AsyncMock(return_value=[sample_concept])
-            neighbor_mock.return_value = {
-                "concepts": [sample_concept],
-                "relationships": [],
-            }
-
-            result = await get_graph_neighborhood("backdoor criterion", hops=2)
-
-            assert "center" in result
-            assert result["center"]["name"] == sample_concept.name
-            assert "nodes" in result
-            assert "edges" in result
-
-    async def test_get_graph_neighborhood_not_found(self):
-        """Test get_graph_neighborhood returns error when concept not found."""
-        with patch("research_kb_api.service.ConceptStore") as concept_mock:
-            concept_mock.search = AsyncMock(return_value=[])
-
-            result = await get_graph_neighborhood("nonexistent concept")
-
-            assert "error" in result
-            assert "not found" in result["error"]
-
-    async def test_get_graph_path(self, sample_concept):
-        """Test get_graph_path finds path between concepts."""
-        concept_a = sample_concept
-        concept_b = Concept(
-            id=uuid4(),
-            name="instrumental variables",
-            canonical_name="instrumental_variables",
-            concept_type=ConceptType.METHOD,
-            domain_id="causal_inference",
-            created_at=datetime.now(),
-        )
-
-        with (
-            patch("research_kb_api.service.ConceptStore") as concept_mock,
-            patch("research_kb_api.service.find_shortest_path") as path_mock,
-        ):
-
-            concept_mock.search = AsyncMock(side_effect=[[concept_a], [concept_b]])
-            # Service expects list of (Concept, Relationship) tuples
-            path_mock.return_value = [(concept_a, None), (concept_b, None)]
-
-            result = await get_graph_path("backdoor criterion", "instrumental variables")
-
-            assert result["from"] == "backdoor criterion"
-            assert result["to"] == "instrumental variables"
-            assert "path" in result
-
-    async def test_get_graph_path_concept_a_not_found(self, sample_concept):
-        """Test get_graph_path returns error when first concept not found."""
-        with patch("research_kb_api.service.ConceptStore") as concept_mock:
-            concept_mock.search = AsyncMock(return_value=[])
-
-            result = await get_graph_path("nonexistent", "backdoor criterion")
-
-            assert "error" in result
-            assert "nonexistent" in result["error"]
-
-    async def test_get_graph_path_concept_b_not_found(self, sample_concept):
-        """Test get_graph_path returns error when second concept not found."""
-        with patch("research_kb_api.service.ConceptStore") as concept_mock:
-            concept_mock.search = AsyncMock(side_effect=[[sample_concept], []])
-
-            result = await get_graph_path("backdoor criterion", "nonexistent")
-
-            assert "error" in result
-            assert "nonexistent" in result["error"]
 
 
 # =============================================================================

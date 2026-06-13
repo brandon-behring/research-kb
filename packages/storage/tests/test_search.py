@@ -398,28 +398,32 @@ class TestComputeRanksBySignal:
         assert "vector" in rankings["00000000-0000-0000-0000-000000000002"]
         assert "fts" not in rankings["00000000-0000-0000-0000-000000000002"]
 
-    def test_four_signals(self):
-        """All four signals ranked correctly."""
+    def test_all_signals(self):
+        """All active signals (FTS, vector, citation) ranked correctly.
+
+        The graph signal was retired in RS4 (ADR-0001); _compute_ranks_by_signal
+        ranks only FTS + vector + citation.
+        """
         r1 = self._make_result(
             "00000000-0000-0000-0000-000000000001",
             fts=0.9,
             vector=0.7,
-            graph=0.5,
             citation=0.3,
         )
         r2 = self._make_result(
             "00000000-0000-0000-0000-000000000002",
             fts=0.3,
             vector=0.9,
-            graph=0.8,
             citation=0.6,
         )
         rankings = _compute_ranks_by_signal([r1, r2])
-        # r1 wins FTS, r2 wins vector/graph/citation
+        # r1 wins FTS, r2 wins vector/citation
         assert rankings["00000000-0000-0000-0000-000000000001"]["fts"] == 1
         assert rankings["00000000-0000-0000-0000-000000000002"]["vector"] == 1
-        assert rankings["00000000-0000-0000-0000-000000000002"]["graph"] == 1
         assert rankings["00000000-0000-0000-0000-000000000002"]["citation"] == 1
+        # Graph signal is retired — never ranked
+        assert "graph" not in rankings["00000000-0000-0000-0000-000000000001"]
+        assert "graph" not in rankings["00000000-0000-0000-0000-000000000002"]
 
     def test_empty_results(self):
         """Empty result list returns empty rankings."""
@@ -510,19 +514,3 @@ class TestSearchQueryGraphCitation:
         """Test source_filter parameter accepted."""
         query = SearchQuery(text="test", source_filter="paper")
         assert query.source_filter == "paper"
-
-
-class TestSearchHybridV2Validation:
-    """Test search_hybrid_v2 input validation (no DB needed)."""
-
-    async def test_v2_requires_graph_or_citations(self, db_pool):
-        """Test search_hybrid_v2 rejects query without graph or citations."""
-        from research_kb_storage.search import search_hybrid_v2
-
-        query = SearchQuery(
-            text="test",
-            use_graph=False,
-            use_citations=False,
-        )
-        with pytest.raises(ValueError, match="use_graph"):
-            await search_hybrid_v2(query)

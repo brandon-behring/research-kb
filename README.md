@@ -205,20 +205,20 @@ Run `python scripts/generate_status.py` for current metrics. See [`docs/status/C
 | `research_kb_audit_assumptions` | Get required assumptions for a statistical/ML method. |
 | `research_kb_citation_network` | Get bidirectional citation network for a source. |
 | `research_kb_biblio_coupling` | Find sources similar by bibliographic coupling. |
-| `research_kb_list_concepts` | List or search concepts in the knowledge graph. |
-| `research_kb_get_concept` | Get detailed information about a specific concept. |
-| `research_kb_chunk_concepts` | Get all concepts linked to a specific chunk. |
-| `research_kb_find_similar_concepts` | Find concepts semantically similar to a given concept. |
-| `research_kb_graph_neighborhood` | Explore the neighborhood of a concept in the knowledge graph. |
-| `research_kb_graph_path` | Find the shortest path between two concepts. |
-| `research_kb_cross_domain_concepts` | Find equivalent or related concepts across knowledge domains. |
-| `research_kb_explain_connection` | Explain how two concepts connect through the knowledge graph with evidence. |
+| `research_kb_list_concepts` | ⚠ RETIRED (RS4). Concept listing is retired — concept layer is synthesis-kb (ADR-0001). |
+| `research_kb_get_concept` | ⚠ RETIRED (RS4). Concept detail is retired — concept layer is synthesis-kb (ADR-0001). |
+| `research_kb_chunk_concepts` | ⚠ RETIRED (RS4). Chunk-concept links are retired — concept layer is synthesis-kb (ADR-0001). |
+| `research_kb_find_similar_concepts` | ⚠ RETIRED (RS4). Concept similarity is retired — concept layer is synthesis-kb (ADR-0001). |
+| `research_kb_graph_neighborhood` | ⚠ RETIRED (RS4). Concept-graph neighborhood is retired — concept layer is synthesis-kb (ADR-0001). |
+| `research_kb_graph_path` | ⚠ RETIRED (RS4). Concept-graph path is retired — concept layer is synthesis-kb (ADR-0001). |
+| `research_kb_cross_domain_concepts` | ⚠ RETIRED (RS4). Cross-domain concept bridging is retired — concept layer is synthesis-kb (ADR-0001). |
+| `research_kb_explain_connection` | ⚠ RETIRED (RS4). Concept-connection explanation is retired — concept layer is synthesis-kb (ADR-0001). |
 | `research_kb_stats` | Get statistics about the research knowledge base. |
 | `research_kb_health` | Check the health of the research-kb system. |
 | `research_kb_list_domains` | List available knowledge domains and their statistics. |
-| `research_kb_literature_review` | Generate a structured literature review for a topic from the knowledge base. |
-| `research_kb_search` | Search the research knowledge base across multiple domains. |
-| `research_kb_fast_search` | Fast vector-only search (~200ms). Skips FTS, graph, citation, reranking. |
+| `research_kb_literature_review` | ⚠ RETIRED (RS4). Literature-review generation (seeded from the retired concept graph) is retired — see synthesis-kb (ADR-0001). |
+| `research_kb_search` | Search the research knowledge base across all domains. |
+| `research_kb_fast_search` | Fast vector-only search (~200ms). Skips FTS, citation, reranking. |
 | `research_kb_list_sources` | List sources (papers and textbooks) in the knowledge base. |
 | `research_kb_get_source` | Get detailed information about a specific source. |
 | `research_kb_get_source_citations` | Get citation relationships for a source. |
@@ -256,18 +256,15 @@ Quick reference:
 research-kb search audit-assumptions                   # Get required assumptions for a statistical/ML method.
 research-kb search query                               # Search the research knowledge base with hybrid search and reranking.
 
-research-kb graph concepts                             # Search for concepts in the knowledge graph.
-research-kb graph neighborhood                         # Visualize concept neighborhood in the knowledge graph.
-research-kb graph path                                 # Find shortest path between two concepts in the knowledge graph.
-research-kb graph explain                              # Explain how two concepts are connected with evidence and synthesis.
-
 research-kb citations list                             # List citations extracted from a source.
 research-kb citations cited-by                         # Find sources that cite a given source.
 research-kb citations cites                            # Find sources that a given source cites.
 research-kb citations stats                            # Show corpus-wide citation graph statistics.
 research-kb citations similar                          # Find sources with similar research focus via bibliographic coupling.
 
-research-kb sources list                               # List all ingested sources in the knowledge base.
+research-kb sources list                               # List ingested sources in the knowledge base.
+research-kb sources add-manual                         # Register a metadata-only source (no PDF needed).
+research-kb sources set-role                           # Add or remove metadata.roles markers on an existing source.
 research-kb sources extraction-status                  # Show extraction pipeline statistics.
 research-kb sources stats                              # Show knowledge base statistics.
 
@@ -278,8 +275,6 @@ research-kb discover author                            # Get recent papers by a 
 research-kb enrich citations                           # Enrich citations with Semantic Scholar metadata.
 research-kb enrich status                              # Show citation enrichment status.
 research-kb enrich job-status                          # Check status of enrichment jobs (running or completed).
-
-research-kb review generate                            # Generate a structured literature review for a topic.
 ```
 <!-- AUTO-GEN:cli-commands:END -->
 

@@ -1,6 +1,13 @@
 # Migration: Graph Search Defaults
 
-**Status**: Complete (graph disabled by default since 2026-03-25)
+> **⛔ SUPERSEDED (RS4, 2026-06-13).** Graph search is no longer merely *disabled* —
+> it was **removed**. KuzuDB + the graph-score path are gone; `research_kb_search` is
+> FTS + vector + citation (3-way), with no `--graph`/`use_graph` flag. The silent
+> 0-graph-score fallback documented below (the fail-loud violation that motivated decision R3)
+> no longer exists. Concept-graph queries now belong to **synthesis-kb**. See
+> `docs/decisions/0001-scope-retrieval-citation-backbone.md`. Document kept for history.
+
+**Status**: ~~Complete (graph disabled by default since 2026-03-25)~~ **Superseded — graph removed (RS4)**
 
 ---
 

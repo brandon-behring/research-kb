@@ -134,9 +134,6 @@ def check_cli_commands() -> tuple[bool, list[str]]:
         "search query",
         "sources list",
         "sources stats",
-        "graph concepts",
-        "graph neighborhood",
-        "graph path",
     }
 
     for cmd in critical_commands:

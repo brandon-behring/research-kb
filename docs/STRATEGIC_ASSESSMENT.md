@@ -144,7 +144,16 @@ Qualitative status:
 
 ## 7. Knowledge Graph: Deferred Decision
 
-**Status**: Deferred until Anthropic credits are replenished and ingestion is considered stable.
+> **⛔ CLOSED / SUPERSEDED (RS4, 2026-06-13).** The chunk-level KG re-extraction
+> backlog described below is **closed, not deferred**: research-kb's concept-graph
+> ambition was retired (decision R3, `docs/decisions/0001-scope-retrieval-citation-backbone.md`).
+> KuzuDB + the graph-query/score machinery were removed; the stale concept/graph MCP tools are
+> fail-loud retirement stubs; `research_kb_search` is FTS + vector + citation (3-way). The concept
+> layer is now **synthesis-kb** (claim-level, eval-gated). The $150–300 re-extraction line item is
+> dropped. Falsifier (reopen): a concrete chunk-level-graph use case that claim-level synthesis-kb
+> cannot serve. The section below is historical.
+
+**Status**: ~~Deferred until Anthropic credits are replenished~~ **CLOSED (retired, RS4)** — see banner above.
 
 ### Current State
 

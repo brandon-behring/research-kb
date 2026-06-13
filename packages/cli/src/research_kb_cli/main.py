@@ -16,8 +16,6 @@ See docs/INDEX.md for architecture and phase overview.
 import typer
 
 from research_kb_cli.commands.citations import app as citations_app
-from research_kb_cli.commands.graph import app as graph_app
-from research_kb_cli.commands.review import app as review_app
 from research_kb_cli.commands.search import app as search_app
 from research_kb_cli.commands.sources import app as sources_app
 from research_kb_cli.discover import app as discover_app
@@ -29,18 +27,16 @@ from research_kb_cli.enrich import app as enrich_app
 
 app = typer.Typer(
     name="research-kb",
-    help="Search and explore the research knowledge base with semantic search and graph-boosted retrieval.",
+    help="Search and explore the research knowledge base with semantic search.",
     add_completion=False,
 )
 
 # Register sub-apps
 app.add_typer(search_app, name="search")
-app.add_typer(graph_app, name="graph")
 app.add_typer(citations_app, name="citations")
 app.add_typer(sources_app, name="sources")
 app.add_typer(discover_app, name="discover")
 app.add_typer(enrich_app, name="enrich")
-app.add_typer(review_app, name="review")
 
 
 def main():

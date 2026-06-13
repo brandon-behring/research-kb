@@ -1,239 +1,85 @@
-"""Tests for concept MCP tools."""
+"""Tests for concept MCP tools — RETIRED stubs (RS4).
+
+The chunk-level concept layer was retired in slice RS4 (decision R3, ADR-0001);
+the concept data is preserved (dormant) but no longer exposed. These tools remain
+registered as fail-loud tombstones redirecting to synthesis-kb.
+"""
 
 from __future__ import annotations
 
 import pytest
-from unittest.mock import patch
-from uuid import uuid4
-from datetime import datetime
 
-from research_kb_contracts import Concept, ConceptType
 from research_kb_mcp.tools.concepts import register_concept_tools
 
 pytestmark = pytest.mark.unit
 
 
 class MockFastMCP:
-    """Mock FastMCP server for testing tool registration."""
+    """Mock FastMCP server capturing registered tool functions."""
 
     def __init__(self):
         self.tools = {}
 
     def tool(self, **kwargs):
-        """Decorator that captures tool functions."""
-
         def decorator(func):
-            self.tools[func.__name__] = {
-                "func": func,
-                "kwargs": kwargs,
-            }
+            self.tools[func.__name__] = {"func": func, "kwargs": kwargs}
             return func
 
         return decorator
 
 
-class TestConceptToolRegistration:
-    """Tests for concept tool registration."""
-
-    def test_list_concepts_registered(self):
-        """List concepts tool is registered correctly."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        assert "research_kb_list_concepts" in mcp.tools
-        doc = mcp.tools["research_kb_list_concepts"]["func"].__doc__
-        assert doc is not None
-        assert "concepts" in doc.lower()
-
-    def test_get_concept_registered(self):
-        """Get concept tool is registered correctly."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        assert "research_kb_get_concept" in mcp.tools
-        doc = mcp.tools["research_kb_get_concept"]["func"].__doc__
-        assert doc is not None
-        assert "relationship" in doc.lower()
-
-    def test_chunk_concepts_registered(self):
-        """Chunk concepts tool is registered correctly."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        assert "research_kb_chunk_concepts" in mcp.tools
+CONCEPT_TOOLS = [
+    "research_kb_list_concepts",
+    "research_kb_get_concept",
+    "research_kb_chunk_concepts",
+    "research_kb_find_similar_concepts",
+]
 
 
-class TestListConcepts:
-    """Tests for list concepts tool functionality."""
-
-    @pytest.fixture
-    def sample_concepts(self):
-        """Create sample concepts for testing."""
-        return [
-            Concept(
-                id=uuid4(),
-                name="Double Machine Learning",
-                canonical_name="double_machine_learning",
-                concept_type=ConceptType.METHOD,
-                domain_id="causal_inference",
-                created_at=datetime.now(),
-            ),
-            Concept(
-                id=uuid4(),
-                name="Unconfoundedness",
-                canonical_name="unconfoundedness",
-                concept_type=ConceptType.ASSUMPTION,
-                domain_id="causal_inference",
-                created_at=datetime.now(),
-            ),
-        ]
-
-    async def test_list_concepts_empty_query(self, sample_concepts):
-        """List concepts returns all when no query provided."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        with patch("research_kb_mcp.tools.concepts.get_concepts") as get_mock:
-            get_mock.return_value = sample_concepts
-
-            result = await mcp.tools["research_kb_list_concepts"]["func"]()
-
-            get_mock.assert_called_once_with(query=None, limit=50, concept_type=None)
-            assert isinstance(result, str)
-
-    async def test_list_concepts_with_search(self, sample_concepts):
-        """List concepts filters by search query."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        with patch("research_kb_mcp.tools.concepts.get_concepts") as get_mock:
-            get_mock.return_value = [sample_concepts[0]]
-
-            await mcp.tools["research_kb_list_concepts"]["func"](
-                query="machine learning",
-            )
-
-            get_mock.assert_called_once_with(
-                query="machine learning",
-                limit=50,
-                concept_type=None,
-            )
-
-    async def test_list_concepts_with_type_filter(self, sample_concepts):
-        """List concepts filters by type."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        with patch("research_kb_mcp.tools.concepts.get_concepts") as get_mock:
-            get_mock.return_value = [sample_concepts[0]]
-
-            await mcp.tools["research_kb_list_concepts"]["func"](
-                concept_type="METHOD",
-            )
-
-            get_mock.assert_called_once_with(
-                query=None,
-                limit=50,
-                concept_type="METHOD",
-            )
-
-    async def test_list_concepts_limit_clamping(self, sample_concepts):
-        """List concepts clamps limit to valid range."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        with patch("research_kb_mcp.tools.concepts.get_concepts") as get_mock:
-            get_mock.return_value = sample_concepts
-
-            # Test upper bound
-            await mcp.tools["research_kb_list_concepts"]["func"](limit=200)
-            assert get_mock.call_args[1]["limit"] == 100
-
-            # Test lower bound
-            await mcp.tools["research_kb_list_concepts"]["func"](limit=0)
-            assert get_mock.call_args[1]["limit"] == 1
+def test_all_concept_tools_registered():
+    """All four concept tools stay registered as retirement tombstones."""
+    mcp = MockFastMCP()
+    register_concept_tools(mcp)
+    for name in CONCEPT_TOOLS:
+        assert name in mcp.tools, f"{name} should stay registered as a retirement stub"
 
 
-class TestGetConcept:
-    """Tests for get concept tool functionality."""
+@pytest.mark.parametrize("name", CONCEPT_TOOLS)
+def test_concept_tool_docstring_marks_retired(name):
+    """Each tool's docstring fails loud: marked RETIRED."""
+    mcp = MockFastMCP()
+    register_concept_tools(mcp)
+    doc = mcp.tools[name]["func"].__doc__ or ""
+    assert "RETIRED" in doc
 
-    @pytest.fixture
-    def sample_concept(self):
-        """Create a sample concept for testing."""
-        return Concept(
-            id=uuid4(),
-            name="Instrumental Variables",
-            canonical_name="instrumental_variables",
-            concept_type=ConceptType.METHOD,
-            domain_id="causal_inference",
-            definition="A method for causal inference when there is unmeasured confounding.",
-            created_at=datetime.now(),
-        )
 
-    @pytest.fixture
-    def sample_relationships(self):
-        """Create sample relationships for testing."""
+async def test_list_concepts_returns_retirement_notice():
+    mcp = MockFastMCP()
+    register_concept_tools(mcp)
+    result = await mcp.tools["research_kb_list_concepts"]["func"]()
+    assert "RETIRED" in result
+    assert "synthesis-kb" in result
 
-        # Create mock relationship objects with required attributes
-        class MockRelationship:
-            def __init__(self, rel_type, target_id):
-                self.relationship_type = rel_type
-                self.target_concept_id = target_id
 
-        return [
-            MockRelationship("USES", uuid4()),
-            MockRelationship("ADDRESSES", uuid4()),
-        ]
+async def test_get_concept_returns_retirement_notice():
+    mcp = MockFastMCP()
+    register_concept_tools(mcp)
+    result = await mcp.tools["research_kb_get_concept"]["func"](concept_id="x")
+    assert "RETIRED" in result
+    assert "synthesis-kb" in result
 
-    async def test_get_concept_success(self, sample_concept, sample_relationships):
-        """Get concept returns formatted details."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
 
-        with (
-            patch("research_kb_mcp.tools.concepts.get_concept_by_id") as get_mock,
-            patch("research_kb_mcp.tools.concepts.get_concept_relationships") as rel_mock,
-        ):
-            get_mock.return_value = sample_concept
-            rel_mock.return_value = sample_relationships
+async def test_chunk_concepts_returns_retirement_notice():
+    mcp = MockFastMCP()
+    register_concept_tools(mcp)
+    result = await mcp.tools["research_kb_chunk_concepts"]["func"](chunk_id="x")
+    assert "RETIRED" in result
+    assert "synthesis-kb" in result
 
-            result = await mcp.tools["research_kb_get_concept"]["func"](
-                concept_id=str(sample_concept.id),
-            )
 
-            get_mock.assert_called_once()
-            rel_mock.assert_called_once()
-            assert isinstance(result, str)
-
-    async def test_get_concept_without_relationships(self, sample_concept):
-        """Get concept skips relationships when not requested."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        with (
-            patch("research_kb_mcp.tools.concepts.get_concept_by_id") as get_mock,
-            patch("research_kb_mcp.tools.concepts.get_concept_relationships") as rel_mock,
-        ):
-            get_mock.return_value = sample_concept
-
-            await mcp.tools["research_kb_get_concept"]["func"](
-                concept_id=str(sample_concept.id),
-                include_relationships=False,
-            )
-
-            rel_mock.assert_not_called()
-
-    async def test_get_concept_not_found(self):
-        """Get concept returns error for missing concept."""
-        mcp = MockFastMCP()
-        register_concept_tools(mcp)
-
-        with patch("research_kb_mcp.tools.concepts.get_concept_by_id") as get_mock:
-            get_mock.return_value = None
-
-            result = await mcp.tools["research_kb_get_concept"]["func"](
-                concept_id="nonexistent-id",
-            )
-
-            assert "Error" in result
-            assert "not found" in result
+async def test_find_similar_concepts_returns_retirement_notice():
+    mcp = MockFastMCP()
+    register_concept_tools(mcp)
+    result = await mcp.tools["research_kb_find_similar_concepts"]["func"](concept_id="x")
+    assert "RETIRED" in result
+    assert "synthesis-kb" in result

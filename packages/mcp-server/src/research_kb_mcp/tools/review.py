@@ -1,6 +1,10 @@
-"""Literature review tool for MCP server.
+"""Literature review tool for MCP server — RETIRED (RS4, 2026-06).
 
-Exposes automated literature review generation to Claude Code.
+The literature-review generator seeded from the chunk-level concept graph, which
+was retired in slice RS4 (decision R3, ADR-0001) — it produced silently-weak
+reviews for the 34/38 domains without extracted concepts. Retired as a fail-loud
+tombstone; a search-seeded (KG-free) rebuild is a recorded future option. The
+concept layer is now synthesis-kb. See docs/decisions/0001.
 """
 
 from __future__ import annotations
@@ -9,11 +13,17 @@ from typing import Literal, Optional
 
 from fastmcp import FastMCP
 
-from research_kb_storage import generate_literature_review
+_RETIRED = (
+    "⚠ RETIRED (RS4) — research-kb's literature-review generator seeded from the "
+    "retired chunk-level concept graph (decision R3, ADR-0001) and produced "
+    "silently-weak reviews for domains without extracted concepts. For "
+    "primary-literature retrieval use `research_kb_search`; the concept layer is "
+    "now **synthesis-kb**. A search-seeded rebuild is a recorded option."
+)
 
 
 def register_review_tools(mcp: FastMCP) -> None:
-    """Register literature review tools with the MCP server."""
+    """Register literature review tools (retirement stub) with the MCP server."""
 
     @mcp.tool()
     async def research_kb_literature_review(
@@ -25,54 +35,5 @@ def register_review_tools(mcp: FastMCP) -> None:
         domain: Optional[str] = None,
         output_format: Literal["markdown", "json"] = "markdown",
     ) -> str:
-        """Generate a structured literature review for a topic from the knowledge base.
-
-        Explores the knowledge graph and corpus to produce a multi-section review with:
-        - Overview: Core definitions and foundational ideas
-        - Methods & Techniques: Algorithms and analytical approaches
-        - Assumptions & Conditions: Required assumptions and validity requirements
-        - Applications & Extensions: Practical applications and related work
-
-        Each section is backed by evidence from the corpus with source citations.
-        LLM synthesis (Anthropic Haiku) generates coherent prose from the evidence.
-
-        Args:
-            topic: Topic to review (e.g., "double machine learning", "instrumental variables")
-            style: Writing style for synthesis:
-                - "educational": Graduate student level, focus on intuition
-                - "research": Methodologist level, focus on rigor
-                - "implementation": Practitioner level, focus on practical steps
-            use_llm: Enable LLM synthesis (requires ANTHROPIC_API_KEY).
-                If False, returns structured evidence without synthesis.
-            max_concepts: Maximum concepts to explore from knowledge graph (default 30)
-            max_evidence_per_section: Evidence chunks per section (default 8)
-            domain: Optional knowledge-domain filter (Issue #4). Scopes seed
-                concept discovery and evidence search to this domain. Graph
-                traversal still follows cross-domain relationships.
-            output_format: Response format - "markdown" (default) or "json"
-
-        Returns:
-            Multi-section literature review with cited evidence.
-            Markdown format includes full prose; JSON includes structured data.
-
-        Example topics:
-            - "double machine learning"
-            - "instrumental variables"
-            - "regression discontinuity"
-            - "transformer architecture"
-            - "causal forests"
-        """
-        review = await generate_literature_review(
-            topic=topic,
-            style=style,
-            use_llm=use_llm,
-            max_concepts=max_concepts,
-            max_evidence_per_section=max_evidence_per_section,
-            domain_id=domain,
-        )
-
-        if output_format == "json":
-            import json
-
-            return json.dumps(review.to_dict(), indent=2)
-        return review.to_markdown()
+        """⚠ RETIRED (RS4). Literature-review generation (seeded from the retired concept graph) is retired — see synthesis-kb (ADR-0001)."""
+        return _RETIRED

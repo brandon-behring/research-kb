@@ -30,8 +30,6 @@ from research_kb_storage import (
     search_vector_only,
     search_with_rerank,
     search_with_expansion,
-    find_shortest_path,
-    get_neighborhood,
     get_citing_sources,
     get_cited_sources,
 )
@@ -58,8 +56,6 @@ class SearchOptions:
     limit: int = 10
     context_type: ContextType = ContextType.balanced
     source_filter: Optional[str] = None
-    use_graph: bool = False
-    graph_weight: float = 0.2
     use_rerank: bool = True
     use_expand: bool = True
     use_llm_expand: bool = False
@@ -266,48 +262,21 @@ async def search(options: SearchOptions) -> SearchResponse:
         )
         return response
 
-    # Check if concepts exist when graph search requested
-    use_graph = options.use_graph
-    if use_graph:
-        concept_count = await ConceptStore.count()
-        if concept_count == 0:
-            logger.warning("graph_search_no_concepts", fallback="standard_search")
-            use_graph = False
-
-    # Get weights based on context type
+    # Get weights based on context type. Concept-graph signal retired (RS4, ADR-0001):
+    # search combines FTS + vector + citation only.
     fts_weight, vector_weight = get_context_weights(options.context_type)
 
-    if use_graph:
-        # Normalize weights
-        total = fts_weight + vector_weight + options.graph_weight
-        fts_weight /= total
-        vector_weight /= total
-        graph_weight = options.graph_weight / total
-
-        search_query = SearchQuery(
-            text=options.query,
-            embedding=query_embedding,
-            fts_weight=fts_weight,
-            vector_weight=vector_weight,
-            graph_weight=graph_weight,
-            use_graph=True,
-            max_hops=2,
-            limit=options.limit,
-            source_filter=options.source_filter,
-            domain_id=options.domain_id,
-        )
-    else:
-        search_query = SearchQuery(
-            text=options.query,
-            embedding=query_embedding,
-            fts_weight=fts_weight,
-            vector_weight=vector_weight,
-            use_citations=options.use_citations,
-            citation_weight=options.citation_weight,
-            limit=options.limit,
-            source_filter=options.source_filter,
-            domain_id=options.domain_id,
-        )
+    search_query = SearchQuery(
+        text=options.query,
+        embedding=query_embedding,
+        fts_weight=fts_weight,
+        vector_weight=vector_weight,
+        use_citations=options.use_citations,
+        citation_weight=options.citation_weight,
+        limit=options.limit,
+        source_filter=options.source_filter,
+        domain_id=options.domain_id,
+    )
 
     # Execute search
     search_start = time.perf_counter()
@@ -317,7 +286,7 @@ async def search(options: SearchOptions) -> SearchResponse:
         results, expanded_query = await search_with_expansion(
             search_query,
             use_synonyms=options.use_expand,
-            use_graph_expansion=options.use_expand and use_graph,
+            use_graph_expansion=False,
             use_llm_expansion=options.use_llm_expand,
             use_rerank=options.use_rerank,
             rerank_top_k=options.limit,
@@ -328,8 +297,8 @@ async def search(options: SearchOptions) -> SearchResponse:
             )
     elif options.use_rerank:
         results = await search_with_rerank(search_query, rerank_top_k=options.limit)
-    elif use_graph or options.use_citations:
-        # Use v2 for either graph or citation signals (or both)
+    elif options.use_citations:
+        # Use v2 for citation authority boosting
         results = await search_hybrid_v2(search_query)
     else:
         results = await search_hybrid(search_query)
@@ -438,135 +407,6 @@ async def get_concept_by_id(concept_id: str) -> Optional[Concept]:
 async def get_concept_relationships(concept_id: str) -> list[ConceptRelationship]:
     """Get relationships for a concept."""
     return await RelationshipStore.list_all_for_concept(UUID(concept_id))
-
-
-async def get_graph_neighborhood(
-    concept_name: str,
-    hops: int = 2,
-    limit: int = 50,
-) -> dict:
-    """Get the graph neighborhood for a concept."""
-    # Find concept by name
-    concepts = await ConceptStore.search(concept_name, limit=1)
-    if not concepts:
-        return {
-            "error": f"Concept '{concept_name}' not found",
-            "nodes": [],
-            "edges": [],
-        }
-
-    concept = concepts[0]
-    neighborhood = await get_neighborhood(concept.id, hops=hops)
-
-    return {
-        "center": {
-            "id": str(concept.id),
-            "name": concept.name,
-            "type": concept.concept_type.value if concept.concept_type else None,
-        },
-        "nodes": [
-            {
-                "id": str(c.id),
-                "name": c.name,
-                "type": c.concept_type.value if c.concept_type else None,
-            }
-            for c in neighborhood.get("concepts", [])
-        ],
-        "edges": [
-            {
-                "source": str(r.source_concept_id),
-                "target": str(r.target_concept_id),
-                "type": r.relationship_type.value if r.relationship_type else None,
-            }
-            for r in neighborhood.get("relationships", [])
-        ],
-    }
-
-
-async def get_graph_path(
-    concept_a: str,
-    concept_b: str,
-    include_definitions: bool = False,
-    include_synthesis: bool = False,
-    synthesis_style: str = "educational",
-) -> dict:
-    """Find shortest path between two concepts.
-
-    Args:
-        concept_a: Name of the first concept (fuzzy matched)
-        concept_b: Name of the second concept (fuzzy matched)
-        include_definitions: Include concept definitions in output
-        include_synthesis: Include synthesis prompt for LLM consumption
-        synthesis_style: One of "educational", "research", "implementation"
-
-    Returns:
-        Dict with path data, optionally including definitions and synthesis prompt
-    """
-    from research_kb_storage import generate_synthesis_prompt, explain_path
-
-    # Find concepts by name
-    concepts_a = await ConceptStore.search(concept_a, limit=1)
-    concepts_b = await ConceptStore.search(concept_b, limit=1)
-
-    if not concepts_a:
-        return {"error": f"Concept '{concept_a}' not found"}
-    if not concepts_b:
-        return {"error": f"Concept '{concept_b}' not found"}
-
-    # find_shortest_path expects UUIDs
-    path = await find_shortest_path(concepts_a[0].id, concepts_b[0].id)
-
-    if not path:
-        return {
-            "from": concept_a,
-            "to": concept_b,
-            "path": [],
-            "explanation": f"No path found between '{concept_a}' and '{concept_b}'",
-        }
-
-    # Serialize path to JSON-friendly format
-    serialized_path = []
-    relationships = []
-
-    for i, (concept, relationship) in enumerate(path):
-        concept_data = {
-            "id": str(concept.id),
-            "name": concept.canonical_name or concept.name,
-            "type": (
-                concept.concept_type.value
-                if hasattr(concept.concept_type, "value")
-                else str(concept.concept_type)
-            ),
-        }
-        if include_definitions and concept.definition:
-            concept_data["definition"] = concept.definition
-
-        serialized_path.append(concept_data)
-
-        # Collect relationship types (skip first - no incoming edge)
-        if i > 0 and relationship:
-            rel_type = (
-                relationship.relationship_type.value
-                if hasattr(relationship.relationship_type, "value")
-                else str(relationship.relationship_type)
-            )
-            relationships.append(rel_type)
-
-    result = {
-        "from": concept_a,
-        "to": concept_b,
-        "path": serialized_path,
-        "relationships": relationships,
-        "explanation": explain_path(path),
-        "path_length": len(path) - 1,  # Number of edges
-    }
-
-    # Add synthesis prompt if requested
-    if include_synthesis:
-        result["synthesis_prompt"] = generate_synthesis_prompt(path, style=synthesis_style)
-        result["synthesis_style"] = synthesis_style
-
-    return result
 
 
 async def get_stats() -> dict:
