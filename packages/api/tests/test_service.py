@@ -510,7 +510,9 @@ class TestSourceOperations:
 
             assert len(result) == 1
             assert result[0].title == sample_source.title
-            mock_store.list_all.assert_called_once_with(limit=10, offset=0, source_type=None)
+            mock_store.list_all.assert_called_once_with(
+                limit=10, offset=0, source_type=None, domain_id=None
+            )
 
     async def test_get_sources_with_filter(self, sample_source):
         """Test get_sources with source type filter."""
@@ -520,7 +522,7 @@ class TestSourceOperations:
             await get_sources(limit=50, offset=10, source_type="TEXTBOOK")
 
             mock_store.list_all.assert_called_once_with(
-                limit=50, offset=10, source_type=SourceType.TEXTBOOK
+                limit=50, offset=10, source_type=SourceType.TEXTBOOK, domain_id=None
             )
 
     async def test_get_source_by_id(self, sample_source):
@@ -580,7 +582,9 @@ class TestConceptOperations:
             result = await get_concepts(query="backdoor", limit=50)
 
             assert len(result) == 1
-            mock_store.search.assert_called_once_with("backdoor", limit=50, concept_type=None)
+            mock_store.search.assert_called_once_with(
+                "backdoor", limit=50, concept_type=None, domain_id=None
+            )
 
     async def test_get_concept_by_id(self, sample_concept):
         """Test get_concept_by_id returns concept."""

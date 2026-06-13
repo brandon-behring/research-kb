@@ -122,7 +122,7 @@ class TestListSources:
 
             result = await mcp.tools["research_kb_list_sources"]["func"]()
 
-            get_mock.assert_called_once_with(limit=50, offset=0, source_type=None)
+            get_mock.assert_called_once_with(limit=50, offset=0, source_type=None, domain_id=None)
             assert isinstance(result, str)
 
     async def test_list_sources_pagination(self, sample_sources):
@@ -138,7 +138,7 @@ class TestListSources:
                 offset=10,
             )
 
-            get_mock.assert_called_once_with(limit=20, offset=10, source_type=None)
+            get_mock.assert_called_once_with(limit=20, offset=10, source_type=None, domain_id=None)
 
     async def test_list_sources_by_type(self, sample_sources):
         """List sources filters by type."""
@@ -152,7 +152,9 @@ class TestListSources:
                 source_type="paper",
             )
 
-            get_mock.assert_called_once_with(limit=50, offset=0, source_type="paper")
+            get_mock.assert_called_once_with(
+                limit=50, offset=0, source_type="paper", domain_id=None
+            )
 
     async def test_list_sources_limit_clamping(self, sample_sources):
         """List sources clamps limit to valid range."""
@@ -407,38 +409,32 @@ class TestSourceCitations:
 
     @pytest.fixture
     def citing_sources(self):
-        """Create citing sources for testing."""
+        """Create citing sources (dicts, as get_citing_sources returns list[dict])."""
         return [
-            Source(
-                id=uuid4(),
-                title="Citing Paper 1",
-                source_type=SourceType.PAPER,
-                authors=["Citer, C."],
-                year=2020,
-                domain_id="causal_inference",
-                file_hash="cite1",
-                metadata={},
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-            ),
+            {
+                "id": uuid4(),
+                "title": "Citing Paper 1",
+                "source_type": "paper",
+                "authors": ["Citer, C."],
+                "year": 2020,
+                "citation_authority": 0.0,
+                "citation_count": 2,
+            },
         ]
 
     @pytest.fixture
     def cited_sources(self):
-        """Create cited sources for testing."""
+        """Create cited sources (dicts, as get_cited_sources returns list[dict])."""
         return [
-            Source(
-                id=uuid4(),
-                title="Cited Paper 1",
-                source_type=SourceType.PAPER,
-                authors=["Cited, D."],
-                year=2010,
-                domain_id="causal_inference",
-                file_hash="cited1",
-                metadata={},
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-            ),
+            {
+                "id": uuid4(),
+                "title": "Cited Paper 1",
+                "source_type": "paper",
+                "authors": ["Cited, D."],
+                "year": 2010,
+                "citation_authority": 0.0,
+                "citation_count": 1,
+            },
         ]
 
     async def test_get_source_citations_success(self, sample_source):

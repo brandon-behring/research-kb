@@ -157,39 +157,33 @@ def sample_source(source_id):
 
 @pytest.fixture
 def citing_sources():
-    """Sources that cite the sample source."""
+    """Sources that cite the sample source (dicts, as get_citing_sources returns list[dict])."""
     return [
-        Source(
-            id=uuid4(),
-            title="Causal Forest Applications",
-            source_type=SourceType.PAPER,
-            authors=["Wager, S."],
-            year=2019,
-            domain_id="causal_inference",
-            file_hash="def456",
-            metadata={},
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        ),
+        {
+            "id": uuid4(),
+            "title": "Causal Forest Applications",
+            "source_type": "paper",
+            "authors": ["Wager, S."],
+            "year": 2019,
+            "citation_authority": 0.0,
+            "citation_count": 3,
+        },
     ]
 
 
 @pytest.fixture
 def cited_sources():
-    """Sources cited by the sample source."""
+    """Sources cited by the sample source (dicts, as get_cited_sources returns list[dict])."""
     return [
-        Source(
-            id=uuid4(),
-            title="Rubin Causal Model",
-            source_type=SourceType.PAPER,
-            authors=["Rubin, D."],
-            year=1974,
-            domain_id="causal_inference",
-            file_hash="ghi789",
-            metadata={},
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        ),
+        {
+            "id": uuid4(),
+            "title": "Rubin Causal Model",
+            "source_type": "paper",
+            "authors": ["Rubin, D."],
+            "year": 1974,
+            "citation_authority": 0.0,
+            "citation_count": 9,
+        },
     ]
 
 
@@ -915,18 +909,15 @@ class TestFormattersJsonUnit:
             updated_at=datetime.now(),
         )
         citing = [
-            Source(
-                id=uuid4(),
-                title="Citer",
-                source_type=SourceType.PAPER,
-                authors=["B"],
-                year=2021,
-                domain_id="test",
-                file_hash="h2",
-                metadata={},
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-            )
+            {
+                "id": uuid4(),
+                "title": "Citer",
+                "source_type": "paper",
+                "authors": ["B"],
+                "year": 2021,
+                "citation_authority": 0.0,
+                "citation_count": 1,
+            }
         ]
         result = format_citation_network_json(citing, [], src)
         data = json.loads(result)

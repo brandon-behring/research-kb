@@ -55,6 +55,19 @@ class MockSource:
         self.metadata = kwargs.get("metadata", {})
 
 
+def _cite_dict(**kw):
+    """Build a citing/cited source dict matching get_citing_sources()/get_cited_sources() (list[dict])."""
+    return {
+        "id": kw.get("id", uuid4()),
+        "title": kw.get("title", "Test Source"),
+        "authors": kw.get("authors", ["Author A"]),
+        "year": kw.get("year", 2020),
+        "source_type": kw.get("source_type", "paper"),
+        "citation_authority": kw.get("citation_authority", 0.0),
+        "citation_count": kw.get("citation_count", 0),
+    }
+
+
 class MockChunk:
     """Mock Chunk for testing."""
 
@@ -239,12 +252,12 @@ class TestFormatCitingSources:
         """Citing sources formatted correctly."""
         source_id = str(uuid4())
         sources = [
-            MockSource(
+            _cite_dict(
                 title="Downstream Paper 1",
                 authors=["Citer, A.", "Citer, B.", "Citer, C."],
                 year=2022,
             ),
-            MockSource(title="Downstream Paper 2", authors=["Solo, X."], year=2023),
+            _cite_dict(title="Downstream Paper 2", authors=["Solo, X."], year=2023),
         ]
 
         result = format_citing_sources(sources, source_id)
@@ -272,7 +285,7 @@ class TestFormatCitedSources:
         """Cited sources formatted correctly."""
         source_id = str(uuid4())
         sources = [
-            MockSource(title="Foundation Paper", authors=["Ancestor, A."], year=2005),
+            _cite_dict(title="Foundation Paper", authors=["Ancestor, A."], year=2005),
         ]
 
         result = format_cited_sources(sources, source_id)
@@ -368,10 +381,10 @@ class TestFormatCitationNetwork:
     def test_with_both_directions(self, center_source):
         """Citation network with both citing and cited."""
         citing = [
-            MockSource(title="Follow-up Paper", authors=["Follower, F."], year=2020),
+            _cite_dict(title="Follow-up Paper", authors=["Follower, F."], year=2020),
         ]
         cited = [
-            MockSource(title="Foundation Paper", authors=["Founder, G."], year=2000),
+            _cite_dict(title="Foundation Paper", authors=["Founder, G."], year=2000),
         ]
 
         result = format_citation_network(citing, cited, center_source)
@@ -384,20 +397,20 @@ class TestFormatCitationNetwork:
 
     def test_empty_citing(self, center_source):
         """Empty citing list handled gracefully."""
-        result = format_citation_network([], [MockSource()], center_source)
+        result = format_citation_network([], [_cite_dict()], center_source)
 
         assert "No citing sources found" in result
 
     def test_empty_cited(self, center_source):
         """Empty cited list handled gracefully."""
-        result = format_citation_network([MockSource()], [], center_source)
+        result = format_citation_network([_cite_dict()], [], center_source)
 
         assert "No cited sources found" in result
 
     def test_author_truncation(self, center_source):
         """Authors truncated with 'et al.' when more than 2."""
         citing = [
-            MockSource(
+            _cite_dict(
                 title="Multi-author",
                 authors=["Author A", "Author B", "Author C", "Author D"],
             ),
