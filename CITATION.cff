@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this knowledge base, please cite it as below."
+type: software
+title: "research-kb"
+abstract: "A hybrid-search knowledge base for research, with a causal-inference focus."
+authors:
+  - family-names: Behring
+    given-names: Brandon
+repository-code: "https://github.com/brandon-behring/research-kb"
+keywords: [knowledge-base, hybrid-search, retrieval, causal-inference, research-tools]
