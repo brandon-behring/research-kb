@@ -19,7 +19,6 @@ ExecStart=/bin/bash -c '\
     python scripts/s2_auto_discover.py topics \
         --year-from 2023 \
         --min-citations 30 \
-        --open-access-only \
         --domain causal_inference && \
     echo "--- Citation Traversal ---" && \
     python scripts/s2_auto_discover.py traverse \
@@ -27,7 +26,7 @@ ExecStart=/bin/bash -c '\
         --depth 1 \
         --direction both \
         --min-citations 20 \
-        --limit 50 && \
+        --limit-per-paper 50 && \
     echo "--- Queue Status ---" && \
     python scripts/s2_auto_discover.py queue-status && \
     echo "=== Discovery Complete ===" \
