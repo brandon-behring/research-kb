@@ -316,7 +316,7 @@ timestamp + reason) and cleared on the next successful sync.
 
 Historical plain-SQL backups older than the most recent pre-extraction dump
 live on the external drive at
-`/media/brandon_behring/Extra_Space/research-kb-backups/`. The
+`/run/media/brandon_behring/backup/research-kb-backups/`. The
 `scripts/archive_backups.sh` script moves old dumps there, keeping only the
 compressed sync dump and the most recent pre-extraction SQL on system disk.
 Re-run it as rotation whenever `backups/` grows.
@@ -335,4 +335,4 @@ If you encounter a scenario not covered here:
 1. Check git history for recent changes: `git log --oneline -10`
 2. Check docker logs: `docker compose logs postgres`
 3. Check if backups directory is intact: `ls -la backups/`
-4. Check archived backups on external drive: `ls -la /media/brandon_behring/Extra_Space/research-kb-backups/`
+4. Check archived backups on external drive: `ls -la /run/media/brandon_behring/backup/research-kb-backups/`

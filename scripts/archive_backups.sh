@@ -6,7 +6,7 @@
 #   - research_kb_latest.dump   (the compressed sync artifact, if present)
 #   - Most recent pre_extraction_*.sql  (rollback invariant for extraction runs)
 #
-# Moves to EXTERNAL (/media/brandon_behring/Extra_Space/research-kb-backups/):
+# Moves to EXTERNAL (/run/media/brandon_behring/backup/research-kb-backups/):
 #   - All other research_kb_*.sql timestamped dumps
 #   - All older pre_extraction_*.sql dumps
 #
@@ -27,7 +27,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BACKUP_DIR="$REPO_ROOT/backups"
-ARCHIVE_ROOT="/media/brandon_behring/Extra_Space/research-kb-backups"
+ARCHIVE_ROOT="/run/media/brandon_behring/backup/research-kb-backups"
 
 DRY_RUN=false
 ASSUME_YES=false
@@ -48,7 +48,7 @@ log() {
 
 # 1. Verify external drive is mounted and writable
 if [ ! -d "$(dirname "$ARCHIVE_ROOT")" ]; then
-    echo "ERROR: Extra_Space drive not mounted at $(dirname "$ARCHIVE_ROOT")" >&2
+    echo "ERROR: backup drive not mounted at $(dirname "$ARCHIVE_ROOT")" >&2
     exit 1
 fi
 
