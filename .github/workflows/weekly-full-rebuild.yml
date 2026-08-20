@@ -8,7 +8,9 @@ on:
 jobs:
   full-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # 120: run 5 (32384083970) proved every step green but hit the 45m job cap mid-embedding —
+    # CPU-only runner throughput needs the headroom (embed-step EMBED_TIMEOUT already raised in run 4).
+    timeout-minutes: 120
 
     services:
       postgres:
