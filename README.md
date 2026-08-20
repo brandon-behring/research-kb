@@ -6,14 +6,14 @@
 
 Graph-boosted semantic search for research literature.
 
-Combines full-text search (BM25), vector similarity (BGE-large 1024d), and citation authority scoring (PageRank) into a single ranked result set. Knowledge graph traversal (KuzuDB, 310K concepts) is available but disabled by default while chunk-concept links are being rebuilt. Ships as a 22-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
+Combines full-text search (BM25), vector similarity (BGE-large 1024d), and citation authority scoring (PageRank) into a single ranked result set. Knowledge graph traversal (KuzuDB) is available but disabled by default while chunk-concept links are being rebuilt. Ships as a 22-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
 
 ## Features
 
 - **3-signal hybrid search** -- BM25 + vector + citation authority, with context-aware weight profiles (knowledge graph available via `--graph` flag, disabled by default pending KG re-extraction)
 - **22-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, assumption auditing, and concept synthesis
-- **Knowledge graph** -- 310K concepts and 744K relationships extracted from research literature, served by KuzuDB
-- **Citation authority** -- PageRank-style scoring over 45K+ citation links; bibliographic coupling for related-work discovery
+- **Knowledge graph** -- hundreds of thousands of extracted concepts/relationships, served by KuzuDB (disabled by default pending chunk-concept link rebuild; enable via `--graph`)
+- **Citation authority** -- PageRank-style scoring over the citation graph; bibliographic coupling for related-work discovery
 - **Multi-domain** -- 36 corpus domains, 20 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
 - **Production monitoring** -- SLOs, Prometheus metrics, structured logging, health checks
@@ -164,7 +164,7 @@ Citation (15%) signals are **enabled by default**. Graph is **disabled by defaul
 
 | Decision | Rationale | Alternative Rejected |
 |----------|-----------|---------------------|
-| BGE-large-en-v1.5 (1024d) | Single model ensures embedding consistency across 1M+ chunks | Multi-model (marginal quality gain, consistency cost) |
+| BGE-large-en-v1.5 (1024d) | Single model ensures embedding consistency across the full corpus | Multi-model (marginal quality gain, consistency cost) |
 | KuzuDB embedded graph | Solved O(N*M) recursive CTE bottleneck: 85s -> 2.1s | PostgreSQL-only graph (too slow at scale) |
 | Weighted sum over RRF | Validated 5-1 superiority on golden dataset | Reciprocal Rank Fusion (loses magnitude signal) |
 | asyncpg connection pooling | Handles concurrent MCP + API + CLI requests | Synchronous psycopg2 (blocks on I/O) |
@@ -178,7 +178,7 @@ Citation (15%) signals are **enabled by default**. Graph is **disabled by defaul
 
 Core domains with 5+ test cases (causal_inference, econometrics, statistics) average MRR > 0.85 individually. Thin domains with few test cases pull down aggregate metrics.
 
-> CI gate: `--fail-below 0.85` scoped to core domains via `--gate-domains` in `weekly-full-rebuild.yml`. A deprecated 177-query JSON benchmark exists in `fixtures/eval/` for historical reference.
+> CI gate: `--fail-below 0.75` scoped to core domains via `--gate-domains` in `weekly-full-rebuild.yml`. A deprecated 177-query JSON benchmark exists in `fixtures/eval/` for historical reference.
 
 ### Latency
 
@@ -230,7 +230,7 @@ Run `python scripts/generate_status.py` for current metrics. See [`docs/status/C
 
 - **~2,700+ test functions** across 111 test files
 - **Tiered CI/CD**: PR checks (<10 min, pytest-cov 70% gate) -> Manual integration (15 min, doc freshness gate) -> Full rebuild (45 min, demo data + embeddings + retrieval eval)
-- **Retrieval eval**: 108 YAML test cases across 36 domains with per-domain reporting (`--per-domain` flag, MRR >= 0.85 CI gate on core domains)
+- **Retrieval eval**: 108 YAML test cases across 36 domains with per-domain reporting (`--per-domain` flag, MRR >= 0.75 CI gate on core domains; core domains individually average > 0.85)
 - **RRF validation study**: Weighted sum vs. Reciprocal Rank Fusion ([`docs/design/rrf_validation.md`](docs/design/rrf_validation.md))
 
 ```bash
