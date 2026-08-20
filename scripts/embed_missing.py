@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import sys
 import time
 from pathlib import Path
@@ -33,7 +34,9 @@ async def embed_missing(batch_size: int = 50, limit: int | None = None) -> int:
     import asyncpg
     from research_kb_pdf.embedding_client import EmbeddingClient
 
-    client = EmbeddingClient()
+    # EMBED_TIMEOUT: per-socket-request budget in seconds. CPU-only runners
+    # (CI) need far more than the 60s default a GPU box assumes.
+    client = EmbeddingClient(timeout=float(os.environ.get("EMBED_TIMEOUT", "60")))
     try:
         client.ping()
     except Exception as e:

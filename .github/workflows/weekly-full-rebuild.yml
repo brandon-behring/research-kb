@@ -81,7 +81,9 @@ jobs:
           done
 
       - name: Generate embeddings
-        run: uv run python scripts/embed_missing.py --batch 100
+        env:
+          EMBED_TIMEOUT: "300"   # CPU-only runner; 60s default assumes GPU-class throughput
+        run: uv run python scripts/embed_missing.py --batch 16
 
       - name: Validate retrieval quality (3-way with citations)
         run: |
