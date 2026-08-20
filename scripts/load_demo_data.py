@@ -44,6 +44,23 @@ def _load_json(path: Path) -> list:
         return json.load(f)
 
 
+async def _ensure_domains(conn, items: list) -> None:
+    """Upsert every domain_id the fixture rows reference.
+
+    Fixtures are exported from the live DB, whose domains grow at runtime; a
+    fresh CI database only has the migration-seeded set, so fk_chunks_domain
+    (etc.) breaks on any newer domain unless we register it first.
+    """
+    ids = {item.get("domain_id", "default") for item in items}
+    for domain_id in sorted(ids):
+        await conn.execute(
+            """INSERT INTO domains (id, name)
+               VALUES ($1, $2) ON CONFLICT (id) DO NOTHING""",
+            domain_id,
+            domain_id.replace("_", " ").title(),
+        )
+
+
 async def load_demo_data(
     data_dir: Path,
     skip_concepts: bool = False,
@@ -69,6 +86,7 @@ async def load_demo_data(
             sources = _load_json(data_dir / "sources.json")
             if domain_filter:
                 sources = [s for s in sources if s.get("domain_id", "default") == domain_filter]
+            await _ensure_domains(conn, sources)
             s_inserted, s_skipped = 0, 0
             for s in sources:
                 existing = await conn.fetchval(
@@ -107,6 +125,7 @@ async def load_demo_data(
             chunks = _load_json(data_dir / "chunks.json")
             if domain_filter:
                 chunks = [ch for ch in chunks if ch.get("domain_id", "default") == domain_filter]
+            await _ensure_domains(conn, chunks)
             c_inserted, c_skipped = 0, 0
             # Batch insert for performance
             batch_size = 500
@@ -150,6 +169,7 @@ async def load_demo_data(
             else:
                 # 3. Load concepts
                 concepts = _load_json(data_dir / "concepts.json")
+                await _ensure_domains(conn, concepts)
                 co_inserted, co_skipped = 0, 0
                 for co in concepts:
                     existing = await conn.fetchval(
