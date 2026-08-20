@@ -66,14 +66,14 @@ jobs:
           done
 
       - name: Load demo corpus
-        run: python scripts/load_demo_data.py
+        run: uv run python scripts/load_demo_data.py
 
       - name: Start embedding server
         run: |
-          python -m research_kb_pdf.embed_server &
+          uv run python -m research_kb_pdf.embed_server &
           echo "Waiting for embedding server..."
           for i in $(seq 1 60); do
-            python -c "
+            uv run python -c "
           from research_kb_pdf.embed_client import EmbeddingClient
           c = EmbeddingClient(); c.ping(); print('Embed server ready')
           " 2>/dev/null && break
@@ -81,11 +81,11 @@ jobs:
           done
 
       - name: Generate embeddings
-        run: python scripts/embed_missing.py --batch 100
+        run: uv run python scripts/embed_missing.py --batch 100
 
       - name: Validate retrieval quality (3-way with citations)
         run: |
-          python scripts/eval_retrieval.py \
+          uv run python scripts/eval_retrieval.py \
             --use-citations \
             --per-domain \
             --fail-below 0.75 \
@@ -103,5 +103,5 @@ jobs:
 
       - name: Run unit tests
         run: |
-          pytest -m "unit and not requires_embedding and not requires_ollama and not requires_reranker and not requires_grobid" \
+          uv run pytest -m "unit and not requires_embedding and not requires_ollama and not requires_reranker and not requires_grobid" \
             --tb=short -q
