@@ -50,6 +50,7 @@ dev = [
     "research-kb-extraction[anthropic,instructor]",
     "rich>=14.3.3",
     "ranx>=0.3.21",
+    "nest-asyncio>=1.6",  # scripts/optimize_weights.py imports it; CI test collection needs it
 ]
 
 [tool.uv.sources]
