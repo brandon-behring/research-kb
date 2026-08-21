@@ -4,15 +4,17 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PR Checks](https://github.com/brandon-behring/research-kb/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/brandon-behring/research-kb/actions/workflows/pr-checks.yml)
 
-Graph-boosted semantic search for research literature.
+Hybrid retrieval for research literature.
 
-Combines full-text search (BM25), vector similarity (BGE-large 1024d), and citation authority scoring (PageRank) into a single ranked result set. Knowledge graph traversal (KuzuDB) is available but disabled by default while chunk-concept links are being rebuilt. Ships as a 22-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
+Combines full-text search (BM25), vector similarity (BGE-large 1024d), and citation authority scoring (PageRank) into a single ranked result set. Ships as a 22-tool MCP server for Claude Code, a CLI, a REST API, and a Streamlit dashboard.
+
+> **Status:** knowledge-graph traversal (KuzuDB) is disabled by default while chunk-concept links are rebuilt — enable via `--graph`.
 
 ## Features
 
-- **3-signal hybrid search** -- BM25 + vector + citation authority, with context-aware weight profiles (knowledge graph available via `--graph` flag, disabled by default pending KG re-extraction)
+- **3-signal hybrid search** -- BM25 + vector + citation authority, with context-aware weight profiles
 - **22-tool MCP server** -- plug into Claude Code for conversational access to search, graph exploration, citation networks, assumption auditing, and concept synthesis
-- **Knowledge graph** -- hundreds of thousands of extracted concepts/relationships, served by KuzuDB (disabled by default pending chunk-concept link rebuild; enable via `--graph`)
+- **Knowledge graph** -- hundreds of thousands of extracted concepts/relationships, served by KuzuDB (see status note above)
 - **Citation authority** -- PageRank-style scoring over the citation graph; bibliographic coupling for related-work discovery
 - **Multi-domain** -- 36 corpus domains, 20 extraction prompt configs, extensible to new domains
 - **Demo corpus** -- ships with scripts to download and ingest open-access arXiv papers
