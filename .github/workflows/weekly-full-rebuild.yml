@@ -105,18 +105,6 @@ jobs:
           path: /tmp/retrieval_metrics.json
           retention-days: 90
 
-      # run-7 lesson: some unit-marked storage tests use DB fixtures wired to research_kb_test
-      # (root conftest default) — the pr-checks/integration workflows get that DB from their
-      # service's POSTGRES_DB; here the service DB is the rebuilt corpus (research_kb), so the
-      # test DB must be created explicitly (fixtures handle schema themselves).
-      - name: Create unit-test database
-        env:
-          PGPASSWORD: postgres
-        run: psql -h localhost -U postgres -c 'CREATE DATABASE research_kb_test;'
-
-      - name: Run unit tests
-        env:
-          TEST_DATABASE_NAME: research_kb_test
-        run: |
-          uv run pytest -m "unit and not requires_embedding and not requires_ollama and not requires_reranker and not requires_grobid" \
-            --tb=short -q
+      # run-8 decision (2026-08-21, owner): unit tests scoped OUT of the weekly rebuild — they
+      # already run in pr-checks.yml. Run 8 failed only at this final step (async-fixture
+      # errors + 3 test drifts); the rebuild pipeline itself was green twice.
